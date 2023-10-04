@@ -1,0 +1,130 @@
+
+Basic results-------- 
+----------------------------  ------------------
+Objective Function            ModelInstance.NPC
+Yearly product load           5000.0
+Solver run time               0.3224022388458252
+Solver name                   gurobi
+Earnings Before Tax income    -3.78
+Net production costs          756.22
+Net production GHG emissions  0.803
+Net present FWD               1.127
+----------------------------  ------------------
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+5000  O2
+7000  Methanol
+ 111  Process Water
+ 112  Fluegas
+ 113  Air
+ 301  Hydrogen-Dist
+1000  Carbon capture
+2100  AEL
+2110  Hydrogen Compressor
+3000  MeOH Reaktor
+4000  Steam Generation
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -----
+CAPEX share                      20.6
+Raw material consumption share    0.3
+Operating and Maintanence share   5.84
+Electricity share                74.18
+Chilling share                    0
+Heat integration share            2.57
+Waste treatment share             0
+Profits share                    -3.48
+-------------------------------  -----
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Carbon capture        2.15
+AEL                  79.45
+Hydrogen Compressor  10
+MeOH Reaktor          6.2
+Steam Generation      2.21
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Carbon capture               0.17
+AEL                         94.14
+Hydrogen Compressor          5.48
+MeOH Reaktor                 0.22
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  ----
+Total heating demand                    0.57
+Total cooling demand                    1.61
+Total heat recovery                     0.19
+HP Steam produced                       0.06
+Internally used HP Steam                0.06
+High temperature heat pump heat supply  0
+Net heating demand                      0.38
+Net cooling demand                      1.48
+--------------------------------------  ----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                  641
+Electricity                       451
+Heat                              756
+Chilling                            0
+Plant building emissions           50
+Raw Materials / Carbon Capture   5044
+Avoided burden for byproducts   -2929
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ----
+Indirect demand from raw materials    5636
+Utilities (Electricity and chilling)     0
+Utilities (Heating)                      0
+Avoided burden from byproducds          -0
+------------------------------------  ----
+
+ 
+
+Energy data-------- 
+-----------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {6000: 0.0, 5000: 0.0, 7000: 0.0, 111: 0.0, 112: 0.0, 113: 0.0, 301: 0.0, 1000: 0.573553399031913, 2100: 0.0, 2200: 0.0, 2110: 0.0, 3000: 0.0, 4000: 0.0}
+cooling      {6000: 0.0, 5000: 0.0, 7000: 0.0, 111: 0.0, 112: 0.0, 113: 0.0, 301: 0.0, 1000: 0.22069446972424095, 2100: 1.2105353669119567, 2200: 0.0, 2110: 0.09344782789211709, 3000: 0.08732238858365701, 4000: 0.0}
+electricity  32239.16588779352
+-----------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+------------  ----
+(301, 3000)   0.08
+(1000, 3000)  0.65
+(2100, 2110)  0.08
+(2100, 5000)  0.63
+(2110, 301)   0.08
+(3000, 4000)  0.11
+(3000, 7000)  0.62
+(112, 1000)   4.85
+(111, 2100)   0.7
+(113, 4000)   0.09
+------------  ----
+
+ 

@@ -1,0 +1,840 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct  8 12:19:11 2021
+
+@author: philippkenkel
+
+
+Function list:
+    - fill data
+    - fill information
+    - tidy data
+    - save results /print results
+    - save data
+    - save file
+    - return chosen
+    - collect results
+"""
+
+
+from tabulate import tabulate
+import os
+import datetime
+import cloudpickle as pic
+import random as rnd
+
+class ModelOutput:
+
+    """
+    Class description
+    ----------------
+
+    This class is the main output class. It includes the case data such as
+    used solver, calculation time, metadata etc.
+    It also includes methods to
+        - fill data into its own structure from the given pyomo model instance
+        - Save data as .txt-file
+        - Save the output as pickle file
+        - Collect main results and display them in the console
+
+
+    """
+
+    def __init__(self, model_instance=None, solver_name=None, run_time=None, gap = None):
+        self._data = {}
+        self._solver = None
+        self._run_time = None
+        self._case_time = None
+        self._objective_function = None
+        self._product_load = None
+        self._optimality_gap = None
+        self._case_numner = None
+        self._meta_data = dict()
+
+
+
+        if model_instance is not None:
+            self._fill_data(model_instance)
+        if solver_name is not None and run_time is not None:
+            self._fill_information(solver_name, run_time, gap)
+
+# -----------------------------------------------------------------------------
+# -------------------------Private methods ------------------------------------
+# -----------------------------------------------------------------------------
+
+    def _fill_data(self, instance):
+        """
+
+        Parameters
+        ----------
+        instance : SupstructureModel Class objective that is already solved
+
+
+        Description
+        -------
+        Goes through all block of the Model object and extracts the data
+        (Parameter, Variables, Sets, Objectives) to a Python dictionary
+        that is called ProcessDesign._data
+
+        """
+
+        for i in instance.component_objects():
+
+
+            if "pyomo.core.base.var.SimpleVar" in str(type(i)):
+
+                self._data[i.local_name] = i.value
+
+            elif "pyomo.core.base.var.ScalarVar" in str(type(i)):
+                self._data[i.local_name] = i.value
+
+            elif "pyomo.core.base.param.SimpleParam" in str(type(i)):
+                self._data[i.local_name] = i.value
+
+            elif "pyomo.core.base.param.ScalarParam" in str(type(i)):
+
+                self._data[i.local_name] = i.value
+
+            elif "pyomo.core.base.param.IndexedParam" in str(type(i)):
+
+                self._data[i.local_name] = i.extract_values()
+
+            elif "pyomo.core.base.var.IndexedVar" in str(type(i)):
+                self._data[i.local_name] = i.extract_values()
+
+            elif "pyomo.core.base.set.SetProduct_OrderedSet" in str(type(i)):
+                self._data[i.local_name] = i.ordered_data()
+
+            elif "pyomo.core.base.sets.SimpleSet" in str(type(i)):
+
+                self._data[i.local_name] = i.value_list
+
+            elif "pyomo.core.base.sets.ScalarSet" in str(type(i)):
+
+                self._data[i.local_name] = i.value_list
+
+            elif "pyomo.core.base.set.OrderedScalarSet" in str(type(i)):
+                self._data[i.local_name] = i.ordered_data()
+
+            elif "pyomo.core.base.objective.SimpleObjective" in str(type(i)):
+
+                self._data["Objective Function"] = i.expr.to_string()
+
+            elif "pyomo.core.base.objective.ScalarObjective" in str(type(i)):
+
+                self._data["Objective Function"] = i.expr.to_string()
+            else:
+                continue
+
+    def _fill_information(self, solver_name, run_time, gap):
+        """
+        Parameters
+        ----------
+        solver_name : String
+        run_time : Float
+
+        Description
+        -------
+        Fills important case data of the ProcessDesign Object:
+            Solver name, Run time, Case time, Solved Objective function,
+            Yearly Product load
+
+        """
+        self._solver = solver_name
+        self._run_time = run_time
+        self._case_time = datetime.datetime.now()
+        self._case_time = str(self._case_time)
+        self._objective_function = self._data["Objective Function"]
+        self._product_load = self._data["MainProductFlow"]
+        self._optimality_gap = gap
+        self._case_number = self._case_time[0:10] + '--Nr ' + str(rnd.randint(1,10000))
+
+
+        self._meta_data['Solver name'] = solver_name
+        self._meta_data['Run time'] = run_time
+        self._meta_data['Optimality gap'] = gap
+        self._meta_data['Objective function'] = self._data['Objective Function']
+        self._meta_data['Case identifier'] = str(self._case_number)
+
+
+    def _tidy_data(self):
+        """
+        Description
+        -----------
+        Runs through data file and clears all zero values which are not important
+        to save memory space.
+
+        """
+
+        temp = dict()
+        exeptions = ["Y", "Y_DIST", "lin_CAPEX_z", "Y_HEX"]
+        for i, j in self._data.items():
+            if "index" not in i:
+                if type(j) == dict:
+                    temp[i] = dict()
+                    for k, m in j.items():
+                        if i not in exeptions:
+                            if m != 0:
+                                temp[i][k] = m
+                        else:
+                            temp[i][k] = m
+                else:
+                    temp[i] = j
+        self._data = temp
+
+    # Extracting methods to get important results
+
+    def _collect_basic_results(self):
+        """
+        Description
+        ----------
+        Calls all collector methods to fill ProcessResults.results dictionary
+        with all important results
+
+        Returns
+        -------
+        TYPE: results dictionary
+        """
+
+        model_results = dict()
+
+        basic_results = dict()
+
+        basic_results["Basic results"] = {}
+
+        basic_results["Basic results"]["Objective Function"] = self._objective_function
+
+        basic_results["Basic results"]["Yearly product load"] = self._product_load
+
+        basic_results["Basic results"]["Solver run time"] = self._run_time
+
+        basic_results["Basic results"]["Solver name"] = self._solver
+
+        basic_results["Basic results"]["Earnings Before Tax income"] = round(
+            self._data["EBIT"], 2
+        )
+
+        basic_results["Basic results"]["Net production costs"] = round(
+            self._data["NPC"], 2
+        )
+
+        basic_results["Basic results"]["Net production GHG emissions"] = round(
+            self._data["NPE"], 3
+        )
+
+        basic_results["Basic results"]["Net present FWD"] = round(
+            self._data["NPFWD"], 3
+        )
+
+        model_results.update(basic_results)
+
+        chosen_technologies = {"Chosen technologies": self.return_chosen()}
+        model_results.update(chosen_technologies)
+
+        return model_results
+
+    def _collect_capitalcost_shares(self):
+        """
+        Decription
+        ----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are the shares (in %) of different unit-operations
+        in the total annual capital investment. Data is returned as dictionary
+
+        Returns
+        -------
+        capitalcost_shares : Dictionary
+
+        """
+        model_data = self._data
+
+        capitalcost_shares = {"Capital costs shares": {}}
+
+        total_costs = model_data["CAPEX"]
+
+        capitalcost_shares["Capital costs shares"]["Heat pump"] = round(
+            model_data.get("ACC_HP", 0) / total_costs * 100, 2
+        )
+
+        for i, j in model_data["ACC"].items():
+            if j >= 1e-3:
+                index_name = model_data["Names"][i]
+                capitalcost_shares["Capital costs shares"][index_name] = round(
+                    (j + model_data.get("TO_CAPEX", 0).get(i, 0)) / total_costs * 100, 2
+                )
+
+        return capitalcost_shares
+
+    def _collect_economic_results(self):
+        """
+        Description
+        -----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are base economic values, and depict the shares
+        of the total costs of:
+            CAPEX (all unit-operations)
+            Raw material purchase
+            Electricity costs
+            Chilling costs
+            Heat integration costs (Heating, Cooling utilities as well as HEN)
+            Operating and Maintenance
+            Waste water treatment
+            Profits from Byproducts
+
+        Returns
+        -------
+        economic_results : Dictionary
+
+        """
+
+        model_data = self._data
+
+        economic_results = {"Economic results": {}}
+
+        total_costs = model_data["TAC"] / 1000
+
+        profits = 0
+        wwt = 0
+
+        for i, j in model_data["PROFITS"].items():
+            if j < 0:
+                wwt -= j * model_data["H"] / 1000
+            else:
+                profits -= j * model_data["H"] / 1000
+
+        economic_results["Economic results"]["CAPEX share"] = round(
+            model_data.get("CAPEX", 0) / total_costs * 100, 2
+        )
+
+        economic_results["Economic results"]["Raw material consumption share"] = round(
+            model_data.get("RM_COST_TOT", 0) / 1000 / total_costs * 100, 2
+        )
+
+        economic_results["Economic results"]["Operating and Maintanence share"] = round(
+            model_data.get("M_COST_TOT", 0) / total_costs * 100, 2
+        )
+
+        economic_results["Economic results"]["Electricity share"] = round(
+            (
+                model_data.get("ENERGY_COST", 0).get("Electricity", 0)
+                + model_data.get("ELCOST", 0)
+            )
+            / 1000
+            / total_costs
+            * 100,
+            2,
+        )
+
+        economic_results["Economic results"]["Chilling share"] = round(
+            model_data.get("ENERGY_COST", 0).get("Chilling", 0)
+            / 1000
+            / total_costs
+            * 100,
+            2,
+        )
+
+        economic_results["Economic results"]["Heat integration share"] = round(
+            model_data.get("C_TOT", 0) / 1000 / total_costs * 100, 2
+        )
+
+        economic_results["Economic results"]["Waste treatment share"] = round(
+            wwt / total_costs * 100, 2
+        )
+
+        economic_results["Economic results"]["Profits share"] = round(
+            profits / total_costs * 100, 2
+        )
+
+        return economic_results
+
+    def _collect_electricity_shares(self):
+        """
+        Description
+        -----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are the shares (in %) of different unit-operations
+        in the total electricity demand.
+
+        Returns
+        -------
+        electricity_shares : Dictionary
+
+
+        """
+        model_data = self._data
+
+        electricity_shares = {"Electricity demand shares": {}}
+
+        total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
+
+        for i, j in model_data["ENERGY_DEMAND"].items():
+            if i[1] == "Electricity" and j >= 1e-05:
+                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+
+        electricity_shares["Electricity demand shares"][
+            "Heatpump electricity share"
+        ] = round(
+            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / total_el * 100,
+            2,
+        )
+
+        for i, j in model_data["ENERGY_DEMAND"].items():
+            if i[1] == "Electricity" and j >= 1e-05:
+                index_name = model_data["Names"][i[0]]
+                electricity_shares["Electricity demand shares"][index_name] = round(
+                    j * model_data.get("flh", 0).get(i[0], 0) / total_el * 100, 2
+                )
+
+        return electricity_shares
+
+    def _collect_heatintegration_results(self):
+        """
+        Description
+        -----------
+
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are basic heat integration data:
+            Total heating / cooling demand (in MW)
+            Total heat recovery (from unit-operations) (in MW)
+            Total High pressure steam production, internal (in MW)
+            Total internal usage of this HP steam (rest is sold to market)
+            Total Heat supplied by High Temperature heat pump (in MW)
+            Net heating and cooling demand (in MW)
+
+        Returns
+        -------
+        heatintegration_results : Dictionary
+
+
+        """
+        model_data = self._data
+
+        heatintegration_results = {"Heating and cooling": {}}
+
+        total_heating = 0
+        total_cooling = 0
+        net_heating = 0
+        steam = 0
+
+        for i in model_data["ENERGY_DEMAND_HEAT_UNIT"].values():
+            if i >= 1e-05:
+                total_heating += i
+
+        for i in model_data["ENERGY_DEMAND_COOL_UNIT"].values():
+            if i >= 1e-05:
+                total_cooling += i
+
+        for i in model_data["ENERGY_DEMAND_HEAT_PROD"].values():
+            if i >= 1e-05:
+                steam += i
+
+        for i in model_data["ENERGY_DEMAND_HEAT_DEFI"].values():
+            if i >= 1e-05:
+                net_heating += i
+
+        heatintegration_results["Heating and cooling"]["Total heating demand"] = round(
+            total_heating, 2
+        )
+
+        heatintegration_results["Heating and cooling"]["Total cooling demand"] = round(
+            total_cooling, 2
+        )
+
+        heatintegration_results["Heating and cooling"]["Total heat recovery"] = round(
+            model_data["EXCHANGE_TOT"], 2
+        )
+
+        heatintegration_results["Heating and cooling"]["HP Steam produced"] = round(
+            steam, 2
+        )
+
+        heatintegration_results["Heating and cooling"][
+            "Internally used HP Steam"
+        ] = round(model_data.get("ENERGY_DEMAND_HEAT_PROD_USE", 0), 2)
+
+        heatintegration_results["Heating and cooling"][
+            "High temperature heat pump heat supply"
+        ] = round(model_data.get("ENERGY_DEMAND_HP_USE", 0), 2)
+
+        heatintegration_results["Heating and cooling"]["Net heating demand"] = round(
+            net_heating, 2
+        )
+
+        heatintegration_results["Heating and cooling"]["Net cooling demand"] = round(
+            model_data.get("ENERGY_DEMAND_COOLING", 0), 2
+        )
+
+        return heatintegration_results
+
+    def _collect_GHG_results(self):
+        """
+        Description
+        -----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are the annual GHG emissions from:
+            Direct emissions in unit-operations (sum in t/y)
+            Indirect emissions from Electricity and Chilling (sum in t/y)
+            Indirect emissions from Heat (sum in t/y)
+            Emissions from building the plant (t/y)
+            Emissions from buying raw materials / Negative emissions
+                from carbon capture (t/y)
+            Avoided burden credits from byproduct selling (t/y)
+
+        Returns
+        -------
+        GHG_results : Dictionary
+
+        """
+        model_data = self._data
+
+        GHG_results = {"Green house gas emission shares": {}}
+
+        ghg_d = 0
+        ghg_b = 0
+        ghg_ab = 0
+
+        for i in model_data["GWP_U"].values():
+            if i is not None and i >= 1e-05:
+                ghg_d += i
+
+        for i in model_data["GWP_UNITS"].values():
+            if i is not None and i >= 1e-05:
+                ghg_b += i
+
+        for i in model_data["GWP_CREDITS"].values():
+            if i is not None and i >= 1e-05:
+                ghg_ab += i
+
+        GHG_results["Green house gas emission shares"]["Direct emissions"] = round(
+            ghg_d, 0
+        )
+
+        GHG_results["Green house gas emission shares"]["Electricity"] = round(
+            model_data.get("GWP_UT", 0).get("Electricity", 0), 0
+        )
+
+        GHG_results["Green house gas emission shares"]["Heat"] = round(
+            model_data.get("GWP_UT", 0).get("Heat", 0), 0
+        )
+
+        GHG_results["Green house gas emission shares"]["Chilling"] = round(
+            model_data.get("GWP_UT", 0).get("Chilling", 0), 0
+        )
+
+        GHG_results["Green house gas emission shares"][
+            "Plant building emissions"
+        ] = round(ghg_b, 0)
+
+        GHG_results["Green house gas emission shares"][
+            "Raw Materials / Carbon Capture"
+        ] = round(-model_data["GWP_CAPTURE"], 0)
+
+        GHG_results["Green house gas emission shares"][
+            "Avoided burden for byproducts"
+        ] = round(-ghg_ab, 0)
+
+        return GHG_results
+
+    def _collect_FWD_results(self):
+        """
+        Description
+        -----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are the annual fresh water demand from:
+            Indirect demand from Electricity and Chilling (sum in t/y)
+            Indirect demand from Heat (sum in t/y)
+            Demand from buying raw materials
+            Avoided burden credits from byproduct selling (t/y)
+
+        Returns
+        -------
+        FWD_results: Dictionary
+        """
+
+        model_data = self._data
+
+        FWD_results = {"Fresh water demand shares": {}}
+
+        FWD_results["Fresh water demand shares"][
+            "Indirect demand from raw materials"
+        ] = round(-model_data.get("FWD_S", 0), 0)
+
+        FWD_results["Fresh water demand shares"][
+            "Utilities (Electricity and chilling)"
+        ] = round(model_data.get("FWD_UT1", 0), 0)
+
+        FWD_results["Fresh water demand shares"]["Utilities (Heating)"] = round(
+            model_data.get("FWD_UT2", 0), 0
+        )
+
+        FWD_results["Fresh water demand shares"][
+            "Avoided burden from byproducds"
+        ] = round(-model_data.get("FWD_C", 0), 0)
+
+        return FWD_results
+
+    def _collect_energy_data(self):
+
+        model_data = self._data
+
+        energy_data = {"Energy data": {}}
+
+        heat_demand = model_data["ENERGY_DEMAND_HEAT_UNIT"]
+        cool_demand = model_data["ENERGY_DEMAND_COOL_UNIT"]
+
+        total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
+
+        for i, j in model_data["ENERGY_DEMAND"].items():
+            if i[1] == "Electricity" and abs(j) >= 1e-05:
+                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+
+        energy_data["Energy data"]["heat"] = heat_demand
+        energy_data["Energy data"]["cooling"] = cool_demand
+        energy_data["Energy data"]["electricity"] = total_el
+
+        return energy_data
+
+    def _collect_mass_flows(self):
+
+        model_data = self._data
+        mass_flow_data = {"Mass flows": {}}
+
+        for i, j in model_data["FLOW_FT"].items():
+            if j > 1e-04:
+                mass_flow_data["Mass flows"][i] = round(j, 2)
+
+        for i, j in model_data["FLOW_ADD"].items():
+            if j > 1e-04:
+                mass_flow_data["Mass flows"][i] = round(j, 2)
+
+        return mass_flow_data
+
+    def _collect_techno_economic_results(self):
+        self.results = dict()
+
+        model_data = self.model_output._data
+
+        base_data = self.model_output._collect_results()
+
+        self.results.update(base_data)
+        chosen_technologies = {"Chosen technologies": self.model_output.return_chosen()}
+        self.results.update(chosen_technologies)
+
+        self.results.update(self._collect_economic_results(model_data))
+        self.results.update(self._collect_capitalcost_shares(model_data))
+        self.results.update(self._collect_electricity_shares(model_data))
+        self.results.update(self._collect_heatintegration_results(model_data))
+        self.results.update(self._collect_energy_data(model_data))
+
+        return self.results
+
+    def _collect_environmental_data(self):
+
+        self.results = dict()
+        model_data = self.model_output._data
+        self.results.update(self._collect_GHG_results(model_data))
+        self.results.update(self._collect_FWD_results(model_data))
+
+        return self.results
+
+    def _collect_results(self):
+        """
+        Description
+        ----------
+        Calls all collector methods to fill ProcessResults.results dictionary
+        with all important results
+
+        Returns
+        -------
+        TYPE: results dictionary
+
+
+        """
+
+        self.results = {}
+
+        self.results.update(self._collect_basic_results())
+
+        chosen_technologies = {'Chosen technologies': self.return_chosen()}
+        self.results.update(chosen_technologies)
+
+        self.results.update(self._collect_economic_results())
+        self.results.update(self._collect_capitalcost_shares())
+        self.results.update(self._collect_electricity_shares())
+        self.results.update(self._collect_heatintegration_results())
+        self.results.update(self._collect_GHG_results())
+        self.results.update(self._collect_FWD_results())
+        self.results.update(self._collect_energy_data())
+        self.results.update(self._collect_mass_flows())
+
+    def _save_results(self, model_results, path):
+        """
+        Parameters
+        ----------
+        path : String type of where to save the results as .txt file
+
+        Decription
+        -------
+        Collects all important results from the ProcessResults Class object and
+        saves the data as tables in a text file.
+
+        """
+        all_results = model_results
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path = path + "/results" + self._case_number + ".txt"
+
+
+        with open(path, encoding="utf-8", mode="w") as f:
+
+            for i, j in all_results.items():
+                table = tabulate(j.items())
+
+                f.write("\n")
+                f.write(i)
+                f.write("-------- \n")
+                f.write(table)
+                f.write("\n")
+                f.write("\n \n")
+
+            print("")
+
+    def _print_results(self, model_data):
+        """
+        Description
+        -------
+        Collects all important results data and prints them as tables to the
+        console.
+
+        """
+
+        all_results = model_data
+
+        for i, j in all_results.items():
+            print("")
+            print("")
+            print(i)
+            print("--------------")
+            print(tabulate(j.items()))
+            print("")
+
+# -----------------------------------------------------------------------------
+# -------------------------Public methods -------------------------------------
+# -----------------------------------------------------------------------------
+
+    def get_results(self, pprint=True, savePath=None):
+        """
+
+        Parameters
+        ----------
+        pprint : Boolean, optional, default is True
+            DESCRIPTION: Defines if results should be printed to console
+        save : String, optional
+            DESCRIPTION: Defines path where results should be saved, if kept
+            blank results are not saved as .txt-file.
+
+        Description
+        -----------
+        Collects the most important model results
+        by calling private function '_collect_results'.
+        Afterwards optionally prints them and saves them.
+
+        """
+        self._collect_results()
+        model_results = self.results
+
+        if pprint is True:
+            self._print_results(model_results)
+
+        if savePath is not None:
+            self._save_results(model_results, savePath)
+
+    def save_data(self, path):
+        """
+        Parameters
+        ----------
+        path : String type of where to save the complete data as .txt file
+
+
+        Decription
+        -------
+        Collects all data from the ProcessResults Class object and saves the
+        data as tables in a text file.
+
+        """
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path = path + "/" + "input_file " + self._case_number + "_data.txt"
+
+        with open(path, encoding="utf-8", mode="w") as f:
+
+            for i, j in self._data.items():
+                f.write(f"{i}: {j} \n \n")
+
+    def save_file(self, path, option="raw"):
+        """
+        Parameters
+        ----------
+        path : String type of where to save the ProcessResults object as pickle
+            class object.
+        option: String, default is 'raw' which saves all data also including zero
+            values. If this value is set to 'tidy' an cleaning algorithm deletes
+            zero values which saves data space.
+
+        Description
+        ----------
+        Saves the output file as a pickle-file, which can be laoded into an
+        Analyzer-Object on another machine or at a different time.
+
+        """
+        if option == "tidy":
+            self._tidy_data()
+
+        path = path + "/" + "data_file " + self._case_number + ".pkl"
+
+        with open(path, "wb") as output:
+            pic.dump(self, output)
+
+    def return_chosen(self):
+        """
+        Returns
+        -------
+        chosen : Dictionary
+
+        Description
+        -----------
+        Checks in the data structure which unit-operations are chosen based on
+        binary variables and minimal mass flows. Afterwards saves the results
+        and returns a dictionary with the chosen index numbers and defined names.
+
+        """
+        flow = self._data["FLOW_SUM"]
+        flow_s = self._data["FLOW_SOURCE"]
+
+        y = self._data["Y"]
+        names = self._data["Names"]
+        chosen = {}
+
+        for i, j in y.items():
+            if j == 1:
+                try:
+                    if flow[i] >= 0.001:
+                        chosen[i] = names[i]
+                except:
+                    pass
+
+            else:
+                try:
+                    if flow_s[i] >= 0.001:
+                        chosen[i] = names[i]
+                except:
+                    pass
+
+        return chosen
+
+
