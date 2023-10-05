@@ -43,14 +43,19 @@ class SuperstructureModel(AbstractModel):
                 - Objective name (NPC/NPE/NPFWD)
         """
 
-        # todo product driver option is not implemented yet
         self.productDriven = superstructure_input.productDriven
 
-        self.heat_pump_options = {
-            "active": superstructure_input.HP_active,
-            "t_in": superstructure_input.HP_T_IN["Interval"],
-            "t_out": superstructure_input.HP_T_OUT["Interval"],
-        }
+        if superstructure_input.HP_active:
+            self.heat_pump_options = {
+                "active": superstructure_input.HP_active,
+                "t_in": superstructure_input.HP_T_IN["Interval"],
+                "t_out": superstructure_input.HP_T_OUT["Interval"],
+            }
+        else:
+            self.heat_pump_options = {
+                "active": superstructure_input.HP_active,
+                "t_in": 0,
+                "t_out": 0}
 
         self.objective_name = superstructure_input.objective
         self.groups = superstructure_input.groups
@@ -218,7 +223,8 @@ class SuperstructureModel(AbstractModel):
         # cost parameters
         self.materialcosts = Param(self.U_S, initialize=0)
 
-        # TODO what is Decimal_numbers ????
+        # Decimal_numbers help to model the distributor equations
+        # it sets the degree of "detail" for the distributor
         self.Decimal_numbers = Param(self.DC_SET)
 
         # Variables

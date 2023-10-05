@@ -17,10 +17,11 @@ import outdoor
 
 
 Excel_Path = "Test_small_AgriLoop.xlsm"
-Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\examples\results\Agriloop_test"
+#Excel_Path = "Test_AgriLoop_recycle.xlsm"
 
-# delete all file in the results directory
-delete_all_files_in_directory(Results_Path)
+Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
+
+
 
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
 
@@ -39,8 +40,10 @@ print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 
 model_output.get_results(savePath=Results_Path) # if you want to save the results as a txt file, you have to specify the path
 
+# delete old file in the results directory
+delete_all_files_in_directory(Results_Path)
 
-# save and analyze the results
+# save and analyze the new results
 analyzer = outdoor.BasicModelAnalyzer(model_output)
 
 
