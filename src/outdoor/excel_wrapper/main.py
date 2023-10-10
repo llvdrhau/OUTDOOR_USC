@@ -65,6 +65,7 @@ def get_DataFromExcel(PathName=None):
     Hidden_Tables.append('Template_ProductPool')
     Hidden_Tables.append('DataBank')
     Hidden_Tables.append('Component Databases')
+    Hidden_Tables.append('Uncertainty_test_idea')
 
     number_of_processes = len(datframe.keys()) - len(Hidden_Tables)
     count = 0
@@ -75,18 +76,25 @@ def get_DataFromExcel(PathName=None):
             Superstructure_Object = wrapp_SystemData(datframe[i])
         elif i in Hidden_Tables:
             continue
+
         elif i == "Pools":
             pools = wrapp_productPoolUnits(datframe[i])
             for k in pools:
                 PU_ObjectList.append(k)
+
         elif i == "Sources":
             sources = wrapp_sourceUnits(datframe[i])
             for k in sources:
                 PU_ObjectList.append(k)
+
         elif i == 'Distributor':
             distributors = wrapp_distributors(datframe[i])
             for k in distributors:
                 PU_ObjectList.append(k)
+
+        elif i == 'Uncertainty':
+            continue
+
         else: # for the unit operations
             PU_ObjectList.append(wrapp_processUnits(datframe[i]))
 

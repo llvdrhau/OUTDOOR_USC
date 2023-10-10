@@ -64,7 +64,8 @@ class Superstructure():
         self.OPTIMIZATION_MODE_SET = {'single',
                                       'multi-objective',
                                       'sensitivity',
-                                      'cross-parameter sensitivity'}
+                                      'cross-parameter sensitivity',
+                                      '2-stage-recourse'}
 
         self.SENSITIVE_PARAMETERS_SET = {'electricity_price',
                                          'heat_price',

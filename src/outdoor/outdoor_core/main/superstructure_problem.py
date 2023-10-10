@@ -166,6 +166,16 @@ class SuperstructureProblem:
         Afterwards prepares mutable parameters (if required) and populates model
 
         """
+        # create a error warning if the optimisation mode in the excel is not the same as the one given from the script
+        optimisationModeExcel = input_data.optimization_mode
+        optimisationModeScript = optimization_mode
+
+        if optimisationModeExcel != optimisationModeScript:
+            raise ValueError(f"The optimisation mode in the excel file is {optimisationModeExcel} "
+                             f"and the one given from the script is {optimisationModeScript}. "
+                             f"Please check the excel file or script.")
+
+
         timer = time_printer(programm_step="DataFile, Model- and ModelInstance setup")
         data_file = input_data.create_DataFile()
         model = SuperstructureModel(input_data)
@@ -299,13 +309,8 @@ class SuperstructureProblem:
         """
         nan_parameters = []
 
-        parameter_declarations = list(model.component_data_objects(Param, active=True))
+        #parameter_declarations = list(model.component_data_objects(Param, active=True))
 
-        # Extract and print the values of the parameters
-        # for param_declaration in parameter_declarations:
-        #     param_name = param_declaration.name
-        #     param_value = param_declaration()
-        #     print(f"Parameter {param_name}: {param_value}")
 
         #Iterate through all active parameters in the model
         for component in model.component_objects(Param, active=True):
@@ -315,18 +320,21 @@ class SuperstructureProblem:
                 # if isinstance(param_value, str):
                 #     continue
                 try:
-                    if np.isnan(param_value):
+                    if np.isnan(param_value) and not isinstance(param_value, str):
                         nan_parameters.append((component, key, param_value))
                 except:
                     nan_parameters.append((component, key, param_value))
-                    # todo filter out string parameters
 
 
 
         if nan_parameters:
-            print("The following parameters have NaN values:")
+            print("The following parameters have None values, check if they are correct:")
             for param in nan_parameters:
-                print(f"Parameter {param[0].name}[{param[1]}]: {param[2]}")
+                if isinstance(param[2],str):
+                    # if a string delete the value from the list
+                    nan_parameters.remove(param)
+                else:
+                    print(f"Parameter {param[0].name}[{param[1]}]: {param[2]}")
 
             #raise ValueError("NaN values in parameters detected. Please check the model.")
 

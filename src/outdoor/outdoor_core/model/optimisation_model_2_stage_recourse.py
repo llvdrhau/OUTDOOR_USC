@@ -1,18 +1,24 @@
+""""
+Created on 10/10/2023
+@Author: Lucas Van der Hauwaert, Philipp Kenkel
+Email: Lucas.vanderhauwaert@usc.es
+"""
+
 from pyomo.environ import *
 
 
 
-class SuperstructureModel(AbstractModel):
+class SuperstructureModel_2_Stage_recourse(AbstractModel):
     """
     Class description
     -----------------
 
     This class holds the mathematical model equations to describe a superstructure
     model. It defines classical modeling components like sets, parameter, variables
-    and constraints.
+    and constraints. The model created is a two-stage recourse model with
 
-    The model inlcudes mass balances, energy balances inlcuding detailed
-    heat intergration based on heat intervals, cost functions using piece-wise
+    The model includes mass balances, energy balances including detailed
+    heat integration based on heat intervals, cost functions using piece-wise
     linear capital costs and operational costs based on utilities, raw materials,
     operating and maintenance and other aspects. Additionally GWP and fresh
     water demand are calculated.
