@@ -16,7 +16,7 @@ def read_type1(df, Col1, Col2):
     """
     Description
     -----------
-    There is an Dataframe with different coloumns
+    There is a Dataframe with different columns
     function read TWO specific columns and add the value in an dict
 
     Context

@@ -9,15 +9,13 @@ Created on Thu Apr  2 11:25:35 2020
 
 import pandas as pd
 
-from .wrapp_processes import wrapp_processUnits
-from .wrapp_processes import wrapp_productPoolUnits
-from .wrapp_processes import wrapp_sourceUnits
-from .wrapp_processes import wrapp_distributors
+from .wrapp_processes import wrapp_processUnits, wrapp_productPoolUnits, wrapp_sourceUnits, wrapp_distributors
 
 from ..outdoor_core.utils.timer import time_printer
 
-
 from .wrapp_system import wrapp_SystemData
+
+from .wrapp_stochastic_data import wrapp_stochastic_data
 
 # function for Pandafunction to read an excelfile:
 
@@ -70,11 +68,15 @@ def get_DataFromExcel(PathName=None):
     number_of_processes = len(datframe.keys()) - len(Hidden_Tables)
     count = 0
 
+    # the Systemblatt is the first sheet in the Excel file and must always be present in the Excel file
+    Superstructure_Object = wrapp_SystemData(datframe['Systemblatt'])
+
 
     for i in datframe.keys():
         if i == 'Systemblatt':
-            Superstructure_Object = wrapp_SystemData(datframe[i])
-        elif i in Hidden_Tables:
+            continue
+
+        elif i == 'Uncertainty':
             continue
 
         elif i == "Pools":
@@ -92,8 +94,8 @@ def get_DataFromExcel(PathName=None):
             for k in distributors:
                 PU_ObjectList.append(k)
 
-        elif i == 'Uncertainty':
-            continue
+        elif i in Hidden_Tables:
+            continue # skip the hidden tables
 
         else: # for the unit operations
             PU_ObjectList.append(wrapp_processUnits(datframe[i]))
@@ -104,11 +106,15 @@ def get_DataFromExcel(PathName=None):
         count += 1
 
 
-
-
-
     Superstructure_Object.add_UnitOperations(PU_ObjectList)
     timer = time_printer(timer, 'Exctract data from excel')
+
+    # TODO make modification to stochastic case here
+    if Superstructure_Object.optimization_mode == '2-stage-recourse':
+        df_stochastic = datframe['Uncertainty']
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic)
+        Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
+
     return Superstructure_Object
 
 

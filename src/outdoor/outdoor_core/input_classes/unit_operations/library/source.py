@@ -29,6 +29,7 @@ class Source(VirtualProcess):
     def __init__(self, Name,
                  UnitNumber,
                  Parent = None,
+                 stochasticFlag = False,
                  *args,
                  **kwargs):
 
@@ -41,7 +42,7 @@ class Source(VirtualProcess):
         self.UpperLimit = {'ul': {self.Number: None}}
         self.EmissionFactor = {'em_fac_source': {self.Number: 0}}
         self.FreshWaterFactor = {'fw_fac_source': {self.Number: 0}}
-
+        self.StochasticFlag = stochasticFlag
 
 
     def fill_unitOperationsList(self, superstructure):
@@ -71,7 +72,13 @@ class Source(VirtualProcess):
 
     def __set_composition(self, composition_dic):
         for i in composition_dic:
-            self.Composition['phi'][(self.Number,i)] = composition_dic[i]
+            self.Composition['phi'][(self.Number, i)] = composition_dic[i]
+        # if self.StochasticFlag == True:
+        #     for i in composition_dic:
+        #         self.Composition['phi'][(self.Number,i)] = composition_dic[i]
+        # else:
+        #     for i in composition_dic:
+        #         self.Composition['phi'][(self.Number,i)] = composition_dic[i]
 
     def __set_lowerlimit(self, LowerLimit):
         self.LowerLimit['ll'][self.Number] = LowerLimit

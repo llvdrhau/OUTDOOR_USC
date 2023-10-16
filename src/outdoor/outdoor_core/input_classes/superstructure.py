@@ -1223,3 +1223,20 @@ class Superstructure():
                 finally:
                     return self.Data_File
 
+
+    def set_uncertainty_data(self, uncertaintyObject):
+
+        for unit in self.UnitsList:
+           if unit.Type == "Source":
+               composition = unit.Composition
+
+
+
+        # def __set_composition(self, composition_dic):
+        #     for i in composition_dic:
+        #         self.Composition['phi'][(self.Number, i)] = composition_dic[i]
+
+
+
+        raise NotImplementedError('This method is not implemented yet')
+        pass
