@@ -1223,20 +1223,146 @@ class Superstructure():
                 finally:
                     return self.Data_File
 
+    def set_unit_uncertainty(self, uncertaintyObject, parameterName, oldDict):
+        """"
+        This function created the sets needed to define the uncertainty of a unit
+        Inputs:
+            uncertaintyObject: the object that contains the uncertainty information
+            parameterName: the name of the parameter that we want to change
+            oldDict: the dictionary that contains the old values of the parameter
+
+        Output:
+            newCompostionDict: the dictionary that contains the new values of the parameter
+        """
+
+        UncMatrix = uncertaintyObject.UncertaintyMatrix
+        scenarioList = uncertaintyObject.ScenarioList
+        parameterDict = uncertaintyObject.LableDict[parameterName]
+
+        composition = oldDict
+        compostionDict = composition[parameterName]
+        newCompostionDict = {parameterName: {}}
+
+        for key, value in compostionDict.items():
+            if key in parameterDict.keys():
+                # if the variable is in the parameter dictionary, it means that it is a scenario sensitive parameter
+                # and we need to change it based on the uncertainty matrix
+                columnNameMatrix = parameterDict[key]
+                uncertaintySeries = UncMatrix[columnNameMatrix]
+                for i, sc in enumerate(scenarioList):
+                    if not isinstance(key, tuple):
+                        # the key is not a tuple in the case of raw material costs and product prices
+                        new_tuple = (key, sc)
+                    else:
+                        new_tuple = key + (sc,)
+
+                    newCompostionDict[parameterName][new_tuple] = value + value * uncertaintySeries[i]
+            else:
+                # if the variable is not in the parameter dictionary,
+                # it means that the variable does not need to change for the scenarios
+                for i, sc in enumerate(scenarioList):
+                    if not isinstance(key, tuple):
+                        # the key is not a tuple in the case of raw material costs and product prices
+                        new_tuple = (key, sc)
+                    else:
+                        new_tuple = key + (sc,)
+                    newCompostionDict[parameterName][new_tuple] = value
+
+        return newCompostionDict
+
 
     def set_uncertainty_data(self, uncertaintyObject):
-
+        """"
+        Sets the parameters of the units based on the uncertainty object
+        Inputs:
+            uncertaintyObject: the object that contains the uncertainty information
+        Output:
+            Updated units list
+        """
         for unit in self.UnitsList:
-           if unit.Type == "Source":
-               composition = unit.Composition
+
+            if unit.Type == "ProductPool":
+
+                # update the product prices
+                newPriceDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='ProductPrice',
+                                                         oldDict=unit.ProductPrice)
+                unit.ProductPrice = newPriceDict
+
+            elif unit.Type == "Source":
+
+                # update the composition
+                newCompostionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                             parameterName='phi',
+                                                             oldDict=unit.Composition)
+                unit.Composition = newCompostionDict
+
+                # update the material cost prices
+                newPriceDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='materialcosts',
+                                                         oldDict=unit.MaterialCosts)
+                unit.MaterialCosts = newPriceDict
+
+            elif unit.Type == "PhysicalProcess":
+                newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='myu',
+                                                         oldDict=unit.myu)
+                unit.myu = newSplitDict
 
 
+            elif unit.Type == "Stoich-Reactor":
+                # here we need to change 3 paramerter:
+                # 1) myu (splitfactor)
+                newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='myu',
+                                                         oldDict=unit.myu)
+                unit.myu = newSplitDict
 
-        # def __set_composition(self, composition_dic):
-        #     for i in composition_dic:
-        #         self.Composition['phi'][(self.Number, i)] = composition_dic[i]
+                # 2) gamma (stoichiometry)
+                newGammaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='gamma',
+                                                         oldDict=unit.gamma)
+                unit.gamma = newGammaDict
+
+                # 3) theta (conversion)
+                newThetaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='theta',
+                                                         oldDict=unit.theta)
+                unit.theta = newThetaDict
+
+            elif unit.Type == "Yield-Reactor":
+                # modify the split factor
+                newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='myu',
+                                                         oldDict=unit.myu)
+                unit.myu = newSplitDict
+
+                # 2) modify the xi (yield)
+                newXiDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='xi',
+                                                         oldDict=unit.xi)
+                unit.xi = newXiDict
+
+            elif unit.Type == "HeatGenerator" or unit.Type == "ElectricityGenerator":
+                # update the split factors
+                newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='myu',
+                                                         oldDict=unit.myu)
+                unit.myu = newSplitDict
+
+                # update the gamma
+                newGammaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='gamma',
+                                                         oldDict=unit.gamma)
+                unit.gamma = newGammaDict
+
+                # update the theta
+                newThetaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                         parameterName='theta',
+                                                         oldDict=unit.theta)
+                unit.theta = newThetaDict
 
 
+        print("Uncertainty data is set")
 
-        raise NotImplementedError('This method is not implemented yet')
-        pass
+

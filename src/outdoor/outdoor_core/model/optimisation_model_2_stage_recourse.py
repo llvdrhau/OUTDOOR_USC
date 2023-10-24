@@ -182,7 +182,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.U_DIST_SUB2 = Set(within=self.U_DIST_SUB * self.U_DIST * iterator(100))
 
 
-        # set for 2 stage linear recourse problems (recourse stage)
+        # Set to describe the scenarios of the 2 stage linear recourse problems
         self.SC = Set()
 
     # **** MASS BALANCES *****
@@ -213,6 +213,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.xi = Param(self.U_YIELD_REACTOR, self.I, self.SC, initialize=0)
         # split factors
         self.myu = Param(self.U_CONNECTORS, self.I, self.SC, initialize=0)
+        # cost parameters raw material
+        self.materialcosts = Param(self.U_S, self.SC, initialize=0)
+        # uncertain product prices
+        self.ProductPrice = Param(self.U_PP, self.SC, initialize=0)
+
 
         # Flow parameters (Split factor, concentrations, full load hours)
         self.conc = Param(self.U, initialize=0)
@@ -234,7 +239,6 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.Y_DIST = Var(self.U_DIST_SUB2, self.SC, within=Binary)
 
 
-
         # Inernt components switch
         self.ic_on = Param(self.U_YIELD_REACTOR, initialize=0)
 
@@ -251,8 +255,6 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.ll = Param(self.U_S, initialize=0)
 
 
-        # cost parameters
-        self.materialcosts = Param(self.U_S, initialize=0)
 
 
 
@@ -908,7 +910,8 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.delta_ut = Param(self.U_UT, initialize=0)
         self.delta_q = Param(self.HI, initialize=30)
         self.delta_cool = Param(initialize=15)
-        self.ProductPrice = Param(self.U_PP, initialize=0)
+
+
 
         # Cost factors (CAPEX, Heat Pump)
         self.DC = Param(self.U, initialize=0)
@@ -968,10 +971,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.HENCOST = Var(self.HI, self.SC, within=NonNegativeReals)
         self.UtCosts = Var(self.SC)
 
-        # variables depented on the scenarios
+        # variables depended on the scenarios
         self.PROFITS = Var(self.U_PP, self.SC)
         self.PROFITS_TOT = Var(self.SC)
         self.TAC = Var(self.SC)
+
 
         # Constraints
         # -----------
@@ -1163,7 +1167,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # RM = Raw Materials
         def RM_CostBalance_1_rule(self,sc):
             return self.RM_COST_TOT[sc] == sum(
-                self.materialcosts[u_s] * self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] / 1000
+                self.materialcosts[u_s, sc] * self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] / 1000
                 for u_s in self.U_S
             )
 
@@ -1195,7 +1199,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def Profit_1_rule(self, u, sc):
             return (
                 self.PROFITS[u, sc]
-                == sum(self.FLOW_IN[u, i, sc] for i in self.I) * self.ProductPrice[u] / 1000
+                == sum(self.FLOW_IN[u, i, sc] for i in self.I) * self.ProductPrice[u,sc] / 1000
             )
 
         def Profit_2_rule(self, sc):

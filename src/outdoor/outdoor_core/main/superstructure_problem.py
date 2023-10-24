@@ -57,7 +57,7 @@ class SuperstructureProblem:
     def solve_optimization_problem(
         self,
         input_data=None,
-        optimization_mode="single",
+        optimization_mode= None,
         solver="gurobi",
         interface="local",
         solver_path=None,
@@ -106,6 +106,10 @@ class SuperstructureProblem:
             4) optimizer.run_optimization()
 
         """
+
+        if optimization_mode is None:
+            optimization_mode = input_data.optimization_mode
+
 
         solving_time = time_printer(
             programm_step="Superstructure optimization procedure"

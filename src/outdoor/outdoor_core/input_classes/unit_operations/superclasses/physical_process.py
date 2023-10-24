@@ -27,6 +27,9 @@ class PhysicalProcess(Process):
 
         super().__init__(Name, UnitNumber, Parent)
 
+        # Non'indexed Attributes
+        self.Type = "PhysicalProcess"
+
         # Indexed Attributes
         self.LT  = {'LT': {self.Number: None}}
         self.em_fac_unit = {'em_fac_unit': {self.Number: None}}

@@ -109,7 +109,6 @@ def get_DataFromExcel(PathName=None):
     Superstructure_Object.add_UnitOperations(PU_ObjectList)
     timer = time_printer(timer, 'Exctract data from excel')
 
-    # TODO make modification to stochastic case here
     if Superstructure_Object.optimization_mode == '2-stage-recourse':
         df_stochastic = datframe['Uncertainty']
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)

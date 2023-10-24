@@ -22,7 +22,6 @@ Excel_Path = "Test_small_AgriLoop.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
 
 
-
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
 
 
@@ -30,8 +29,7 @@ superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
-                                                         interface='local',
-                                                         optimization_mode= "single")
+                                                         interface='local')
 
 
 current, peak = tracemalloc.get_traced_memory()

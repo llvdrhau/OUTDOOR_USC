@@ -23,6 +23,7 @@ class StochasticObject():
         self.NumberOfScenarios = None
         self.ScenarioList = []
         self.ScenarioProbabilities = []
+        self.AffectedUnitNumbers = []
 
         self.GammaDict = {}
         self.XiDict = {}
@@ -31,12 +32,22 @@ class StochasticObject():
         self.GeneralDict = {}
         self.GroupDict = {}
         self.level = 0
+        self.PhiComponentsList = []
+        self.LableDict = {'phi': {},
+                          'theta': {},
+                          'myu': {},
+                          'gamma': {},
+                          'xi': {},
+                          'ProductPrice': {},
+                          'materialcosts': {}
+                          }
+
 
     def _set_general_data(self, dataFrame):
         self.level = dataFrame.iloc[0,1]
     def _set_general_dict(self, dataFrame, parameterName):
         """"
-        This function sets the phi dictionary and gives each phi a unique name/label
+        This function creates dictionaries so the characteristics of each uncertain parameter can be accessed easily
         """
         # preprocess the dataframe
         dataFrame = make_first_row_column_names(dataFrame)
@@ -44,9 +55,33 @@ class StochasticObject():
         # Iterate over rows using iterrows()
         for index, row in dataFrame.iterrows():
             # if the first element in the row is a integer add the row to the dictionary
-            if isinstance(row[0], int):
+            if isinstance(row.iloc[0], int):
+                unitNr = row.iloc[0]
+                self.AffectedUnitNumbers.append(unitNr)
                 nr += 1
-                self.GeneralDict['{}_{}'.format(parameterName, nr)] = row[0:].to_dict()
+                keyName = '{}_{}'.format(parameterName, nr)
+                self.GeneralDict[keyName] = row[0:].to_dict()
+
+
+                if parameterName == 'theta' or parameterName =='gamma':
+                    component = row['Component']
+                    reactionNr = row['Reaction-number']
+                    nrComponentTuple = (unitNr, component, reactionNr)
+
+                elif parameterName == 'phi' or parameterName == 'myu' or parameterName == 'xi':
+                    component = row['Component']
+                    nrComponentTuple = (unitNr, component)
+
+                elif parameterName == 'ProductPrice' or parameterName == 'materialcosts':
+                    nrComponentTuple = (unitNr)
+
+                else:
+                    raise ValueError("The parameter {} is not supported".format(parameterName))
+
+                self.LableDict[parameterName][nrComponentTuple] = keyName
+
+
+
 
     def _set_group_dict(self):
         """
@@ -81,9 +116,9 @@ class StochasticObject():
         # todo make this function better at making discreet scenarios based on the level
 
         if self.level == 2:
-            scenario_list = [-1, 1]
+            scenario_list = [1, -1]
         elif self.level == 3:
-            scenario_list = [-1, 0, 1]
+            scenario_list = [1, 0, -1]
         else:
             raise ValueError("The level of the stochastic problem is not supported please select 2 or 3")
         self.ScenarioList = scenario_list
@@ -104,8 +139,9 @@ class StochasticObject():
         combinations = list(itertools.product(*states))
         # Converting combinations to a DataFrame
         df = pd.DataFrame(combinations, columns=[f'Variable_{i + 1}' for i in range(m)])
+
         # Reversing the order of the rows
-        df = df[::-1]
+        #df = df[::-1]
 
         nr = 1
         colunmPosition = 0
@@ -150,11 +186,20 @@ class StochasticObject():
             variation = self.GeneralDict[varName]['(%)']
             df[varName] = df[varName] * variation
 
+        self.UncertaintyMatrix = df
 
-        # Displaying the DataFrame
-        print(df)
-        print(656)
-        #raise ValueError("still under construction")
+        # make the list of scenario names
+        scenarioNames = []
+        for n in range(len(combinations)):
+            scenarioNames.append("sc{}".format(n+1))
+        self.ScenarioList = scenarioNames
+
+    def _set_uncertain_composition_list(self):
+        #for key in GeneralDict:
+         #   if 'phi' in key:
+          #
+           # unit.Composition['phi'][(unit.Number, i, sc)] = composition_dic[i]
+        pass
 
 
 
