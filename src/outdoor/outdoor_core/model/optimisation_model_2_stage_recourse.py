@@ -460,34 +460,32 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def MassBalance_17_rule(self, u, uu, sc):
             return self.FLOW_FT[u, uu, sc] == sum(self.FLOW[u, uu, i, sc] for i in self.I)
 
-        self.MassBalance_1 = Constraint(self.U, self.I, rule=MassBalance_1_rule)
-        self.MassBalance_2 = Constraint(self.U, self.I, rule=MassBalance_2_rule)
-        self.MassBalance_3 = Constraint(self.U_SU, rule=MassBalance_3_rule)
-        self.MassBalance_4 = Constraint(self.U_S, rule=MassBalance_4_rule)
-        self.MassBalance_13 = Constraint(self.U_S, rule=MassBalance_13_rule)
-        self.MassBalance_14 = Constraint(self.U_S, rule=MassBalance_14_rule)
+        self.MassBalance_1 = Constraint(self.U, self.I, self.SC, rule=MassBalance_1_rule)
+        self.MassBalance_2 = Constraint(self.U, self.I, self.SC, rule=MassBalance_2_rule)
+        self.MassBalance_3 = Constraint(self.U_SU, self.SC,  rule=MassBalance_3_rule)
+        self.MassBalance_4 = Constraint(self.U_S, self.SC, rule=MassBalance_4_rule)
+        self.MassBalance_13 = Constraint(self.U_S, self.SC,  rule=MassBalance_13_rule)
+        self.MassBalance_14 = Constraint(self.U_S, self.SC,  rule=MassBalance_14_rule)
 
-        self.MassBalance_5 = Constraint(self.U, self.I, rule=MassBalance_5_rule)
-        self.MassBalance_6 = Constraint(self.U, self.UU, self.I, rule=MassBalance_6_rule)
-        self.MassBalance_7 = Constraint(self.U, self.UU, self.I, rule=MassBalance_7_rule)
-        self.MassBalance_8 = Constraint(self.U, self.UU, self.I, rule=MassBalance_8_rule)
-        self.MassBalance_9 = Constraint(self.U, self.I, rule=MassBalance_9_rule)
-        self.MassBalance_10 = Constraint(self.I, rule=MassBalance_10_rule)
-        self.MassBalance_11 = Constraint(self.U, rule=MassBalance_11_rule)
-        self.MassBalance_12 = Constraint(self.U, rule=MassBalance_12_rule)
-        self.MassBalance_14a = Constraint(self.U_PP, rule=MassBalance_14a_rule)
-        self.MassBalance_14b = Constraint(self.U_PP, rule=MassBalance_14b_rule)
-        self.MassBalance_15a = Constraint(
-            self.U_DIST_SUB2, self.I, rule=MassBalance_15a_rule
-        )
+        self.MassBalance_5 = Constraint(self.U, self.I, self.SC,  rule=MassBalance_5_rule)
+        self.MassBalance_6 = Constraint(self.U, self.UU, self.I, self.SC, rule=MassBalance_6_rule)
+        self.MassBalance_7 = Constraint(self.U, self.UU, self.I, self.SC, rule=MassBalance_7_rule)
+        self.MassBalance_8 = Constraint(self.U, self.UU, self.I, self.SC, rule=MassBalance_8_rule)
+        self.MassBalance_9 = Constraint(self.U, self.I, self.SC, rule=MassBalance_9_rule)
+        self.MassBalance_10 = Constraint(self.I, self.SC, rule=MassBalance_10_rule)
+        self.MassBalance_11 = Constraint(self.U, self.SC, rule=MassBalance_11_rule)
+        self.MassBalance_12 = Constraint(self.U, self.SC, rule=MassBalance_12_rule)
+        self.MassBalance_14a = Constraint(self.U_PP, self.SC, rule=MassBalance_14a_rule)
+        self.MassBalance_14b = Constraint(self.U_PP, self.SC, rule=MassBalance_14b_rule)
+        self.MassBalance_15a = Constraint(self.U_DIST_SUB2, self.I, self.SC, rule=MassBalance_15a_rule)
         self.MassBalance_15b = Constraint(
-            self.U_DIST_SUB2, self.I, rule=MassBalance_15b_rule
+            self.U_DIST_SUB2, self.I, self.SC, rule=MassBalance_15b_rule
         )
         self.MassBalance_15c = Constraint(
-            self.U_DIST_SUB2, self.I, rule=MassBalance_15c_rule
+            self.U_DIST_SUB2, self.I, self.SC, rule=MassBalance_15c_rule
         )
-        self.MassBalance_16 = Constraint(self.U_DIST, self.I, rule=MassBalance_16_rule)
-        self.MassBalance_17 = Constraint(self.U_CONNECTORS, rule=MassBalance_17_rule)
+        self.MassBalance_16 = Constraint(self.U_DIST, self.I, self.SC, rule=MassBalance_16_rule)
+        self.MassBalance_17 = Constraint(self.U_CONNECTORS, self.SC, rule=MassBalance_17_rule)
 
     # **** ENERGY BALANCES *****
     # -------------------------
@@ -652,7 +650,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         def HeatBalance_2_rule(self, u, hi, sc):
             return self.ENERGY_DEMAND_COOL[u, hi, sc] == sum(
-                self.beta[u, ut, hi] * self.tau_h[ut, u] * self.REF_FLOW_UT[u, ut]
+                self.beta[u, ut, hi] * self.tau_h[ut, u] * self.REF_FLOW_UT[u, ut, sc]
                 for ut in self.H_UT
             )
 
@@ -878,7 +876,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.HeatBalance_4 = Constraint(self.U, self.HI, self.SC, rule=HeatBalance_4_rule)
         self.HeatBalance_5 = Constraint(self.HI, self.SC, rule=HeatBalance_5_rule)
         self.HeatBalance_6 = Constraint(self.HI, self.SC, rule=HeatBalance_6_rule)
-        self.HeatBalance_7 = Constraint(rule=HeatBalance_7_rule)
+        self.HeatBalance_7 = Constraint(self.SC, rule=HeatBalance_7_rule)
 
         self.HeatBalance_12 = Constraint(self.HI, self.SC, rule=HeatBalance_12_rule)
         self.HeatBalance_13 = Constraint(self.U_FUR, self.SC, rule=HeatBalance_13_rule)
@@ -948,6 +946,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.TO_CAPEX = Var(self.U_C, within=NonNegativeReals)
         self.TO_CAPEX_TOT = Var(within=NonNegativeReals)
         self.ACC_HP = Var(within=NonNegativeReals)
+        self.HENCOST = Var(self.HI, within=NonNegativeReals)
 
         self.CAPEX = Var()
 
@@ -968,7 +967,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.ELCOST = Var(self.SC)
         self.HEATCOST = Var(self.HI, self.SC)
         self.C_TOT = Var(self.SC)
-        self.HENCOST = Var(self.HI, self.SC, within=NonNegativeReals)
+
         self.UtCosts = Var(self.SC)
 
         # variables depended on the scenarios
@@ -1060,14 +1059,12 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # heat exchanger costs
         def HEN_CostBalance_CAPEX_1_rule(self, hi):
-            return self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[
-                hi, 'sc1'                                            # sc1 max energy exchange scenario
-            ] + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])
+            return (self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[hi, 'sc1']
+                    + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_2_rule(self, hi):
-            return self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE[
-                hi, 'sc1'                                            # sc1 max energy exchange scenario
-            ] + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])
+            return (self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE[hi, 'sc1']
+                    + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_3_rule(self, hi):
             return self.HENCOST[hi] <= self.Y_HEX[hi] * self.alpha_hex
@@ -1126,18 +1123,22 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
                 / 1000
             )
 
-        def HEN_CostBalance_4_rule(self, hi, sc):
-            return self.HENCOST[hi, sc] <= 13.459 * self.ENERGY_EXCHANGE[
-                hi, sc
-            ] + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])
+        # def HEN_CostBalance_4_rule(self, hi, sc):
+        #     return self.HENCOST[hi, sc] <= 13.459 * self.ENERGY_EXCHANGE[
+        #         hi, sc
+        #     ] + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])
+        #
+        # def HEN_CostBalance_4b_rule(self, hi, sc):
+        #     return self.HENCOST[hi, sc] >= 13.459 * self.ENERGY_EXCHANGE[
+        #         hi, sc
+        #     ] + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])
+        #
+        # def HEN_CostBalance_4c_rule(self, hi, sc):
+        #     return self.HENCOST[hi, sc] <= self.Y_HEX[hi] * self.alpha_hex
 
-        def HEN_CostBalance_4b_rule(self, hi, sc):
-            return self.HENCOST[hi, sc] >= 13.459 * self.ENERGY_EXCHANGE[
-                hi, sc
-            ] + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])
-
-        def HEN_CostBalance_4c_rule(self, hi, sc):
-            return self.HENCOST[hi, sc] <= self.Y_HEX[hi] * self.alpha_hex
+        # self.HEN_CostBalance_4 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4_rule)
+        # self.HEN_CostBalance_4b = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4b_rule)
+        # self.HEN_CostBalance_4c = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4c_rule)
 
         def HEN_CostBalance_6_rule(self, sc):
             return self.C_TOT[sc] == self.UtCosts[sc] / 1000 #
@@ -1147,9 +1148,6 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.HEN_CostBalance_1 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_1_rule)
         self.HEN_CostBalance_2 = Constraint(self.SC,rule=HEN_CostBalance_2_rule)
         self.HEN_CostBalance_3 = Constraint(self.SC,rule=HEN_CostBalance_3_rule)
-        self.HEN_CostBalance_4 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4_rule)
-        self.HEN_CostBalance_4b = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4b_rule)
-        self.HEN_CostBalance_4c = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4c_rule)
         self.HEN_CostBalance_6 = Constraint(self.SC, rule=HEN_CostBalance_6_rule)
 
         # Utility Costs (Electricity/Chilling)
@@ -1204,8 +1202,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         def Profit_2_rule(self, sc):
             return (
-                self.PROFITS_TOT[sc]
-                == sum(self.PROFITS[u] for u in self.U_PP) * self.H / 1000
+                self.PROFITS_TOT[sc] == sum(self.PROFITS[u, sc] for u in self.U_PP) * self.H / 1000
             )
 
         self.ProfitEquation_1 = Constraint(self.U_PP, self.SC, rule=Profit_1_rule)
@@ -1253,7 +1250,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.GWP_CAPTURE = Var(self.SC)
         self.GWP_U = Var(self.U, self.SC)
         self.GWP_UT = Var(self.UT, self.SC)
-        self.GWP_TOT = Var()
+        self.GWP_TOT = Var(self.SC)
 
         # Constraints
         # -----------
@@ -1333,11 +1330,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         """
 
-        self.FWD_UT1 = Var(self.Sc)
-        self.FWD_UT2 = Var(self.Sc)
-        self.FWD_S = Var(self.Sc)
-        self.FWD_C = Var(self.Sc)
-        self.FWD_TOT = Var(self.Sc)
+        self.FWD_UT1 = Var(self.SC)
+        self.FWD_UT2 = Var(self.SC)
+        self.FWD_S = Var(self.SC)
+        self.FWD_C = Var(self.SC)
+        self.FWD_TOT = Var(self.SC)
 
         self.fw_fac_source = Param(self.U_S, initialize=0)
         self.fw_fac_ut = Param(self.UT, initialize=0)
@@ -1470,8 +1467,14 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.NPC = Var(self.SC)
         self.NPFWD = Var(self.SC)
         self.NPE = Var(self.SC)
-        self.EBIT = Var() # singular value
+        self.EBIT = Var(self.SC)
         self.SumOfProductFlows = Var(self.SC)
+
+        # add the final objective values
+        self.NPC_final = Var()
+        self.NPFWD_final = Var()
+        self.NPE_final = Var()
+        self.EBIT_final = Var()
 
         # Constraints
         # -----------
@@ -1509,6 +1512,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # Definition of specific function
 
         def Specific_NPC_rule(self, sc):
+
             if self.productDriven == "no":
                 return self.NPC[sc] == self.TAC[sc] * 1000
                 #can not dived by /self.SumOfProductFlows because would make the equation non-linear
@@ -1517,33 +1521,70 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             else:
                 return self.NPC[sc] == self.TAC[sc] * 1000 / self.ProductLoad
 
-
         def Specific_GWP_rule(self, sc):
             return self.NPE[sc] == self.GWP_TOT[sc] / self.ProductLoad
             #return self.NPE == self.GWP_TOT
 
-        def Specific_FWD_rule(self):
+        def Specific_FWD_rule(self, sc):
             return self.NPFWD[sc] == self.FWD_TOT[sc] / self.ProductLoad
             #return self.NPFWD == self.FWD_TOT
 
-        def Specific_EBIT_rule(self):
-            return self.EBIT == self.CAPEX + sum(self.odds[sc] * (self.OPEX[sc]- self.PROFITS_TOT[sc]) for sc in self.SC)
+        def Specific_EBIT_rule(self, sc):
+            return self.EBIT[sc] == self.PROFITS_TOT[sc] - self.OPEX[sc] - self.CAPEX
 
-        self.Specific_NPC_rule = Constraint(rule=Specific_NPC_rule)
-        self.Specific_GWP_rule = Constraint(rule=Specific_GWP_rule)
-        self.Specific_FWD_rule = Constraint(rule=Specific_FWD_rule)
-        self.Specific_EBIT_rule = Constraint(rule=Specific_EBIT_rule)
+        self.Specific_NPC_rule = Constraint(self.SC, rule=Specific_NPC_rule)
+        self.Specific_GWP_rule = Constraint(self.SC, rule=Specific_GWP_rule)
+        self.Specific_FWD_rule = Constraint(self.SC, rule=Specific_FWD_rule)
+        self.Specific_EBIT_rule = Constraint(self.SC, rule=Specific_EBIT_rule)
 
-        # Definition of the used Objective Function
+        # Definition of the possible Objective Functions
+        def NPC_rule(self):
+            return self.NPC_final == self.CAPEX + sum(self.odds[sc] * (self.OPEX[sc]- self.PROFITS_TOT[sc]) for sc in self.SC)
+        def GWP_rule(self):
+            return self.NPE_final == sum(self.odds[sc] * self.GWP_TOT[sc] / self.ProductLoad for sc in self.SC)
+        def FWD_rule(self):
+            return self.NPFWD_final == sum(self.odds[sc] * self.FWD_TOT[sc] / self.ProductLoad for sc in self.SC)
+        def EBIT_rule(self):
+            return self.EBIT_final == sum(self.odds[sc] * (self.PROFITS_TOT[sc] - self.OPEX[sc]) for sc in self.SC) - self.CAPEX
 
+        self.NPC_rule = Constraint(rule=NPC_rule)
+        self.GWP_rule = Constraint(rule=GWP_rule)
+        self.FWD_rule = Constraint(rule=FWD_rule)
+        self.EBIT_rule = Constraint(rule=EBIT_rule)
 
+        # set the objective function
+        if self.objective_name == "NPC":
+
+            def Objective_rule(self):
+                return self.NPC_final
+
+        elif self.objective_name == "NPE":
+
+            def Objective_rule(self):
+                return self.NPE_final
+
+        elif self.objective_name == "FWD":
+
+            def Objective_rule(self):
+                return self.NPFWD_final
+
+        elif self.objective_name == "EBIT":
+                def Objective_rule(self):
+                    return self.EBIT_final
+
+        else:
+            print("Objective function could not be recognised, \n"
+                  "The default objective function is NPC (Net Production Costs) has been selected")
+            def Objective_rule(self):
+                return self.NPC_final
 
         if self.objective_name == "EBIT":
-            def Objective_rule(self):
-                return self.EBIT
+            self.Objective = Objective(rule=Objective_rule, sense=maximize)
+
+        else:  # want to minimise the other objective functions
             self.Objective = Objective(rule=Objective_rule, sense=minimize)
-        else:
-            raise ValueError("Objective function 'EBIT' is the only supported objective function for "
-                             "the two stage stochastic optimisation problem at the moment.")
+
+
+
 
 

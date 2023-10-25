@@ -12,6 +12,7 @@ Class description
             - The number of scenarios
             - The parameters for each scenario
             - The probability of each scenario
+            - The dataFrame of the uncertain parameters and their values for each scenario
 """
 
 import pandas as pd
@@ -39,12 +40,35 @@ class StochasticObject():
                           'gamma': {},
                           'xi': {},
                           'ProductPrice': {},
-                          'materialcosts': {}
+                          'materialcosts': {},
+                          'Decimal_numbers': {}
                           }
 
 
-    def _set_general_data(self, dataFrame):
-        self.level = dataFrame.iloc[0,1]
+    def _set_general_data(self, GeneralDataFrame, customLevelDataFrame):
+
+        self.level = GeneralDataFrame.iloc[0,1]
+
+        if isinstance(self.level, str):
+            if self.level == 'custom':
+                scenario_list = self._set_custom_levels(customLevelDataFrame)
+            else:
+                raise ValueError("The level {} is not supported".format(self.level))
+        else:
+            if self.level == 2:
+                scenario_list = [1, -1]
+            elif self.level == 3:
+                scenario_list = [1, 0, -1]
+            else:
+                raise ValueError("The level of the stochastic problem is not supported please select 2 or 3")
+
+        self.ScenarioList = scenario_list
+
+        self.ProbabilitySettings = GeneralDataFrame.iloc[1, 1]
+
+
+
+
     def _set_general_dict(self, dataFrame, parameterName):
         """"
         This function creates dictionaries so the characteristics of each uncertain parameter can be accessed easily
@@ -72,15 +96,13 @@ class StochasticObject():
                     component = row['Component']
                     nrComponentTuple = (unitNr, component)
 
-                elif parameterName == 'ProductPrice' or parameterName == 'materialcosts':
+                elif parameterName == 'ProductPrice' or parameterName == 'materialcosts' or parameterName == 'Decimal_numbers':
                     nrComponentTuple = (unitNr)
 
                 else:
                     raise ValueError("The parameter {} is not supported".format(parameterName))
 
                 self.LableDict[parameterName][nrComponentTuple] = keyName
-
-
 
 
     def _set_group_dict(self):
@@ -107,25 +129,29 @@ class StochasticObject():
 
         grouped = df.groupby('Group-nr.')
         self.GroupDict = grouped.groups
-        self.NumberOfScenarios = len(self.GroupDict) * self.level
-        # you can set the scenario list aswell now
-        self._set_list_of_scenarios()
-
-
-    def _set_list_of_scenarios(self):
-        # todo make this function better at making discreet scenarios based on the level
-
-        if self.level == 2:
-            scenario_list = [1, -1]
-        elif self.level == 3:
-            scenario_list = [1, 0, -1]
-        else:
-            raise ValueError("The level of the stochastic problem is not supported please select 2 or 3")
-        self.ScenarioList = scenario_list
+        self.NumberOfScenarios = len(self.ScenarioList) ** len(self.GroupDict)
 
 
 
-    def _set_scenario_probabilities(self):
+
+    def _set_custom_levels(self, customLevelDataFrame):
+        """
+        makes a list from the custom levels (which is a Series)
+        :param customLevelDataFrame:
+        :return: list of custom levels (integers)
+        """
+
+        # need to delete the nan values in the dataframe
+        customLevelDataFrame = customLevelDataFrame.dropna()
+        customLevelDataFrame = customLevelDataFrame.reset_index(drop=True)
+
+        # make a list from the custom levels
+        customLevelList = customLevelDataFrame.iloc[1:,0].tolist()
+
+        return customLevelList
+
+
+    def make_scenario_dataframe(self):
 
         # Define your list and values for n and r
         my_list = self.ScenarioList
@@ -193,6 +219,14 @@ class StochasticObject():
         for n in range(len(combinations)):
             scenarioNames.append("sc{}".format(n+1))
         self.ScenarioList = scenarioNames
+
+        # make the list of scenario probabilities
+        if self.ProbabilitySettings == 'uniform':
+            self.ScenarioProbabilities = [1/len(scenarioNames) for i in scenarioNames]
+            print(self.ScenarioProbabilities)
+        else:
+            raise ValueError("ERROR ON EXCEL SHEET 'Uncertainty' \n"
+                             "The probability setting {} is not supported yet".format(self.ProbabilitySettings))
 
     def _set_uncertain_composition_list(self):
         #for key in GeneralDict:

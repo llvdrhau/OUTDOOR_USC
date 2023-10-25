@@ -76,9 +76,7 @@ class SensitivityOptimizer(SingleOptimizer):
         timer1 = time_printer(programm_step="Sensitivity optimization")
         self.sensi_data = calculate_sensitive_parameters(self.sensi_data)
         initial_model_instance = copy.deepcopy(model_instance)
-        timer = time_printer(
-            passed_time=timer1, programm_step="Create initial ModelInstance copy",
-        )
+        timer = time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
         model_output = MultiModelOutput(optimization_mode="Sensitivity analysis")
 
         for i, k in self.sensi_data.items():

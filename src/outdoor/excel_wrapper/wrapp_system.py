@@ -46,7 +46,7 @@ def wrapp_SystemData(dfi):
 
     GeneralDataRange = WF.convert_total('B', 4, 'C', 22)
     UtilitylistRange = WF.convert_total('S', 5, 'V', 8)
-    ComponentlistRange = WF.convert_total('E', 5, 'K', 30)
+    ComponentlistRange = WF.convert_total('F', 5, 'K', 30)
     TemperatureIntervals = WF.convert_total('B', 34, 'B', 39)
     ReactionsListRange = WF.convert_total('N', 5, 'N', 15)
     ReactantsListRange = WF.convert_total ('P', 5,'P', 15)
@@ -80,8 +80,8 @@ def wrapp_SystemData(dfi):
     obj = Superstructure(ModelName=df1.loc['TestCaseName'].iloc[0],
                          Objective=df1.loc['Objective'].iloc[0],
                          productDriver = df1.loc['Product driven'].iloc[0],
-                         MainProduct=df1.loc['MainProduct'].iloc[0],
-                         ProductLoad=df1.loc['Productload'].iloc[0],
+                         MainProduct=df1.loc['Main product'].iloc[0],
+                         ProductLoad=df1.loc['Product load'].iloc[0],
                          OptimizationMode=df1.loc['Optimization mode'].iloc[0])
 
 

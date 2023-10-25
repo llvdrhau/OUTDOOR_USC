@@ -1,5 +1,5 @@
 from ..model.optimization_model import SuperstructureModel
-
+from ..model.optimisation_model_2_stage_recourse import SuperstructureModel_2_Stage_recourse
 
 from ..optimizers.main_optimizer import SingleOptimizer
 
@@ -123,27 +123,25 @@ class SuperstructureProblem:
             check_nan = self.find_nan_parameters_in_model_instance(model_instance)
 
             if check_nan:
+                print('')
                 print("There are NaN values in the model instance. Please check the model.")
                 print(check_nan)
+                print('')
 
             # set model options
             mode_options = self.set_mode_options(optimization_mode, input_data)
 
             # settings optimisation problem
-            optimizer = self.setup_optimizer(
-                solver, interface, solver_path, options, optimization_mode,
-                mode_options, input_data
-            )
+            optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                             mode_options, input_data)
 
             # run the optimisation
             model_output = optimizer.run_optimization(model_instance)
-            solving_time = time_printer(
-                solving_time, "Superstructure optimization procedure"
-            )
+            solving_time = time_printer(solving_time, "Superstructure optimization procedure")
             return model_output
         else:
-            print("Currently there is no routine for external data parsing implemented")
-            pass
+            raise Exception("Currently there is no routine for external data parsing implemented")
+
 
     def setup_model_instance(self, input_data, optimization_mode):
         """
@@ -182,17 +180,26 @@ class SuperstructureProblem:
 
         timer = time_printer(programm_step="DataFile, Model- and ModelInstance setup")
         data_file = input_data.create_DataFile()
-        model = SuperstructureModel(input_data)
+
+        if optimization_mode == "2-stage-recourse":
+            model = SuperstructureModel_2_Stage_recourse(input_data)
+        else:
+            model = SuperstructureModel(input_data)
+
+
         model.create_ModelEquations()
 
         if optimization_mode == "sensitivity" or optimization_mode == "cross-parameter sensitivity":
             mode_options = input_data.sensitive_parameters
             prepare_mutable_parameters(model, mode_options)
 
+        # populate the model instance
         model_instance = model.populateModel(data_file)
+
         timer = time_printer(timer, "DataFile, Model- and ModelInstance setup")
 
         return model_instance
+
 
     def setup_optimizer(
         self,
@@ -241,31 +248,34 @@ class SuperstructureProblem:
         MODE_LIBRARY = {"single",
                         "multi-objective",
                         "sensitivity",
-                        "cross-parameter sensitivity"
+                        "cross-parameter sensitivity",
+                        "2-stage-recourse"
                         }
 
         if optimization_mode not in MODE_LIBRARY:
             print(
-                f"Optimization mode is not supported, \
-                please select from: {MODE_LIBRARY}"
+                f"Optimization mode is not supported, \n "
+                f"please select from: {MODE_LIBRARY}"
             )
 
         timer = time_printer(programm_step="Optimizer setup")
 
-        if optimization_mode == "single":
+        if optimization_mode == "single" or optimization_mode == "2-stage-recourse":
             optimizer = SingleOptimizer(solver, interface, solver_path, options)
+
         elif optimization_mode == "multi-objective":
             optimizer = MCDAOptimizer(solver, interface, options, mode_options)
+
         elif optimization_mode == "sensitivity":
             optimizer = SensitivityOptimizer(
-                solver, interface, options, mode_options, superstructure
-            )
+                solver, interface, options, mode_options, superstructure)
+
         elif optimization_mode == "cross-parameter sensitivity":
             optimizer = TwoWaySensitivityOptimizer(
                 solver, interface, options, mode_options, superstructure
             )
         else:
-            pass
+            raise ValueError("Optimization mode not supported")
 
         timer = time_printer(passed_time=timer, programm_step="Optimizer setup")
 

@@ -9,6 +9,8 @@ Created on Thu Apr  2 11:25:35 2020
 
 import pandas as pd
 
+import warnings
+
 from .wrapp_processes import wrapp_processUnits, wrapp_productPoolUnits, wrapp_sourceUnits, wrapp_distributors
 
 from ..outdoor_core.utils.timer import time_printer
@@ -49,6 +51,8 @@ def get_DataFromExcel(PathName=None):
     print(PathName)
 
     timer = time_printer(programm_step='Extract data from excel')
+    # Disable the specific warning about Data Validation extension to make code run faster
+    warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
     datframe = pd.read_excel(PathName, sheet_name = None)
 
     PU_ObjectList  =[]

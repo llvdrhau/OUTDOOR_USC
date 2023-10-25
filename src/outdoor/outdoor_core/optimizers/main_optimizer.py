@@ -15,11 +15,11 @@ from ..utils.timer import time_printer
 class SingleOptimizer:
     """
     Class Description
-    -----------------   
+    -----------------
     This Class is the model instance handler. It takes holds the run_optimization
     method which takes any PYOMO concrete model, solves it and return and ModelOuput
-    Class object. 
-    
+    Class object.
+
     It is also the parent class of the custom Opimizer Classes which are written
     especially for special runs in Superstructure Opimitzation (e.g. Sensitivity etc.)
     """
@@ -34,7 +34,7 @@ class SingleOptimizer:
 
         Description
         -------
-        Constructor of the SingleOptimzer. It checks if the handed solver is in the 
+        Constructor of the SingleOptimzer. It checks if the handed solver is in the
         solver library as well as the interface in the interface library. However,
         it does NOT check if the solvers are installed on the maschine.
 
@@ -48,13 +48,13 @@ class SingleOptimizer:
             self.solver_name = solver_name
         else:
             self.solver_name = solver_name
-            print("Solver not in library, correct optimization not garanteed")
+            raise Exception("Solver not in library, correct optimization not garanteed")
 
         # setup interface
         if solver_interface in INTERFACE_LIBRARY:
             self.solver_interface = solver_interface
         else:
-            print("Solver interface not in library, correct optimization not garanteed")
+            raise Exception("Solver interface not in library, correct optimization not garanteed")
 
         # check for gurobi
         if self.solver_name == "gurobi":
@@ -69,7 +69,7 @@ class SingleOptimizer:
             else:
                 self.solver = pyo.SolverFactory(self.solver_name)
         else:
-            self.solver = pyo.SolverFactory(self.solver_name, 
+            self.solver = pyo.SolverFactory(self.solver_name,
                                             executable=solver_path)
 
 
@@ -84,11 +84,11 @@ class SingleOptimizer:
         Returns
         -------
         model_output : ModelOutput
-        
+
         Description
         -----------
-        This is the main optimization method of the optimizer. It calls the 
-        solver.solve function from pyomo, and stores all results 
+        This is the main optimization method of the optimizer. It calls the
+        solver.solve function from pyomo, and stores all results
         (Sets, Params, Var, Objective, Optimimality gap) in the ModelOuput object.
 
         """

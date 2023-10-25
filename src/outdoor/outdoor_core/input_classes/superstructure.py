@@ -113,10 +113,7 @@ class Superstructure():
                 print(f"{bold_text}{green_text}Notification: The process flows are now dependent on the source flows, "
                       f"make sure the bounds\nof the sources are set correctly on the Excel sheet 'Sources'{reset_text}")
 
-                # don't nessisarily need to set the objective to EBIT Todo think about this
-                # self.Objective = 'EBIT'
-                # print(
-                #     f"{bold_text}{green_text}The Objective has been automatically set to EBIT as a result{reset_text}")
+
         else:
             Warning('No correct objectives chosen, default objective NPC is simulated')
             self.objective = 'NPC'
@@ -168,6 +165,8 @@ class Superstructure():
         self.distributor_subset2 = {'U_DIST_SUB2': []}
 
         self.connections_set = {'U_CONNECTORS': []}
+        self.Scenarios = {'SC': []}
+        self.Odds =  {'odds': []}
 
         # ------------------
 
@@ -994,6 +993,8 @@ class Superstructure():
         self.NI_ParameterList.append(self.distributor_subset2)
         self.NI_ParameterList.append(self.OtherUtilitiesList)
         self.NI_ParameterList.append(self.ProductLoad)
+        self.NI_ParameterList.append(self.Scenarios)
+
 
 
 
@@ -1013,6 +1014,7 @@ class Superstructure():
         self.I_ParameterList.append(self.UnitNames)
         self.I_ParameterList.append(self.cp)
         self.I_ParameterList.append(self.delta_ut)
+        self.I_ParameterList.append(self.Odds)
 
 
 
@@ -1199,29 +1201,42 @@ class Superstructure():
 
         self.load_data_from_txt(self.Database)
 
-        try:
-            self.__prepare_heatEquations()
-        except:
-            print('\033[1;31;40m' + 'No heat balance prepared' + '\033[0m')
+        # heat balances
+        self.__prepare_heatEquations()
+        # capex equations
+        self.__prepare_capexEquations()
 
-        finally:
-            try:
-                self.__prepare_capexEquations()
-            except:
-                print('no Capex prepared')
-                print('\033[1;31;40m' + 'no Capex prepared' + '\033[0m')
+        # mass balance equations
+        self.__fill_nonIndexedParameters()
+        self.__fill_indexedParameters()
+        self.__fill_processParameterList()
 
-            finally:
-                try:
-                    self.__fill_nonIndexedParameters()
-                    self.__fill_indexedParameters()
-                    self.__fill_processParameterList()
-                except:
-                    print('Something wrong in parameter init')
-                    print('\033[1;31;40m' + 'Something wrong' + '\033[0m')
 
-                finally:
-                    return self.Data_File
+        return self.Data_File
+
+        # try:
+        #     self.__prepare_heatEquations()
+        # except:
+        #     print('\033[1;31;40m' + 'No heat balance prepared' + '\033[0m')
+        #
+        # finally:
+        #     try:
+        #         self.__prepare_capexEquations()
+        #     except:
+        #         print('no Capex prepared')
+        #         print('\033[1;31;40m' + 'no Capex prepared' + '\033[0m')
+        #
+        #     finally:
+        #         try:
+        #             self.__fill_nonIndexedParameters()
+        #             self.__fill_indexedParameters()
+        #             self.__fill_processParameterList()
+        #         except:
+        #             print('Something wrong in parameter init')
+        #             print('\033[1;31;40m' + 'Something wrong' + '\033[0m')
+        #
+        #         finally:
+        #             return self.Data_File
 
     def set_unit_uncertainty(self, uncertaintyObject, parameterName, oldDict):
         """"
@@ -1279,6 +1294,10 @@ class Superstructure():
         Output:
             Updated units list
         """
+        # set the list of Scenarios so the set can be declared in pyomo
+        self.Scenarios = {'SC': uncertaintyObject.ScenarioList}
+        self.Odds = {'odds':{sc: uncertaintyObject.ScenarioProbabilities[i] for i, sc in enumerate(uncertaintyObject.ScenarioList) } }
+
         for unit in self.UnitsList:
 
             if unit.Type == "ProductPool":
@@ -1302,6 +1321,12 @@ class Superstructure():
                                                          parameterName='materialcosts',
                                                          oldDict=unit.MaterialCosts)
                 unit.MaterialCosts = newPriceDict
+
+            elif unit.Type == "Distributor":
+                newDistributionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
+                                                                parameterName='Decimal_numbers',
+                                                                oldDict=unit.decimal_numbers)
+                unit.decimal_numbers = newDistributionDict
 
             elif unit.Type == "PhysicalProcess":
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,

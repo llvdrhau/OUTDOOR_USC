@@ -15,7 +15,13 @@ def wrapp_stochastic_data(dfi):
     # get all locations of the stochastic data of interest
     generalDataRange = WF.convert_total('B', 4, 'C', 5)
     generalDataFrame = dfi.iloc[generalDataRange]
-    obj._set_general_data(generalDataFrame)
+
+    # get the custom level data
+    customLevelRange = WF.convert_total('P', 12, 'P', 20)
+    customLevelDataFrame = dfi.iloc[customLevelRange]
+
+    # set the general data
+    obj._set_general_data(generalDataFrame, customLevelDataFrame)
 
     # the price of the feed stocks (Source units)
     materialCostRange = WF.convert_total('I', 47, 'L', 60) # feed price
@@ -57,7 +63,7 @@ def wrapp_stochastic_data(dfi):
     obj._set_group_dict()
 
     # set the dataframe of the stochastic object
-    obj._set_scenario_probabilities()
+    obj.make_scenario_dataframe()
 
 
 

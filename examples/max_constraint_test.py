@@ -20,3 +20,5 @@ model.constraint = Constraint(expr=model.MaxCAPEX == model.max_expression)
 
 # Print the model to see the constraint
 model.pprint()
+
+
