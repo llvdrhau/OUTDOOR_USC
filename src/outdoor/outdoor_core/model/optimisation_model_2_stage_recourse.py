@@ -1052,7 +1052,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             )
 
         def Cap(self):
-            return self.ACC_HP == self.ACC_H / 1000
+            return self.ACC_HP == self.ACC_H / 1000000
 
         self.Xap = Constraint(rule=Cap)
 
@@ -1082,7 +1082,10 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def CapexEquation_10_rule(self):
             return (
                 self.CAPEX
-                == sum(self.ACC[u] for u in self.U_C) + self.ACC_HP + sum(self.HENCOST[hi] for hi in self.HI) + self.TO_CAPEX_TOT
+                == sum(self.ACC[u] for u in self.U_C)       # annual capital costs
+                + self.ACC_HP                               # heat pump capital costs
+                + self.TO_CAPEX_TOT                         # reoccurring costs of equipment
+                + sum(self.HENCOST[hi] for hi in self.HI)   # HEN capital costs
             )
 
         self.CapexEquation_1 = Constraint(self.U_C, rule=CapexEquation_1_rule)
@@ -1123,26 +1126,9 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
                 / 1000
             )
 
-        # def HEN_CostBalance_4_rule(self, hi, sc):
-        #     return self.HENCOST[hi, sc] <= 13.459 * self.ENERGY_EXCHANGE[
-        #         hi, sc
-        #     ] + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])
-        #
-        # def HEN_CostBalance_4b_rule(self, hi, sc):
-        #     return self.HENCOST[hi, sc] >= 13.459 * self.ENERGY_EXCHANGE[
-        #         hi, sc
-        #     ] + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])
-        #
-        # def HEN_CostBalance_4c_rule(self, hi, sc):
-        #     return self.HENCOST[hi, sc] <= self.Y_HEX[hi] * self.alpha_hex
-
-        # self.HEN_CostBalance_4 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4_rule)
-        # self.HEN_CostBalance_4b = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4b_rule)
-        # self.HEN_CostBalance_4c = Constraint(self.HI, self.SC, rule=HEN_CostBalance_4c_rule)
-
+        # selling buying of energy see UtCosts (HEN_CostBalance_2_rule)
         def HEN_CostBalance_6_rule(self, sc):
-            return self.C_TOT[sc] == self.UtCosts[sc] / 1000 #
-            #+ sum(self.HENCOST[hi, sc] for hi in self.HI) / 1000 # HEN costs are now in CAPEX
+            return self.C_TOT[sc] == self.UtCosts[sc]/1000000 # euro to million euro conversion
 
 
         self.HEN_CostBalance_1 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_1_rule)
@@ -1155,7 +1141,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def Ut_CostBalance_1_rule(self, ut, sc):
             return (
                 self.ENERGY_COST[ut, sc]
-                == self.ENERGY_DEMAND_TOT[ut, sc] * self.delta_ut[ut] / 1000
+                == self.ENERGY_DEMAND_TOT[ut, sc] * self.delta_ut[ut] / 1000000 # euro to million euro conversion
             )
 
         self.Ut_CostBalance_1 = Constraint(self.U_UT, self.SC, rule=Ut_CostBalance_1_rule)
@@ -1165,9 +1151,8 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # RM = Raw Materials
         def RM_CostBalance_1_rule(self,sc):
             return self.RM_COST_TOT[sc] == sum(
-                self.materialcosts[u_s, sc] * self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] / 1000
-                for u_s in self.U_S
-            )
+                self.materialcosts[u_s, sc] * self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] / 1000000 # m€ to million euro conversion
+                for u_s in self.U_S)
 
         # OM = Operation and maintenance not dependent on the scenarios but the fixed capital costs
         def OM_CostBalance_1_rule(self, u):
@@ -1180,11 +1165,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def Opex_1_rule(self, sc):
             return (
                 self.OPEX[sc]
-                == self.M_COST_TOT    # operating and maintenance
-                + self.RM_COST_TOT[sc] / 1000 # raw materials
-                + sum(self.ENERGY_COST[ut,sc] / 1000 for ut in self.U_UT) # utilities electricity and chilling
-                + self.C_TOT[sc] / 1000 # HEN
-                + self.ELCOST[sc] / 1000 # electricity
+                == self.M_COST_TOT                                    # operating and maintenance
+                + self.RM_COST_TOT[sc]                                # raw materials
+                + sum(self.ENERGY_COST[ut,sc] for ut in self.U_UT)    # utilities electricity and chilling
+                + self.C_TOT[sc]                                      # HEN
+                + self.ELCOST[sc]                                     # electricity
             )
 
         self.RM_CostBalance_1 = Constraint(self.SC, rule=RM_CostBalance_1_rule)
@@ -1197,12 +1182,12 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def Profit_1_rule(self, u, sc):
             return (
                 self.PROFITS[u, sc]
-                == sum(self.FLOW_IN[u, i, sc] for i in self.I) * self.ProductPrice[u,sc] / 1000
+                == sum(self.FLOW_IN[u, i, sc] for i in self.I) * self.ProductPrice[u,sc] / 1000000 # m€ to million euro conversion
             )
 
         def Profit_2_rule(self, sc):
             return (
-                self.PROFITS_TOT[sc] == sum(self.PROFITS[u, sc] for u in self.U_PP) * self.H / 1000
+                self.PROFITS_TOT[sc] == sum(self.PROFITS[u, sc] for u in self.U_PP) * self.H
             )
 
         self.ProfitEquation_1 = Constraint(self.U_PP, self.SC, rule=Profit_1_rule)
@@ -1211,7 +1196,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # Total Annualized Costs
 
         def TAC_1_rule(self, sc):
-            return self.TAC[sc] == (self.CAPEX + self.OPEX[sc] - self.PROFITS_TOT[sc]) * 1000
+            return self.TAC[sc] == (self.CAPEX + self.OPEX[sc] - self.PROFITS_TOT[sc])
 
         self.TAC_Equation = Constraint(self.SC, rule=TAC_1_rule)
 
@@ -1514,12 +1499,12 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def Specific_NPC_rule(self, sc):
 
             if self.productDriven == "no":
-                return self.NPC[sc] == self.TAC[sc] * 1000
+                return self.NPC[sc] == self.TAC[sc]
                 #can not dived by /self.SumOfProductFlows because would make the equation non-linear
                 # to find the true NCP value, you have to divide the NPC value by the sum of the product flows
                 # after the optimisation problem
             else:
-                return self.NPC[sc] == self.TAC[sc] * 1000 / self.ProductLoad
+                return self.NPC[sc] == self.TAC[sc]  / self.ProductLoad
 
         def Specific_GWP_rule(self, sc):
             return self.NPE[sc] == self.GWP_TOT[sc] / self.ProductLoad
@@ -1530,7 +1515,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             #return self.NPFWD == self.FWD_TOT
 
         def Specific_EBIT_rule(self, sc):
-            return self.EBIT[sc] == self.PROFITS_TOT[sc] - self.OPEX[sc] - self.CAPEX
+            return self.EBIT[sc] == (self.PROFITS_TOT[sc] - self.OPEX[sc] - self.CAPEX)
 
         self.Specific_NPC_rule = Constraint(self.SC, rule=Specific_NPC_rule)
         self.Specific_GWP_rule = Constraint(self.SC, rule=Specific_GWP_rule)
@@ -1545,7 +1530,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def FWD_rule(self):
             return self.NPFWD_final == sum(self.odds[sc] * self.FWD_TOT[sc] / self.ProductLoad for sc in self.SC)
         def EBIT_rule(self):
-            return self.EBIT_final == sum(self.odds[sc] * (self.PROFITS_TOT[sc] - self.OPEX[sc]) for sc in self.SC) - self.CAPEX
+            return self.EBIT_final == (sum(self.odds[sc] * (self.PROFITS_TOT[sc] - self.OPEX[sc]) for sc in self.SC) - self.CAPEX)
 
         self.NPC_rule = Constraint(rule=NPC_rule)
         self.GWP_rule = Constraint(rule=GWP_rule)

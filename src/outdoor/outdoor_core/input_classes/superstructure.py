@@ -398,7 +398,7 @@ class Superstructure():
             if type(i) == list:
                 for j in i:
                     if j not in self.UnitsList:
-
+                        #self.UnitsList.append(j.Name)
                         j.fill_unitOperationsList(self)
 
 

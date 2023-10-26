@@ -8,7 +8,7 @@ Created on Tue Jun 15 12:19:19 2021
 
 import pyomo.environ as pyo
 
-from ..output_classes.model_output import ModelOutput
+from ..output_classes.model_output import ModelOutput, StochasticModelOutput
 from ..utils.timer import time_printer
 
 
@@ -23,7 +23,7 @@ class SingleOptimizer:
     It is also the parent class of the custom Opimizer Classes which are written
     especially for special runs in Superstructure Opimitzation (e.g. Sensitivity etc.)
     """
-    def __init__(self, solver_name, solver_interface, solver_path=None,
+    def __init__(self, solver_name, solver_interface, optimization_mode= None, solver_path=None,
                  solver_options=None):
         """
         Parameters
@@ -75,6 +75,9 @@ class SingleOptimizer:
 
         self.solver = self.set_solver_options(self.solver, solver_options)
 
+        # save optimisation mode
+        self.optimization_mode = optimization_mode
+
     def run_optimization(self, model_instance):
         """
         Parameters
@@ -103,7 +106,12 @@ class SingleOptimizer:
             / results["Problem"][0]["Upper bound"]
         ) * 100
         timer = time_printer(timer, 'Single optimization run')
-        model_output = ModelOutput(model_instance, self.solver_name, timer, gap)
+
+        if self.optimization_mode == "2-stage-recourse":
+            model_output = StochasticModelOutput(model_instance, self.solver_name, timer, gap)
+        else:
+            model_output = ModelOutput(model_instance, self.solver_name, timer, gap)
+
         return model_output
 
     def set_solver_options(self, solver, options):

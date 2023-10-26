@@ -261,7 +261,9 @@ class SuperstructureProblem:
         timer = time_printer(programm_step="Optimizer setup")
 
         if optimization_mode == "single" or optimization_mode == "2-stage-recourse":
-            optimizer = SingleOptimizer(solver, interface, solver_path, options)
+            optimizer = SingleOptimizer(solver_name=solver, solver_interface=interface,
+                                        optimization_mode=optimization_mode, solver_path=solver_path,
+                                        solver_options=options)
 
         elif optimization_mode == "multi-objective":
             optimizer = MCDAOptimizer(solver, interface, options, mode_options)

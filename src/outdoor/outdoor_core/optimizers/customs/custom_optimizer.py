@@ -22,14 +22,10 @@ from .change_params import (
 
 
 class MCDAOptimizer(SingleOptimizer):
-    def __init__(
-        self, solver_name, solver_interface, solver_options=None, mcda_data=None
-    ):
+    def __init__(self, solver_name, solver_interface, solver_options=None, mcda_data=None):
         super().__init__(solver_name, solver_interface, solver_options)
         self.mcda_data = mcda_data
-        self.single_optimizer = SingleOptimizer(
-            solver_name, solver_interface, solver_options
-        )
+        self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
 
     def run_optimization(self, model_instance):
         timer = time_printer(programm_step="MCDA optimization")

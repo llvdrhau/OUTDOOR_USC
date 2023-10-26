@@ -23,7 +23,7 @@ Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agr
 
 
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
-
+outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
 
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')

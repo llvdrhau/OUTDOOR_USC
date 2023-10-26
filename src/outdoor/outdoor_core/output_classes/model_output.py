@@ -211,9 +211,7 @@ class ModelOutput:
 
         basic_results["Basic results"]["Solver name"] = self._solver
 
-        basic_results["Basic results"]["Earnings Before Tax income"] = round(
-            self._data["EBIT"], 2
-        )
+        basic_results["Basic results"]["Earnings Before Tax income"] = round(self._data["EBIT"], 2)
 
         basic_results["Basic results"]["Net production costs"] = round(
             self._data["NPC"], 2
@@ -816,6 +814,13 @@ class ModelOutput:
         flow = self._data["FLOW_SUM"]
         flow_s = self._data["FLOW_SOURCE"]
 
+        # if the key of flow is a tuple then the solution id from the stochastic model
+        # Extract the maximum value of the flows for each scenario
+        if isinstance(list(flow.keys())[0], tuple):
+            flow = self.find_max_value_of_scenarios(dict=flow, unitNr=self._data['U'])
+            flow_s = self.find_max_value_of_scenarios(dict=flow_s, unitNr=self._data['U_S'])
+
+
         y = self._data["Y"]
         names = self._data["Names"]
         chosen = {}
@@ -836,5 +841,156 @@ class ModelOutput:
                     pass
 
         return chosen
+
+    def find_max_value_of_scenarios(self, dict, unitNr =None):
+        """"
+        if the data is encased in a tuple (unitNr, ScenarioNr) then this function splits the data into a dictionary that
+        contains the maximum value of each unitNr across all scenarios
+        """
+        scenario_values = self._data['SC']
+
+        if unitNr is  None:
+            units = self._data['U']
+        else:
+            units = unitNr
+
+        unitDict = {}
+        for u in units:
+            scList = []
+            for s in scenario_values:
+                scList.append(dict[u, s])
+            unitDict[u] = max(scList)
+        return unitDict
+class StochasticModelOutput(ModelOutput):
+    """
+    collect results of the stochastic model
+    """
+    def __init__(self, model_instance=None, solver_name=None, run_time=None, gap = None):
+        super().__init__(model_instance, solver_name, run_time, gap)
+        # this should get the data using the parent class from the model instance
+        # self._data = model_instance._data
+
+    def get_results(self, pprint=True, savePath=None):
+        """
+
+        Parameters
+        ----------
+        pprint : Boolean, optional, default is True
+            DESCRIPTION: Defines if results should be printed to console
+        save : String, optional
+            DESCRIPTION: Defines path where results should be saved, if kept
+            blank results are not saved as .txt-file.
+
+        Description
+        -----------
+        Collects the most important model results
+        by calling private function '_collect_results'.
+        Afterwards optionally prints them and saves them.
+
+        """
+
+        self._collect_results()
+        model_results = self.results
+
+        if pprint is True:
+            self._print_results(model_results)
+
+    def _collect_results(self):
+        """
+        Description
+        ----------
+        Calls all collector methods to fill ProcessResults.results dictionary
+        with all important results
+
+        Returns
+        -------
+        TYPE: results dictionary
+        """
+
+        self.results = {}
+
+        self.results.update(self._collect_basic_results())
+
+        chosen_technologies = {'Chosen technologies': self.return_chosen()}
+        self.results.update(chosen_technologies)
+
+        # self.results.update(self._collect_economic_results())
+        # self.results.update(self._collect_capitalcost_shares())
+        # self.results.update(self._collect_mass_flows())
+
+        # self.results.update(self._collect_electricity_shares())
+        # self.results.update(self._collect_heatintegration_results())
+        # self.results.update(self._collect_GHG_results())
+        # self.results.update(self._collect_FWD_results())
+        # self.results.update(self._collect_energy_data())
+    def _collect_basic_results(self):
+        """
+        Description
+        ----------
+        Calls all collector methods to fill ProcessResults.results dictionary
+        with all important results
+
+        Returns
+        -------
+        TYPE: results dictionary
+        """
+
+        model_results = dict()
+
+        basic_results = dict()
+
+        basic_results["Basic results"] = {}
+
+        basic_results["Basic results"]["Objective Function"] = self._objective_function
+        basic_results["Basic results"]["Expected Objective value"] = self._data[self._objective_function]
+
+        # the product load is not a variable that changes per scenario
+        # so take the first result in the dictionary
+        basic_results["Basic results"]["Yearly product load"] = self._product_load['sc1']
+
+        basic_results["Basic results"]["Solver run time"] = self._run_time
+
+        basic_results["Basic results"]["Solver name"] = self._solver
+
+        # get the min, max and mean of the EBIT
+        basic_results["Basic results"]["Earnings Before Tax income"] = {}
+        basic_results["Basic results"]["Earnings Before Tax income"]['minimum'] = round(min(self._data["EBIT"].values()), 2)
+        basic_results["Basic results"]["Earnings Before Tax income"]['mean'] = round(sum(self._data["EBIT"].values()) / len(self._data["EBIT"].values()), 2)
+        basic_results["Basic results"]["Earnings Before Tax income"]['maximum'] = round(max(self._data["EBIT"].values()), 2)
+
+
+        #get the min, max and mean of the NPC
+        basic_results["Basic results"]["Net production costs"] = {}
+        basic_results["Basic results"]["Net production costs"]['minimum'] = round(min(self._data["NPC"].values()), 2)
+        basic_results["Basic results"]["Net production costs"]['mean'] = round(
+            sum(self._data["NPC"].values()) / len(self._data["NPC"].values()), 2)
+        basic_results["Basic results"]["Net production costs"]['maximum'] = round(max(self._data["NPC"].values()), 2)
+
+
+        #get the min, max and mean of the NPE
+        basic_results["Basic results"]["Net production GHG emissions"] = {}
+        basic_results["Basic results"]["Net production GHG emissions"]['minimum'] = round(min(self._data["NPE"].values()), 3)
+        basic_results["Basic results"]["Net production GHG emissions"]['mean'] = round(
+            sum(self._data["NPE"].values()) / len(self._data["NPE"].values()), 3)
+        basic_results["Basic results"]["Net production GHG emissions"]['maximum'] = round(max(self._data["NPE"].values()), 3)
+
+
+        #get the min, max and mean of the NPFWD
+        basic_results["Basic results"]["Net present FWD"] = {}
+        basic_results["Basic results"]["Net present FWD"]['minimum'] = round(min(self._data["NPFWD"].values()), 3)
+        basic_results["Basic results"]["Net present FWD"]['mean'] = round(
+            sum(self._data["NPFWD"].values()) / len(self._data["NPFWD"].values()), 3)
+        basic_results["Basic results"]["Net present FWD"]['maximum'] = round(max(self._data["NPFWD"].values()), 3)
+
+
+
+        model_results.update(basic_results)
+
+        # chosen_technologies = {"Chosen technologies": self.return_chosen()}
+        # model_results.update(chosen_technologies)
+
+        return model_results
+
+
 
 
