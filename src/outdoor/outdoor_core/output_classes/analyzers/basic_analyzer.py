@@ -829,7 +829,7 @@ class BasicModelAnalyzer:
 
         for i, j in data.items():
 
-            for v in i:
+            for v in i[0:2]: # i[0:2] is the tuple of the unit-operation, we don't need the scenario label
 
                 if v not in nodes.keys():
 
@@ -871,10 +871,15 @@ class BasicModelAnalyzer:
                     else:
                         nodes[v] = make_node(flowchart, model_data["Names"][v], "box")
 
-        for i, j in data.items():
-            edges[i[0], i[1]] = make_link(
-                flowchart, nodes[i[0]], nodes[i[1]], f"{j} t/h"
-            )
+        # if we're dealing with a Stochastic model, we need to create a new dictionary where the labels are the min,
+        # mean and max values. For this we to transform the stream data to get the right labels
+        if len(list(data.keys())[0]) > 2: # if the first key is a tuple > 2, we're dealing with a stochastic model
+            dataStochastic = self.min_mean_max_streams_stochastic(data)
+            for i, j in dataStochastic.items():
+                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j}")
+        else:
+            for i, j in data.items():
+                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j} t/h")
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -882,3 +887,33 @@ class BasicModelAnalyzer:
         path = path + '/flowchart' + '-' + self.model_output._case_number + '.png'
 
         flowchart.write_png(path)
+
+    def min_mean_max_streams_stochastic(self, streamDataDict):
+        """"
+        The data is encased in a tuple (unitNr, unitNr, ScenarioNr) then this function splits the data into a dictionary that
+        contains the minimum, mean and maximum value of each connected stream across all scenarios
+        """
+        #a = streamDataDict
+        scenario_values = self.model_output._data['SC']
+        units = self.model_output._data['U']
+        unitConnestors = self.model_output._data['U_CONNECTORS'] + self.model_output._data['U_SU']
+
+        unitDict = {}
+        for unitNumbers in unitConnestors:
+            scList = []
+            u = unitNumbers[0]
+            uu = unitNumbers[1]
+            for s in scenario_values:
+                if (u, uu, s) in streamDataDict.keys():
+                    scList.append(streamDataDict[u, uu, s])
+
+            if scList: # if the list is not empty continue
+                maxValue = round(max(scList), 2)
+                minValue = round(min(scList),2)
+                meanValue = round(sum(scList) / len(scList), 2)
+                label = f"min:{minValue} t/h\nmean:{meanValue} t/h\nmax: {maxValue} t/h"
+                unitDict.update({(u,uu): label})
+
+        return unitDict
+
+

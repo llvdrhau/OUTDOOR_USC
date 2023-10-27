@@ -83,37 +83,37 @@ def create_superstructure_flowsheet(superstructure, path):
             if v not in nodes.keys():
 
                 if v in superstructure.SourceList['U_S']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                             'ellipse')
 
                 elif v in superstructure.StoichRNumberList['U_STOICH_REACTOR']:
 
                     if v in superstructure.ElectricityGeneratorList['U_TUR']:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'doubleoctagon')
 
                     elif v in superstructure.HeatGeneratorList['U_FUR']:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'doubleoctagon')
 
                     else:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                              'octagon')
 
                 elif v in superstructure.YieldRNumberList['U_YIELD_REACTOR']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'octagon')
 
                 elif v in superstructure.ProductPoolList['U_PP']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'house')
 
                 elif v in superstructure.distributor_list['U_DIST']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'circle')
 
                 else:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames['Names'][v],
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
                                         'box')
 
 

@@ -191,6 +191,7 @@ class Superstructure():
         self.LinPointsList = {'J': []}
         self.LinIntervalsList = {'JI': []}
         self.UnitNames = {'Names': {}}
+        self.UnitNames2 = {'Names': {}}  # for the grafical representation
         # --------------
 
         self.groups  = dict()
@@ -398,7 +399,7 @@ class Superstructure():
             if type(i) == list:
                 for j in i:
                     if j not in self.UnitsList:
-                        #self.UnitsList.append(j.Name)
+                        self.UnitNames2['Names'][j.Number] = j.Name
                         j.fill_unitOperationsList(self)
 
 
@@ -1214,29 +1215,6 @@ class Superstructure():
 
         return self.Data_File
 
-        # try:
-        #     self.__prepare_heatEquations()
-        # except:
-        #     print('\033[1;31;40m' + 'No heat balance prepared' + '\033[0m')
-        #
-        # finally:
-        #     try:
-        #         self.__prepare_capexEquations()
-        #     except:
-        #         print('no Capex prepared')
-        #         print('\033[1;31;40m' + 'no Capex prepared' + '\033[0m')
-        #
-        #     finally:
-        #         try:
-        #             self.__fill_nonIndexedParameters()
-        #             self.__fill_indexedParameters()
-        #             self.__fill_processParameterList()
-        #         except:
-        #             print('Something wrong in parameter init')
-        #             print('\033[1;31;40m' + 'Something wrong' + '\033[0m')
-        #
-        #         finally:
-        #             return self.Data_File
 
     def set_unit_uncertainty(self, uncertaintyObject, parameterName, oldDict):
         """"
@@ -1310,6 +1288,7 @@ class Superstructure():
 
             elif unit.Type == "Source":
 
+                # todo fix the massbalance of the source unit !!!!!!!!!!!!
                 # update the composition
                 newCompostionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
                                                              parameterName='phi',

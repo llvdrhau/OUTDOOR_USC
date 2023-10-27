@@ -9,13 +9,13 @@ from ..optimizers.customs.custom_optimizer import (
     TwoWaySensitivityOptimizer,
 )
 
-
 from ..utils.timer import time_printer
 from ..optimizers.customs.change_params import prepare_mutable_parameters
 
 from pyomo.environ import Param
 
 import numpy as np
+
 
 class SuperstructureProblem:
     """
@@ -33,6 +33,7 @@ class SuperstructureProblem:
         - Hands the model instance to the Optimizer, which solves the model
         using the defined external solver and returns a ModelOutput Class object.
     """
+
     def __init__(self, parser_type="Superstructure"):
         """
 
@@ -54,10 +55,12 @@ class SuperstructureProblem:
                 please use one of the following key words:{PARSER_SET}"
             )
 
+        self.CheckNoneVariables = []
+
     def solve_optimization_problem(
         self,
         input_data=None,
-        optimization_mode= None,
+        optimization_mode=None,
         solver="gurobi",
         interface="local",
         solver_path=None,
@@ -110,7 +113,6 @@ class SuperstructureProblem:
         if optimization_mode is None:
             optimization_mode = input_data.optimization_mode
 
-
         solving_time = time_printer(
             programm_step="Superstructure optimization procedure"
         )
@@ -121,12 +123,7 @@ class SuperstructureProblem:
 
             # check for nan Values
             check_nan = self.find_nan_parameters_in_model_instance(model_instance)
-
-            if check_nan:
-                print('')
-                print("There are NaN values in the model instance. Please check the model.")
-                print(check_nan)
-                print('')
+            self.CheckNoneVariables = check_nan
 
             # set model options
             mode_options = self.set_mode_options(optimization_mode, input_data)
@@ -141,7 +138,6 @@ class SuperstructureProblem:
             return model_output
         else:
             raise Exception("Currently there is no routine for external data parsing implemented")
-
 
     def setup_model_instance(self, input_data, optimization_mode):
         """
@@ -177,7 +173,6 @@ class SuperstructureProblem:
                              f"and the one given from the script is {optimisationModeScript}. "
                              f"Please check the excel file or script.")
 
-
         timer = time_printer(programm_step="DataFile, Model- and ModelInstance setup")
         data_file = input_data.create_DataFile()
 
@@ -185,7 +180,6 @@ class SuperstructureProblem:
             model = SuperstructureModel_2_Stage_recourse(input_data)
         else:
             model = SuperstructureModel(input_data)
-
 
         model.create_ModelEquations()
 
@@ -199,7 +193,6 @@ class SuperstructureProblem:
         timer = time_printer(timer, "DataFile, Model- and ModelInstance setup")
 
         return model_instance
-
 
     def setup_optimizer(
         self,
@@ -312,7 +305,7 @@ class SuperstructureProblem:
 
         return mode_options
 
-    def find_nan_parameters_in_model_instance(self,model):
+    def find_nan_parameters_in_model_instance(self, model, print_nan_parameters=False):
         """
         Check for NaN values in parameters of a Pyomo model.
 
@@ -325,10 +318,9 @@ class SuperstructureProblem:
         """
         nan_parameters = []
 
-        #parameter_declarations = list(model.component_data_objects(Param, active=True))
+        # parameter_declarations = list(model.component_data_objects(Param, active=True))
 
-
-        #Iterate through all active parameters in the model
+        # Iterate through all active parameters in the model
         for component in model.component_objects(Param, active=True):
             for key in component:
                 param_value = component[key]
@@ -341,17 +333,16 @@ class SuperstructureProblem:
                 except:
                     nan_parameters.append((component, key, param_value))
 
+        if print_nan_parameters:
+            if nan_parameters:
+                print("The following parameters have None values, check if they are correct:")
+                for param in nan_parameters:
+                    if isinstance(param[2], str):
+                        # if a string delete the value from the list
+                        nan_parameters.remove(param)
+                    else:
+                        print(f"Parameter {param[0].name}[{param[1]}]: {param[2]}")
 
-
-        if nan_parameters:
-            print("The following parameters have None values, check if they are correct:")
-            for param in nan_parameters:
-                if isinstance(param[2],str):
-                    # if a string delete the value from the list
-                    nan_parameters.remove(param)
-                else:
-                    print(f"Parameter {param[0].name}[{param[1]}]: {param[2]}")
-
-            #raise ValueError("NaN values in parameters detected. Please check the model.")
+                # raise ValueError("NaN values in parameters detected. Please check the model.")
 
         return nan_parameters
