@@ -1263,9 +1263,58 @@ class Superstructure():
 
         return newCompostionDict
 
+    def polish_source_uncertainty(self, newDict, oldDict, uncertaintyObject):
+        """
+        This function creates the dictionary for the composition of the inlet streams of the source units.
+        The difference between set_unit_uncertainty and set_source_uncertainty is that the source units the sum of the
+        composition should be 1 So when a composition is change the other compositions should be changed accordingly to
+        keep the sum of the component fractions equal to 1
+        Inputs:
+            uncertaintyObject: the object that contains the uncertainty information
+            parameterName: the name of the parameter that we want to change
+            oldDict: the dictionary that contains the old values of the parameter
+
+        Output:
+            newCompostionDict: the dictionary that contains the new values of the parameter
+        """
+        changeDict = {}
+        scenarioList = uncertaintyObject.ScenarioList
+        newDictUnpacked = newDict['phi']
+        oldDict = oldDict['phi']
+        for sc in scenarioList:
+            compositionSum = sum(newDictUnpacked[(key[0], key[1], sc)] for key in oldDict.keys())
+            if compositionSum != 1:
+                changedList = []
+                diffList = []
+                for key in oldDict.keys():
+                    difference = newDictUnpacked[(key[0], key[1], sc)] - oldDict[key]
+                    if difference != 0:
+                        diffList.append(difference)
+                    else:
+                        changedList.append(key)
+
+                for i in changedList:
+                    changeDict[(i[0], i[1], sc)] = oldDict[i] - sum(diffList) / len(changedList)
+
+        # update the newDict with the changeDict values
+        for keys in changeDict.keys():
+            newDict['phi'][keys] = changeDict[keys]
+
+
+        # to check if the new DIct is set correctly
+        # polishedDictSumList = []
+        # for sc in scenarioList:
+        #     polishedDictSumList.append(sum(newDict[(key[0], key[1], sc)] for key in oldDict.keys()))
+
+
+        return newDict
+
+
+
+
 
     def set_uncertainty_data(self, uncertaintyObject):
-        """"
+        """
         Sets the parameters of the units based on the uncertainty object
         Inputs:
             uncertaintyObject: the object that contains the uncertainty information
@@ -1288,12 +1337,17 @@ class Superstructure():
 
             elif unit.Type == "Source":
 
-                # todo fix the massbalance of the source unit !!!!!!!!!!!!
                 # update the composition
                 newCompostionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
                                                              parameterName='phi',
                                                              oldDict=unit.Composition)
-                unit.Composition = newCompostionDict
+
+                # update the composition to keep the sum of the fractions equal to 1
+                polishedDict = self.polish_source_uncertainty(newDict=newCompostionDict,
+                                                              oldDict=unit.Composition,
+                                                              uncertaintyObject=uncertaintyObject)
+
+                unit.Composition = polishedDict
 
                 # update the material cost prices
                 newPriceDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
