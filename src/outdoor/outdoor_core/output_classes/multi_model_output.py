@@ -134,16 +134,18 @@ class MultiModelOutput:
         results = dict()
 
         for i, j in self._results_data.items():
-            results[i] = j._collect_results()
+            j._collect_results()
+            dataHolder = j.results
+            results[i] = dataHolder
 
             if pprint is True:
-                j._print_results(j._collect_results())
+                j._print_results(dataHolder)
 
         if savePath is not None:
             if not os.path.exists(savePath):
                 os.makedirs(savePath)
 
-            save = savePath + "/" + "basic_results_file" + self._case_time + ".txt"
+            save = savePath + "/" + "basic_results_file" + self._case_time[0:13] + ".txt"
 
             self._save_results(results, save)
 

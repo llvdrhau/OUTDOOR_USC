@@ -1,9 +1,18 @@
+"""
+This is a test case for the outdoor package applied to AGRILOOP. It is used to test the functionality of the package.
+Made by Philippe  adapted by Lucas
+
+possible optimisation modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
+"Cross-parameter sensitivity" , and "Single 2-stage recourse optimization"
+"""
+
 import sys
 import os
 import tracemalloc
 from delete_function import delete_all_files_in_directory
-from PIL import Image
-from IPython.display import display
+
+
+#from outdoor import get_DataFromExcel, create_superstructure_flowsheet
 
 # start the memory profiler
 tracemalloc.start()
@@ -13,53 +22,50 @@ a = os.path.dirname(a)
 b = a + '/src'
 sys.path.append(b)
 
-
 import outdoor
 
-# define the paths to the excel file and the results directory
+
+
+# define the paths to the Excel file and the results directories
 Excel_Path = "Test_small_AgriLoop.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
-
-# delete old file in the results directory, so it does not pile up
-delete_all_files_in_directory(Results_Path)
+Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\single"
+Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\stochastic"
 
 # create the superstructure data from the Excel file and
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
-
-# check the variables that are not defined in the Excel file, to filter out typos or errors from the Excel
-# NoneVars = superstructure_Data.CheckNoneVariables
-# print(NoneVars)
+#superstructure_Data = get_DataFromExcel(Excel_Path)
 
 # create the superstructure flowsheet
 outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
-
-# display the superstructure flowsheet to check if everything is correct
-# Open image file
-# imgagePath = Results_Path + '/superstructure_flowsheet.png'
-# with Image.open(imgagePath) as img:
-#     # Display image
-#     display(img)
-
+#create_superstructure_flowsheet(superstructure_Data, Results_Path)
 
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
-# todo would it not be better to use the superstructure_Data object here?
-#  that way we could check the model for inconsistencies before solving it
 
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local')
 
 current, peak = tracemalloc.get_traced_memory()
-print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
 
+if model_output._optimization_mode == "Single run optimization":  # single run optimization
+    # delete old file in the results directory, so it does not pile up
+    delete_all_files_in_directory(Results_Path_single)
+    # save the results as a txt file, you have to specify the path
+    model_output.get_results(savePath=Results_Path_single)
+    # save and analyze the new results
+    analyzer = outdoor.BasicModelAnalyzer(model_output)
+    # create the flow sheets of the superstructure and the optimised flow sheet
+    analyzer.create_flowsheet(Results_Path_single)
 
-model_output.get_results(savePath=Results_Path) # if you want to save the results as a txt file, you have to specify the path
-
-
-# save and analyze the new results
-analyzer = outdoor.BasicModelAnalyzer(model_output)
-
-# create the flow sheets of the superstructure and the optimised flow sheet
-analyzer.create_flowsheet(Results_Path)
-
+elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # single run optimization
+    # delete old file in the results directory, so it does not pile up
+    delete_all_files_in_directory(directory_path=Results_Path_stochatic)
+    # save the results as a txt file, you have to specify the path
+    model_output.get_results(savePath=Results_Path_stochatic)
+    # save and analyze the new results
+    analyzer = outdoor.BasicModelAnalyzer(model_output)
+    # create the flow sheets of the superstructure and the optimised flow sheet
+    analyzer.create_flowsheet(path=Results_Path_stochatic)

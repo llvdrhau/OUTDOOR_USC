@@ -22,14 +22,14 @@ class AdvancedMultiModelAnalyzer:
     Class description
     -----------------
     The MultiModelOutput classes are the results from multiple optimization runs
-    such as sensitivity analysis and multi-criteria optimization. In order to 
-    analyse the case specific data structure this class icnludes several methods. 
-    
+    such as sensitivity analysis and multi-criteria optimization. In order to
+    analyse the case specific data structure this class icnludes several methods.
+
     These methods include:
         - create_mcda_table()           --> Usable for MCDAOptimizer runs
         - create_sensitivity_graph()    --> Usable for SensitivityOptimizer
         - create_crossparameter_graph() --> Usable for TwoWaySensitivityOptimizer runs
-    
+
     """
     def __init__(self, model_output=None):
         self.model_output = copy.deepcopy(model_output)
@@ -52,7 +52,7 @@ class AdvancedMultiModelAnalyzer:
         Parameters
         ----------
         path : String
-            Path string from where to load pickle file 
+            Path string from where to load pickle file
 
         """
 
@@ -236,12 +236,12 @@ class AdvancedMultiModelAnalyzer:
 
         return data
 
-    def create_sensitivity_graph(self):
+    def create_sensitivity_graph(self, savePath=None):
         """
         Returns
         -------
         fig : MATPLOTLIB FIGURE
-            
+
         Description
         -----------
         Collects data for sensitivity graph by calling _collect_sensi_data
@@ -274,6 +274,11 @@ class AdvancedMultiModelAnalyzer:
 
                 count += 1
             fig.tight_layout()
+
+
+            if savePath is not None:
+                fig.savefig(savePath + '/sensitivity_graph.png')
+
             return fig
         else:
             print(
@@ -299,11 +304,11 @@ class AdvancedMultiModelAnalyzer:
             Number associated with the chosen technology combination
         string : String
             Name of the technology combination
-            
+
         Description
         -----------
         Takes a ProcessResults object and checks for alle chosen technologies if
-        the required technologies (in plist) are chosen in this design. 
+        the required technologies (in plist) are chosen in this design.
         Afterwards hands back the identifier for the technology choices and the name.
 
         """
@@ -340,17 +345,17 @@ class AdvancedMultiModelAnalyzer:
             number += numbers[i]
             string_list.append(dic[i])
 
-        string = ' + '.join(string_list)        
+        string = ' + '.join(string_list)
 
         return number, string
 
     def _get_2d_array(self, input_, iterator):
         """
-        
+
 
         Parameters
         ----------
-        input_ : 1 Dimensional list 
+        input_ : 1 Dimensional list
         iterator : Int
             Lenth of the x / y axis
 
@@ -360,10 +365,10 @@ class AdvancedMultiModelAnalyzer:
 
         Description
         -----------
-        
+
         Takes a one dimensional list with two dimensional data and converts
         it into a two dimensional numpy array, which is readable for matplotlibs
-        imshow graph. 
+        imshow graph.
         """
 
         # Set-up required variables
@@ -393,7 +398,7 @@ class AdvancedMultiModelAnalyzer:
 
     def _get_graph_data(self, process_list, cdata):
         """
-        
+
         Parameters
         ----------
         process_list : List
@@ -410,18 +415,18 @@ class AdvancedMultiModelAnalyzer:
         C : Two-dimensional Numpy array
             Map of indentifiers for technology choice of x and y
         label_dict : Dictionary
-            Dictionary with labels and identifier numbers 
-            
+            Dictionary with labels and identifier numbers
+
         Description
         -----------
-        
+
         Iterates through all ProcessDesigns in the MultipleDesign and calls:
             - self._get_contour_numbers
             - self._get_2d_array
-            
-        It gets all x and y-axis data from the ProcessResults as well as 
-        net production costs(NPC), from there it creates the axis and 
-        two-dimensional Z and C arrays which hold costs and technology choice 
+
+        It gets all x and y-axis data from the ProcessResults as well as
+        net production costs(NPC), from there it creates the axis and
+        two-dimensional Z and C arrays which hold costs and technology choice
         information.
 
         """
@@ -438,7 +443,7 @@ class AdvancedMultiModelAnalyzer:
         for i, j in self.model_output._results_data.items():
 
             npc = j._data[cdata]
-            
+
             if cdata == 'NPE':
                 rounder = 4
             else:
@@ -447,7 +452,7 @@ class AdvancedMultiModelAnalyzer:
             x.append(i[1])
             y.append(i[3])
             z.append(round(npc, rounder))
-            
+
 
             n, s = self._get_contour_numbers(j, process_list)
 
@@ -455,7 +460,7 @@ class AdvancedMultiModelAnalyzer:
                 label_dict[n] = s
 
             n_list.append(n)
-            
+
         print(z)
         iterator = len(set(x))
 
@@ -494,17 +499,17 @@ class AdvancedMultiModelAnalyzer:
         -----------
         Creates the screening algorithm figure for two-way sensitivity analysis.
         First collects all data and preprocesses them in the right format.
-        Afterwards converts technology choices to numerical grid and 
-        produces an overlaying contour (for costs) and imshow / heatmap 
+        Afterwards converts technology choices to numerical grid and
+        produces an overlaying contour (for costs) and imshow / heatmap
         (for technology choices)
         """
-        
+
         cdata_list = ['NPC', 'NPE', 'NPFWD']
-        
+
         countour_line_labels = {'NPC':"%1.0f €/MWh",
                                 'NPE':"%1.0f t-CO2/MWh",
                                 'NPFWD':"%1.0f t-H2O/MWh"}
-        
+
         if cdata not in cdata_list:
             print('No method or data to depict the demanded value, please chose from')
             print(cdata_list)

@@ -210,7 +210,7 @@ class SuperstructureModel(AbstractModel):
         self.kappa_1_rhs_conc = Param(self.U, self.I, initialize=0)
         self.kappa_2_lhs_conc = Param(self.U, initialize=3)
         self.kappa_2_rhs_conc = Param(self.U, initialize=3)
-        self.Names = Param(self.U, within=Any)
+        self.Names = Param(self.U, within= Any)
         self.alpha = Param(self.U, initialize=100000)
 
         # upper and lower bounds for source flows
@@ -270,10 +270,12 @@ class SuperstructureModel(AbstractModel):
             )
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s):
-            return self.FLOW_SOURCE[u_s] <= self.ul[u_s]
+            # bounds defined in tons per year (t/a) hence flow times full loading hours
+            return self.FLOW_SOURCE[u_s] * self.flh[u_s] <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s):
-            return self.FLOW_SOURCE[u_s] >= self.ll[u_s]
+            # bounds defined in tons per year (t/a) hence flow times full loading hours
+            return self.FLOW_SOURCE[u_s] * self.flh[u_s] >= self.ll[u_s]
 
         # stoichimoetric and yield reactor equations
         def MassBalance_5_rule(self, u, i):
@@ -352,11 +354,14 @@ class SuperstructureModel(AbstractModel):
         def MassBalance_12_rule(self, u):
             return self.FLOW_SUM[u] == sum(self.FLOW_IN[u, i] for i in self.I)
 
+        # min max production constraints for product pools
         def MassBalance_14a_rule(self, up):
-            return self.FLOW_SUM[up] >= self.MinProduction[up]
+            # bounds defined in tons per year (t/a) hence flow times full loading hours
+            return self.FLOW_SUM[up] * self.flh[up] >= self.MinProduction[up]
 
         def MassBalance_14b_rule(self, up):
-            return self.FLOW_SUM[up] <= self.MaxProduction[up]
+            # bounds defined in tons per year (t/a) hence flow times full loading hours
+            return self.FLOW_SUM[up] * self.flh[up] <= self.MaxProduction[up]
 
         def MassBalance_6_rule(self, u, uu, i):
             if (u, uu) not in self.U_DIST_SUB:
@@ -1416,7 +1421,7 @@ class SuperstructureModel(AbstractModel):
 
 
         def MainProduct_1_rule(self):
-            # If the EBIT is chosen as objective function, skip this constraint
+            # If product driven, skip this constraint
             if self.productDriven == "no":
                 return Constraint.Skip
             else:
@@ -1435,14 +1440,9 @@ class SuperstructureModel(AbstractModel):
 
         # Definition of specific fucntion
 
-        def Specific_NPC_rule(self): # in M€ (million euro)
-            if self.productDriven == "no":
-                return self.NPC == self.TAC
-                #can not dived by /self.SumOfProductFlows because would make the equation non-linear
-                # to find the true NCP value, you have to divide the NPC value by the sum of the product flows
-                # after the optimisation problem
-            else:
-                return self.NPC == self.TAC  / self.ProductLoad
+        def Specific_NPC_rule(self): # in € per year (euro/ton/year)
+            # ProductLoad is 1 is substrate driven, otherwise it is the target production
+            return self.NPC == (self.TAC * 1000 * 1000)/self.ProductLoad # in euro per tonne of product per year (so your target production)
 
 
         def Specific_GWP_rule(self):

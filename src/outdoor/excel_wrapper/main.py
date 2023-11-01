@@ -11,6 +11,8 @@ import pandas as pd
 
 import warnings
 
+import copy
+
 from .wrapp_processes import wrapp_processUnits, wrapp_productPoolUnits, wrapp_sourceUnits, wrapp_distributors
 
 from ..outdoor_core.utils.timer import time_printer
@@ -114,6 +116,11 @@ def get_DataFromExcel(PathName=None):
     timer = time_printer(timer, 'Exctract data from excel')
 
     if Superstructure_Object.optimization_mode == '2-stage-recourse':
+        # save the data of the single optimisation variable in the object for VSS and EVPI calculation
+        Superstructure_Object_duplicate = copy.deepcopy(Superstructure_Object)
+        Superstructure_Object.parameters_single_optimization = Superstructure_Object_duplicate
+
+        # set the uncertainty data in the object
         df_stochastic = datframe['Uncertainty']
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)

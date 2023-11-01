@@ -108,9 +108,13 @@ class SingleOptimizer:
         timer = time_printer(timer, 'Single optimization run')
 
         if self.optimization_mode == "2-stage-recourse":
-            model_output = StochasticModelOutput(model_instance, self.solver_name, timer, gap)
+            model_output = StochasticModelOutput(model_instance=model_instance,
+                                                 optimization_mode='Single 2-stage recourse optimization',
+                                                 solver_name=self.solver_name, run_time= timer, gap=gap)
         else:
-            model_output = ModelOutput(model_instance, self.solver_name, timer, gap)
+            model_output = ModelOutput(model_instance=model_instance,
+                                       optimization_mode='Single run optimization',
+                                       solver_name=self.solver_name, run_time= timer, gap=gap)
 
         return model_output
 

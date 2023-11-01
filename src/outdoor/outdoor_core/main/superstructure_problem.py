@@ -12,9 +12,10 @@ from ..optimizers.customs.custom_optimizer import (
 from ..utils.timer import time_printer
 from ..optimizers.customs.change_params import prepare_mutable_parameters
 
-from pyomo.environ import Param
 
 import numpy as np
+
+from pyomo.environ import *
 
 
 class SuperstructureProblem:
@@ -56,6 +57,104 @@ class SuperstructureProblem:
             )
 
         self.CheckNoneVariables = []
+
+    def get_VSS_and_EVPI(self,
+                         expected_value,
+                         input_data=None,
+                         solver="gurobi",
+                         interface="local",
+                         solver_path=None,
+                         options=None):
+        """
+        This function is used to calculate the VSS and EVPI of a stochastic problem.
+        :param input_data of the signal optimisation run::
+        :param optimization_mode:
+        :param solver:
+        :param interface:
+        :param solver_path:
+        :param options:
+        :return:
+        """
+
+        # start with the VSS calculation
+
+        # first run the single run optimisation to get the unit operations
+        singleInput = input_data.parameters_single_optimization
+        # singleInput.optimization_mode = "single" # just to make sure
+        optimization_mode = "single"
+        # populate the model instance with the input data
+        model_instance = self.setup_model_instance(singleInput, optimization_mode)
+
+        # set model options
+        mode_options = self.set_mode_options(optimization_mode, input_data)
+
+        # settings optimisation problem
+        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                         mode_options, input_data)
+
+        # run the optimisation
+        model_output = optimizer.run_optimization(model_instance)
+
+        # Extract the boolean variables choosing the units from the model output and save them in a list
+        fixBooleanVariables = model_output._data['Y']
+
+        # now make a deep copy of the model and fix the boolean variables as parameters in the model
+        model_instance_copy = model_instance.clone()
+        # change the model instance copy
+        model_instance_copy.del_component(model_instance_copy.Y)
+        model_instance_copy.Y = Param(model_instance_copy.U, initialize=fixBooleanVariables, mutable=True)
+
+        # delete and redefine the constraints which are affected by the boolean variables
+        model_instance_copy.del_component(model_instance_copy.MassBalance_3)
+        def MassBalance_3_rule(self, u_s, u):
+            return self.FLOW_ADD[u_s, u] <= self.alpha[u] * self.Y[u]  # Big M constraint
+
+        model_instance_copy.MassBalance_3 = Constraint(model_instance_copy.U_SU,
+                                                           rule=MassBalance_3_rule)
+
+        # continue with the VSS calculation here on out
+        raise Exception("The following code is not working, please fix it")
+
+        def MassBalance_6_rule(self, u, uu, i):
+            if (u, uu) not in self.U_DIST_SUB:
+                    if (u, uu) in self.U_CONNECTORS:
+                        return self.FLOW[u, uu, i] <= self.myu[u, uu, i] * self.FLOW_OUT[
+                            u, i
+                            ] + self.alpha[u] * (1 - self.Y[uu])
+                    else:
+                        return Constraint.Skip
+
+            else:
+                return self.FLOW[u, uu, i] <= sum(
+                    self.FLOW_DIST[u, uu, uk, k, i]
+                    for (uk, k) in self.DC_SET
+                    if (u, uu, uk, k) in self.U_DIST_SUB2
+                ) + self.alpha[u] * (1 - self.Y[uu])
+
+        def MassBalance_7_rule(self, u, uu, i):
+            if (u,uu) in self.U_CONNECTORS:
+                return self.FLOW[u, uu, i] <= self.alpha[u] * self.Y[uu]
+            else:
+                return Constraint.Skip
+
+        def MassBalance_8_rule(self, u, uu, i):
+            if (u, uu) not in self.U_DIST_SUB:
+                if (u, uu) in self.U_CONNECTORS:
+                    return self.FLOW[u, uu, i] >= self.myu[u, uu, i] * self.FLOW_OUT[
+                        u, i
+                        ] - self.alpha[u] * (1 - self.Y[uu])
+                else:
+                    return Constraint.Skip
+            else:
+                return self.FLOW[u, uu, i] >= sum(
+                    self.FLOW_DIST[u, uu, uk, k, i]
+                    for (uk, k) in self.DC_SET
+                    if (u, uu, uk, k) in self.U_DIST_SUB2
+                ) - self.alpha[u] * (1 - self.Y[uu])
+
+        EVPI = 0
+        VSS = 0
+        return (EVPI, VSS)
 
     def solve_optimization_problem(
         self,
@@ -109,14 +208,19 @@ class SuperstructureProblem:
             4) optimizer.run_optimization()
 
         """
-
+        self._optimization_mode = optimization_mode
         if optimization_mode is None:
             optimization_mode = input_data.optimization_mode
+            self._optimization_mode = input_data.optimization_mode
+
 
         solving_time = time_printer(
             programm_step="Superstructure optimization procedure"
         )
         if self.parser == "Superstructure":
+
+
+
 
             # populate the model instance with the input data
             model_instance = self.setup_model_instance(input_data, optimization_mode)
@@ -135,6 +239,16 @@ class SuperstructureProblem:
             # run the optimisation
             model_output = optimizer.run_optimization(model_instance)
             solving_time = time_printer(solving_time, "Superstructure optimization procedure")
+
+            # if the problem is a stochastic problem, a single objective optimisations are solved multiple times to
+            # calulate the Expected value of perfect information EVPI and the Value of the stochastic solution VSS
+            if optimization_mode == "2-stage-recourse":
+                expected_value = 1
+                (EVPI, VSS) = self.get_VSS_and_EVPI(expected_value, input_data, solver, interface,
+                                                    solver_path, options)
+
+                print(f"the EVPI is {EVPI} and the VSS is {VSS}")
+
             return model_output
         else:
             raise Exception("Currently there is no routine for external data parsing implemented")
@@ -165,13 +279,14 @@ class SuperstructureProblem:
 
         """
         # create a error warning if the optimisation mode in the excel is not the same as the one given from the script
-        optimisationModeExcel = input_data.optimization_mode
-        optimisationModeScript = optimization_mode
-
-        if optimisationModeExcel != optimisationModeScript:
-            raise ValueError(f"The optimisation mode in the excel file is {optimisationModeExcel} "
-                             f"and the one given from the script is {optimisationModeScript}. "
-                             f"Please check the excel file or script.")
+        # should be redundant with the new parser
+        # optimisationModeExcel = input_data.optimization_mode
+        # optimisationModeScript = optimization_mode
+        # if optimisationModeExcel != optimisationModeScript:
+        #     raise ValueError(f"The optimisation mode in the excel file is {optimisationModeExcel} "
+        #                      f"and the one given from the script is {optimisationModeScript}. "
+        #                      f"Please check the excel file or script.\n "
+        #                      f"The possible options are: 'single', 'sensitivity', 'cross-parameter', 'multi-objective' and '2-stage-recourse' ")
 
         timer = time_printer(programm_step="DataFile, Model- and ModelInstance setup")
         data_file = input_data.create_DataFile()
@@ -346,3 +461,5 @@ class SuperstructureProblem:
                 # raise ValueError("NaN values in parameters detected. Please check the model.")
 
         return nan_parameters
+
+

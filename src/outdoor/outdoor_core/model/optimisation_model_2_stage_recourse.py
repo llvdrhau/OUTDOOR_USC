@@ -306,10 +306,10 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             )
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s, sc):
-            return self.FLOW_SOURCE[u_s, sc] <= self.ul[u_s]
+            return self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s, sc):
-            return self.FLOW_SOURCE[u_s, sc] >= self.ll[u_s]
+            return self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] >= self.ll[u_s]
         # ----------------------------------------------------------------------------------------------------------------
         # ----------------------------------------------------------------------------------------------------------------
 
@@ -391,10 +391,10 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             return self.FLOW_SUM[u, sc] == sum(self.FLOW_IN[u, i, sc] for i in self.I)
 
         def MassBalance_14a_rule(self, up, sc):
-            return self.FLOW_SUM[up, sc] >= self.MinProduction[up]
+            return self.FLOW_SUM[up, sc] * self.flh[up] >= self.MinProduction[up]
 
         def MassBalance_14b_rule(self, up, sc):
-            return self.FLOW_SUM[up, sc] <= self.MaxProduction[up]
+            return self.FLOW_SUM[up, sc] * self.flh[up] <= self.MaxProduction[up]
 
         def MassBalance_6_rule(self, u, uu, i, sc):
             if (u, uu) not in self.U_DIST_SUB:
@@ -1496,15 +1496,10 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # Definition of specific function
 
-        def Specific_NPC_rule(self, sc):
+        def Specific_NPC_rule(self, sc):# in € per year (euro/ton/year)
+            # ProductLoad is 1 is substrate driven, otherwise it is the target production
+            return self.NPC[sc] == self.TAC[sc] * 1000 * 1000 / self.ProductLoad # in euro per tonne of product per year (so your target production)
 
-            if self.productDriven == "no":
-                return self.NPC[sc] == self.TAC[sc]
-                #can not dived by /self.SumOfProductFlows because would make the equation non-linear
-                # to find the true NCP value, you have to divide the NPC value by the sum of the product flows
-                # after the optimisation problem
-            else:
-                return self.NPC[sc] == self.TAC[sc]  / self.ProductLoad
 
         def Specific_GWP_rule(self, sc):
             return self.NPE[sc] == self.GWP_TOT[sc] / self.ProductLoad
@@ -1524,7 +1519,8 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # Definition of the possible Objective Functions
         def NPC_rule(self):
-            return self.NPC_final == self.CAPEX + sum(self.odds[sc] * (self.OPEX[sc]- self.PROFITS_TOT[sc]) for sc in self.SC)
+            return self.NPC_final == ((self.CAPEX + sum(self.odds[sc] * (self.OPEX[sc] - self.PROFITS_TOT[sc])
+                                                       for sc in self.SC)) * 1000 * 1000) / self.ProductLoad  # in from Mil. euro to Euro
         def GWP_rule(self):
             return self.NPE_final == sum(self.odds[sc] * self.GWP_TOT[sc] / self.ProductLoad for sc in self.SC)
         def FWD_rule(self):
