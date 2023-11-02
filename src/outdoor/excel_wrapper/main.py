@@ -124,7 +124,6 @@ def get_DataFromExcel(PathName=None):
         df_stochastic = datframe['Uncertainty']
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
-
     return Superstructure_Object
 
 

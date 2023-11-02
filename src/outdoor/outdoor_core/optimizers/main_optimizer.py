@@ -78,7 +78,7 @@ class SingleOptimizer:
         # save optimisation mode
         self.optimization_mode = optimization_mode
 
-    def run_optimization(self, model_instance):
+    def run_optimization(self, model_instance, tee=True, printTimer=True):
         """
         Parameters
         ----------
@@ -95,9 +95,11 @@ class SingleOptimizer:
         (Sets, Params, Var, Objective, Optimimality gap) in the ModelOuput object.
 
         """
-        timer = time_printer(programm_step='Single optimization run')
 
-        results = self.solver.solve(model_instance, tee=True)
+        timer = time_printer(programm_step='Single optimization run', printTimer=printTimer)
+
+
+        results = self.solver.solve(model_instance, tee=tee)
         gap = (
             (
                 results["Problem"][0]["Upper bound"]
@@ -105,7 +107,9 @@ class SingleOptimizer:
             )
             / results["Problem"][0]["Upper bound"]
         ) * 100
-        timer = time_printer(timer, 'Single optimization run')
+
+
+        timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)
 
         if self.optimization_mode == "2-stage-recourse":
             model_output = StochasticModelOutput(model_instance=model_instance,

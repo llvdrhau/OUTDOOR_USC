@@ -220,7 +220,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
 
         # Flow parameters (Split factor, concentrations, full load hours)
-        self.conc = Param(self.U, initialize=0)
+        self.conc = Param(self.U, initialize=0, within= Any)
         self.flh = Param(self.U)
         self.MinProduction = Param(self.U_PP, initialize=0)
         self.MaxProduction = Param(self.U_PP, initialize=100000)
@@ -306,10 +306,12 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             )
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s, sc):
-            return self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] <= self.ul[u_s]
+            # if you want to place the bounds according to t/y: self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] <= self.ul[u_s]
+            return self.FLOW_SOURCE[u_s, sc]  <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s, sc):
-            return self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] >= self.ll[u_s]
+            # if you want to place the bounds according to t/y: self.FLOW_SOURCE[u_s, sc] * self.flh[u_s] >= self.ll[u_s]
+            return self.FLOW_SOURCE[u_s, sc]  >= self.ll[u_s]
         # ----------------------------------------------------------------------------------------------------------------
         # ----------------------------------------------------------------------------------------------------------------
 
@@ -391,10 +393,12 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             return self.FLOW_SUM[u, sc] == sum(self.FLOW_IN[u, i, sc] for i in self.I)
 
         def MassBalance_14a_rule(self, up, sc):
-            return self.FLOW_SUM[up, sc] * self.flh[up] >= self.MinProduction[up]
+            # if you want to place the bounds according to t/y: self.FLOW_SUM[up, sc] * self.flh[up] >= self.MinProduction[up]
+            return self.FLOW_SUM[up, sc] >= self.MinProduction[up]
 
         def MassBalance_14b_rule(self, up, sc):
-            return self.FLOW_SUM[up, sc] * self.flh[up] <= self.MaxProduction[up]
+            # if you want to place the bounds according to t/y: self.FLOW_SUM[up, sc] * self.flh[up] <= self.MaxProduction[up]
+            return self.FLOW_SUM[up, sc]  <= self.MaxProduction[up]
 
         def MassBalance_6_rule(self, u, uu, i, sc):
             if (u, uu) not in self.U_DIST_SUB:
@@ -504,7 +508,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # ---------
 
         # Energy demand (El, Heating/Cooling, Interval H and C)
-        self.tau = Param(self.U, self.UT, initialize=0)
+        self.tau = Param(self.U, self.UT, initialize=0, within= Any)
         self.tau_h = Param(self.H_UT, self.U, initialize=0)
         self.tau_c = Param(self.H_UT, self.U, initialize=0)
         self.beta = Param(self.U, self.H_UT, self.HI, initialize=0)

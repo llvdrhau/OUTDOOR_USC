@@ -962,30 +962,48 @@ class StochasticModelOutput(ModelOutput):
 
         basic_results["Basic results"] = {}
 
-        basic_results["Basic results"]["Objective Function"] = self._objective_function
-        basic_results["Basic results"]["Expected Objective value"] = self._data[self._objective_function]
+        objectiveFunctionName = self._objective_function
+        if objectiveFunctionName == 'EBIT_final':
+            unitsObjecive = 'Mil Euros'
+        elif objectiveFunctionName == 'NPC_final':
+            unitsObjecive = 'Euros'
+        elif objectiveFunctionName == 'NPE_final':
+            unitsObjecive = 'CO2-eq'
+        elif objectiveFunctionName == 'NPFWD_final':
+            unitsObjecive = 'H2O-eq'
+        else:
+            unitsObjecive = 'Unknown'
+
+        basic_results["Basic results"]["Objective Function"] =  self._objective_function
+        valueObjectiveFunction = round(self._data[self._objective_function], 2)
+        basic_results["Basic results"]["Expected Objective value"] = "{} {}".format(valueObjectiveFunction, unitsObjecive)
+
+        # retrive the VSS and EVPI
+        basic_results["Basic results"]["VSS"] = "{} {}".format(round(self.VSS, 2), unitsObjecive )
+        basic_results["Basic results"]["EVPI"] = "{} {}".format(round(self.EVPI, 2), unitsObjecive)
 
         # the product load is not a variable that changes per scenario
         # so take the first result in the dictionary
         basic_results["Basic results"]["Yearly product load"] = self._product_load['sc1']
-
-        basic_results["Basic results"]["Solver run time"] = self._run_time
-
+        basic_results["Basic results"]["Solver run time"] = "{} s".format(round(self._run_time,2)) # in seconds
         basic_results["Basic results"]["Solver name"] = self._solver
 
         # get the min, max and mean of the EBIT
         basic_results["Basic results"]["Earnings Before Tax income"] = {}
-        basic_results["Basic results"]["Earnings Before Tax income"]['minimum'] = round(min(self._data["EBIT"].values()), 2)
-        basic_results["Basic results"]["Earnings Before Tax income"]['mean'] = round(sum(self._data["EBIT"].values()) / len(self._data["EBIT"].values()), 2)
-        basic_results["Basic results"]["Earnings Before Tax income"]['maximum'] = round(max(self._data["EBIT"].values()), 2)
+        minEBIT = round(min(self._data["EBIT"].values()), 2)
+        meanEBIT = round(sum(self._data["EBIT"].values()) / len(self._data["EBIT"].values()), 2)
+        maxEBIT = round(max(self._data["EBIT"].values()), 2)
+        basic_results["Basic results"]["Earnings Before Tax income"] = "Min:{} Mean:{} Max:{} Mil Euros".format(minEBIT, meanEBIT, maxEBIT)
+
 
         # get the min, max and mean of the Net production costs
         basic_results["Basic results"]["Net production costs"] = {}
         if self._product_load['sc1']: # if the product load is not zero
             #get the min, max and mean of the NPC
-            basic_results["Basic results"]["Net production costs"]['minimum'] = round(min(self._data["NPC"].values()), 2)
-            basic_results["Basic results"]["Net production costs"]['mean'] = round(sum(self._data["NPC"].values()) / len(self._data["NPC"].values()), 2)
-            basic_results["Basic results"]["Net production costs"]['maximum'] = round(max(self._data["NPC"].values()), 2)
+            minNPC = round(min(self._data["NPC"].values()), 2)
+            meanNPC = round(sum(self._data["NPC"].values()) / len(self._data["NPC"].values()), 2)
+            maxNPC = round(max(self._data["NPC"].values()), 2)
+            basic_results["Basic results"]["Net production costs"] = "Min:{} Mean:{} Max:{} Euros/Ton".format(minNPC, meanNPC, maxNPC)
 
         else: # dived by the sum of the product flows
             # Convert the values of both dictionaries to lists
@@ -993,16 +1011,20 @@ class StochasticModelOutput(ModelOutput):
             product_flows_values = list(self._data['SumOfProductFlows'].values())
             npcList = [npc / product_flow for npc, product_flow in zip(npc_values, product_flows_values)]
 
-            basic_results["Basic results"]["Net production costs"]['minimum'] = round(min(npcList), 2)
-            basic_results["Basic results"]["Net production costs"]['mean'] = round(sum(npcList)/len(npcList), 2)
-            basic_results["Basic results"]["Net production costs"]['maximum'] = round(max(npcList), 2)
+            minNCP = round(min(npcList), 2)
+            meanNCP = round(sum(npcList)/len(npcList), 2)
+            maxNCP = round(max(npcList), 2)
+            basic_results["Basic results"]["Net production costs"] = "Min:{} Mean:{} Max:{} Euros/Ton".format(minNCP, meanNCP, maxNCP)
+
 
         # get the min, max and mean of the NPE
         basic_results["Basic results"]["Net production GHG emissions"] = {}
         if self._product_load['sc1']: # if the product load is not zero
-            basic_results["Basic results"]["Net production GHG emissions"]['minimum'] = round(min(self._data["NPE"].values()), 3)
-            basic_results["Basic results"]["Net production GHG emissions"]['mean'] = round(sum(self._data["NPE"].values()) / len(self._data["NPE"].values()), 3)
-            basic_results["Basic results"]["Net production GHG emissions"]['maximum'] = round(max(self._data["NPE"].values()), 3)
+            minNPE = round(min(self._data["NPE"].values()), 2)
+            meanNPE = round(sum(self._data["NPE"].values()) / len(self._data["NPE"].values()), 2)
+            maxNPE = round(max(self._data["NPE"].values()), 2)
+            basic_results["Basic results"]["Net production GHG emissions"] = "Min:{} Mean:{} Max:{} CO2-eq/Ton".format(minNPE, meanNPE, maxNPE)
+
 
         else: # dived by the sum of the product flows
             # Convert the values of both dictionaries to lists
@@ -1010,29 +1032,29 @@ class StochasticModelOutput(ModelOutput):
             product_flows_values = list(self._data['SumOfProductFlows'].values())
             npeList = [npe / product_flow for npe, product_flow in zip(npe_values, product_flows_values)]
 
-            basic_results["Basic results"]["Net production GHG emissions"]['minimum'] = round(min(npeList), 3)
-            basic_results["Basic results"]["Net production GHG emissions"]['mean'] = round(sum(npeList)/len(npeList), 3)
-            basic_results["Basic results"]["Net production GHG emissions"]['maximum'] = round(max(npeList), 3)
-
-
+            minNPE = round(min(npeList), 2)
+            meanNPE = round(sum(npeList)/len(npeList), 2)
+            maxNPE = round(max(npeList), 2)
+            basic_results["Basic results"]["Net production GHG emissions"] = "Min:{} Mean:{} Max:{} CO2-eq/Ton".format(minNPE, meanNPE, maxNPE)
 
 
         #get the min, max and mean of the NPFWD
         basic_results["Basic results"]["Net present FWD"] = {}
         if self._product_load['sc1']:
-            basic_results["Basic results"]["Net present FWD"]['minimum'] = round(min(self._data["NPFWD"].values()), 3)
-            basic_results["Basic results"]["Net present FWD"]['mean'] = round(
-                sum(self._data["NPFWD"].values()) / len(self._data["NPFWD"].values()), 3)
-            basic_results["Basic results"]["Net present FWD"]['maximum'] = round(max(self._data["NPFWD"].values()), 3)
+            minFWD = round(min(self._data["NPFWD"].values()), 3)
+            meanFWD = round(sum(self._data["NPFWD"].values()) / len(self._data["NPFWD"].values()), 3)
+            maxFWD = round(max(self._data["NPFWD"].values()), 3)
+            basic_results["Basic results"]["Net present FWD"] = "Min:{} Mean:{} Max:{} H2O-eq/Ton".format(minFWD, meanFWD, maxFWD)
         else:
             # Convert the values of both dictionaries to lists
             npfwd_values = list(self._data["NPFWD"].values())
             product_flows_values = list(self._data['SumOfProductFlows'].values())
             npfwdList = [npfwd / product_flow for npfwd, product_flow in zip(npfwd_values, product_flows_values)]
 
-            basic_results["Basic results"]["Net present FWD"]['minimum'] = round(min(npfwdList), 3)
-            basic_results["Basic results"]["Net present FWD"]['mean'] = round(sum(npfwdList)/len(npfwdList), 3)
-            basic_results["Basic results"]["Net present FWD"]['maximum'] = round(max(npfwdList), 3)
+            minFWD  = round(min(npfwdList), 3)
+            meanFWD = round(sum(npfwdList)/len(npfwdList), 3)
+            maxFWD = round(max(npfwdList), 3)
+            basic_results["Basic results"]["Net present FWD"] = "Min:{} Mean:{} Max:{} H2O-eq/Ton".format(minFWD, meanFWD, maxFWD)
 
 
 

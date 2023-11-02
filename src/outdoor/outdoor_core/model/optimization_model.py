@@ -192,17 +192,17 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         # Flow parameters (Split factor, concentrations, full load hours)
-        self.myu = Param(self.U_CONNECTORS, self.I, initialize=0)
-        self.conc = Param(self.U, initialize=0)
+        self.myu = Param(self.U_CONNECTORS, self.I, initialize=0, mutable=True)
+        self.conc = Param(self.U, initialize=0, within=Any)
         self.flh = Param(self.U)
         self.MinProduction = Param(self.U_PP, initialize=0)
         self.MaxProduction = Param(self.U_PP, initialize=100000)
 
 
         # Reaction parameters(Stoich. / Yield Coefficients)
-        self.gamma = Param(self.U_STOICH_REACTOR, self.I, self.R, initialize=0)
-        self.theta = Param(self.U_STOICH_REACTOR, self.R, self.M, initialize=0)
-        self.xi = Param(self.U_YIELD_REACTOR, self.I, initialize=0)
+        self.gamma = Param(self.U_STOICH_REACTOR, self.I, self.R, initialize=0, mutable=True)
+        self.theta = Param(self.U_STOICH_REACTOR, self.R, self.M, initialize=0, mutable=True)
+        self.xi = Param(self.U_YIELD_REACTOR, self.I, initialize=0, mutable=True)
         self.ic_on = Param(self.U_YIELD_REACTOR, initialize=0)
 
         # Additional slack parameters (Flow choice, upper bounds, )
@@ -218,10 +218,10 @@ class SuperstructureModel(AbstractModel):
         self.ll = Param(self.U_S, initialize=0)
 
         # component composition parameters
-        self.phi = Param(self.U_S, self.I, initialize=0)
+        self.phi = Param(self.U_S, self.I, initialize=0, mutable=True)
 
         # cost parameters
-        self.materialcosts = Param(self.U_S, initialize=0)
+        self.materialcosts = Param(self.U_S, initialize=0, mutable=True)
 
         # Decimal_numbers help to model the distributor equations
         # it sets the degree of "detail" for the distributor
@@ -271,11 +271,11 @@ class SuperstructureModel(AbstractModel):
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s] * self.flh[u_s] <= self.ul[u_s]
+            return self.FLOW_SOURCE[u_s]  <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s] * self.flh[u_s] >= self.ll[u_s]
+            return self.FLOW_SOURCE[u_s]  >= self.ll[u_s]
 
         # stoichimoetric and yield reactor equations
         def MassBalance_5_rule(self, u, i):
@@ -357,11 +357,11 @@ class SuperstructureModel(AbstractModel):
         # min max production constraints for product pools
         def MassBalance_14a_rule(self, up):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SUM[up] * self.flh[up] >= self.MinProduction[up]
+            return self.FLOW_SUM[up]  >= self.MinProduction[up]
 
         def MassBalance_14b_rule(self, up):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SUM[up] * self.flh[up] <= self.MaxProduction[up]
+            return self.FLOW_SUM[up]  <= self.MaxProduction[up]
 
         def MassBalance_6_rule(self, u, uu, i):
             if (u, uu) not in self.U_DIST_SUB:
@@ -473,7 +473,7 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         # Energy demand (El, Heating/Cooling, Interval H and C)
-        self.tau = Param(self.U, self.UT, initialize=0)
+        self.tau = Param(self.U, self.UT, initialize=0, within=Any)
         self.tau_h = Param(self.H_UT, self.U, initialize=0)
         self.tau_c = Param(self.H_UT, self.U, initialize=0)
         self.beta = Param(self.U, self.H_UT, self.HI, initialize=0)
@@ -863,7 +863,7 @@ class SuperstructureModel(AbstractModel):
         self.delta_ut = Param(self.U_UT, initialize=0)
         self.delta_q = Param(self.HI, initialize=30)
         self.delta_cool = Param(initialize=15)
-        self.ProductPrice = Param(self.U_PP, initialize=0)
+        self.ProductPrice = Param(self.U_PP, initialize=0, mutable=True)
 
         # Cost factors (CAPEX, Heat Pump)
         self.DC = Param(self.U, initialize=0)
@@ -1366,13 +1366,9 @@ class SuperstructureModel(AbstractModel):
             if ind == False:
                 return Constraint.Skip
 
-        self.ProcessGroup_logic_1 = Constraint(
-            self.U, self.UU, rule=ProcessGroup_logic_1_rule
-        )
+        self.ProcessGroup_logic_1 = Constraint(self.U, self.UU, rule=ProcessGroup_logic_1_rule)
 
-        self.ProcessGroup_logic_2 = Constraint(
-            self.U, numbers, rule=ProcessGroup_logic_2_rule
-        )
+        self.ProcessGroup_logic_2 = Constraint(self.U, numbers, rule=ProcessGroup_logic_2_rule)
 
 
     # **** OBJECTIVE FUNCTIONS *****

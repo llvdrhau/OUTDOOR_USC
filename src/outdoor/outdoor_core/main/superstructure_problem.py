@@ -17,6 +17,8 @@ import numpy as np
 
 from pyomo.environ import *
 
+import sys
+
 
 class SuperstructureProblem:
     """
@@ -75,45 +77,84 @@ class SuperstructureProblem:
         :param options:
         :return:
         """
+        def set_parameters_of_scenario(scenario, singleInput, stochasticInput, model):
+            # set the parameters of the single run optimisation
+            singleDataFile = singleInput.Data_File
+            # set the parameters of the stochastic run optimisation
+            stochasticDataFile = stochasticInput.Data_File
 
-        # start with the VSS calculation
+            # need to go over the following parameters: phi, myu, xi, materialcosts, ProductPrice, gamma and theta
 
-        # first run the single run optimisation to get the unit operations
-        singleInput = input_data.parameters_single_optimization
-        # singleInput.optimization_mode = "single" # just to make sure
-        optimization_mode = "single"
-        # populate the model instance with the input data
-        model_instance = self.setup_model_instance(singleInput, optimization_mode)
+            # first the phi parameter
+            phi = singleDataFile[None]['phi']
+            phiSto = stochasticDataFile[None]['phi']
+            for keys, values in phi.items():
+                phi[keys] = phiSto[keys[0],keys[1], scenario]
 
-        # set model options
-        mode_options = self.set_mode_options(optimization_mode, input_data)
+            # second the myu parameter
+            myu = singleDataFile[None]['myu']
+            myuSto = stochasticDataFile[None]['myu']
+            for keys, values in myu.items():
+                myu[keys] = myuSto[keys[0],keys[1], scenario]
 
-        # settings optimisation problem
-        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                         mode_options, input_data)
+            # third the xi parameter
+            xi = singleDataFile[None]['xi']
+            xiSto = stochasticDataFile[None]['xi']
+            for keys, values in xi.items():
+                xi[keys] = xiSto[keys[0],keys[1], scenario]
 
-        # run the optimisation
-        model_output = optimizer.run_optimization(model_instance)
+            # fourth the materialcosts parameter
+            materialcosts = singleDataFile[None]['materialcosts']
+            materialcostsSto = stochasticDataFile[None]['materialcosts']
+            for keys, values in materialcosts.items():
+                materialcosts[keys] = materialcostsSto[keys, scenario]
 
-        # Extract the boolean variables choosing the units from the model output and save them in a list
-        fixBooleanVariables = model_output._data['Y']
+            # fifth the productPrice parameter
+            productPrice = singleDataFile[None]['ProductPrice']
+            productPriceSto = stochasticDataFile[None]['ProductPrice']
+            for keys, values in productPrice.items():
+                productPrice[keys] = productPriceSto[keys, scenario]
 
-        # now make a deep copy of the model and fix the boolean variables as parameters in the model
-        model_instance_copy = model_instance.clone()
-        # change the model instance copy
-        model_instance_copy.del_component(model_instance_copy.Y)
-        model_instance_copy.Y = Param(model_instance_copy.U, initialize=fixBooleanVariables, mutable=True)
+            # sixth the gamma parameter
+            gamma = singleDataFile[None]['gamma']
+            gammaSto = stochasticDataFile[None]['gamma']
+            for keys, values in gamma.items():
+                gamma[keys] = gammaSto[keys[0],keys[1], scenario]
 
-        # delete and redefine the constraints which are affected by the boolean variables
-        model_instance_copy.del_component(model_instance_copy.MassBalance_3)
+            # seventh the theta parameter
+            theta = singleDataFile[None]['theta']
+            thetaSto = stochasticDataFile[None]['theta']
+            for keys, values in theta.items():
+                theta[keys] = thetaSto[keys[0],keys[1], scenario]
+
+
+            # update the model instance
+            # phi
+            for index, new_value in phi.items():
+                model.phi[index] = new_value
+            # myu
+            for index, new_value in myu.items():
+                model.myu[index] = new_value
+            # xi
+            for index, new_value in xi.items():
+                model.xi[index] = new_value
+            # materialcosts
+            for index, new_value in materialcosts.items():
+                model.materialcosts[index] = new_value
+            # productPrice
+            for index, new_value in productPrice.items():
+                model.ProductPrice[index] = new_value
+            # gamma
+            for index, new_value in gamma.items():
+                model.gamma[index] = new_value
+            # theta
+            for index, new_value in theta.items():
+                model.theta[index] = new_value
+
+            return model
+
         def MassBalance_3_rule(self, u_s, u):
             return self.FLOW_ADD[u_s, u] <= self.alpha[u] * self.Y[u]  # Big M constraint
-
-        model_instance_copy.MassBalance_3 = Constraint(model_instance_copy.U_SU,
-                                                           rule=MassBalance_3_rule)
-
-        # continue with the VSS calculation here on out
-        raise Exception("The following code is not working, please fix it")
 
         def MassBalance_6_rule(self, u, uu, i):
             if (u, uu) not in self.U_DIST_SUB:
@@ -152,9 +193,140 @@ class SuperstructureProblem:
                     if (u, uu, uk, k) in self.U_DIST_SUB2
                 ) - self.alpha[u] * (1 - self.Y[uu])
 
-        EVPI = 0
-        VSS = 0
-        return (EVPI, VSS)
+        def GWP_6_rule(self, u):
+            return self.GWP_UNITS[u] == self.em_fac_unit[u] / self.LT[u] * self.Y[u]
+
+        def ProcessGroup_logic_1_rule(self, u, uu):
+
+            ind = False
+
+            for i, j in self.groups.items():
+
+                if u in j and uu in j:
+                    return self.Y[u] == self.Y[uu]
+                    ind = True
+
+            if ind == False:
+                return Constraint.Skip
+
+        def ProcessGroup_logic_2_rule(self, u, k):
+
+            ind = False
+
+            for i, j in self.connections.items():
+                if u == i:
+                    if j[k]:
+                        return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
+                        ind = True
+
+            if ind == False:
+                return Constraint.Skip
+
+
+        # start with the VSS calculation
+
+        # first run the single run optimisation to get the unit operations
+        singleInput = input_data.parameters_single_optimization
+        # singleInput.optimization_mode = "single" # just to make sure
+        optimization_mode = "single"
+        # populate the model instance with the input data
+        model_instance = self.setup_model_instance(singleInput, optimization_mode)
+
+        # set model options
+        mode_options = self.set_mode_options(optimization_mode, singleInput)
+
+        # settings optimisation problem
+        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                         mode_options, singleInput)
+
+        # run the optimisation
+        model_output = optimizer.run_optimization(model_instance)
+
+        # Extract the boolean variables choosing the units from the model output and save them in a list
+        fixBooleanVariables = model_output._data['Y']
+
+        # now make a deep copy of the model and fix the boolean variables as parameters in the model
+        model_instance_vss = model_instance.clone()
+        model_instance_EVPI = model_instance.clone()
+
+        # change the model instance copy
+        model_instance_vss.del_component(model_instance_vss.Y)
+        model_instance_vss.Y = Param(model_instance_vss.U, initialize=fixBooleanVariables, mutable=True)
+
+        # delete and redefine the constraints which are affected by the boolean variables
+        model_instance_vss.del_component(model_instance_vss.MassBalance_3)
+        model_instance_vss.del_component(model_instance_vss.MassBalance_6)
+        model_instance_vss.del_component(model_instance_vss.MassBalance_7)
+        model_instance_vss.del_component(model_instance_vss.MassBalance_8)
+        model_instance_vss.del_component(model_instance_vss.EnvironmentalEquation6) # GWP_6
+        model_instance_vss.del_component(model_instance_vss.ProcessGroup_logic_1)
+        model_instance_vss.del_component(model_instance_vss.ProcessGroup_logic_2)
+
+        # define the new constraints
+        model_instance_vss.MassBalance_33 = Constraint(model_instance_vss.U_SU, rule=MassBalance_3_rule)
+        model_instance_vss.MassBalance_66 = Constraint(model_instance_vss.U, model_instance_vss.UU, model_instance_vss.I, rule=MassBalance_6_rule)
+        model_instance_vss.MassBalance_77 = Constraint(model_instance_vss.U, model_instance_vss.UU, model_instance_vss.I, rule=MassBalance_7_rule)
+        model_instance_vss.MassBalance_88 = Constraint(model_instance_vss.U, model_instance_vss.UU, model_instance_vss.I, rule=MassBalance_8_rule)
+        model_instance_vss.EnvironmentalEquation66 = Constraint(model_instance_vss.U_C, rule=GWP_6_rule)
+        model_instance_vss.ProcessGroup_logic_11 = Constraint(model_instance_vss.U, model_instance_vss.UU, rule=ProcessGroup_logic_1_rule)
+        numbers = [1, 2, 3]
+        model_instance_vss.ProcessGroup_logic_22 = Constraint(model_instance_vss.U, numbers, rule=ProcessGroup_logic_2_rule)
+
+        # now we have the model instance with the fixed boolean variables as parameters
+        # the next step is to run individual optimisations for each scenario and save the results in a list
+        # first we need to get the scenarios from the input data
+        scenarios = input_data.Scenarios['SC']
+
+        # now we need to run the single run optimisation for each scenario
+        objectiveValueList_VSS = []
+        objectiveValueList_EVPI = []
+        # Green and bold text
+        print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the VSS and EVPI\n"
+                             "Please be patient, this might take a while" + "\033[0m")
+
+        total_scenarios = len(scenarios)
+        for index, sc in enumerate(scenarios):
+            # model for VSS calculation
+            modelInstanceScemario_VSS = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+                                                               stochasticInput=input_data, model=model_instance_vss)
+            # solve the single run optimisation
+            optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                             mode_options, singleInput, printTimer=False)
+            # run the optimisation
+            modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False, printTimer=False)
+            objectiveName = modelOutputScenario_VSS._objective_function
+            objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
+
+            # model for EVPI calculation, the only difference is that the boolean variables are not fixed
+            # i.e. all model variables are optimised according to the scenario parameters
+            modelInstanceScemarioEVPI = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+                                                               stochasticInput=input_data, model=model_instance_EVPI)
+            # solve the single run optimisation
+            optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                             mode_options, singleInput, printTimer=False)
+            # run the optimisation
+            modelOutputScenario_EVPI = optimizer.run_optimization(model_instance=modelInstanceScemarioEVPI, tee=False,
+                                                             printTimer=False)
+            objectiveName = modelOutputScenario_EVPI._objective_function
+            objectiveValueList_EVPI.append(modelOutputScenario_EVPI._data[objectiveName])
+
+
+            # Now let's print the progress bar
+            progress = (index + 1) / total_scenarios
+            bar_length = 40  # Modify this to change the length of the progress bar
+            block = int(round(bar_length * progress))
+            text = "\rProgress: [{0}] {1:.2f}%".format("#" * block + "-" * (bar_length - block), progress * 100)
+            sys.stdout.write(text)
+            sys.stdout.flush()
+
+        # now we have the objective values for each scenario in a list
+        # the next step is to calculate the VSS
+        VSS = expected_value - np.mean(objectiveValueList_VSS)
+        EVPI = np.mean(objectiveValueList_EVPI) - expected_value
+        # Print a newline character to ensure the next console output is on a new line.
+        print()
+
+        return EVPI, VSS
 
     def solve_optimization_problem(
         self,
@@ -219,9 +391,6 @@ class SuperstructureProblem:
         )
         if self.parser == "Superstructure":
 
-
-
-
             # populate the model instance with the input data
             model_instance = self.setup_model_instance(input_data, optimization_mode)
 
@@ -238,16 +407,20 @@ class SuperstructureProblem:
 
             # run the optimisation
             model_output = optimizer.run_optimization(model_instance)
-            solving_time = time_printer(solving_time, "Superstructure optimization procedure")
+            time_printer(solving_time, "Superstructure optimization procedure")
 
             # if the problem is a stochastic problem, a single objective optimisations are solved multiple times to
-            # calulate the Expected value of perfect information EVPI and the Value of the stochastic solution VSS
+            # calulate the Expected Value of Perfect Information (EVPI) and the Value of the Stochastic Solution (VSS)
             if optimization_mode == "2-stage-recourse":
-                expected_value = 1
-                (EVPI, VSS) = self.get_VSS_and_EVPI(expected_value, input_data, solver, interface,
+                objectiveName = model_output._objective_function
+                expected_value = model_output._data[objectiveName]
+
+                EVPI, VSS = self.get_VSS_and_EVPI(expected_value, input_data, solver, interface,
                                                     solver_path, options)
 
-                print(f"the EVPI is {EVPI} and the VSS is {VSS}")
+                #print(f"the EVPI is {EVPI} and the VSS is {VSS}")
+                model_output.EVPI = EVPI
+                model_output.VSS = VSS
 
             return model_output
         else:
@@ -289,6 +462,8 @@ class SuperstructureProblem:
         #                      f"The possible options are: 'single', 'sensitivity', 'cross-parameter', 'multi-objective' and '2-stage-recourse' ")
 
         timer = time_printer(programm_step="DataFile, Model- and ModelInstance setup")
+
+
         data_file = input_data.create_DataFile()
 
         if optimization_mode == "2-stage-recourse":
@@ -318,6 +493,7 @@ class SuperstructureProblem:
         optimization_mode,
         mode_options,
         superstructure,
+        printTimer=True,
     ):
         """
 
@@ -366,7 +542,7 @@ class SuperstructureProblem:
                 f"please select from: {MODE_LIBRARY}"
             )
 
-        timer = time_printer(programm_step="Optimizer setup")
+        timer = time_printer(programm_step="Optimizer setup", printTimer=printTimer)
 
         if optimization_mode == "single" or optimization_mode == "2-stage-recourse":
             optimizer = SingleOptimizer(solver_name=solver, solver_interface=interface,
@@ -387,7 +563,7 @@ class SuperstructureProblem:
         else:
             raise ValueError("Optimization mode not supported")
 
-        timer = time_printer(passed_time=timer, programm_step="Optimizer setup")
+        time_printer(passed_time=timer, programm_step="Optimizer setup", printTimer=printTimer)
 
         return optimizer
 
@@ -461,5 +637,7 @@ class SuperstructureProblem:
                 # raise ValueError("NaN values in parameters detected. Please check the model.")
 
         return nan_parameters
+
+
 
 

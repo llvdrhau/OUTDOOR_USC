@@ -64,7 +64,7 @@ elif model_output._optimization_mode == "Single 2-stage recourse optimization": 
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(directory_path=Results_Path_stochatic)
     # save the results as a txt file, you have to specify the path
-    model_output.get_results(savePath=Results_Path_stochatic)
+    model_output.get_results(savePath=Results_Path_stochatic, pprint=True)
     # save and analyze the new results
     analyzer = outdoor.BasicModelAnalyzer(model_output)
     # create the flow sheets of the superstructure and the optimised flow sheet
