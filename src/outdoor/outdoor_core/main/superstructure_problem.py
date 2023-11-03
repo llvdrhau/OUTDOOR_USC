@@ -151,7 +151,10 @@ class SuperstructureProblem:
             for index, new_value in theta.items():
                 model.theta[index] = new_value
 
-            return model
+            # collect the variables in a list and return them
+            scenarioVariables = [phi, myu, xi, materialcosts, productPrice, gamma, theta]
+
+            return model, scenarioVariables
 
         def MassBalance_3_rule(self, u_s, u):
             return self.FLOW_ADD[u_s, u] <= self.alpha[u] * self.Y[u]  # Big M constraint
@@ -251,7 +254,8 @@ class SuperstructureProblem:
 
         # change the model instance copy
         model_instance_vss.del_component(model_instance_vss.Y)
-        model_instance_vss.Y = Param(model_instance_vss.U, initialize=fixBooleanVariables, mutable=True)
+        model_instance_vss.Y = Param(model_instance_vss.U, initialize=fixBooleanVariables, mutable=True,
+                                     within=Any)
 
         # delete and redefine the constraints which are affected by the boolean variables
         model_instance_vss.del_component(model_instance_vss.MassBalance_3)
@@ -280,6 +284,8 @@ class SuperstructureProblem:
         # now we need to run the single run optimisation for each scenario
         objectiveValueList_VSS = []
         objectiveValueList_EVPI = []
+        objectiveValueList_EVPI_infesible = []
+        objectiveValueList_VSS_infesible = []
         # Green and bold text
         print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the VSS and EVPI\n"
                              "Please be patient, this might take a while" + "\033[0m")
@@ -287,29 +293,37 @@ class SuperstructureProblem:
         total_scenarios = len(scenarios)
         for index, sc in enumerate(scenarios):
             # model for VSS calculation
-            modelInstanceScemario_VSS = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+            modelInstanceScemario_VSS, parametersVSS = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
                                                                stochasticInput=input_data, model=model_instance_vss)
             # solve the single run optimisation
             optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
                                              mode_options, singleInput, printTimer=False)
             # run the optimisation
-            modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False, printTimer=False)
-            objectiveName = modelOutputScenario_VSS._objective_function
-            objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
+            modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False,
+                                                                 printTimer=False, VSS_EVPI_mode=True)
+
+            if modelOutputScenario_VSS == 'infesible':
+                objectiveValueList_VSS_infesible.append(parametersVSS)
+            else:
+                objectiveName = modelOutputScenario_VSS._objective_function
+                objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
 
             # model for EVPI calculation, the only difference is that the boolean variables are not fixed
             # i.e. all model variables are optimised according to the scenario parameters
-            modelInstanceScemarioEVPI = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+            modelInstanceScemarioEVPI, parametersEVPI = set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
                                                                stochasticInput=input_data, model=model_instance_EVPI)
             # solve the single run optimisation
             optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
                                              mode_options, singleInput, printTimer=False)
             # run the optimisation
             modelOutputScenario_EVPI = optimizer.run_optimization(model_instance=modelInstanceScemarioEVPI, tee=False,
-                                                             printTimer=False)
-            objectiveName = modelOutputScenario_EVPI._objective_function
-            objectiveValueList_EVPI.append(modelOutputScenario_EVPI._data[objectiveName])
+                                                             printTimer=False, VSS_EVPI_mode=True)
 
+            if modelOutputScenario_EVPI == 'infesible':
+                objectiveValueList_EVPI_infesible.append(parametersEVPI)
+            else:
+                objectiveName = modelOutputScenario_EVPI._objective_function
+                objectiveValueList_EVPI.append(modelOutputScenario_EVPI._data[objectiveName])
 
             # Now let's print the progress bar
             progress = (index + 1) / total_scenarios
@@ -326,7 +340,7 @@ class SuperstructureProblem:
         # Print a newline character to ensure the next console output is on a new line.
         print()
 
-        return EVPI, VSS
+        return EVPI, VSS, objectiveValueList_EVPI_infesible
 
     def solve_optimization_problem(
         self,
@@ -415,12 +429,13 @@ class SuperstructureProblem:
                 objectiveName = model_output._objective_function
                 expected_value = model_output._data[objectiveName]
 
-                EVPI, VSS = self.get_VSS_and_EVPI(expected_value, input_data, solver, interface,
+                EVPI, VSS, infeasibleScenarios = self.get_VSS_and_EVPI(expected_value, input_data, solver, interface,
                                                     solver_path, options)
 
                 #print(f"the EVPI is {EVPI} and the VSS is {VSS}")
                 model_output.EVPI = EVPI
                 model_output.VSS = VSS
+                model_output.infeasibleScenarios = infeasibleScenarios
 
             return model_output
         else:

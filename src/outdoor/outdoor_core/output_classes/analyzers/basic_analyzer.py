@@ -787,7 +787,7 @@ class BasicModelAnalyzer:
 
             return node
 
-        def make_link(graph, a_node, b_node, label=None, width=1, style="solid"):
+        def make_link(graph, a_node, b_node, label=None, width=1, style="solid" , color= 'black'):
             """
 
             Parameters
@@ -810,6 +810,7 @@ class BasicModelAnalyzer:
             edge = pydot.Edge(a_node, b_node)
             edge.set_penwidth(width)
             edge.set_style(style)
+            edge.set_color(color)
 
             if label is not None:
                 edge.set_label(label)
@@ -876,7 +877,7 @@ class BasicModelAnalyzer:
         if len(list(data.keys())[0]) > 2: # if the first key is a tuple > 2, we're dealing with a stochastic model
             dataStochastic = self.min_mean_max_streams_stochastic(data)
             for i, j in dataStochastic.items():
-                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j}")
+                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j[0]}", color=j[1], width=j[2])
         else:
             for i, j in data.items():
                 edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j} t/h")
@@ -899,6 +900,8 @@ class BasicModelAnalyzer:
         unitConnestors = self.model_output._data['U_CONNECTORS'] + self.model_output._data['U_SU']
 
         unitDict = {}
+        colorCode = 'black'
+        width = 1 # default width
         for unitNumbers in unitConnestors:
             scList = []
             u = unitNumbers[0]
@@ -911,8 +914,36 @@ class BasicModelAnalyzer:
                 maxValue = round(max(scList), 2)
                 minValue = round(min(scList),2)
                 meanValue = round(sum(scList) / len(scList), 2)
+
+                if maxValue > 0:  # color code the streams that actually have a flow
+                    ratio = minValue / maxValue
+                    if ratio < 0.125:
+                        colorCode = 'red4'  # Very dark red
+                        width = 3.5
+                    elif ratio < 0.25:
+                        colorCode = 'red'
+                        width = 3
+                    elif ratio < 0.375:
+                        colorCode = 'red2'  # A slightly lighter red
+                        width = 2.5
+                    elif ratio < 0.50:
+                        colorCode = 'orange'
+                        width = 2
+                    elif ratio < 0.625:
+                        colorCode = 'darkorange'
+                        width = 1.75
+                    elif ratio < 0.75:
+                        colorCode = 'gold'  # Instead of 'yellow' for better visibility
+                        width = 1.5
+                    elif ratio < 0.875:
+                        colorCode = 'gold'  # A light yellow
+                        width = 1.25
+                    else:
+                        colorCode = 'black'
+                        width = 1
+
                 label = f"min:{minValue} t/h\nmean:{meanValue} t/h\nmax: {maxValue} t/h"
-                unitDict.update({(u,uu): label})
+                unitDict.update({(u,uu): (label, colorCode, width)})
 
         return unitDict
 

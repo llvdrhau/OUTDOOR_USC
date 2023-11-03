@@ -7,6 +7,7 @@ Created on Tue Jun 15 12:19:19 2021
 """
 
 import pyomo.environ as pyo
+from pyomo.opt import SolverStatus, TerminationCondition
 
 from ..output_classes.model_output import ModelOutput, StochasticModelOutput
 from ..utils.timer import time_printer
@@ -78,7 +79,7 @@ class SingleOptimizer:
         # save optimisation mode
         self.optimization_mode = optimization_mode
 
-    def run_optimization(self, model_instance, tee=True, printTimer=True):
+    def run_optimization(self, model_instance, tee=True, printTimer=True, VSS_EVPI_mode=False):
         """
         Parameters
         ----------
@@ -100,27 +101,42 @@ class SingleOptimizer:
 
 
         results = self.solver.solve(model_instance, tee=tee)
-        gap = (
-            (
-                results["Problem"][0]["Upper bound"]
-                - results["Problem"][0]["Lower bound"]
-            )
-            / results["Problem"][0]["Upper bound"]
-        ) * 100
 
+
+        # Check if the model is infeasible
+        if (results.solver.termination_condition == TerminationCondition.infeasibleOrUnbounded or
+            results.solver.termination_condition == TerminationCondition.infeasible):
+
+            if not VSS_EVPI_mode:
+                raise Exception("The model is infeasible, please check the input data is correct. \n"
+                                " TIP check the min max sourse fluxes and pool fluxes .")
+            else:
+                return 'infeasible' # so we can save the conditions where the solution is infeasible in the VSS_EVPI mode
+        else:
+            # The model may be feasible or have some other issue
+            if results.solver.termination_condition == TerminationCondition.optimal:
+                pass
+                #print("The model is optimal.")
+            else:
+                print("The solver terminated with a different condition.: ", results.solver.termination_condition)
+
+        gap = (
+            (results["Problem"][0]["Upper bound"] - results["Problem"][0]["Lower bound"])
+            / results["Problem"][0]["Upper bound"]) * 100
 
         timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)
 
         if self.optimization_mode == "2-stage-recourse":
             model_output = StochasticModelOutput(model_instance=model_instance,
                                                  optimization_mode='Single 2-stage recourse optimization',
-                                                 solver_name=self.solver_name, run_time= timer, gap=gap)
+                                                 solver_name=self.solver_name, run_time=timer, gap=gap)
         else:
             model_output = ModelOutput(model_instance=model_instance,
                                        optimization_mode='Single run optimization',
-                                       solver_name=self.solver_name, run_time= timer, gap=gap)
+                                       solver_name=self.solver_name, run_time=timer, gap=gap)
 
         return model_output
+
 
     def set_solver_options(self, solver, options):
         """

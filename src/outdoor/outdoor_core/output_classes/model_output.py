@@ -23,6 +23,7 @@ import os
 import datetime
 import cloudpickle as pic
 import random as rnd
+import numpy as np
 
 class ModelOutput:
 
@@ -978,13 +979,21 @@ class StochasticModelOutput(ModelOutput):
         valueObjectiveFunction = round(self._data[self._objective_function], 2)
         basic_results["Basic results"]["Expected Objective value"] = "{} {}".format(valueObjectiveFunction, unitsObjecive)
 
+        if self._product_load['sc1']:
+            # the product load is not a variable that changes per scenario
+            # so take the first result in the dictionary
+            basic_results["Basic results"]["Yearly product load"] = self._product_load['sc1']
+        else:
+            avgProductLoad = round(sum(self._data['SumOfProductFlows'].values()) / len(self._data['SumOfProductFlows'].values()), 2)
+            basic_results["Basic results"]["Average Yearly product load"] = "{} tons".format(avgProductLoad)
+
+
+
         # retrive the VSS and EVPI
         basic_results["Basic results"]["VSS"] = "{} {}".format(round(self.VSS, 2), unitsObjecive )
         basic_results["Basic results"]["EVPI"] = "{} {}".format(round(self.EVPI, 2), unitsObjecive)
 
-        # the product load is not a variable that changes per scenario
-        # so take the first result in the dictionary
-        basic_results["Basic results"]["Yearly product load"] = self._product_load['sc1']
+
         basic_results["Basic results"]["Solver run time"] = "{} s".format(round(self._run_time,2)) # in seconds
         basic_results["Basic results"]["Solver name"] = self._solver
 

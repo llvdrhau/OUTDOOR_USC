@@ -1075,7 +1075,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         self.CapexEquation_HEN_1 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_1_rule)
         self.CapexEquation_HEN_2 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_2_rule)
-        self.CapexEquation_HEN_2 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_3_rule)
+        self.CapexEquation_HEN_3 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_3_rule)
 
         def CapexEquation_11_rule(self, u):
             return self.TO_CAPEX[u] == self.to_acc[u] * self.EC[u]
@@ -1524,7 +1524,8 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # Definition of the possible Objective Functions
         def NPC_rule(self):
             return self.NPC_final == ((self.CAPEX + sum(self.odds[sc] * (self.OPEX[sc] - self.PROFITS_TOT[sc])
-                                                       for sc in self.SC)) * 1000 * 1000) / self.ProductLoad  # in from Mil. euro to Euro
+                                    for sc in self.SC)) * 1000 * 1000) / self.ProductLoad  # in from Mil. euro to Euro
+
         def GWP_rule(self):
             return self.NPE_final == sum(self.odds[sc] * self.GWP_TOT[sc] / self.ProductLoad for sc in self.SC)
         def FWD_rule(self):
