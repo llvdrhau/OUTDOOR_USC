@@ -1,0 +1,128 @@
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               0.75 seconds
+Solver name                   gurobi
+Earnings Before Tax income    2.862 Mil. Euro
+Net production costs          -68.15 euro/ton
+Net production GHG emissions  2.55 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  --------------
+3000  Phenolics
+  11  PotatoPeels
+  44  Solvent
+ 888  PP splitter
+ 100  grinding
+ 999  Passthrough
+ 230  UAE
+ 330  Solvent recov2
+----  --------------
+
+ 
+
+Economic results-------- 
+-------------------------------  ---------
+CAPEX share                      -94849.9
+Raw material consumption share     -287.86
+Operating and Maintanence share  -51089.4
+Electricity share                 -1702.01
+Chilling share                       -0
+Heat integration share             -405.24
+Waste treatment share                -0
+Profits share                      2641.05
+-------------------------------  ---------
+
+ 
+
+Capital costs shares-------- 
+--------------  -----
+Heat pump        0
+grinding        38.49
+UAE             34.04
+Solvent recov2  27.47
+--------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+grinding                    71.43
+UAE                         28.57
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  --
+Total heating demand                    50
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      50
+Net cooling demand                       0
+--------------------------------------  --
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                      7840
+Heat                            99200
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {1000: 0.0, 2000: 0.0, 3000: 0.0, 1100: 0.0, 4000: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 888: 0.0, 777: 0.0, 555: 0.0, 100: 0.0, 999: 0.0, 220: 0.0, 320: 0.0, 230: 0.0, 330: 50.00000000003664, 210: 0.0, 200: 0.0, 300: 0.0, 310: 0.0}
+cooling      {1000: 0.0, 2000: 0.0, 3000: 0.0, 1100: 0.0, 4000: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 888: 0.0, 777: 0.0, 555: 0.0, 100: 0.0, 999: 0.0, 220: 0.0, 320: 0.0, 230: 0.0, 330: 0.0, 210: 0.0, 200: 0.0, 300: 0.0, 310: 0.0}
+electricity  560000.0000001172
+-----------  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  ------
+(888, 999)   100
+(100, 888)   100
+(999, 230)   100
+(230, 330)    15.25
+(330, 3000)    5.25
+(330, 230)     8.5
+(11, 100)    100
+(44, 230)      1.5
+-----------  ------
+
+ 

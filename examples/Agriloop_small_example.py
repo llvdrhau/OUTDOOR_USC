@@ -45,7 +45,8 @@ abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
-                                                         interface='local')
+                                                         interface='local',
+                                                         calculation_EVPI=True)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")

@@ -85,14 +85,25 @@ class StochasticObject():
                 nr += 1
                 keyName = '{}_{}'.format(parameterName, nr)
                 self.GeneralDict[keyName] = row[0:].to_dict()
+                # self.GeneralDict[keyName]['Param'] = parameterName
 
 
-                if parameterName == 'theta' or parameterName =='gamma':
+                if parameterName =='gamma':
                     component = row['Component']
                     reactionNr = row['Reaction-number']
                     nrComponentTuple = (unitNr, component, reactionNr)
 
-                elif parameterName == 'phi' or parameterName == 'myu' or parameterName == 'xi':
+                elif parameterName == 'theta': # unfortuant gimmik, because the index is reversed for the theta data
+                    component = row['Component']
+                    reactionNr = row['Reaction-number']
+                    nrComponentTuple = (unitNr, (reactionNr, component))
+
+                elif parameterName == 'myu':
+                    component = row['Component']
+                    targetUnit = row['Target unit']
+                    nrComponentTuple = (unitNr, (targetUnit, component))
+
+                elif parameterName == 'phi' or parameterName == 'xi':
                     component = row['Component']
                     nrComponentTuple = (unitNr, component)
 
@@ -166,11 +177,7 @@ class StochasticObject():
         # Converting combinations to a DataFrame
         df = pd.DataFrame(combinations, columns=[f'Variable_{i + 1}' for i in range(m)])
 
-        # Reversing the order of the rows
-        #df = df[::-1]
-
         nr = 1
-        colunmPosition = 0
         for key, value in self.GroupDict.items():
             referenceNameGroup = None
             column_index = None
@@ -223,7 +230,6 @@ class StochasticObject():
         # make the list of scenario probabilities
         if self.ProbabilitySettings == 'uniform':
             self.ScenarioProbabilities = [1/len(scenarioNames) for i in scenarioNames]
-            print(self.ScenarioProbabilities)
         else:
             raise ValueError("ERROR ON EXCEL SHEET 'Uncertainty' \n"
                              "The probability setting {} is not supported yet".format(self.ProbabilitySettings))

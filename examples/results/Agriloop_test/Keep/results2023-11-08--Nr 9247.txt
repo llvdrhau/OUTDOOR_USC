@@ -1,0 +1,54 @@
+
+Basic results-------- 
+----------------------------  --------------------------------------------
+Objective Function            EBIT_final
+Expected Objective value      28.56 Mil Euros
+Average Yearly product load   176685.01 tons
+VSS                           0.73 Mil Euros
+EVPI                          -0.73 Mil Euros
+Solver run time               6.29 s
+Solver name                   gurobi
+Earnings Before Tax income    Min:-35.95 Mean:28.56 Max:61.85 Mil Euros
+Net production costs          Min:-790.32 Mean:80.76 Max:1902.15 Euros/Ton
+Net production GHG emissions  Min:-0.25 Mean:1.82 Max:5.66 CO2-eq/Ton
+Net present FWD               Min:-12.903 Mean:-4.397 Max:0.0 H2O-eq/Ton
+----------------------------  --------------------------------------------
+
+ 
+
+Chosen technologies-------- 
+----  --------------
+1000  BioMass
+2000  Ethanol
+3000  Phenolics
+  11  PotatoPeels
+  22  Water
+  44  Solvent
+ 888  PP splitter
+ 100  grinding
+ 999  Passthrough
+ 230  UAE
+ 330  Solvent recov2
+ 210  Yeast Ferm.
+----  --------------
+
+ 
+
+Scenario Analysis-------- 
+----------------------------  --------------------
+Total Inital Scenarios        8
+Percent Feasible              100.0 %
+phi: (11, 'proteins ')        min:0.24 max:0.26
+phi: (11, 'Lipids')           min:0.12 max:0.14
+phi: (11, 'Sugars')           min:0.495 max:0.605
+phi: (11, 'Phenolics')        min:0.035 max:0.105
+myu: (220, 320, 'Phenolics')  min:0.855 max:1
+myu: (230, 330, 'Phenolics')  min:0.675 max:0.825
+xi: (555, 'PLA')              min:0.088 max:0.132
+materialcosts: (11,)          min:8.0 max:12.0
+ProductPrice: (2000,)         min:120.0 max:1080.0
+theta: (210, 1, 'Sugars')     min:0.855 max:1
+theta: (200, 2, 'Sugars')     min:0.792 max:1
+----------------------------  --------------------
+
+ 

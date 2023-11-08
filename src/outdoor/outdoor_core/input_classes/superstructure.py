@@ -52,6 +52,8 @@ class Superstructure():
         # Non-indexed Attribute
         # is the process product driven or not
         self.productDriven = productDriver
+        # uncertainty parameters for the stochastic problem. filled in if stochastic problem is solved
+        self.uncertaintyDict = {}
 
 
 
@@ -135,10 +137,6 @@ class Superstructure():
 
         self.MainProduct = MainProduct
         self.ProductLoad = {'ProductLoad': ProductLoad}
-
-
-
-
 
 
         # Lists for sets
@@ -1249,7 +1247,15 @@ class Superstructure():
                     else:
                         new_tuple = key + (sc,)
 
-                    newCompostionDict[parameterName][new_tuple] = value + value * uncertaintySeries[i]
+                    # set the new value of the parameter
+                    newValue = value + value * uncertaintySeries[i]
+                    if (('myu' in parameterName or 'theta' in parameterName or 'xi' in parameterName)
+                        and newValue > 1):
+                        newCompostionDict[parameterName][new_tuple] = 1 # split factors can not be greater than 1
+                    else:
+                        newCompostionDict[parameterName][new_tuple] = newValue
+
+
             else:
                 # if the variable is not in the parameter dictionary,
                 # it means that the variable does not need to change for the scenarios
@@ -1268,7 +1274,8 @@ class Superstructure():
         This function creates the dictionary for the composition of the inlet streams of the source units.
         The difference between set_unit_uncertainty and set_source_uncertainty is that the source units the sum of the
         composition should be 1 So when a composition is change the other compositions should be changed accordingly to
-        keep the sum of the component fractions equal to 1
+        keep the sum of the component fractions equal to 1. the change is eqally distributed between the components that
+        are not changed.
         Inputs:
             uncertaintyObject: the object that contains the uncertainty information
             parameterName: the name of the parameter that we want to change

@@ -55,7 +55,7 @@ def get_DataFromExcel(PathName=None):
     timer = time_printer(programm_step='Extract data from excel')
     # Disable the specific warning about Data Validation extension to make code run faster
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-    datframe = pd.read_excel(PathName, sheet_name = None)
+    dataframe = pd.read_excel(PathName, sheet_name = None)
 
     PU_ObjectList  =[]
 
@@ -71,14 +71,14 @@ def get_DataFromExcel(PathName=None):
     Hidden_Tables.append('Component Databases')
     Hidden_Tables.append('Uncertainty_test_idea')
 
-    number_of_processes = len(datframe.keys()) - len(Hidden_Tables)
+    number_of_processes = len(dataframe.keys()) - len(Hidden_Tables)
     count = 0
 
     # the Systemblatt is the first sheet in the Excel file and must always be present in the Excel file
-    Superstructure_Object = wrapp_SystemData(datframe['Systemblatt'])
+    Superstructure_Object = wrapp_SystemData(dataframe['Systemblatt'])
 
 
-    for i in datframe.keys():
+    for i in dataframe.keys():
         if i == 'Systemblatt':
             continue
 
@@ -86,17 +86,17 @@ def get_DataFromExcel(PathName=None):
             continue
 
         elif i == "Pools":
-            pools = wrapp_productPoolUnits(datframe[i])
+            pools = wrapp_productPoolUnits(dataframe[i])
             for k in pools:
                 PU_ObjectList.append(k)
 
         elif i == "Sources":
-            sources = wrapp_sourceUnits(datframe[i])
+            sources = wrapp_sourceUnits(dataframe[i])
             for k in sources:
                 PU_ObjectList.append(k)
 
         elif i == 'Distributor':
-            distributors = wrapp_distributors(datframe[i])
+            distributors = wrapp_distributors(dataframe[i])
             for k in distributors:
                 PU_ObjectList.append(k)
 
@@ -104,7 +104,7 @@ def get_DataFromExcel(PathName=None):
             continue # skip the hidden tables
 
         else: # for the unit operations
-            PU_ObjectList.append(wrapp_processUnits(datframe[i]))
+            PU_ObjectList.append(wrapp_processUnits(dataframe[i]))
 
         data_extraction = count / number_of_processes * 100
 
@@ -121,9 +121,10 @@ def get_DataFromExcel(PathName=None):
         Superstructure_Object.parameters_single_optimization = Superstructure_Object_duplicate
 
         # set the uncertainty data in the object
-        df_stochastic = datframe['Uncertainty']
+        df_stochastic = dataframe['Uncertainty']
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
+        Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
     return Superstructure_Object
 
 

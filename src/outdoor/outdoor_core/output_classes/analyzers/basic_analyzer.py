@@ -17,6 +17,7 @@ import pandas as pd
 import datetime
 import pydot
 import sys
+import itertools
 
 
 class BasicModelAnalyzer:
@@ -390,6 +391,57 @@ class BasicModelAnalyzer:
         return energy_data
 
     def _collect_mass_flows(self, model_data):
+        """
+        :param model_data:  dictionary with all the data from the optimization
+        :return: mass_flow_data: dictionary with the exiting mass flows of the unit operations
+        """
+
+        mass_flow_data = {"Mass flows": {}}
+        # for stochastic flows the data is structured differently
+        if 'SC' in model_data.keys():
+            step = len(model_data['SC'])
+            pointerStart = 0
+            pointerEnd = step
+            for _ in range(0, len(model_data["FLOW_FT"]), step):
+                selectionDict = itertools.islice(model_data["FLOW_FT"].items(), pointerStart, pointerEnd)
+                # the parameters per scenario are grouped together in the data structure,
+                # hence the pointer is moved up to get the appropriate data
+                pointerStart += step
+                pointerEnd += step
+                selectionList = list(selectionDict)
+                meaxOfScenario = max(selectionList, key=lambda x: x[1])  # the second element of the tuple is the value we want to compare
+
+                if meaxOfScenario[1] > 1e-04: # that is, at least one stream is flowing in a particular unit in a particular scenario
+                    for i, j in selectionList:
+                        mass_flow_data["Mass flows"][i] = round(j, 2)
+
+            pointerStart = 0
+            pointerEnd = step
+            for _ in range(0, len(model_data["FLOW_ADD"]), step):
+                selectionDict = itertools.islice(model_data["FLOW_ADD"].items(), pointerStart, pointerEnd)
+                # the parameters per scenario are grouped together in the data structure,
+                # hence the pointer is moved up to get the appropriate data
+                pointerStart += step
+                pointerEnd += step
+                selectionList = list(selectionDict)
+                meaxOfScenario = max(selectionList, key=lambda x: x[1])  # the second element of the tuple is the value we want to compare
+
+                if meaxOfScenario[1] > 1e-04:  # that is, at least one stream is flowing in a particular unit scenario through that unit operation
+                    for i, j in selectionList:
+                        mass_flow_data["Mass flows"][i] = round(j, 2)
+
+        else: # for single run optimization
+            for i, j in model_data["FLOW_FT"].items():
+                if j > 1e-04:
+                    mass_flow_data["Mass flows"][i] = round(j, 2)
+
+            for i, j in model_data["FLOW_ADD"].items():
+                if j > 1e-04:
+                    mass_flow_data["Mass flows"][i] = round(j, 2)
+
+        return mass_flow_data
+
+    def _collect_mass_flows_stochastic(self, model_data):
         mass_flow_data = {"Mass flows": {}}
 
         for i, j in model_data["FLOW_FT"].items():

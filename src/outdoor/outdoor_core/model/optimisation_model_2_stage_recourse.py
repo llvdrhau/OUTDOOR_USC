@@ -49,6 +49,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
                 - Objective name (NPC/NPE/NPFWD)
         """
 
+        if hasattr(superstructure_input, 'DefaultScenario'):
+            self.DefaultScenario = superstructure_input.DefaultScenario
+        else:
+            self.DefaultScenario = 'sc1'
+
         self.productDriven = superstructure_input.productDriven
 
         if superstructure_input.HP_active:
@@ -153,7 +158,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # Components
         # ----------
         self.I = Set()
-        self.M = Set(within=self.I)
+        self.M = Set(within=self.I) # same as i ?
         self.YC = Set(within=self.U_YIELD_REACTOR * self.I)
 
         # Reactions, Utilities, Heat intervals
@@ -208,7 +213,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # Stoich. Coefficients
         self.gamma = Param(self.U_STOICH_REACTOR, self.I, self.R, self.SC, initialize=0)
         # Conversion Coefficients
-        self.theta = Param(self.U_STOICH_REACTOR, self.R, self.M, self.SC, initialize=0)
+        self.theta = Param(self.U_STOICH_REACTOR, self.R, self.M, self.SC, initialize=0)  # (unitNr, component, reactionNr)
         # Yield Coefficients
         self.xi = Param(self.U_YIELD_REACTOR, self.I, self.SC, initialize=0)
         # split factors
@@ -905,7 +910,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # Scenario with max costs associated with it
         #self.SC_MAX = Param()
-        # 'sc1' wil always be the max cost scenario
+        # self.DefaultScenario wil always be the max cost scenario
 
         # Specific costs (Utility, raw materials, Product prices)
 
@@ -988,20 +993,20 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def CapexEquation_1_rule(self, u):
             if self.kappa_2_capex[u] == 1:
                 return self.REF_FLOW_CAPEX[u] == sum(
-                    self.FLOW_IN[u, i, 'sc1'] * self.kappa_1_capex[u, i] for i in self.I
+                    self.FLOW_IN[u, i, self.DefaultScenario] * self.kappa_1_capex[u, i] for i in self.I
                 )
             elif self.kappa_2_capex[u] == 0:
                 return self.REF_FLOW_CAPEX[u] == sum(
-                    self.FLOW_OUT[u, i, 'sc1'] * self.kappa_1_capex[u, i] for i in self.I
+                    self.FLOW_OUT[u, i, self.DefaultScenario] * self.kappa_1_capex[u, i] for i in self.I
                 )
             elif self.kappa_2_capex[u] == 2:
-                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND[u, "Electricity", 'sc1']
+                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND[u, "Electricity", self.DefaultScenario]
 
             elif self.kappa_2_capex[u] == 3:
-                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND_HEAT_PROD[u, 'sc1']
+                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND_HEAT_PROD[u, self.DefaultScenario]
 
             elif self.kappa_2_capex[u] == 4:
-                return self.REF_FLOW_CAPEX[u] == self.EL_PROD_1[u, 'sc1']
+                return self.REF_FLOW_CAPEX[u] == self.EL_PROD_1[u, self.DefaultScenario]
             else:
                 return self.REF_FLOW_CAPEX[u] == 0
 
@@ -1052,7 +1057,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         def CapexEquation_9_rule(self):
             return (
                 self.ACC_H
-                == self.HP_ACC_Factor * self.HP_Costs * self.ENERGY_DEMAND_HP_USE['sc1']
+                == self.HP_ACC_Factor * self.HP_Costs * self.ENERGY_DEMAND_HP_USE[self.DefaultScenario]
             )
 
         def Cap(self):
@@ -1063,11 +1068,11 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # heat exchanger costs
         def HEN_CostBalance_CAPEX_1_rule(self, hi):
-            return (self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[hi, 'sc1']
+            return (self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[hi, self.DefaultScenario]
                     + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_2_rule(self, hi):
-            return (self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE[hi, 'sc1']
+            return (self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE[hi, self.DefaultScenario]
                     + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_3_rule(self, hi):

@@ -24,6 +24,7 @@ import datetime
 import cloudpickle as pic
 import random as rnd
 import numpy as np
+import itertools
 
 class ModelOutput:
 
@@ -886,6 +887,11 @@ class StochasticModelOutput(ModelOutput):
     """
     def __init__(self, model_instance=None, optimization_mode=None, solver_name=None, run_time=None, gap=None):
         super().__init__(model_instance, optimization_mode, solver_name, run_time, gap)
+        self.uncertaintyDict = {}
+        self.VSS = 0 # value of stochastic solution
+        self.EVPI = 0 # expected value of perfect information
+        self.infeasibleScenarios = []
+        self.DefaultScenario = 'sc1' # if no scenario is specified then this is the default scenario to caluclate the max CAPEX
         # this should get the data using the parent class from the model instance
         # self._data = model_instance._data
 
@@ -936,6 +942,8 @@ class StochasticModelOutput(ModelOutput):
         chosen_technologies = {'Chosen technologies': self.return_chosen()}
         self.results.update(chosen_technologies)
 
+        self.results.update(self._collect_scenario_data())
+
         # self.results.update(self._collect_economic_results())
         # self.results.update(self._collect_capitalcost_shares())
         # self.results.update(self._collect_mass_flows())
@@ -975,14 +983,15 @@ class StochasticModelOutput(ModelOutput):
         else:
             unitsObjecive = 'Unknown'
 
-        basic_results["Basic results"]["Objective Function"] =  self._objective_function
+        basic_results["Basic results"]["Objective Function"] = self._objective_function
         valueObjectiveFunction = round(self._data[self._objective_function], 2)
         basic_results["Basic results"]["Expected Objective value"] = "{} {}".format(valueObjectiveFunction, unitsObjecive)
+        defaultScenario = self.DefaultScenario
 
-        if self._product_load['sc1']:
+        if self._product_load[defaultScenario]:
             # the product load is not a variable that changes per scenario
             # so take the first result in the dictionary
-            basic_results["Basic results"]["Yearly product load"] = self._product_load['sc1']
+            basic_results["Basic results"]["Yearly product load"] = self._product_load[defaultScenario]
         else:
             avgProductLoad = round(sum(self._data['SumOfProductFlows'].values()) / len(self._data['SumOfProductFlows'].values()), 2)
             basic_results["Basic results"]["Average Yearly product load"] = "{} tons".format(avgProductLoad)
@@ -1007,7 +1016,7 @@ class StochasticModelOutput(ModelOutput):
 
         # get the min, max and mean of the Net production costs
         basic_results["Basic results"]["Net production costs"] = {}
-        if self._product_load['sc1']: # if the product load is not zero
+        if self._product_load[defaultScenario]: # if the product load is not zero
             #get the min, max and mean of the NPC
             minNPC = round(min(self._data["NPC"].values()), 2)
             meanNPC = round(sum(self._data["NPC"].values()) / len(self._data["NPC"].values()), 2)
@@ -1028,7 +1037,7 @@ class StochasticModelOutput(ModelOutput):
 
         # get the min, max and mean of the NPE
         basic_results["Basic results"]["Net production GHG emissions"] = {}
-        if self._product_load['sc1']: # if the product load is not zero
+        if self._product_load[defaultScenario]: # if the product load is not zero
             minNPE = round(min(self._data["NPE"].values()), 2)
             meanNPE = round(sum(self._data["NPE"].values()) / len(self._data["NPE"].values()), 2)
             maxNPE = round(max(self._data["NPE"].values()), 2)
@@ -1049,7 +1058,7 @@ class StochasticModelOutput(ModelOutput):
 
         #get the min, max and mean of the NPFWD
         basic_results["Basic results"]["Net present FWD"] = {}
-        if self._product_load['sc1']:
+        if self._product_load[defaultScenario]: # if the product load is not zero
             minFWD = round(min(self._data["NPFWD"].values()), 3)
             meanFWD = round(sum(self._data["NPFWD"].values()) / len(self._data["NPFWD"].values()), 3)
             maxFWD = round(max(self._data["NPFWD"].values()), 3)
@@ -1073,6 +1082,94 @@ class StochasticModelOutput(ModelOutput):
         # model_results.update(chosen_technologies)
 
         return model_results
+
+    def _collect_scenario_data(self, uncertainParameterList=None):
+        """
+        Discription: Collects the scenario data from the model and checks which scenarios are fesaible and returns the
+        bounds of the feasible paramerter space """
+
+
+        scenario_results = dict()
+        scenario_results["Scenario Analysis"] = {}
+        nScenarios = len(self._data['SC'])
+        nInitialScenarios = nScenarios + len(self.infeasibleScenarios)
+        percentFeasible = round(nScenarios/nInitialScenarios * 100, 2)
+
+        scenario_results["Scenario Analysis"]["Total Inital Scenarios"] = nInitialScenarios
+        scenario_results["Scenario Analysis"]["Percent Feasible"] = "{} {}".format(percentFeasible, '%')
+
+        uncertaintyDict = self.uncertaintyDict  # get the uncertainty dictionary
+
+        if uncertainParameterList is None:
+            uncertainParameterList = ['phi', 'myu', 'xi', 'materialcosts', 'ProductPrice', 'gamma', 'theta']
+
+
+        for parameter in uncertainParameterList:
+            pointerStart = 0
+            pointerEnd = nScenarios
+            paramDict = self._data[parameter]
+            steps = int(len(paramDict) / nScenarios)
+            keysUncertainParams = uncertaintyDict[parameter].keys()
+            keysUncertainParams = self.upack_tuples(keysUncertainParams)
+            for _ in range(0, steps):
+
+                selectionDict = itertools.islice(paramDict.items(), pointerStart, pointerEnd)
+                # the parameters per scenario are grouped together in the data structure,
+                # hence the pointer is moved up to get the appropriate data
+                pointerStart += nScenarios
+                pointerEnd += nScenarios
+
+                selectionList = list(selectionDict)
+                # parameterName = list(selectionDict.keys())[0]
+                minParam = min(selectionList,
+                               key=lambda x: x[1])  # the second element of the tuple is the value we want to compare
+                maxParam = max(selectionList, key=lambda x: x[1])
+                specificParameter = minParam[0][:-1]  # remove the scenario number from the key
+
+                if minParam[1] != maxParam[1]:  # is a tuple with key and value
+                    specificParameter = minParam[0][:-1]  # remove the scenario number from the key
+                    scenario_results["Scenario Analysis"]["{}: {}".format(parameter, specificParameter)] = (
+                        "min:{} max:{}".format(round(minParam[1], 3), round(maxParam[1], 3)))
+
+                # the min max are the same but the parameter is uncertain but still constant because
+                # other scenarios are infeasible
+                elif specificParameter in keysUncertainParams:
+                    scenario_results["Scenario Analysis"]["{}: {}".format(parameter, specificParameter)] = (
+                        "min:{} max:{}".format(round(minParam[1], 3), round(maxParam[1], 3)))
+                else:
+                    pass
+
+        return scenario_results
+
+    def upack_tuples(self, tupleKeys):
+        """"
+        unpacks the tuples in a list, this is the case for theta parameter where the keys are a nested tuples but the
+        output is a smooth list of tuples
+        """
+        if tupleKeys: # make sure the list is not empty
+            # now a list of keys from a dict transform to a list of tuples
+            tupleList = list(tupleKeys)
+            tuple1 = tupleList[0]
+            if isinstance(tuple1, tuple):
+
+                nestedTuple = any(isinstance(element, tuple) for element in tuple1)
+
+                if nestedTuple:
+                    unpackedList = []
+                    for tup in tupleList:
+                        unpackedTuple = tuple(element for sub in tup for element in (sub if isinstance(sub, tuple) else (sub,)))
+                        unpackedList.append(unpackedTuple)
+                    return unpackedList
+
+                else:
+                    return tupleKeys
+            else:
+                return tupleKeys
+        else:
+            return tupleKeys
+
+
+
 
 
 
