@@ -41,7 +41,7 @@ class SingleOptimizer:
 
         """
 
-        SOLVER_LIBRARY = {"gurobi", "cbc", "scip", "glpk"}
+        SOLVER_LIBRARY = {"gurobi", "cbc", "scip", "glpk", 'gams'}
         INTERFACE_LIBRARY = {"local", "executable"}
 
         # setup name
@@ -100,7 +100,7 @@ class SingleOptimizer:
         timer = time_printer(programm_step='Single optimization run', printTimer=printTimer)
 
 
-        results = self.solver.solve(model_instance, tee=tee)
+        results = self.solver.solve(model_instance, keepfiles=True, tee=tee)
 
 
         # Check if the model is infeasible
@@ -117,6 +117,9 @@ class SingleOptimizer:
             if results.solver.termination_condition == TerminationCondition.optimal:
                 pass
                 #print("The model is optimal.")
+            elif results.solver.termination_condition == TerminationCondition.licensingProblems:
+                raise Exception('There seems to be a problem witht the licencing of your solver\n'
+                                ' please check that the solver is correctly installed on choose another')
             else:
                 print("The solver terminated with a different condition.: ", results.solver.termination_condition)
 

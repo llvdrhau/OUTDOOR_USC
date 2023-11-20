@@ -44,7 +44,7 @@ outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
-                                                         solver='gurobi',
+                                                         solver='gams',
                                                          interface='local',
                                                          calculation_EVPI=True)
 

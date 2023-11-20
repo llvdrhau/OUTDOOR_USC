@@ -12,10 +12,6 @@ model.x1 = Var(within=NonNegativeReals) # acres of land devoted to wheat
 model.x2 = Var(within=NonNegativeReals) # acres of land devoted to corn
 model.x3 = Var(within=NonNegativeReals) # acres of land devoted to sugar beets
 
-# model.x1 = Param(initialize= 120) # acres of land devoted to wheat
-# model.x2 = Param(initialize= 80) # acres of land devoted to corn
-# model.x3 = Param(initialize= 300) # acres of land devoted to sugar beets
-
 model.w1 = Var(within=NonNegativeReals) # tons of wheat sold
 model.y1 = Var(within=NonNegativeReals) # tons of wheat purchased
 model.w2 = Var(within=NonNegativeReals) # tons of corn sold
@@ -40,7 +36,7 @@ model.corn_balance = Constraint(expr=model.a2 * model.x2 + model.y2 - model.w2 >
 model.sugar_beets_balance_upper = Constraint(expr= model.w3 <= 6000)
 model.sugar_beets_balance_lower = Constraint(expr= model.w3 + model.w4 <= model.a3 * model.x3)
 
-# Solving the model (assuming you have GLPK solver)
+# Solving the model (assuming you have gams solver)
 solver = SolverFactory('gams')
 solver.solve(model, tee=True)
 
@@ -114,7 +110,7 @@ if fixAcres:
 
 if varyYield:
     # Step 2: Modify the yield parameters and solve the LP problem for each variation
-    yield_changes = [0.8, 1.2]  # -20% and +20%
+    yield_changes = [1]  # -20% and +20%
 
 
     for change in yield_changes:
