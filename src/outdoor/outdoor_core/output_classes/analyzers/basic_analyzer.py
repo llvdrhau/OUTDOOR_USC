@@ -818,7 +818,7 @@ class BasicModelAnalyzer:
         This method prepares the flowsheet image of the optimized superstructre.
 
         """
-        def make_node(graph, name, shape):
+        def make_node(graph, name, shape, orientation=0 , color = 'black'):
             """
             Parameters
             ----------
@@ -833,8 +833,9 @@ class BasicModelAnalyzer:
 
             """
 
-            node = pydot.Node(name, height=0.5, width=2, fixedsize=True)
-            node.set_shape(shape)
+            node = pydot.Node(name, height=0.5, width=2, fixedsize=True, shape=shape, orientation=-orientation,
+                              color=color)
+
             graph.add_node(node)
 
             return node
@@ -888,7 +889,7 @@ class BasicModelAnalyzer:
 
                     if v in model_data["U_S"]:
                         nodes[v] = make_node(
-                            flowchart, model_data["Names"][v], "ellipse"
+                            flowchart, model_data["Names"][v], shape="ellipse", color='green'
                         )
 
                     elif v in model_data["U_STOICH_REACTOR"]:
@@ -914,11 +915,11 @@ class BasicModelAnalyzer:
                         )
 
                     elif v in model_data["U_PP"]:
-                        nodes[v] = make_node(flowchart, model_data["Names"][v], "house")
+                        nodes[v] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
 
                     elif v in model_data["U_DIST"]:
                         nodes[v] = make_node(
-                            flowchart, model_data["Names"][v], "circle"
+                            flowchart, model_data["Names"][v], shape="triangle", orientation=270
                         )
 
                     else:

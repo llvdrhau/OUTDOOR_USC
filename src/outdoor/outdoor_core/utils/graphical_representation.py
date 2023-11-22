@@ -11,15 +11,15 @@ import os
 
 def create_superstructure_flowsheet(superstructure, path):
 
-    def make_node(graph, name, shape):
+    def make_node(graph, name, shape, orientation = 0, color = 'black'):
         """
         Create nodes inside the flowsheet graph
 
 
         """
 
-        node = pydot.Node(name, height=0.5, width=2, fixedsize=True)
-        node.set_shape(shape)
+        node = pydot.Node(name, height=0.5, width=2, fixedsize=True, shape=shape, orientation=-orientation,
+                          color= color, style='filled', fillcolor='white')
         graph.add_node(node)
 
         return node
@@ -84,7 +84,7 @@ def create_superstructure_flowsheet(superstructure, path):
 
                 if v in superstructure.SourceList['U_S']:
                     nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
-                                            'ellipse')
+                                            'ellipse', color='green')
 
                 elif v in superstructure.StoichRNumberList['U_STOICH_REACTOR']:
 
@@ -106,11 +106,11 @@ def create_superstructure_flowsheet(superstructure, path):
 
                 elif v in superstructure.ProductPoolList['U_PP']:
                     nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
-                                        'house')
+                                        shape='house', color='blue', orientation= 270)
 
                 elif v in superstructure.distributor_list['U_DIST']:
                     nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
-                                        'circle')
+                                        shape='triangle', orientation= 270)
 
                 else:
                     nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],

@@ -165,6 +165,7 @@ class SuperstructureProblem:
         # now make a deep copy of the model and fix the boolean variables as parameters in the model
         model_instance_EVPI = model_instance.clone()
 
+
         # the next step is to run individual optimisations for each scenario and save the results in a list
         # first we need to get the scenarios from the input data
         scenarios = input_data.Scenarios['SC']
@@ -197,7 +198,7 @@ class SuperstructureProblem:
 
             # run the optimisation
             modelOutputScenario_EVPI = optimizer.run_optimization(model_instance=modelInstanceScemarioEVPI, tee=False,
-                                                             printTimer=False, VSS_EVPI_mode=True)
+                                                                  keepfiles=False, printTimer=False, VSS_EVPI_mode=True)
 
             if modelOutputScenario_EVPI == 'infeasible':
                 infeasibleScenarios.append(sc)
@@ -215,7 +216,8 @@ class SuperstructureProblem:
 
         # now we have the objective values for each scenario in a list
         # the next step is to calculate the EVPI
-        EVPI = np.mean(objectiveValueList_EVPI)
+        #EVPI = np.mean(objectiveValueList_EVPI)
+
         # Print a newline character to ensure the next console output is on a new line.
         print()
         # reactivate the warning if model is infeasible
@@ -223,7 +225,7 @@ class SuperstructureProblem:
         # make a set of infeasible scenarios to get rid of duplicates
         infeasibleScenarios = set(infeasibleScenarios)
 
-        return EVPI, infeasibleScenarios
+        return objectiveValueList_EVPI, infeasibleScenarios
 
     def get_VSS(self, stochastic_model_output, input_data=None, solver="gurobi", interface="local", solver_path=None,
                 options=None):
@@ -316,16 +318,15 @@ class SuperstructureProblem:
         # singleInput.optimization_mode = "single" # just to make sure
         optimization_mode = "single"
         # populate the model instance with the input data
-        model_instance = self.setup_model_instance(singleInput, optimization_mode, printTimer=False)
+        model_instance_vss = self.setup_model_instance(singleInput, optimization_mode, printTimer=False)
 
         # now make a deep copy of the model and fix the boolean variables as parameters in the model
         # this is the model where the parameters are varibale and the boolean variables are fixed as parameters
-        model_instance_vss = model_instance.clone()
 
         # Extract the boolean variables choosing the units from the model output and save them in a list
         fixBooleanVariables = stochastic_model_output._data['Y']
 
-        # change the model instance copy fix the boolean variables as parameters
+        # change the model instance copy and fix the boolean variables as parameters
         model_instance_vss.del_component(model_instance_vss.Y)
         model_instance_vss.Y = Param(model_instance_vss.U, initialize=fixBooleanVariables, mutable=True,
                                      within=Any)
@@ -349,24 +350,10 @@ class SuperstructureProblem:
         numbers = [1, 2, 3]
         model_instance_vss.ProcessGroup_logic_22 = Constraint(model_instance_vss.U, numbers, rule=ProcessGroup_logic_2_rule)
 
-        # now we have the model instance with the fixed boolean variables as parameters
-        # the next step is to run individual optimisations for each scenario and save the results in a list
-        # first we need to get the scenarios from the input data
-        scenarios = input_data.Scenarios['SC']
+        # the parameters from the saved model are the average or Expected Value of the stochastic parameters
+        # we need to solve the model with expected value where the 1st stage decisions are fixed (already done)
+        # need to run a single run optimisation which has now transformed into a LP problem
 
-        # now we need to run the single run optimisation for each scenario
-        # preallocate the variables
-        objectiveValueList_VSS = []
-        infeasibleScenarios = []
-
-        # Green and bold text, warning this might take a while
-        print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the VSS\n"
-                             "Please be patient, this might take a while" + "\033[0m")
-
-        # Suppress the specific warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.ERROR)
-
-        total_scenarios = len(scenarios)
 
         # set the options for the single run optimisation
         # set model options
@@ -374,42 +361,83 @@ class SuperstructureProblem:
         # settings optimisation problem
         optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
                                          mode_options, singleInput)
+        # run the optimisation
+        # EVV expected value problem or mean value problem
+        model_output_VSS = optimizer.run_optimization(model_instance=model_instance_vss, tee=False,
+                                                             printTimer=False, VSS_EVPI_mode=True)
 
-        for index, sc in enumerate(scenarios):
-            # model for VSS calculation
-            modelInstanceScemario_VSS, parametersVSS = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
-                                                               stochasticInput=input_data, model=model_instance_vss)
+        if model_output_VSS == 'infeasible':
+            raise Exception("The model is infeasible, please check the input data is correct for the deterministic"
+                            " model parameters. \n")
 
-            # run the optimisation
-            modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False,
-                                                                 printTimer=False, VSS_EVPI_mode=True)
+        objectiveName = model_output_VSS._objective_function
+        EEV = model_output_VSS._data[objectiveName]
 
-            if modelOutputScenario_VSS == 'infeasible':
-                infeasibleScenarios.append(sc)
-            else:
-                objectiveName = modelOutputScenario_VSS._objective_function
-                objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
 
-            # Now let's print the progress bar
-            progress = (index + 1) / total_scenarios
-            bar_length = 40  # Modify this to change the length of the progress bar
-            block = int(round(bar_length * progress))
-            text = "\rProgress: [{0}] {1:.2f}%".format("#" * block + "-" * (bar_length - block), progress * 100)
-            sys.stdout.write(text)
-            sys.stdout.flush()
+        return EEV
 
-        # now we have the objective values for each scenario in a list
-        # the next step is to calculate the VSS
-        VSS = np.mean(objectiveValueList_VSS)
-
-        # Print a newline character to ensure the next console output is on a new line.
-        print()
-        # reactivate the warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.WARNING)
-        # make a set of infeasible scenarios to get rid of duplicates
-        infeasibleScenarios = set(infeasibleScenarios)
-
-        return VSS, infeasibleScenarios
+        # -------------------------------------------------------------------------------------------------------------
+        # # now we have the model instance with the fixed boolean variables as parameters
+        # # the next step is to run individual optimisations for each scenario and save the results in a list
+        # # first we need to get the scenarios from the input data
+        # scenarios = input_data.Scenarios['SC']
+        #
+        # # now we need to run the single run optimisation for each scenario
+        # # preallocate the variables
+        # objectiveValueList_VSS = []
+        # infeasibleScenarios = []
+        #
+        # # Green and bold text, warning this might take a while
+        # print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the VSS\n"
+        #                      "Please be patient, this might take a while" + "\033[0m")
+        #
+        # # Suppress the specific warning if model is infeasible
+        # logging.getLogger('pyomo.core').setLevel(logging.ERROR)
+        #
+        # total_scenarios = len(scenarios)
+        #
+        # # set the options for the single run optimisation
+        # # set model options
+        # mode_options = self.set_mode_options(optimization_mode, singleInput)
+        # # settings optimisation problem
+        # optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+        #                                  mode_options, singleInput)
+        #
+        # for index, sc in enumerate(scenarios):
+        #     # model for VSS calculation
+        #     modelInstanceScemario_VSS, parametersVSS = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+        #                                                        stochasticInput=input_data, model=model_instance_vss)
+        #
+        #     # run the optimisation
+        #     modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False,
+        #                                                          printTimer=False, VSS_EVPI_mode=True)
+        #
+        #     if modelOutputScenario_VSS == 'infeasible':
+        #         infeasibleScenarios.append(sc)
+        #     else:
+        #         objectiveName = modelOutputScenario_VSS._objective_function
+        #         objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
+        #
+        #     # Now let's print the progress bar
+        #     progress = (index + 1) / total_scenarios
+        #     bar_length = 40  # Modify this to change the length of the progress bar
+        #     block = int(round(bar_length * progress))
+        #     text = "\rProgress: [{0}] {1:.2f}%".format("#" * block + "-" * (bar_length - block), progress * 100)
+        #     sys.stdout.write(text)
+        #     sys.stdout.flush()
+        #
+        # # now we have the objective values for each scenario in a list
+        # # the next step is to calculate the VSS
+        # VSS = np.mean(objectiveValueList_VSS)
+        #
+        # # Print a newline character to ensure the next console output is on a new line.
+        # print()
+        # # reactivate the warning if model is infeasible
+        # logging.getLogger('pyomo.core').setLevel(logging.WARNING)
+        # # make a set of infeasible scenarios to get rid of duplicates
+        # infeasibleScenarios = set(infeasibleScenarios)
+        #return VSS, infeasibleScenarios
+        # -------------------------------------------------------------------------------------------------------------
 
     def solve_optimization_problem(
         self,
@@ -501,7 +529,7 @@ class SuperstructureProblem:
             elif optimization_mode == "2-stage-recourse":
                 # preallocate the variables
                 infeasibleScenarios = None
-                average_EVPI = 0
+                waitAndSeeSolution = 0
                 average_VSS = 0
 
                 if calculation_EVPI:
@@ -509,11 +537,9 @@ class SuperstructureProblem:
                     # make a deep copy of the input data so the stochastic parameters can be changed
                     Stochastic_input = copy.deepcopy(input_data)
                     Stochastic_input.create_DataFile()
-                    # average_EVPI, average_VSS, infeasibleScenarios = self.get_VSS_and_EVPI(Stochastic_input,solver,
-                    #                                                                        interface, solver_path, options)
-                    average_EVPI, infeasibleScenarios = self.get_EVPI(Stochastic_input, solver,
-                                                                                           interface, solver_path,
-                                                                                           options)
+                    waitAndSeeSolutionList, infeasibleScenarios = self.get_EVPI(Stochastic_input, solver, interface,
+                                                                            solver_path, options)
+                    waitAndSeeSolution = np.mean(waitAndSeeSolutionList)
 
                 # populate the model instance with the input data
                 model_instance = self.setup_model_instance(input_data, optimization_mode, infeasibleScenarios)
@@ -535,16 +561,24 @@ class SuperstructureProblem:
                 objectiveName = model_output._objective_function
                 expected_value = model_output._data[objectiveName]
 
-                if calculation_VSS:
-                    # calculate the VSS
-                    VSS, _ = self.get_VSS(model_output, input_data, solver, interface, solver_path, options)
-                    model_output.VSS = expected_value - VSS
 
+                # pass on the EVPI and VSS to the model output
 
                 if calculation_EVPI:
                     # pass on the EVPI
-                    model_output.EVPI = average_EVPI - expected_value
+                    if 'EBIT' in objectiveName: # because the optimisation setting is then maximised (todo find how you can see if the problem is maximised or minimised from the model instance)
+                        model_output.EVPI = waitAndSeeSolution - expected_value
+                    else:
+                        model_output.EVPI = expected_value - waitAndSeeSolution
                     model_output.infeasibleScenarios = infeasibleScenarios
+
+                if calculation_VSS:
+                    # calculate the VSS
+                    EEV = self.get_VSS(model_output, input_data, solver, interface, solver_path, options)
+                    if 'EBIT' in objectiveName: # because the optimisation setting is then maximised (todo find how you can see if the problem is maximised or minimised from the model instance)
+                        model_output.VSS = expected_value - EEV
+                    else:
+                        model_output.VSS = EEV - expected_value
 
 
                 # pass on the default scenario if it changed

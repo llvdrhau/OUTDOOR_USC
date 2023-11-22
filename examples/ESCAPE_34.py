@@ -27,10 +27,10 @@ import outdoor
 
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "Test_small_AgriLoop.xlsm"
-Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
-Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\single"
-Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\stochastic"
+Excel_Path = "AgriLoop_ESCAPE34_case_study.xlsm"
+Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study"
+Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\single"
+Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\stochastic"
 
 # create the superstructure data from the Excel file and
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
@@ -61,7 +61,7 @@ if model_output._optimization_mode == "Single run optimization":  # single run o
     # create the flow sheets of the superstructure and the optimised flow sheet
     analyzer.create_flowsheet(Results_Path_single)
 
-elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # single run optimization
+elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # stochastic optimization
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(directory_path=Results_Path_stochatic)
     # save the results as a txt file, you have to specify the path

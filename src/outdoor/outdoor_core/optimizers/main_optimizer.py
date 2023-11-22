@@ -79,7 +79,7 @@ class SingleOptimizer:
         # save optimisation mode
         self.optimization_mode = optimization_mode
 
-    def run_optimization(self, model_instance, tee=True, printTimer=True, VSS_EVPI_mode=False):
+    def run_optimization(self, model_instance, tee=True, keepfiles = True ,printTimer=True, VSS_EVPI_mode=False):
         """
         Parameters
         ----------
@@ -100,7 +100,7 @@ class SingleOptimizer:
         timer = time_printer(programm_step='Single optimization run', printTimer=printTimer)
 
 
-        results = self.solver.solve(model_instance, keepfiles=True, tee=tee)
+        results = self.solver.solve(model_instance, keepfiles=keepfiles, tee=tee)
 
 
         # Check if the model is infeasible
