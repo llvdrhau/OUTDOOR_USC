@@ -67,6 +67,42 @@ class StochasticObject():
         self.ProbabilitySettings = GeneralDataFrame.iloc[1, 1]
 
 
+    def _set_phi_exclusion_list(self, phiExclusionDataFrame):
+        """
+        This function makes a list of tuples which contain the unit number and the components of the excluded elements
+        when composition changes
+        :param phiExclusionDataFrame:
+        :return:
+        """
+
+        # make a dictionary from the dataframe, the keys are the unit numbers in the first column. the items should be a list of all the strings in the row
+        phiExclusionDict = {}
+        # loop for the first colunm of the dataframe
+        availableSources = phiExclusionDataFrame.iloc[:,0].dropna()
+        exclusionList = []
+        for i, source in enumerate(availableSources):
+            sourceRow = phiExclusionDataFrame.iloc[i,1:].dropna()
+            for component in sourceRow:
+                exclusionList.append((source, component))
+
+            if source is not None:
+                # if the value in the dataframe is not nan add it to the list
+                row = phiExclusionDataFrame.loc[source]
+                row = row[1:]
+                # drop Nan
+                row = row.dropna()
+                # make a list from the row
+                row = row.tolist()
+                phiExclusionDict[source] = row
+
+        self.PhiExclusionDict = phiExclusionDict
+        self.PhiExclusionList = exclusionList
+
+
+
+
+
+
 
 
     def _set_general_dict(self, dataFrame, parameterName):
@@ -163,7 +199,10 @@ class StochasticObject():
 
 
     def make_scenario_dataframe(self):
-
+        """
+        This function makes a dataframe with all the scenarios and their values for each uncertain parameter
+        :return: self.UncertaintyMatrix (dataframe)
+        """
         # Define your list and values for n and r
         my_list = self.ScenarioList
         # Number of variables

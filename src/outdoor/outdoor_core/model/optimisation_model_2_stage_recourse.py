@@ -909,8 +909,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # ---------
 
         # Scenario with max costs associated with it
-        #self.SC_MAX = Param()
-        # self.DefaultScenario wil always be the max cost scenario
+
 
         # Specific costs (Utility, raw materials, Product prices)
 
@@ -987,28 +986,36 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # Constraints
         # -----------
+        '''
+        CapexEquation_1_rule requieres some explanation:
+        The referecnce flow for the CAPEX calculations needs to be the maximum flow/energy consumption across all scenarios.
+        this is achieved by the following logic:
+        1. kappa_2_capex is a parameter that determines the type of reference flow for the CAPEX calculation
+        for each unit. and at each scenario REF_FLOW_CAPEX >= FLOW_IN or FLOW_OUT or ENERGY_DEMAND or EL_PROD_1
+        in other words, the reference flow is the maximum of all flows/energy consumption across all scenarios.
 
-        # CAPEX Calculation (Reference Flow, Piece-Wise linear Lambda Constraints)
-
-        def CapexEquation_1_rule(self, u):
+        '''
+        #---------------------------------------------------------------------------------------
+        def CapexEquation_1_rule(self, u, sc):
             if self.kappa_2_capex[u] == 1:
-                return self.REF_FLOW_CAPEX[u] == sum(
-                    self.FLOW_IN[u, i, self.DefaultScenario] * self.kappa_1_capex[u, i] for i in self.I
-                )
+                return self.REF_FLOW_CAPEX[u] >= sum(
+                    self.FLOW_IN[u, i, sc] * self.kappa_1_capex[u, i] for i in self.I)
+
             elif self.kappa_2_capex[u] == 0:
-                return self.REF_FLOW_CAPEX[u] == sum(
-                    self.FLOW_OUT[u, i, self.DefaultScenario] * self.kappa_1_capex[u, i] for i in self.I
+                return self.REF_FLOW_CAPEX[u] >= sum(
+                    self.FLOW_OUT[u, i, sc] * self.kappa_1_capex[u, i] for i in self.I
                 )
             elif self.kappa_2_capex[u] == 2:
-                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND[u, "Electricity", self.DefaultScenario]
+                return self.REF_FLOW_CAPEX[u] >= self.ENERGY_DEMAND[u, "Electricity", sc]
 
             elif self.kappa_2_capex[u] == 3:
-                return self.REF_FLOW_CAPEX[u] == self.ENERGY_DEMAND_HEAT_PROD[u, self.DefaultScenario]
+                return self.REF_FLOW_CAPEX[u] >= self.ENERGY_DEMAND_HEAT_PROD[u, sc]
 
             elif self.kappa_2_capex[u] == 4:
-                return self.REF_FLOW_CAPEX[u] == self.EL_PROD_1[u, self.DefaultScenario]
+                return self.REF_FLOW_CAPEX[u] >= self.EL_PROD_1[u, sc]
             else:
                 return self.REF_FLOW_CAPEX[u] == 0
+        # =======================================================================================
 
         def CapexEquation_2_rule(self, u):
             return (
@@ -1054,10 +1061,10 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         self.ACC_H = Var(within=NonNegativeReals)
 
-        def CapexEquation_9_rule(self):
+        def CapexEquation_9_rule(self, sc):
             return (
                 self.ACC_H
-                == self.HP_ACC_Factor * self.HP_Costs * self.ENERGY_DEMAND_HP_USE[self.DefaultScenario]
+                >= self.HP_ACC_Factor * self.HP_Costs * self.ENERGY_DEMAND_HP_USE[sc]
             )
 
         def Cap(self):
@@ -1067,12 +1074,17 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
 
         # heat exchanger costs
+        self.ENERGY_EXCHANGE_max = Var(self.HI, within=NonNegativeReals)
+        def HEN_CostBalance_CAPEX_1_1_rule(self, hi, sc):
+            return self.ENERGY_EXCHANGE_max[hi] >= self.ENERGY_EXCHANGE[hi, sc]
+        self.HEN_CostBalance_CAPEX_1_1 = Constraint(self.HI, self.SC, rule=HEN_CostBalance_CAPEX_1_1_rule)
+
         def HEN_CostBalance_CAPEX_1_rule(self, hi):
-            return (self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[hi, self.DefaultScenario]
+            return (self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE_max[hi]
                     + 3.3893 + self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_2_rule(self, hi):
-            return (self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE[hi, self.DefaultScenario]
+            return (self.HENCOST[hi] >= 13.459 * self.ENERGY_EXCHANGE_max[hi]
                     + 3.3893 - self.alpha_hex * (1 - self.Y_HEX[hi])) # sc1 max energy exchange scenario
 
         def HEN_CostBalance_CAPEX_3_rule(self, hi):
@@ -1082,7 +1094,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.CapexEquation_HEN_2 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_2_rule)
         self.CapexEquation_HEN_3 = Constraint(self.HI, rule=HEN_CostBalance_CAPEX_3_rule)
 
-        def CapexEquation_11_rule(self, u):
+        def CapexEquation_11_rule(self, u): # reoccurring costs of equipment
             return self.TO_CAPEX[u] == self.to_acc[u] * self.EC[u]
 
         def CapexEquation_12_rule(self): # reoccurring costs of equipment
@@ -1097,7 +1109,9 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
                 + sum(self.HENCOST[hi] for hi in self.HI)   # HEN capital costs
             )
 
-        self.CapexEquation_1 = Constraint(self.U_C, rule=CapexEquation_1_rule)
+
+
+        self.CapexEquation_1 = Constraint(self.U_C, self.SC, rule=CapexEquation_1_rule)
         self.CapexEquation_2 = Constraint(self.U_C, rule=CapexEquation_2_rule)
         self.CapexEquation_3 = Constraint(self.U_C, rule=CapexEquation_3_rule)
         self.CapexEquation_4 = Constraint(self.U_C, rule=CapexEquation_4_rule)
@@ -1105,7 +1119,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         self.CapexEquation_6 = Constraint(self.U_C, self.J, rule=CapexEquation_6_rule)
         self.CapexEquation_7 = Constraint(self.U_C, rule=CapexEquation_7_rule)
         self.CapexEquation_8 = Constraint(self.U_C, rule=CapexEquation_8_rule)
-        self.CapexEquation_9 = Constraint(rule=CapexEquation_9_rule)
+        self.CapexEquation_9 = Constraint(self.SC, rule=CapexEquation_9_rule)
         self.CapexEquation_10 = Constraint(rule=CapexEquation_10_rule)
         self.CapexEquation_11 = Constraint(self.U_C, rule=CapexEquation_11_rule)
         self.CapexEquation_12 = Constraint(rule=CapexEquation_12_rule)

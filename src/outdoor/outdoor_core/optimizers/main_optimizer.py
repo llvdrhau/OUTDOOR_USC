@@ -97,7 +97,7 @@ class SingleOptimizer:
 
         """
 
-        timer = time_printer(programm_step='Single optimization run', printTimer=printTimer)
+        timer = time_printer(programm_step='Superstructure optimization run', printTimer=printTimer)
 
 
         results = self.solver.solve(model_instance, keepfiles=keepfiles, tee=tee)

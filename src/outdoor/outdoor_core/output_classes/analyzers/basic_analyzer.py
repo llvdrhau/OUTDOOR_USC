@@ -390,7 +390,7 @@ class BasicModelAnalyzer:
 
         return energy_data
 
-    def _collect_mass_flows(self, model_data):
+    def _collect_mass_flows(self, model_data, nDecimals=2):
         """
         :param model_data:  dictionary with all the data from the optimization
         :return: mass_flow_data: dictionary with the exiting mass flows of the unit operations
@@ -413,7 +413,7 @@ class BasicModelAnalyzer:
 
                 if meaxOfScenario[1] > 1e-04: # that is, at least one stream is flowing in a particular unit in a particular scenario
                     for i, j in selectionList:
-                        mass_flow_data["Mass flows"][i] = round(j, 2)
+                        mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
             pointerStart = 0
             pointerEnd = step
@@ -428,29 +428,29 @@ class BasicModelAnalyzer:
 
                 if meaxOfScenario[1] > 1e-04:  # that is, at least one stream is flowing in a particular unit scenario through that unit operation
                     for i, j in selectionList:
-                        mass_flow_data["Mass flows"][i] = round(j, 2)
+                        mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         else: # for single run optimization
             for i, j in model_data["FLOW_FT"].items():
-                if j > 1e-04:
-                    mass_flow_data["Mass flows"][i] = round(j, 2)
+                if j > 1e-06:
+                    mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
             for i, j in model_data["FLOW_ADD"].items():
-                if j > 1e-04:
-                    mass_flow_data["Mass flows"][i] = round(j, 2)
+                if j > 1e-06:
+                    mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         return mass_flow_data
 
-    def _collect_mass_flows_stochastic(self, model_data):
+    def _collect_mass_flows_stochastic(self, model_data, nDecimals=2):
         mass_flow_data = {"Mass flows": {}}
 
         for i, j in model_data["FLOW_FT"].items():
-            if j > 1e-04:
-                mass_flow_data["Mass flows"][i] = round(j, 2)
+            if j > 1e-06:
+                mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         for i, j in model_data["FLOW_ADD"].items():
-            if j > 1e-04:
-                mass_flow_data["Mass flows"][i] = round(j, 2)
+            if j > 1e-06:
+                mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         return mass_flow_data
 
@@ -876,7 +876,7 @@ class BasicModelAnalyzer:
         nodes = dict()
         edges = dict()
         model_data = self.model_output._data
-        data = self._collect_mass_flows(model_data)["Mass flows"]
+        data = self._collect_mass_flows(model_data=model_data, nDecimals=4)["Mass flows"]
         flowchart = pydot.Dot(
             "flowchart", rankdir="LR", ratio="compress", size="15!,1", dpi="500"
         )
@@ -930,10 +930,25 @@ class BasicModelAnalyzer:
         if len(list(data.keys())[0]) > 2: # if the first key is a tuple > 2, we're dealing with a stochastic model
             dataStochastic = self.min_mean_max_streams_stochastic(data)
             for i, j in dataStochastic.items():
+                tester = j
                 edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j[0]}", color=j[1], width=j[2])
         else:
             for i, j in data.items():
-                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j} t/h")
+
+                if j < 1e-6:
+                    flow = round(j * 1e9, 2)
+                    labelEdge = f"{flow} mg/h"
+                elif j < 1e-3:
+                    flow = round(j * 1e6, 2)
+                    labelEdge = f"{flow} g/h"
+                elif j < 0.1:
+                    flow = round(j * 1e3, 2)
+                    labelEdge = f"{flow} kg/h"
+                else:
+                    labelEdge = f"{round(j, 2)} t/h"
+
+                edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], labelEdge)
+
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -942,12 +957,31 @@ class BasicModelAnalyzer:
 
         flowchart.write_png(path)
 
-    def min_mean_max_streams_stochastic(self, streamDataDict):
+    def min_mean_max_streams_stochastic(self, streamDataDict, nDecimals=5):
         """"
         The data is encased in a tuple (unitNr, unitNr, ScenarioNr) then this function splits the data into a dictionary that
         contains the minimum, mean and maximum value of each connected stream across all scenarios
         """
-        #a = streamDataDict
+        def format_flow(value):
+            """
+            get the right label for the flows
+            """
+            if value < 1e-6:
+                scaled_value = round(value * 1e9, 2)
+                unit = " mg/h"
+            elif value < 1e-3:
+                scaled_value = round(value * 1e6, 2)
+                unit = " g/h"
+            elif value < 0.1:
+                scaled_value = round(value * 1e3, 2)
+                unit = " kg/h"
+            else:
+                scaled_value = round(value, 2)
+                unit = " t/h"
+            return scaled_value, unit
+
+
+
         scenario_values = self.model_output._data['SC']
         units = self.model_output._data['U']
         unitConnestors = self.model_output._data['U_CONNECTORS'] + self.model_output._data['U_SU']
@@ -964,10 +998,10 @@ class BasicModelAnalyzer:
                     scList.append(streamDataDict[u, uu, s])
 
             if scList: # if the list is not empty continue
-                maxValue = round(max(scList), 2)
-                minValue = round(min(scList),2)
-                meanValue = round(sum(scList) / len(scList), 2)
-
+                maxValue = round(max(scList), nDecimals)
+                minValue = round(min(scList),nDecimals)
+                meanValue = round(sum(scList) / len(scList), nDecimals)
+                # get the coloring of the edges right according to how much variation their is in the stream
                 if maxValue > 0:  # color code the streams that actually have a flow
                     ratio = minValue / maxValue
                     if ratio < 0.125:
@@ -995,7 +1029,39 @@ class BasicModelAnalyzer:
                         colorCode = 'black'
                         width = 1
 
-                label = f"min:{minValue} t/h\nmean:{meanValue} t/h\nmax: {maxValue} t/h"
+                # get the units right for the labels
+                # Example usage
+                minimumFlow, minUnit = format_flow(minValue)
+                meanFlow, meanUnit = format_flow(meanValue)
+                maximumFlow, maxUnit = format_flow(maxValue)
+
+                label = (f"min: {minimumFlow}{minUnit}\n"
+                         f"mean: {meanFlow}{meanUnit}\n"
+                         f"max: {maximumFlow}{maxUnit}")
+
+
+                # if minValue < 1e-6:
+                #     minimumFlow = round(minValue * 1e9, 2)
+                #     maximumFlow = round(maxValue * 1e9, 2)
+                #     meanFlow = round(meanValue * 1e9, 2)
+                #     labelUnit = " mg/h"
+                # elif minValue < 1e-3:
+                #     minimumFlow = round(minValue * 1e6, 2)
+                #     maximumFlow = round(maxValue * 1e6, 2)
+                #     meanFlow = round(meanValue * 1e6, 2)
+                #     labelUnit = " g/h"
+                # elif minValue < 0.1:
+                #     minimumFlow = round(minValue * 1e3, 2)
+                #     maximumFlow = round(maxValue * 1e3, 2)
+                #     meanFlow = round(meanValue * 1e3, 2)
+                #     labelUnit = " kg/h"
+                # else:
+                #     minimumFlow = round(minValue, 2)
+                #     maximumFlow = round(maxValue, 2)
+                #     meanFlow = round(meanValue, 2)
+                #     labelUnit = " t/h"
+                #label = f"min: {minimumFlow}{labelUnit}\nmean: {meanFlow}{labelUnit}\nmax: {maximumFlow}{labelUnit}"
+
                 unitDict.update({(u,uu): (label, colorCode, width)})
 
         return unitDict

@@ -27,7 +27,7 @@ import outdoor
 
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "AgriLoop_ESCAPE34_case_study.xlsm"
+Excel_Path = "ESCAPE34_case_study.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study"
 Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\single"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\stochastic"
@@ -46,7 +46,8 @@ abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_EVPI=True)
+                                                         calculation_EVPI=False,
+                                                         calculation_VSS=True,)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")

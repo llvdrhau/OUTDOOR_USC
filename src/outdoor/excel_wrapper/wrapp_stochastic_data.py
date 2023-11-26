@@ -38,6 +38,12 @@ def wrapp_stochastic_data(dfi):
     phiDataFrame = dfi.iloc[phiRange]
     obj._set_general_dict(phiDataFrame, 'phi')
 
+    phiExclusionRange = WF.convert_total('R', 13, 'X', 20) # feed composition
+    phiExclusionDF = dfi.iloc[phiExclusionRange]
+    obj._set_phi_exclusion_list(phiExclusionDF)
+    # todo make sure the phi exclusion list is incorporated in the stochastic model still
+    #  need an exclusion function in the polishing step
+
     # conversion factor (Stoichiometric reactor units)
     thetaRange = WF.convert_total('I', 10, 'N', 23) # conversion factor
     thetaDataFrame = dfi.iloc[thetaRange]

@@ -1274,7 +1274,7 @@ class Superstructure():
         This function creates the dictionary for the composition of the inlet streams of the source units.
         The difference between set_unit_uncertainty and set_source_uncertainty is that the source units the sum of the
         composition should be 1 So when a composition is change the other compositions should be changed accordingly to
-        keep the sum of the component fractions equal to 1. the change is eqally distributed between the components that
+        keep the sum of the component fractions equal to 1. the change is equally distributed between the components that
         are not changed.
         Inputs:
             uncertaintyObject: the object that contains the uncertainty information
@@ -1286,6 +1286,8 @@ class Superstructure():
         """
         changeDict = {}
         scenarioList = uncertaintyObject.ScenarioList
+        PhiExclusionDict = uncertaintyObject.PhiExclusionDict
+        PhiExclusionList = uncertaintyObject.PhiExclusionList
         newDictUnpacked = newDict['phi']
         oldDict = oldDict['phi']
         for sc in scenarioList:
@@ -1298,20 +1300,24 @@ class Superstructure():
                     if difference != 0:
                         diffList.append(difference)
                     else:
-                        changedList.append(key)
+                        if key not in PhiExclusionList:
+                            changedList.append(key)
+
 
                 for i in changedList:
-                    changeDict[(i[0], i[1], sc)] = oldDict[i] - sum(diffList) / len(changedList)
+                    updatedValue = oldDict[i] + sum(diffList) / len(changedList)
+                    # todo the massbalances should be modified. It is possible that the updated value is
+                    #  negative which is physically not possible, for simplicity we set it to 0 but this does not comply
+                    #  with the conservation of mass
+
+                    if updatedValue < 0:
+                        updatedValue = 0
+
+                    changeDict[(i[0], i[1], sc)] = updatedValue
 
         # update the newDict with the changeDict values
         for keys in changeDict.keys():
             newDict['phi'][keys] = changeDict[keys]
-
-
-        # to check if the new DIct is set correctly
-        # polishedDictSumList = []
-        # for sc in scenarioList:
-        #     polishedDictSumList.append(sum(newDict[(key[0], key[1], sc)] for key in oldDict.keys()))
 
 
         return newDict

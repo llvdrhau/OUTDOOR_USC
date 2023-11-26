@@ -65,87 +65,49 @@ class SuperstructureProblem:
         self.CheckNoneVariables = []
 
     def set_parameters_of_scenario(self, scenario, singleInput, stochasticInput, model):
+        """
+        This function is used to set the parameters of the stochastic model instance according to the scenario
+        for a single deterministic run.
+
+        :param scenario:
+        :param singleInput:
+        :param stochasticInput:
+        :param model:
+        :return: model instance with the parameters of the scenario
+        """
+
         # set the parameters of the single run optimisation
         singleDataFile = singleInput.Data_File
         # set the parameters of the stochastic run optimisation
         stochasticDataFile = stochasticInput.Data_File
 
         # need to go over the following parameters: phi, myu, xi, materialcosts, ProductPrice, gamma and theta
+        # make a list of the parameters
+        parameterList = ['phi', 'myu', 'xi', 'materialcosts', 'ProductPrice', 'gamma', 'theta']
 
-        # first the phi parameter
-        phi = singleDataFile[None]['phi']
-        phiSto = stochasticDataFile[None]['phi']
-        for keys, values in phi.items():
-            phi[keys] = phiSto[keys[0], keys[1], scenario]
+        for parameter in parameterList:
+            # first check if the parameter is in the single run optimisation data
+            if parameter in singleDataFile[None]:
+                # get the parameter from the single run optimisation
+                parameterSingle = singleDataFile[None][parameter]
+                # get the parameter from the stochastic run optimisation
+                parameterStochastic = stochasticDataFile[None][parameter]
 
-        # second the myu parameter
-        myu = singleDataFile[None]['myu']
-        myuSto = stochasticDataFile[None]['myu']
-        for keys, values in myu.items():
-            myu[keys] = myuSto[keys[0], keys[1], scenario]
+                # update the model instance
+                for index in parameterSingle:
+                    if isinstance(index, tuple):
+                        newIndex = tuple(list(index) + [scenario])
+                    else:
+                        newIndex = tuple([index] + [scenario])
 
-        # third the xi parameter
-        xi = singleDataFile[None]['xi']
-        xiSto = stochasticDataFile[None]['xi']
-        for keys, values in xi.items():
-            xi[keys] = xiSto[keys[0], keys[1], scenario]
+                    new_value = parameterStochastic[newIndex]
+                    model.__dict__[parameter][index] = new_value
 
-        # fourth the materialcosts parameter
-        materialcosts = singleDataFile[None]['materialcosts']
-        materialcostsSto = stochasticDataFile[None]['materialcosts']
-        for keys, values in materialcosts.items():
-            materialcosts[keys] = materialcostsSto[keys, scenario]
-
-        # fifth the productPrice parameter
-        productPrice = singleDataFile[None]['ProductPrice']
-        productPriceSto = stochasticDataFile[None]['ProductPrice']
-        for keys, values in productPrice.items():
-            productPrice[keys] = productPriceSto[keys, scenario]
-
-        # sixth the gamma parameter
-        gamma = singleDataFile[None]['gamma']
-        gammaSto = stochasticDataFile[None]['gamma']
-        for keys, values in gamma.items():
-            gamma[keys] = gammaSto[keys[0], keys[1], scenario]
-
-        # seventh the theta parameter
-        theta = singleDataFile[None]['theta']
-        thetaSto = stochasticDataFile[None]['theta']
-        for keys, values in theta.items():
-            theta[keys] = thetaSto[keys[0], keys[1], scenario]
-
-        # update the model instance
-        # phi
-        for index, new_value in phi.items():
-            model.phi[index] = new_value
-        # myu
-        for index, new_value in myu.items():
-            model.myu[index] = new_value
-        # xi
-        for index, new_value in xi.items():
-            model.xi[index] = new_value
-        # materialcosts
-        for index, new_value in materialcosts.items():
-            model.materialcosts[index] = new_value
-        # productPrice
-        for index, new_value in productPrice.items():
-            model.ProductPrice[index] = new_value
-        # gamma
-        for index, new_value in gamma.items():
-            model.gamma[index] = new_value
-        # theta
-        for index, new_value in theta.items():
-            model.theta[index] = new_value
-
-        # collect the variables in a list and return them
-        scenarioVariables = [phi, myu, xi, materialcosts, productPrice, gamma, theta]
-
-        return model, scenarioVariables
+        return model
     def get_EVPI(self, input_data=None, solver="gurobi", interface="local", solver_path=None, options=None):
         """
         This function is used to calculates the EVPI of a stochastic problem.
-        :param input_data of the signal optimisation run:
-        :param optimization_mode:
+        :param input_data: of the signal optimisation run
         :param solver:
         :param interface:
         :param solver_path:
@@ -161,10 +123,8 @@ class SuperstructureProblem:
         # populate the model instance with the input data
         model_instance = self.setup_model_instance(singleInput, optimization_mode, printTimer=False)
 
-
         # now make a deep copy of the model and fix the boolean variables as parameters in the model
         model_instance_EVPI = model_instance.clone()
-
 
         # the next step is to run individual optimisations for each scenario and save the results in a list
         # first we need to get the scenarios from the input data
@@ -193,7 +153,7 @@ class SuperstructureProblem:
 
             # model for EVPI calculation, the only difference is that the boolean variables are not fixed
             # i.e. all model variables are optimised according to the scenario parameters
-            modelInstanceScemarioEVPI, _ = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
+            modelInstanceScemarioEVPI = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
                                                                stochasticInput=input_data, model=model_instance_EVPI)
 
             # run the optimisation
@@ -320,11 +280,33 @@ class SuperstructureProblem:
         # populate the model instance with the input data
         model_instance_vss = self.setup_model_instance(singleInput, optimization_mode, printTimer=False)
 
+        # -----------------------------------------------------------------------------------------------
+        # set the options for the single run optimisation
+        # set model options
+        mode_options = self.set_mode_options(optimization_mode, singleInput)
+        # settings optimisation problem
+        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
+                                         mode_options, singleInput)
+        # run the optimisation
+        # EVV expected value problem or mean value problem
+        model_output_VSS = optimizer.run_optimization(model_instance=model_instance_vss, tee=False,
+                                                      printTimer=False, VSS_EVPI_mode=True)
+
+        #print(model_output_VSS)
+
+        # -------------------------------------------------------------------------------------------------
+
+
+
         # now make a deep copy of the model and fix the boolean variables as parameters in the model
         # this is the model where the parameters are varibale and the boolean variables are fixed as parameters
 
         # Extract the boolean variables choosing the units from the model output and save them in a list
         fixBooleanVariables = stochastic_model_output._data['Y']
+        # loop of ther fixBooleanVariables and transform the item in the dict to the absolute value
+        for key, value in fixBooleanVariables.items():
+            if value is not None:
+                fixBooleanVariables[key] = abs(value)
 
         # change the model instance copy and fix the boolean variables as parameters
         model_instance_vss.del_component(model_instance_vss.Y)
@@ -363,12 +345,12 @@ class SuperstructureProblem:
                                          mode_options, singleInput)
         # run the optimisation
         # EVV expected value problem or mean value problem
-        model_output_VSS = optimizer.run_optimization(model_instance=model_instance_vss, tee=False,
-                                                             printTimer=False, VSS_EVPI_mode=True)
+        model_output_VSS = optimizer.run_optimization(model_instance=model_instance_vss, tee=True,
+                                                      printTimer=False, VSS_EVPI_mode=True)
 
         if model_output_VSS == 'infeasible':
-            raise Exception("The model is infeasible, please check the input data is correct for the deterministic"
-                            " model parameters. \n")
+            raise Exception("The model to calculate the VSS is infeasible, please check the input data is correct "
+                            "for the deterministic model parameters. \n")
 
         objectiveName = model_output_VSS._objective_function
         EEV = model_output_VSS._data[objectiveName]
@@ -507,6 +489,30 @@ class SuperstructureProblem:
                 # populate the model instance with the input data
                 model_instance = self.setup_model_instance(input_data, optimization_mode)
 
+                # Initialize a counter for variables
+                total_variables = 0
+
+                # Iterate over all variable objects in the model
+                for var_object in model_instance.component_objects(Var, active=True):
+                    # Iterate over the indices of each variable object (if indexed)
+                    # If the variable is not indexed, this will iterate once
+                    for _ in var_object:
+                        total_variables += 1
+
+                print(f"Total number of variables: {total_variables}")
+
+                # Initialize a counter for constraints
+                total_constraints = 0
+
+                # Iterate over all constraint objects in the model
+                for constraint_object in model_instance.component_objects(Constraint, active=True):
+                    # Iterate over the indices of each constraint object (if indexed)
+                    # If the constraint is not indexed, this will iterate once
+                    for _ in constraint_object:
+                        total_constraints += 1
+
+                print(f"Total number of constraints: {total_constraints}")
+
                 # check for nan Values
                 # check_nan = self.find_nan_parameters_in_model_instance(model_instance)
                 # self.CheckNoneVariables = check_nan
@@ -533,16 +539,44 @@ class SuperstructureProblem:
                 average_VSS = 0
 
                 if calculation_EVPI:
+                    # timer for the EVPI calculation
+                    startEVPI = time_printer(programm_step= "EPVI calculation")
                     # create the Data_File Dictionary in the object input_data
                     # make a deep copy of the input data so the stochastic parameters can be changed
                     Stochastic_input = copy.deepcopy(input_data)
                     Stochastic_input.create_DataFile()
                     waitAndSeeSolutionList, infeasibleScenarios = self.get_EVPI(Stochastic_input, solver, interface,
                                                                             solver_path, options)
+                    time_printer(passed_time=startEVPI, programm_step="EPVI calculation")
                     waitAndSeeSolution = np.mean(waitAndSeeSolutionList)
 
                 # populate the model instance with the input data
                 model_instance = self.setup_model_instance(input_data, optimization_mode, infeasibleScenarios)
+
+                # count variables and constraints
+                # Initialize a counter for variables
+                total_variables = 0
+
+                # Iterate over all variable objects in the model
+                for var_object in model_instance.component_objects(Var, active=True):
+                    # Iterate over the indices of each variable object (if indexed)
+                    # If the variable is not indexed, this will iterate once
+                    for _ in var_object:
+                        total_variables += 1
+
+                print(f"Total number of variables: {total_variables}")
+
+                # Initialize a counter for constraints
+                total_constraints = 0
+
+                # Iterate over all constraint objects in the model
+                for constraint_object in model_instance.component_objects(Constraint, active=True):
+                    # Iterate over the indices of each constraint object (if indexed)
+                    # If the constraint is not indexed, this will iterate once
+                    for _ in constraint_object:
+                        total_constraints += 1
+
+                print(f"Total number of constraints: {total_constraints}")
 
                 # set model options
                 mode_options = self.set_mode_options(optimization_mode, input_data)
@@ -819,12 +853,14 @@ class SuperstructureProblem:
             data_file[None]['SC'][None].remove(sc)  # remove the scenario from the list of scenarios
             data_file[None]['odds'].pop(sc, None)  # remove the scenario from the odds dictionary
             for param in parameterList:
-                # Create a list of keys to remove
-                keys_to_remove = [key for key in data_file[None][param] if key[-1] == sc]
-                # Pop elements from the dictionary
-                for key in keys_to_remove:
-                    data_file[None][param].pop(key, None) # The `None` is to avoid KeyError if the key is not found
+                if param in data_file[None]: # check if the parameter is in the data file, if not skip it
+                    # Create a list of keys to remove
+                    keys_to_remove = [key for key in data_file[None][param] if key[-1] == sc]
+                    # Pop elements from the dictionary
+                    for key in keys_to_remove:
+                        data_file[None][param].pop(key, None) # The `None` is to avoid KeyError if the key is not found
 
+        # the default scenario becomes the first scenario in the list
         defaultScenario = data_file[None]['SC'][None][0]
         return data_file, defaultScenario
 

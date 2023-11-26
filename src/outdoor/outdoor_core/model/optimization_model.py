@@ -341,11 +341,11 @@ class SuperstructureModel(AbstractModel):
                     self.FLOW_IN[u, i] * self.kappa_1_rhs_conc[u, i] for i in self.I
                 )
             elif self.kappa_2_lhs_conc[u] == 1 and self.kappa_2_rhs_conc[u] == 0:
-                return 1e03 * sum(
-                    self.FLOW_IN[u, i] * self.kappa_1_lhs_conc[u, i] for i in self.I
-                ) == 1e03 * self.conc[u] * sum(
-                    self.FLOW_OUT[u, i] * self.kappa_1_rhs_conc[u, i] for i in self.I
-                )
+                return (1e03 * sum(
+                        self.FLOW_IN[u, i] * self.kappa_1_lhs_conc[u, i] for i in self.I)
+                        == 1e03 * self.conc[u] * sum(
+                        self.FLOW_OUT[u, i] * self.kappa_1_rhs_conc[u, i] for i in self.I
+                ))
             elif self.kappa_2_lhs_conc[u] == 1 and self.kappa_2_rhs_conc[u] == 1:
                 return 1e03 * sum(self.FLOW_IN[u, i] * self.kappa_1_lhs_conc[u, i] for i in self.I ) == 1e03 * self.conc[u] * sum(self.FLOW_IN[u, i] * self.kappa_1_rhs_conc[u, i] for i in self.I)
             else:
