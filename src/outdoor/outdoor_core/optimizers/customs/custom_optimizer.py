@@ -276,3 +276,13 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
         timer = time_printer(timer1, "Two-way sensitivity optimimization")
         model_output.fill_information(timer)
         return model_output
+
+
+class StochasticRecourseOptimizer(SingleOptimizer):
+    def __init__(
+        self,
+        solver_name,
+        solver_interface,
+        solver_options=None,
+    ):
+        super().__init__(solver_name, solver_interface, solver_options)

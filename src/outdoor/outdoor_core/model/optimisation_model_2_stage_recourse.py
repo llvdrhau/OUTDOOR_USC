@@ -941,7 +941,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
         # ---------
 
         # Piece-Wise Linear CAPEX
-        self.lin_CAPEX_s = Var(self.U_C, self.JI, within=NonNegativeReals)
+        self.lin_CAPEX_s = Var(self.U_C, self.JI, bounds=(0, 1))
         self.lin_CAPEX_z = Var(self.U_C, self.JI, within=Binary)
         self.lin_CAPEX_lambda = Var(self.U_C, self.J, bounds=(0, 1))
         self.REF_FLOW_CAPEX = Var(self.U_C, within=NonNegativeReals)
@@ -1019,9 +1019,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         def CapexEquation_2_rule(self, u):
             return (
-                sum(
-                    self.lin_CAPEX_x[u, j] * self.lin_CAPEX_lambda[u, j] for j in self.J
-                )
+                sum(self.lin_CAPEX_x[u, j] * self.lin_CAPEX_lambda[u, j] for j in self.J)
                 == self.REF_FLOW_CAPEX[u]
             )
 

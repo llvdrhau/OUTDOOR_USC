@@ -45,7 +45,8 @@ def capex_calculator(UnitProcess, CECPI, Detail=None):
         Example:     Same as x_vals.
 
     """
-
+    # todo : add the possibility to use the "fine" lin. function of the process
+    # Detail = 'fine' # you need to get the sets right for this to work
 
     ProcessNumber = UnitProcess.Number
     M_REF = UnitProcess.CAPEX_factors['m_Ref'][ProcessNumber]

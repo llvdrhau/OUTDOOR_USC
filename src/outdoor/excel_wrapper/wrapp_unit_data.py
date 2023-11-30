@@ -341,6 +341,10 @@ def wrapp_EconomicData(obj, df, df2):
 
     ReferenceFlowComponentList = WF.read_list_new(df, 1, 5)
 
+    # this will make the cost practically 0 if the reference flow is 0
+    if ReferenceCosts == 0:
+        ReferenceCosts = 0.00001
+        ReferenceFlow = 1000000
 
 
     # Set Economic Data in Process Unit Object

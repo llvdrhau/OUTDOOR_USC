@@ -848,14 +848,14 @@ class ModelOutput:
         for i, j in y.items():
             if j == 1:
                 try:
-                    if flow[i] >= 0.001:
+                    if flow[i] >= 1e-9:
                         chosen[i] = names[i]
                 except:
                     pass
 
             else:
                 try:
-                    if flow_s[i] >= 0.001:
+                    if flow_s[i] >= 1e-9:
                         chosen[i] = names[i]
                 except:
                     pass

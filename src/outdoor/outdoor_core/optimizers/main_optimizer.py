@@ -160,6 +160,13 @@ class SingleOptimizer:
 
         """
 
+        # lowering the integer feasibility tolerance
+        if options is None:
+            options = {}
+            options['IntFeasTol'] = 1e-8
+        else:
+            options.update({'IntFeasTol': 1e-8})
+
         if options is not None:
             for i, j in options.items():
                 solver.options[i] = j

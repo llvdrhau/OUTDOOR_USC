@@ -897,7 +897,7 @@ class SuperstructureModel(AbstractModel):
         self.UtCosts = Var()
 
         # Piece-Wise Linear CAPEX
-        self.lin_CAPEX_s = Var(self.U_C, self.JI, within=NonNegativeReals)
+        self.lin_CAPEX_s = Var(self.U_C, self.JI, bounds=(0, 1))
         self.lin_CAPEX_z = Var(self.U_C, self.JI, within=Binary)
         self.lin_CAPEX_lambda = Var(self.U_C, self.J, bounds=(0, 1))
         self.REF_FLOW_CAPEX = Var(self.U_C, within=NonNegativeReals)

@@ -47,7 +47,7 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
                                                          solver='gurobi',
                                                          interface='local',
                                                          calculation_EVPI=False,
-                                                         calculation_VSS=True,)
+                                                         calculation_VSS=False,)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")

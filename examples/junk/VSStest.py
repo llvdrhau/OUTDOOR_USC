@@ -114,7 +114,7 @@ if fixAcres:
 
 if varyYield:
     # Step 2: Modify the yield parameters and solve the LP problem for each variation
-    yield_changes = [0.8, 1.2]  # -20% and +20%
+    yield_changes = [0.8, 1, 1.2]  # -20% and +20%
 
 
     for change in yield_changes:

@@ -46,6 +46,7 @@ abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
+                                                         calculation_VSS=True,
                                                          calculation_EVPI=True)
 
 current, peak = tracemalloc.get_traced_memory()
