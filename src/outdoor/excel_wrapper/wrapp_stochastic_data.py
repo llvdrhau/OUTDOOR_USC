@@ -17,51 +17,49 @@ def wrapp_stochastic_data(dfi):
     generalDataFrame = dfi.iloc[generalDataRange]
 
     # get the custom level data
-    customLevelRange = WF.convert_total('P', 12, 'P', 20)
+    customLevelRange = WF.convert_total('R', 12, 'R', 20)
     customLevelDataFrame = dfi.iloc[customLevelRange]
 
     # set the general data
     obj._set_general_data(generalDataFrame, customLevelDataFrame)
 
     # the price of the feed stocks (Source units)
-    materialCostRange = WF.convert_total('I', 47, 'L', 60) # feed price
+    materialCostRange = WF.convert_total('I', 47, 'M', 60) # feed price
     materialCostDataFrame = dfi.iloc[materialCostRange]
     obj._set_general_dict(materialCostDataFrame, 'materialcosts')
 
     # the price of products (Product pool units)
-    productPriceRange = WF.convert_total('N', 47, 'Q', 60) # product price
+    productPriceRange = WF.convert_total('O', 47, 'S', 60) # product price
     productPriceDataFrame = dfi.iloc[productPriceRange]
     obj._set_general_dict(productPriceDataFrame, 'ProductPrice')
 
     # the composition of the feed stocks (Source units)
-    phiRange = WF.convert_total('B', 10, 'F', 23) # feed composition
+    phiRange = WF.convert_total('B', 10, 'G', 23) # feed composition
     phiDataFrame = dfi.iloc[phiRange]
     obj._set_general_dict(phiDataFrame, 'phi')
 
-    phiExclusionRange = WF.convert_total('R', 13, 'X', 20) # feed composition
+    phiExclusionRange = WF.convert_total('T', 13, 'Z', 20) # feed composition
     phiExclusionDF = dfi.iloc[phiExclusionRange]
     obj._set_phi_exclusion_list(phiExclusionDF)
-    # todo make sure the phi exclusion list is incorporated in the stochastic model still
-    #  need an exclusion function in the polishing step
 
     # conversion factor (Stoichiometric reactor units)
-    thetaRange = WF.convert_total('I', 10, 'N', 23) # conversion factor
+    thetaRange = WF.convert_total('J', 10, 'P', 23) # conversion factor
     thetaDataFrame = dfi.iloc[thetaRange]
     obj._set_general_dict(thetaDataFrame, 'theta')
 
     # stoichiometric factor (Stoichiometric reactor units)
-    gammaRange = WF.convert_total('I', 28, 'N', 41) # yield factor
+    gammaRange = WF.convert_total('J', 28, 'P', 41) # yield factor
     gammaDataFrame = dfi.iloc[gammaRange]
     obj._set_general_dict(gammaDataFrame, 'gamma')
 
 
     # split factor (Pysical process units)
-    myuRange = WF.convert_total('B', 28, 'G', 41) # split factor
+    myuRange = WF.convert_total('B', 28, 'H', 41) # split factor
     myuDataFrame = dfi.iloc[myuRange]
     obj._set_general_dict(myuDataFrame, 'myu')
 
     # yield factor (Yield reactor uints)
-    xiRange = WF.convert_total('B', 47, 'F', 60)  # split factor
+    xiRange = WF.convert_total('B', 47, 'G', 60)  # split factor
     xiDataFrame = dfi.iloc[xiRange]
     obj._set_general_dict(xiDataFrame, 'xi')
 

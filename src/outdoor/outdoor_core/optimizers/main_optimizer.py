@@ -79,7 +79,15 @@ class SingleOptimizer:
         # save optimisation mode
         self.optimization_mode = optimization_mode
 
-    def run_optimization(self, model_instance, tee=True, keepfiles = True ,printTimer=True, VSS_EVPI_mode=False):
+    def run_optimization(self,
+                         model_instance,
+                         tee=True,
+                         keepfiles = True,
+                         printTimer=True,
+                         VSS_EVPI_mode=False,
+                         stochastic_optimisation=False):
+
+
         """
         Parameters
         ----------
@@ -118,7 +126,7 @@ class SingleOptimizer:
                 pass
                 #print("The model is optimal.")
             elif results.solver.termination_condition == TerminationCondition.licensingProblems:
-                raise Exception('There seems to be a problem witht the licencing of your solver\n'
+                raise Exception('There seems to be a problem with the licencing of your solver\n'
                                 ' please check that the solver is correctly installed on choose another')
             else:
                 print("The solver terminated with a different condition.: ", results.solver.termination_condition)
@@ -129,8 +137,8 @@ class SingleOptimizer:
 
         timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)
 
-        if self.optimization_mode == "2-stage-recourse":
-            model_output = StochasticModelOutput(model_instance=model_instance,
+        if stochastic_optimisation: # if the run is a stochastic run we need to use the stochastic model output class
+            model_output = StochasticModelOutput(model_instance=model_instance, # the model instance now contains the optimised values
                                                  optimization_mode='Single 2-stage recourse optimization',
                                                  solver_name=self.solver_name, run_time=timer, gap=gap)
         else:

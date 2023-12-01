@@ -1581,13 +1581,21 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
             def Objective_rule(self):
                 return self.NPC_final
 
+
+
         if self.objective_name == "EBIT":
             self.Objective = Objective(rule=Objective_rule, sense=maximize)
+
 
         else:  # want to minimise the other objective functions
             self.Objective = Objective(rule=Objective_rule, sense=minimize)
 
+        self.objective_sense = Var(initialize=0, within=Binary)
+        def objective_sense_rule1(self):
+            if self.objective_name == "EBIT":
+                return self.objective_sense == 1  # 1 for maximisation
+            else:
+                return self.objective_sense == 0 # 0 for minimisation
 
-
-
+        self.objective_sense_rule = Constraint(rule=objective_sense_rule1)
 

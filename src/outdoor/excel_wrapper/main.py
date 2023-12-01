@@ -21,6 +21,8 @@ from .wrapp_system import wrapp_SystemData
 
 from .wrapp_stochastic_data import wrapp_stochastic_data
 
+from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progress_bar
+
 # function for Pandafunction to read an excelfile:
 
 def get_DataFromExcel(PathName=None):
@@ -70,6 +72,7 @@ def get_DataFromExcel(PathName=None):
     Hidden_Tables.append('DataBank')
     Hidden_Tables.append('Component Databases')
     Hidden_Tables.append('Uncertainty_test_idea')
+    Hidden_Tables.append('Uncertainty_old')
 
     number_of_processes = len(dataframe.keys()) - len(Hidden_Tables)
     count = 0
@@ -108,10 +111,10 @@ def get_DataFromExcel(PathName=None):
 
         data_extraction = count / number_of_processes * 100
 
-        print('Data extraction ' + str(round(data_extraction,0)) + ' % finished')
+        print_progress_bar(iteration= count, total= number_of_processes, prefix= 'Data Extraction' )
         count += 1
 
-
+    print()  # to get a new line after the progress bar
     Superstructure_Object.add_UnitOperations(PU_ObjectList)
     timer = time_printer(timer, 'Exctract data from excel')
 

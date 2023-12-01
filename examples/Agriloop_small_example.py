@@ -1,9 +1,9 @@
 """
 This is a test case for the outdoor package applied to AGRILOOP. It is used to test the functionality of the package.
-Made by Philippe  adapted by Lucas
+Made by Philippe adapted by Lucas
 
-possible optimisation modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
-"Cross-parameter sensitivity" , and "Single 2-stage recourse optimization"
+Possible optimization modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
+"Cross-parameter sensitivity", and "Single 2-stage recourse optimization"
 """
 
 import sys
@@ -11,8 +11,6 @@ import os
 import tracemalloc
 from delete_function import delete_all_files_in_directory
 
-
-#from outdoor import get_DataFromExcel, create_superstructure_flowsheet
 
 # start the memory profiler
 tracemalloc.start()
@@ -59,7 +57,7 @@ if model_output._optimization_mode == "Single run optimization":  # single run o
     model_output.get_results(savePath=Results_Path_single)
     # save and analyze the new results
     analyzer = outdoor.BasicModelAnalyzer(model_output)
-    # create the flow sheets of the superstructure and the optimised flow sheet
+    # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(Results_Path_single)
 
 elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # single run optimization
@@ -69,5 +67,5 @@ elif model_output._optimization_mode == "Single 2-stage recourse optimization": 
     model_output.get_results(savePath=Results_Path_stochatic, pprint=True)
     # save and analyze the new results
     analyzer = outdoor.BasicModelAnalyzer(model_output)
-    # create the flow sheets of the superstructure and the optimised flow sheet
+    # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(path=Results_Path_stochatic)

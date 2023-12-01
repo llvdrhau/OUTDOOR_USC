@@ -46,7 +46,7 @@ abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_EVPI=False,
+                                                         calculation_EVPI=True,
                                                          calculation_VSS=False,)
 
 current, peak = tracemalloc.get_traced_memory()
@@ -59,7 +59,7 @@ if model_output._optimization_mode == "Single run optimization":  # single run o
     model_output.get_results(savePath=Results_Path_single)
     # save and analyze the new results
     analyzer = outdoor.BasicModelAnalyzer(model_output)
-    # create the flow sheets of the superstructure and the optimised flow sheet
+    # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(Results_Path_single)
 
 elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # stochastic optimization
