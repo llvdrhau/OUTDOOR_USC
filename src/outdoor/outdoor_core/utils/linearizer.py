@@ -28,8 +28,6 @@ def capex_calculator(UnitProcess, CECPI, Detail=None):
     It returns the piece-wise lin. Function pieces.
 
 
-
-
     Returns
     -------
     x_vals : Dictionary
@@ -55,7 +53,7 @@ def capex_calculator(UnitProcess, CECPI, Detail=None):
 
     C_REF =  UnitProcess.CAPEX_factors['C_Ref'][ProcessNumber]
     if C_REF == 0:
-        M_REF = 0.0000000000001 # make the cost really small if the reference cost is zero so it is negible
+        M_REF = 0.0000000000001 # make the cost really small if the reference cost is zero so it is legible
 
     F_REF = UnitProcess.CAPEX_factors['f'][ProcessNumber]
     CECPI_REF = UnitProcess.CAPEX_factors['CECPI_ref'][ProcessNumber]

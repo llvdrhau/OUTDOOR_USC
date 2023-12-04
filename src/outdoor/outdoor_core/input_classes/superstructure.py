@@ -1227,7 +1227,7 @@ class Superstructure():
         """
 
         UncMatrix = uncertaintyObject.UncertaintyMatrix
-        scenarioList = uncertaintyObject.ScenarioList
+        ScenarioNames = uncertaintyObject.ScenarioNames
         parameterDict = uncertaintyObject.LableDict[parameterName]
 
         composition = oldDict
@@ -1240,7 +1240,7 @@ class Superstructure():
                 # and we need to change it based on the uncertainty matrix
                 columnNameMatrix = parameterDict[key]
                 uncertaintySeries = UncMatrix[columnNameMatrix]
-                for i, sc in enumerate(scenarioList):
+                for i, sc in enumerate(ScenarioNames):
                     if not isinstance(key, tuple):
                         # the key is not a tuple in the case of raw material costs and product prices
                         new_tuple = (key, sc)
@@ -1259,7 +1259,7 @@ class Superstructure():
             else:
                 # if the variable is not in the parameter dictionary,
                 # it means that the variable does not need to change for the scenarios
-                for i, sc in enumerate(scenarioList):
+                for i, sc in enumerate(ScenarioNames):
                     if not isinstance(key, tuple):
                         # the key is not a tuple in the case of raw material costs and product prices
                         new_tuple = (key, sc)
@@ -1285,12 +1285,12 @@ class Superstructure():
             newCompostionDict: the dictionary that contains the new values of the parameter
         """
         changeDict = {}
-        scenarioList = uncertaintyObject.ScenarioList
+        ScenarioNames = uncertaintyObject.ScenarioNames
         PhiExclusionDict = uncertaintyObject.PhiExclusionDict
         PhiExclusionList = uncertaintyObject.PhiExclusionList
         newDictUnpacked = newDict['phi']
         oldDict = oldDict['phi']
-        for sc in scenarioList:
+        for sc in ScenarioNames:
             compositionSum = sum(newDictUnpacked[(key[0], key[1], sc)] for key in oldDict.keys())
             if compositionSum != 1:
                 changedList = []
@@ -1335,8 +1335,9 @@ class Superstructure():
             Updated units list
         """
         # set the list of Scenarios so the set can be declared in pyomo
-        self.Scenarios = {'SC': uncertaintyObject.ScenarioList}
-        self.Odds = {'odds':{sc: uncertaintyObject.ScenarioProbabilities[i] for i, sc in enumerate(uncertaintyObject.ScenarioList) } }
+        self.Scenarios = {'SC': uncertaintyObject.ScenarioNames}
+        self.Odds = {'odds': {sc: uncertaintyObject.ScenarioProbabilities[i]
+                              for i, sc in enumerate(uncertaintyObject.ScenarioNames)}}
 
         for unit in self.UnitsList:
 

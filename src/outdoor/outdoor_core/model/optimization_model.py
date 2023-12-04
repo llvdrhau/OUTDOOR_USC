@@ -1492,8 +1492,8 @@ class SuperstructureModel(AbstractModel):
 
         def objective_sense_rule1(self):
             if self.objective_name == "EBIT":
-                return self.objective_sense == 1  # 1 for maximisation
+                return self.objective_sense == 1  # 1 for maximizing
             else:
-                return self.objective_sense == 0  # 0 for minimisation
+                return self.objective_sense == 0  # 0 for minimizing
 
         self.objective_sense_rule = Constraint(rule=objective_sense_rule1)

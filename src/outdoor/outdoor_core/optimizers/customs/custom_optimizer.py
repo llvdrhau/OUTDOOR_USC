@@ -12,7 +12,7 @@ from ...output_classes.multi_model_output import MultiModelOutput
 
 from ..main_optimizer import SingleOptimizer
 from ...utils.timer import time_printer
-
+from ...utils.progress_bar import print_progress_bar
 
 from .change_params import (
     prepare_mutable_parameters,
@@ -360,8 +360,8 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         calculation_EVPI = self.stochastic_options["calculation_EVPI"]
         calculation_VSS = self.stochastic_options["calculation_VSS"]
 
-        waitAndSeeSolutionList = []
-        EEVList = []
+        waitAndSeeSolutionDict = {}
+        EEVDict = {}
 
         # calculate the EVPI and VSS, if not on a rerun (i.e. if the remakeMetadata is not None)
         # ---------------------------------------------------------------------------------------
@@ -380,13 +380,13 @@ class StochasticRecourseOptimizer(SingleOptimizer):
                 startEVPI = time_printer(programm_step="EPVI calculation")
                 # create the Data_File Dictionary in the object input_data
 
-                waitAndSeeSolutionList, infeasibleScenarios = self.get_EVPI(Stochastic_input_EVPI)
+                waitAndSeeSolutionDict, infeasibleScenarios = self.get_WaitAndSee(Stochastic_input_EVPI)
                 time_printer(passed_time=startEVPI, programm_step="EPVI calculation")
 
             if calculation_VSS:
                 startVSS = time_printer(programm_step="VSS calculation")
                 # calculate the VSS
-                EEVList = self.get_VSS(Stochastic_input_vss)
+                EEVDict = self.get_EEV(Stochastic_input_vss)
                 time_printer(passed_time=startVSS, programm_step="VSS calculation")
 
             # ---------------------------------------------------------------------------------------
@@ -402,8 +402,8 @@ class StochasticRecourseOptimizer(SingleOptimizer):
                 # make a dictionary of all the values we need to pass on to the model output, needed for the rerun:
                 # infeasibleScenarios, EEVList, waitAndSeeSolutionList
                 model_output = {"infeasibleScenarios": infeasibleScenarios,
-                                "EEVList": EEVList,
-                                "waitAndSeeSolutionList": waitAndSeeSolutionList,
+                                "EEVList": EEVDict,
+                                "waitAndSeeSolutionList": waitAndSeeSolutionDict,
                                 "Status": "remake_stochastic_model_instance" }
                 return model_output
 
@@ -422,22 +422,24 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         # pass on the EVPI and VSS to the model output
 
         if calculation_EVPI:
-            waitAndSeeSolution = np.mean(waitAndSeeSolutionList)
+            waitAndSeeSolution = self.calculate_final_EEV_or_WS(model_output._data['odds'], waitAndSeeSolutionDict)
             # Use ANSI escape codes to make the text purple and bold
             print("\033[95m\033[1mThe EVwPI is:", waitAndSeeSolution, "\033[0m")
 
             # pass on the EVPI
-            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimised
+            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimized
                 model_output.EVPI = waitAndSeeSolution - expected_value
             else:
                 model_output.EVPI = expected_value - waitAndSeeSolution
             model_output.infeasibleScenarios = infeasibleScenarios
 
         if calculation_VSS:
-            EEV = self.curate_EEV(EEVList, expected_value)
+            # todo do we need to curate the EEV? ask Edwin and Lucas
+            # EEV = self.curate_EEV(EEVList, expected_value)
+            EEV = self.calculate_final_EEV_or_WS(model_output._data['odds'], EEVDict)
             # print the EEV
             print("\033[95m\033[1mThe EEV is:", EEV, "\033[0m")
-            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimised
+            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimized
                 model_output.VSS = expected_value - EEV
             else:
                 model_output.VSS = EEV - expected_value
@@ -455,10 +457,24 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
         return model_output
 
-    def get_EVPI(self, input_data=None):
+    def calculate_final_EEV_or_WS(self, probabilities, metricDict):
+        """
+        This function calculates the EVPI based on the probabilities of the scenarios
+        :param probabilities: Dict of probabilities of each scenario
+        :param metricDict: Dict of wait and see solutions or Expected results of Expected values
+        :return: metric: the weighted sum of the EVPI or EEV
+        """
+        metric = 0
+        for key, value in probabilities.items():
+            prob = value
+            i = metricDict[key]
+            metric += prob * i
+        return metric
+
+    def get_WaitAndSee(self, input_data=None):
         """
         This function is used to calculates the EVPI of a stochastic problem.
-        :param input_data: of the signal optimisation run
+        :param input_data: of the signal optimization run
         :param solver:
         :param interface:
         :param solver_path:
@@ -473,12 +489,13 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         singleInput = self.input_data.parameters_single_optimization
         optimizer = self.single_optimizer
 
-        # the next step is to run individual optimisations for each scenario and save the results in a list
+        # the next step is to run individual optimizations for each scenario and save the results in a list
         # first we need to get the scenarios from the input data
         scenarios = input_data.Scenarios['SC']
 
-        # now we need to run the single run optimisation for each scenario
+        # now we need to run the single run optimization for each scenario
         # we need to save the objective values in a list
+        WaitAndSeeDict = {}
         objectiveValueList_EVPI = []
         infeasibleScenarios = []
         selectedTechnologies = []
@@ -498,7 +515,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             modelInstanceScemarioEVPI = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
                                                                stochasticInput=input_data, model=model_instance_EVPI)
 
-            # run the optimisation
+            # run the optimization
             modelOutputScenario_EVPI = optimizer.run_optimization(model_instance=modelInstanceScemarioEVPI, tee=False,
                                                                   keepfiles=False, printTimer=False, VSS_EVPI_mode=True)
 
@@ -507,17 +524,14 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             else: # save the results
                 objectiveName = modelOutputScenario_EVPI._objective_function
                 objectiveValueList_EVPI.append(modelOutputScenario_EVPI._data[objectiveName])
+
+                WaitAndSeeDict.update({sc: modelOutputScenario_EVPI._data[objectiveName]})
                 chosenTechnology = modelOutputScenario_EVPI.return_chosen()
                 selectedTechnologies.append(chosenTechnology)
 
+            # print the progress bar
+            print_progress_bar(iteration=index, total=total_scenarios, prefix='EVPI', suffix='')
 
-            # Now let's print the progress bar
-            progress = (index + 1) / total_scenarios
-            bar_length = 40  # Modify this to change the length of the progress bar
-            block = int(round(bar_length * progress))
-            text = "\rProgress: [{0}] {1:.2f}%".format("#" * block + "-" * (bar_length - block), progress * 100)
-            sys.stdout.write(text)
-            sys.stdout.flush()
 
         # now we have the objective values for each scenario in a list
         # the next step is to calculate the EVPI
@@ -535,11 +549,9 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         # todo now assuming all odds are equal, i.e. 1/number of scenarios s
         #  we need to sum over the objective values and multiple by the odds of scenario i occuring
 
-        # todo should take the average value in stead of returning the list
+        return WaitAndSeeDict, infeasibleScenarios
 
-        return objectiveValueList_EVPI, infeasibleScenarios
-
-    def get_VSS(self, stochastic_input_data=None):
+    def get_EEV(self, stochastic_input_data=None):
         """
         This function is used to calculate the VSS of a stochastic problem.
         :param stochastic_model_output: is the model output of the stochastic optimisation
@@ -621,8 +633,8 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             if ind == False:
                 return Constraint.Skip
 
-        # start with the VSS calculation by setting up a model instance with the single optimisation data parameters
-        # first run the single run optimisation to get the unit operations
+        # start with the VSS calculation by setting up a model instance with the single optimization data parameters
+        # first run the single run optimization to get the unit operations
         singleInput = self.input_data.parameters_single_optimization
         # singleInput.optimization_mode = "single" # just to make sure
         optimization_mode = "single"
@@ -634,7 +646,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         # -----------------------------------------------------------------------------------------------
         # solve the deterministic model with the average values of the stochastic parameters (i.e. the expected value)
 
-        # settings optimisation problem, the optimiser is the single run optimiser
+        # settings optimization problem, the optimizer is the single run optimiser
         optimizer = self.single_optimizer
 
         # run the optimisation
@@ -693,6 +705,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
         # now we need to run the single run optimisation for each scenario
         # preallocate the variables
+        EEVDict = {} # dictionary of the EEV for each scenario EEV = Expected results of the Expected Value problem
         objectiveValueList_VSS = []
         infeasibleScenarios = []
 
@@ -711,7 +724,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             modelInstanceScemario_VSS = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
                                                                stochasticInput=stochastic_input_data, model=model_instance_variable_params)
 
-            # run the optimisation
+            # run the optimization
             modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False,
                                                                  keepfiles=False, printTimer=False, VSS_EVPI_mode=True)
 
@@ -720,29 +733,26 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             else:
                 objectiveName = modelOutputScenario_VSS._objective_function
                 objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
+                EEVDict.update({sc: modelOutputScenario_VSS._data[objectiveName]})
 
-            # Now let's print the progress bar
-            progress = (index + 1) / total_scenarios
-            bar_length = 40  # Modify this to change the length of the progress bar
-            block = int(round(bar_length * progress))
-            text = "\rProgress: [{0}] {1:.2f}%".format("#" * block + "-" * (bar_length - block), progress * 100)
-            sys.stdout.write(text)
-            sys.stdout.flush()
+            # print the progress bar
+            print_progress_bar(iteration=index, total=total_scenarios, prefix='EVPI', suffix='')
 
-        # now we have the objective values for each scenario in a list
-        # the next step is to calculate the Expected results of the Expected Value problem (EEV)
-        # todo now assuming all odds are equal, i.e. 1/number of scenarios s
-        #  we need to sum over the objective values and multiple by the odds of scenario i occuring
-
-        EEV_list = objectiveValueList_VSS
+        # now we have the objective values for each scenario in a Dictionary
 
         # Print a newline character to ensure the next console output is on a new line.
         print()
         # reactivate the warning if model is infeasible
         logging.getLogger('pyomo.core').setLevel(logging.WARNING)
+
         # make a set of infeasible scenarios to get rid of duplicates
-        infeasibleScenarios = set(infeasibleScenarios)
-        return EEV_list
+        if infeasibleScenarios:
+            infeasibleScenarios = set(infeasibleScenarios)
+            # print a warning in red and bold text
+            print("\033[1;31m" + "The following scenarios during VSS calculations are infeasible:", infeasibleScenarios, "\n"
+             " please check the optimization problem or report the problem to github \033[0m")
+
+        return EEVDict
 
     def curate_EEV(self, EEV, expectedValueStochastic):
         """"

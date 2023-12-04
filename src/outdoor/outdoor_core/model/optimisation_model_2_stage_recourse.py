@@ -295,8 +295,6 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
                 if (u_s, u) in self.U_SU
             )
 
-        # todo, you could make these equations not depend on the scenario, but only the unit operation, check if this makes sense
-        # for the time being also depends on the scenario
         # ----------------------------------------------------------------------------------------------------------------
         # ----------------------------------------------------------------------------------------------------------------
 

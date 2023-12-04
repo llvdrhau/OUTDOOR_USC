@@ -17,14 +17,17 @@ Class description
 
 import pandas as pd
 import itertools
+import ast
+from numpy import isnan
 #from itertools import product
 
 class StochasticObject():
     def __init__(self):
         self.NumberOfScenarios = None
-        self.ScenarioList = []
+        self.LevelList = []
         self.ScenarioProbabilities = []
         self.AffectedUnitNumbers = []
+        self.ScenarioNames = []
 
         self.GammaDict = {}
         self.XiDict = {}
@@ -51,18 +54,18 @@ class StochasticObject():
 
         if isinstance(self.level, str):
             if self.level == 'custom':
-                scenario_list = self._set_custom_levels(customLevelDataFrame)
+                level_list = self._set_custom_levels(customLevelDataFrame)
             else:
                 raise ValueError("The level {} is not supported".format(self.level))
         else:
             if self.level == 2:
-                scenario_list = [1, -1]
+                level_list = [1, -1]
             elif self.level == 3:
-                scenario_list = [1, 0, -1]
+                level_list = [1, 0, -1]
             else:
                 raise ValueError("The level of the stochastic problem is not supported please select 2 or 3")
 
-        self.ScenarioList = scenario_list
+        self.LevelList = level_list
 
         self.ProbabilitySettings = GeneralDataFrame.iloc[1, 1]
 
@@ -98,11 +101,43 @@ class StochasticObject():
         self.PhiExclusionDict = phiExclusionDict
         self.PhiExclusionList = exclusionList
 
+    def add_probability_dict(self, paramerterName, parameterData):
+        """
+        This function adds the probability dictionary to the GeneralDict
+        :param paramerterName: (str)
+        :param parameterData: (series)
+        :return:
+        """
+        # make a list from the row
+        #parameterData = parameterData.tolist()
+        parameterDataProbaility = parameterData[('Probabilities')]
+
+        if isinstance(parameterDataProbaility, str):
+            try:
+                probabilityList = ast.literal_eval(parameterDataProbaility)
+            except ValueError:
+                raise ValueError("The probabilities are not a list in parameter {} \n"
+                                 "make sure you write in the following format: '[x, y, z]' ".format(paramerterName))
+
+        elif isnan(parameterDataProbaility):
+            probabilityList = [1 / len(self.LevelList) for i in self.LevelList]
+
+        else:
+            raise ValueError("The probabilities are not a list in parameter {} \n"
+                             "make sure you write in the following format: '[x, y, z]' ".format(paramerterName))
 
 
+        if len(probabilityList) != len(self.LevelList):
+            raise ValueError("The number of probabilities is not equal to the number of levels in "
+                             "parameter {}".format(paramerterName))
 
+        if round(sum(probabilityList)) != 1:
+            raise ValueError("The sum of the probabilities is not equal to 1 in parameter {}".format(paramerterName))
 
-
+        # make a dictionary from the row
+        probabilityDict = {self.LevelList[i]: odd for i, odd in enumerate(probabilityList)}
+        # add the probability dictionary to the GeneralDict
+        self.GeneralDict[paramerterName]["ProbabilityDict"] = probabilityDict
 
 
     def _set_general_dict(self, dataFrame, parameterName):
@@ -114,15 +149,17 @@ class StochasticObject():
         nr = 0
         # Iterate over rows using iterrows()
         for index, row in dataFrame.iterrows():
-            # if the first element in the row is a integer add the row to the dictionary
+            # if the first element in the row is an integer add the row to the dictionary
             if isinstance(row.iloc[0], int):
                 unitNr = row.iloc[0]
                 self.AffectedUnitNumbers.append(unitNr)
                 nr += 1
                 keyName = '{}_{}'.format(parameterName, nr)
                 self.GeneralDict[keyName] = row[0:].to_dict()
-                # self.GeneralDict[keyName]['Param'] = parameterName
 
+                # add the probability dictionary to the GeneralDict if the probability setting is custom
+                if self.ProbabilitySettings == 'custom':
+                    self.add_probability_dict(paramerterName=keyName, parameterData=row)
 
                 if parameterName =='gamma':
                     component = row['Component']
@@ -176,7 +213,7 @@ class StochasticObject():
 
         grouped = df.groupby('Group-nr.')
         self.GroupDict = grouped.groups
-        self.NumberOfScenarios = len(self.ScenarioList) ** len(self.GroupDict)
+        self.NumberOfScenarios = len(self.LevelList) ** len(self.GroupDict)
 
 
 
@@ -185,7 +222,7 @@ class StochasticObject():
         """
         makes a list from the custom levels (which is a Series)
         :param customLevelDataFrame:
-        :return: list of custom levels (integers)
+        :return: list of custom levels (list)
         """
 
         # need to delete the nan values in the dataframe
@@ -204,7 +241,7 @@ class StochasticObject():
         :return: self.UncertaintyMatrix (dataframe)
         """
         # Define your list and values for n and r
-        my_list = self.ScenarioList
+        my_list = self.LevelList
         # Number of variables
         m = len(self.GroupDict)
         # Number of states each variable can take
@@ -254,6 +291,8 @@ class StochasticObject():
                 df.rename(columns={'Variable_{}'.format(nr): colName}, inplace=True)
                 nr += 1
 
+        dfScenarioCopy = df.copy()
+
         for varName in df.columns:
             variation = self.GeneralDict[varName]['(%)']
             df[varName] = df[varName] * variation
@@ -264,11 +303,31 @@ class StochasticObject():
         scenarioNames = []
         for n in range(len(combinations)):
             scenarioNames.append("sc{}".format(n+1))
-        self.ScenarioList = scenarioNames
+        self.ScenarioNames = scenarioNames
 
         # make the list of scenario probabilities
         if self.ProbabilitySettings == 'uniform':
             self.ScenarioProbabilities = [1/len(scenarioNames) for i in scenarioNames]
+
+        elif self.ProbabilitySettings == 'custom':
+            for _, row in dfScenarioCopy.iterrows():
+                probabilityListParam = []
+                probabilityListSC = 1
+                for param in row.index:
+                    # check if the parameter is a reference parameter if not skip it
+                    correlation = self.GeneralDict[param]['Correlation']
+                    if correlation == 'reference':
+                        lv = row[param]
+                        probability = self.GeneralDict[param]['ProbabilityDict'][lv]
+                        probabilityListParam.append(probability)
+                        probabilityListSC *= probability
+                self.ScenarioProbabilities.append(probabilityListSC)
+
+
+            # a = sum(self.ScenarioProbabilities)
+            # print(a)
+            # print('heerererere')
+
         else:
             raise ValueError("ERROR ON EXCEL SHEET 'Uncertainty' \n"
                              "The probability setting {} is not supported yet".format(self.ProbabilitySettings))

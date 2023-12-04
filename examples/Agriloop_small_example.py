@@ -44,8 +44,8 @@ abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_VSS=True,
-                                                         calculation_EVPI=True)
+                                                         calculation_VSS=False,
+                                                         calculation_EVPI=False)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
@@ -69,3 +69,5 @@ elif model_output._optimization_mode == "Single 2-stage recourse optimization": 
     analyzer = outdoor.BasicModelAnalyzer(model_output)
     # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(path=Results_Path_stochatic)
+
+    model_output.plot_scenario_analysis(variable="EBIT", savePath=Results_Path_stochatic)
