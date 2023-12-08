@@ -2,7 +2,9 @@
 from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
 import itertools
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
+from scipy.stats import gaussian_kde
 
 class StochasticModelOutput(ModelOutput):
     """
@@ -264,6 +266,7 @@ class StochasticModelOutput(ModelOutput):
 
         return scenario_results
 
+
     def upack_tuples(self, tupleKeys):
         """"
         unpacks the tuples in a list, this is the case for theta parameter where the keys are a nested tuples but the
@@ -292,77 +295,149 @@ class StochasticModelOutput(ModelOutput):
             return tupleKeys
 
 
-    def plot_scenario_analysis(self, variable, savePath=None):
+    def plot_scenario_analysis_PDF(self, variable, xlabel= None, savePath=None, saveName=None):
         """
-        Plots the distribution of a parameter over the scenarios.
+        Plots the probality distribution function of a variable over the scenarios.
 
         :param variable: A parameter such as 'EBIT', 'NPC', 'NPE', 'NPFWD'...
+        :param xlabel: The label of the x-axis.
         :param savePath: Path to save the plot image.
         :return: The plot of the distribution of the parameter over the scenarios.
         """
+
+        VariablePermission = ["ENERGY_DEMAND_TOT", "OPEX", "EBIT", "NPC", "NPE", "NPFWD"]
+        EnergyDemandPermission = ["Electricity", "Cooling"]
+        if isinstance(variable, dict):
+            variableName = variable['Variable']
+
+        else:
+            variableName = variable
+            unitNumber = None
+
+        # if clause to get the right variable data
+        if variableName not in VariablePermission:
+            raise ValueError("The variable {} is cannot be plotted atm, please update the code \n"
+                             "Possible parameters to plot are: {}".format(variableName, VariablePermission))
+
+        elif variableName == "ENERGY_DEMAND_TOT":
+            UT = variable['UT']
+            if UT not in EnergyDemandPermission:
+                raise ValueError("Please specify the Utility parameter UT as either 'Electricity' or 'Cooling'")
+            else:
+                variableDict = self._data[variableName]
+                variableData = [value for key, value in variableDict.items() if key[0] == UT]
+
+        else:
+            variableData = list(self._data[variableName])
+
+
+        if xlabel is None:
+            xlabel = variable
+
+        # get the probabilty data
+        probabilities = list(self._data['odds'].values())
+
+        # Set Seaborn style for better aesthetics
+        sns.set_theme(style="whitegrid", palette="muted")
+
+        # Estimate the PDF
+        kde = gaussian_kde(variableData, weights=probabilities)
+
+        # Create the plot
+        plt.figure(figsize=(10, 6))
+        sns.kdeplot(x=variableData, weights=probabilities, fill=True)
+
+        plt.xlabel(xlabel, fontsize=12)
+        plt.title(f'Distribution of {variable} Over Scenarios', fontsize=14)
+
+        # Optional: Add annotations or other plot enhancements here
+
+        # Save or display the plot
+
+        # Save or display the plot
+        if savePath:
+            if saveName:
+                saveLocation = savePath + '/' + saveName + 'PDF_distribution.png'
+            else:
+                saveLocation = savePath + '/PDF_distribution.png'
+            plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
+        plt.show()
+
+        return kde # return the estimated PDF
+
+
+    def calculate_odds_in_range(self, kde, range_start, range_end):
+        """
+        Calculates the odds of a value falling within the specified range.
+
+        :param kde: The estimated PDF from plot_scenario_analysis_PDF function.
+        :param range_start: The start of the range.
+        :param range_end: The end of the range.
+        :return: The probability of the value falling within the range.
+        """
+        return kde.integrate_box_1d(range_start, range_end)
+
+
+    def plot_scenario_analysis_histogram(self, variable, bins=None, xlabel=None, savePath=None, saveName= None):
+        """
+        Plots the distribution of a parameter over the scenarios as a histogram
+
+        :param variable: A parameter such as 'EBIT', 'NPC', 'NPE', 'NPFWD'...
+        :param bins: The number of bins to use in the histogram. If not specified, the square root of the number of scenarios is used.
+        :param xlabel: The label of the x-axis.
+        :param savePath: Path to save the plot image.
+        :return: The plot of the distribution of the parameter over the scenarios.
+        """
+
+        if xlabel is None:
+            xlabel = variable
+
         probabilities = self._data['odds']
         variableData = self._data[variable]
+
+        # Determine the number of bins if not specified
+        if bins is None:
+            bins = int(np.sqrt(len(variableData)))
+
+        # Create bins
+        bin_ranges = np.linspace(min(variableData.values()), max(variableData.values()), bins + 1)
+
+        lowerBin = 0
+        binLabels = []
+        for bn in bin_ranges:
+            bn = round(bn, 3)
+            binLabels.append("[{},{}]".format(lowerBin, bn))
+            lowerBin = bn
+
+        binned_data = np.digitize(list(variableData.values()), bins=bin_ranges)
+
+        # Count occurrences in each bin
+        bin_counts = dict((bin_number, 0) for bin_number in range(1, bins + 2))
+        for b in binned_data:
+            bin_counts[b] += 1
 
         # Set Seaborn style for better aesthetics
         sns.set_theme(style="whitegrid", palette="muted")
 
         # Create the plot
         plt.figure(figsize=(10, 6))
-        bars = sns.barplot(x=list(probabilities.values()), y=list(variableData.values()))
-        plt.xlabel('Scenarios', fontsize=12)
-        plt.ylabel(variable, fontsize=12)
-        plt.title(f'Distribution of {variable} Over Scenarios', fontsize=14)
+        bars = sns.barplot(x=list(bin_counts.keys()), y=list(bin_counts.values()))
+        # Set tick labels for x-axis
+        bars.set_xticklabels(binLabels, rotation=45, ha="right")
+        plt.xlabel(xlabel, fontsize=12)
+        plt.ylabel("Count", fontsize=12)
+        plt.title(f'Distribution of {variable} Over Scenarios (Binned)', fontsize=14)
+
+
 
         # Optional: Add annotations or other plot enhancements here
 
         # Save or display the plot
         if savePath:
-            plt.savefig(savePath, format='png', dpi=300)  # High-resolution saving for publication
+            if saveName:
+                saveLocation = savePath + '/' + saveName + '_binned_distribution.png'
+            else:
+                saveLocation = savePath + '/binned_distribution.png'
+
+            plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
         plt.show()
-
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    def plot_scenario_analysis2(self, variable, savePath=None):
-        """
-        Plots the distribution of a parameter over the scenarios.
-
-        :param variable: A parameter such as 'EBIT', 'NPC', 'NPE', 'NPFWD'...
-        :param savePath: Path to save the plot image.
-        :return: The plot of the distribution of the parameter over the scenarios.
-        """
-        scenarios = self._data['SC']
-        variableData = self._data[variable]
-
-        # Set Seaborn style for better aesthetics
-        sns.set_theme(style="whitegrid")
-
-        # Create the plot
-        plt.figure(figsize=(8, 5))
-        bars = sns.barplot(x=list(variableData.keys()), y=list(variableData.values()), hue=list(variableData.keys()),
-                           palette="viridis", dodge=False)
-        #bars.legend_.remove()  # Remove the legend
-
-        # Add value labels on each bar
-        for bar in bars.patches:
-            bars.annotate(format(bar.get_height(), '.2f'),
-                          (bar.get_x() + bar.get_width() / 2, bar.get_height()),
-                          ha='center', va='center', size=10,
-                          xytext=(0, 8), textcoords='offset points')
-
-        # Set labels and title with increased font size
-        plt.xlabel('Scenario', fontsize=14)
-        plt.ylabel(variable, fontsize=14)
-        plt.title('Distribution of {} Over the Scenarios'.format(variable), fontsize=16)
-        plt.xticks(rotation=45)  # Useful if there are many scenarios or long labels
-
-        # Tight layout for neatness
-        plt.tight_layout()
-
-        # Show the plot
-        plt.show()
-
-        # Save the plot if a path is provided
-        if savePath is not None:
-            plt.savefig(savePath + '/{}_distribution.png'.format(variable), bbox_inches='tight')
-

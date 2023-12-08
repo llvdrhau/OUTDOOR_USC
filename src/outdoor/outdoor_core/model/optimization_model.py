@@ -1001,7 +1001,7 @@ class SuperstructureModel(AbstractModel):
             )
 
         def Cap(self):
-            return self.ACC_HP == self.ACC_H / 1000000
+            return self.ACC_HP == self.ACC_H / 1000
 
         self.Xap = Constraint(rule=Cap)
 
@@ -1033,7 +1033,7 @@ class SuperstructureModel(AbstractModel):
             return (
                 self.CAPEX
                 == sum(self.ACC[u] for u in self.U_C)      # annual capital costs
-                + self.ACC_HP                              # heat pump capital costs
+                + self.ACC_HP/1000                         # heat pump capital costs
                 + self.TO_CAPEX_TOT                        # reoccurring costs of equipment
                 + sum(self.HENCOST[hi] for hi in self.HI)  # HEN capital costs
             )
@@ -1077,12 +1077,12 @@ class SuperstructureModel(AbstractModel):
                 == self.ENERGY_DEMAND_HP_EL
                 * self.delta_ut["Electricity"]
                 * self.H
-                / 1000000
+                / 1000
             )
 
         # selling buying of energy see UtCosts (HEN_CostBalance_2_rule)
         def HEN_CostBalance_6_rule(self):
-            return (self.C_TOT == self.UtCosts/1000000)
+            return self.C_TOT == self.UtCosts/1000
 
 
         self.HEN_CostBalance_1 = Constraint(self.HI, rule=HEN_CostBalance_1_rule)
@@ -1095,7 +1095,7 @@ class SuperstructureModel(AbstractModel):
         def Ut_CostBalance_1_rule(self, ut):
             return (
                 self.ENERGY_COST[ut]
-                == self.ENERGY_DEMAND_TOT[ut] * self.delta_ut[ut] / 1000000 # euro to million euro conversion
+                == self.ENERGY_DEMAND_TOT[ut] * self.delta_ut[ut] / 1000 # euro to million euro conversion
             )
 
         self.Ut_CostBalance_1 = Constraint(self.U_UT, rule=Ut_CostBalance_1_rule)
@@ -1104,7 +1104,7 @@ class SuperstructureModel(AbstractModel):
 
         def RM_CostBalance_1_rule(self):
             return self.RM_COST_TOT == sum(
-                self.materialcosts[u_s] * self.FLOW_SOURCE[u_s] * self.flh[u_s] / 1000000 # euro to million euro conversion
+                self.materialcosts[u_s] * self.FLOW_SOURCE[u_s] * self.flh[u_s] / 1000 # euro to million euro conversion
                 for u_s in self.U_S
             )
 
@@ -1119,10 +1119,10 @@ class SuperstructureModel(AbstractModel):
             return (
                 self.OPEX
                 == self.M_COST_TOT                                 # operating and maintenance costs
-                + self.RM_COST_TOT                                 # raw material costs
-                + sum(self.ENERGY_COST[ut] for ut in self.U_UT)    # utility costs energy
-                + self.C_TOT                                       # selling or buying of energy (from HEN)
-                + self.ELCOST                                       # electricity costs for heat pump
+                + self.RM_COST_TOT/1000                                 # raw material costs
+                + sum(self.ENERGY_COST[ut] for ut in self.U_UT)/1000    # utility costs energy
+                + self.C_TOT   /1000                                    # selling or buying of energy (from HEN)
+                + self.ELCOST /1000                                      # electricity costs for heat pump
             )
 
         self.RM_CostBalance_1 = Constraint(rule=RM_CostBalance_1_rule)
@@ -1135,13 +1135,13 @@ class SuperstructureModel(AbstractModel):
         def Profit_1_rule(self, u): # in M€ (million euro)
             return (
                 self.PROFITS[u]
-                == sum(self.FLOW_IN[u, i] for i in self.I) * self.ProductPrice[u] / 1000000
+                == sum(self.FLOW_IN[u, i] for i in self.I) * self.ProductPrice[u] / 1000
             )
 
         def Profit_2_rule(self):
             return (
                 self.PROFITS_TOT
-                == sum(self.PROFITS[u] for u in self.U_PP) * self.H
+                == sum(self.PROFITS[u] for u in self.U_PP) * self.H / 1000
             )
 
         self.ProfitEquation_1 = Constraint(self.U_PP, rule=Profit_1_rule)
@@ -1150,7 +1150,7 @@ class SuperstructureModel(AbstractModel):
         # Total Annualized Costs
 
         def TAC_1_rule(self):
-            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT)
+            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000
 
         self.TAC_Equation = Constraint(rule=TAC_1_rule)
 
@@ -1438,7 +1438,7 @@ class SuperstructureModel(AbstractModel):
 
         def Specific_NPC_rule(self): # in € per year (euro/ton/year)
             # ProductLoad is 1 is substrate driven, otherwise it is the target production
-            return self.NPC == (self.TAC * 1000 * 1000)/self.ProductLoad # in euro per tonne of product per year (so your target production)
+            return self.NPC == (self.TAC * 1000)/self.ProductLoad # in € per tonne of product per year (so your target production)
 
 
         def Specific_GWP_rule(self):

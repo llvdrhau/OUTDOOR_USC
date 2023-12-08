@@ -43,11 +43,15 @@ outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 
+solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
+                 "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
+
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
                                                          calculation_EVPI=False,
-                                                         calculation_VSS=False,)
+                                                         calculation_VSS=False,
+                                                         options=solverOptions,)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
@@ -68,9 +72,21 @@ elif model_output._optimization_mode == "Single 2-stage recourse optimization": 
     # save the results as a txt file, you have to specify the path
     model_output.get_results(savePath=Results_Path_stochatic, pprint=True)
     # make a plot of the results
-    model_output.plot_scenario_analysis(variable="EBIT")
+
+    # # probabilty density function of the EBIT
+    # kde = model_output.plot_scenario_analysis_PDF(variable="EBIT", savePath=Results_Path_stochatic, xlabel="EBIT (M€/a)")
+    # prob = model_output.calculate_odds_in_range(kde=kde, range_start=0, range_end=3.9)
+    # print(prob)
+
+    # probabilty density function of the energy demand of the drying unit
+    variable = {"Variable":"ENERGY_DEMAND_TOT",
+               "UnitNr": 110,} # Drying of pulp
+
+    kde100 = model_output.plot_scenario_analysis_PDF(variable=variable, savePath=Results_Path_stochatic, xlabel="EBIT (M€/a)")
+
+    #model_output.plot_scenario_analysis_histogram(variable="EBIT", savePath=Results_Path_stochatic, xlabel="EBIT (M€/a)")
 
     # save and analyze the new results
     analyzer = outdoor.BasicModelAnalyzer(model_output)
-    # create the flow sheets of the superstructure and the optimised flow sheet
+    # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(path=Results_Path_stochatic)

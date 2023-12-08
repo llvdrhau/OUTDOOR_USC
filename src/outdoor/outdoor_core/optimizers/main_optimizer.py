@@ -174,6 +174,7 @@ class SingleOptimizer:
         if options is None:
             options = {}
             options['IntFeasTol'] = 1e-8
+            #options['NumericFocus'] = 3
         else:
             options.update({'IntFeasTol': 1e-8})
 
