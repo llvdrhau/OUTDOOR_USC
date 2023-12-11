@@ -307,32 +307,29 @@ class StochasticModelOutput(ModelOutput):
 
         VariablePermission = ["ENERGY_DEMAND_TOT", "OPEX", "EBIT", "NPC", "NPE", "NPFWD"]
         EnergyDemandPermission = ["Electricity", "Cooling"]
+
+        # Handling variable input
         if isinstance(variable, dict):
             variableName = variable['Variable']
-
         else:
             variableName = variable
-            unitNumber = None
 
-        # if clause to get the right variable data
+        # Validate variable
         if variableName not in VariablePermission:
-            raise ValueError("The variable {} is cannot be plotted atm, please update the code \n"
-                             "Possible parameters to plot are: {}".format(variableName, VariablePermission))
+            raise ValueError(f"The variable {variableName} cannot be plotted at the moment. "
+                             f"Possible parameters to plot are: {VariablePermission}")
 
+        # Handle ENERGY_DEMAND_TOT
         elif variableName == "ENERGY_DEMAND_TOT":
             UT = variable['UT']
             if UT not in EnergyDemandPermission:
                 raise ValueError("Please specify the Utility parameter UT as either 'Electricity' or 'Cooling'")
-            else:
-                variableDict = self._data[variableName]
-                variableData = [value for key, value in variableDict.items() if key[0] == UT]
-
+            variableData = [value for key, value in self._data[variableName].items() if key[0] == UT]
         else:
-            variableData = list(self._data[variableName])
-
+            variableData = list(self._data[variableName].values())
 
         if xlabel is None:
-            xlabel = variable
+            xlabel = variableName
 
         # get the probabilty data
         probabilities = list(self._data['odds'].values())
@@ -345,7 +342,7 @@ class StochasticModelOutput(ModelOutput):
 
         # Create the plot
         plt.figure(figsize=(10, 6))
-        sns.kdeplot(x=variableData, weights=probabilities, fill=True)
+        sns.kdeplot(x=variableData, weights=probabilities, fill=True, color="skyblue", linewidth=2)
 
         plt.xlabel(xlabel, fontsize=12)
         plt.title(f'Distribution of {variable} Over Scenarios', fontsize=14)
@@ -357,7 +354,7 @@ class StochasticModelOutput(ModelOutput):
         # Save or display the plot
         if savePath:
             if saveName:
-                saveLocation = savePath + '/' + saveName + 'PDF_distribution.png'
+                saveLocation = savePath + '/' + saveName + '_PDF_distribution.png'
             else:
                 saveLocation = savePath + '/PDF_distribution.png'
             plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
@@ -441,3 +438,5 @@ class StochasticModelOutput(ModelOutput):
 
             plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
         plt.show()
+
+

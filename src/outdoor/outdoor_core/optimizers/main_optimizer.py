@@ -141,11 +141,11 @@ class SingleOptimizer:
 
         if stochastic_optimisation: # if the run is a stochastic run we need to use the stochastic model output class
             model_output = StochasticModelOutput(model_instance=model_instance, # the model instance now contains the optimised values
-                                                 optimization_mode='Single 2-stage recourse optimization',
+                                                 optimization_mode='2-stage-recourse',
                                                  solver_name=self.solver_name, run_time=timer, gap=gap)
         else:
             model_output = ModelOutput(model_instance=model_instance,
-                                       optimization_mode='Single run optimization',
+                                       optimization_mode='single',
                                        solver_name=self.solver_name, run_time=timer, gap=gap)
 
         return model_output

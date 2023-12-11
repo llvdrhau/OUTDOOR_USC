@@ -38,9 +38,9 @@ class MultiModelOutput:
         self._multi_criteria_data = None
         self._sensitivity_data = None
         self._optimization_mode_set = {
-            "Sensitivity analysis",
-            "Multi-criteria optimization",
-            "Cross-parameter sensitivity",
+            "sensitivity",
+            "multi-objective",
+            "cross-parameter sensitivity",
         }
 
         if optimization_mode in self._optimization_mode_set:

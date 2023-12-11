@@ -50,7 +50,7 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
 
-if model_output._optimization_mode == "Single run optimization":  # single run optimization
+if model_output._optimization_mode == "single":  # single run optimization
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(Results_Path_single)
     # save the results as a txt file, you have to specify the path
@@ -60,7 +60,7 @@ if model_output._optimization_mode == "Single run optimization":  # single run o
     # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(Results_Path_single)
 
-elif model_output._optimization_mode == "Single 2-stage recourse optimization":  # single run optimization
+elif model_output._optimization_mode == "2-stage-recourse":  # single run optimization
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(directory_path=Results_Path_stochatic)
     # save the results as a txt file, you have to specify the path

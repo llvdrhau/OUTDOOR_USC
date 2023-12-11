@@ -18,9 +18,9 @@ import numpy as np
 
 from pyomo.environ import *
 
-import sys
-
-import logging
+# import sys
+#
+# import logging
 
 import copy
 
@@ -121,15 +121,24 @@ class SuperstructureProblem:
             4) optimizer.run_optimization()
 
         """
-        self._optimization_mode = optimization_mode
+
+        OptimisationPermissionList = ["single", "multi-objective", "sensitivity", "cross-parameter sensitivity", "2-stage-recourse"]
+
         if optimization_mode is None:
             optimization_mode = input_data.optimization_mode
             self._optimization_mode = input_data.optimization_mode
+        else:
+            if optimization_mode not in OptimisationPermissionList:
+                raise Exception("Optimization mode not in library, please choose between: " + str(OptimisationPermissionList))
+            else:
+                self._optimization_mode = optimization_mode
 
         solving_time = time_printer(programm_step="Superstructure optimization procedure")
 
-        # make a copy of the input data
-        input_data_rerun = copy.deepcopy(input_data)
+        # make a copy of the input data if the optimization mode is 2-stage-recourse
+        input_data_rerun = {}
+        if optimization_mode == "2-stage-recourse":
+            input_data_rerun = copy.deepcopy(input_data)
 
 
         if self.parser == "Superstructure":
@@ -174,7 +183,7 @@ class SuperstructureProblem:
             raise Exception("Currently there is no routine for external data parsing implemented")
 
 
-    def setup_model_instance(self, input_data, optimization_mode, infeasibleScenarios=None, printTimer=True, remakeMetadata=None):
+    def setup_model_instance(self, input_data, optimization_mode, infeasibleScenarios=None, printTimer=True):
         """
 
         Parameters

@@ -49,7 +49,7 @@ class MCDAOptimizer(SingleOptimizer):
 
         timer = time_printer(programm_step="MCDA optimization")
 
-        model_output = MultiModelOutput(optimization_mode="Multi-criteria optimization")
+        model_output = MultiModelOutput(optimization_mode="multi-objective")
 
         for k, v in self.mcda_data.items():
             change_objective_function(model_instance, k)
@@ -99,7 +99,7 @@ class SensitivityOptimizer(SingleOptimizer):
         self.sensi_data = calculate_sensitive_parameters(self.sensi_data)
         initial_model_instance = model_instance.clone()
         timer = time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
-        model_output = MultiModelOutput(optimization_mode="Sensitivity analysis")
+        model_output = MultiModelOutput(optimization_mode="sensitivity")
 
         for i, k in self.sensi_data.items():
             if type(k) is dict:
@@ -174,7 +174,7 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
         timer1 = time_printer(programm_step="Two-way sensitivity optimimization")
         self.cross_parameters = calculate_sensitive_parameters(self.cross_parameters)
 
-        model_output = MultiModelOutput(optimization_mode="Cross-parameter sensitivity")
+        model_output = MultiModelOutput(optimization_mode="cross-parameter sensitivity")
 
         index_names = list()
         dic_1 = dict()
@@ -350,6 +350,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
                          ):
 
+
         # preallocate the variables
         infeasibleScenarios = None
         waitAndSeeSolution = 0
@@ -434,7 +435,6 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             model_output.infeasibleScenarios = infeasibleScenarios
 
         if calculation_VSS:
-            # todo do we need to curate the EEV? ask Edwin and Lucas
             # EEV = self.curate_EEV(EEVList, expected_value)
             EEV = self.calculate_final_EEV_or_WS(model_output._data['odds'], EEVDict)
             # print the EEV
@@ -453,7 +453,6 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
         # self.debug_EVPI(model_output, Stochastic_input_EVPI, solver, interface, solver_path, options)
         # self.debug_VSS(model_output, Stochastic_input_EVPI, solver, interface, solver_path, options)
-        model_output._optimization_mode = "Single 2-stage recourse optimization"
 
         return model_output
 
@@ -546,8 +545,6 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
         # make a set of infeasible scenarios to get rid of duplicates
         infeasibleScenarios = set(infeasibleScenarios)
-        # todo now assuming all odds are equal, i.e. 1/number of scenarios s
-        #  we need to sum over the objective values and multiple by the odds of scenario i occuring
 
         return WaitAndSeeDict, infeasibleScenarios
 
@@ -757,7 +754,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
     def curate_EEV(self, EEV, expectedValueStochastic):
         """"
         The curation of the list of EEV is need because scenarios can exist where |Determinist value| > |Stochastic value|
-        which should not be possible. This is due to the fact that the stochastic optimisation takes into account the MAXIMUM
+        which should not be possible. This is due to the fact that the stochastic optimization takes into account the MAXIMUM
         reference flow rate to calculate the CAPEX. if this happens we'll assume that the deterministic value is equal to the stochastic value
         :param EEV: list of EEV
         :param expectedValueStochastic: expected value of the stochastic optimisation
@@ -816,7 +813,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
     def count_unique_sets(self, list_of_dicts):
         """
         This function is used to count the number of unique sets in a list of dictionaries
-        :param list:
+        :param list_of_dicts: list of dictionaries with the unique sets of technologies
         :return: count: number of unique sets
         """
         # Create an ordered dictionary to store the count of each unique dictionary
@@ -840,385 +837,4 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             percent = round((count / total_sets) * 100, 1)
             print("\033[95m\033[1mDictionary:", dict(unique_dict), "percent (%):", percent, "\033[0m")
 
-    def debug_EVPI(self, sto_model_output, sto_input_data, solver="gurobi", interface="local", solver_path=None, options=None):
-        """
-        This function is used to calculates the EVPI of a stochastic problem.
-        :param input_data: of the signal optimisation run
-        :param solver:
-        :param interface:
-        :param solver_path:
-        :param options:
-        :return: EVPI
 
-        """
-
-        # first run the single run optimisation to get the unit operations
-        singleInput = sto_input_data.parameters_single_optimization
-        # singleInput.optimization_mode = "single" # just to make sure
-        optimization_mode = "single"
-        # populate the model instance with the input data
-        model_instance = self.setup_model_instance(singleInput, optimization_mode, printTimer=False)
-
-        # now make a deep copy of the model and fix the boolean variables as parameters in the model
-        model_instance_EVPI = model_instance.clone()
-
-        # the next step is to run individual optimisations for each scenario and save the results in a list
-        # first we need to get the scenarios from the input data
-        scenarios = sto_input_data.Scenarios['SC']
-
-        # now we need to run the single run optimisation for each scenario
-        # we need to save the objective values in a list
-        objectiveValueList_EVPI = []
-        infeasibleScenarios = []
-        selectedTechnologies = []
-
-        # Green and bold text
-        print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the EVPI\n"
-                             "Please be patient, this might take a while" + "\033[0m")
-
-        # Suppress the specific warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.ERROR)
-        total_scenarios = len(scenarios)
-
-        # set the options for the single run optimisation
-        # set model options
-        mode_options = self.set_mode_options(optimization_mode, singleInput)
-        # settings optimisation problem
-        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                         mode_options, singleInput)
-        for index, sc in enumerate(scenarios):
-
-            # model for EVPI calculation, the only difference is that the boolean variables are not fixed
-            # i.e. all model variables are optimised according to the scenario parameters
-            modelInstanceScemarioEVPI = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
-                                                               stochasticInput=sto_input_data, model=model_instance_EVPI)
-
-            # run the optimisation
-            modelOutputScenario_EVPI = optimizer.run_optimization(model_instance=modelInstanceScemarioEVPI, tee=False,
-                                                                  keepfiles=False, printTimer=False, VSS_EVPI_mode=True)
-
-            if modelOutputScenario_EVPI == 'infeasible':
-                infeasibleScenarios.append(sc)
-            else:
-                objectiveName = modelOutputScenario_EVPI._objective_function
-                objectiveValueList_EVPI.append(modelOutputScenario_EVPI._data[objectiveName])
-                chosenTechnology_det = modelOutputScenario_EVPI.return_chosen()
-
-                selectedTechnologies.append(chosenTechnology_det)
-
-                chosenTechnology_sto = sto_model_output.return_chosen()
-
-                print('This is scenario', sc)
-
-                # lets compare the objective value of the stochastic model with the objective value of the deterministic model per scenario
-                # when debugging manualy change the objective function name
-                EBIT_sto = sto_model_output._data[objectiveName][sc]
-                EBIT_det = modelOutputScenario_EVPI._data[objectiveName]
-                print(f"chosenTechnology_sto: {chosenTechnology_sto}")
-                print(f"chosenTechnology_det: {chosenTechnology_det}")
-
-                print(f"EBIT_sto: {EBIT_sto}")
-                print(f"EBIT_det: {EBIT_det}")
-                # print the difference between the EBIT values
-                print(f"EBIT_sto - EBIT_det: {EBIT_sto - EBIT_det}")
-
-                # get the capex of the stochastic model
-                cpex_sto = sto_model_output._data['CAPEX']
-                cpex_det = modelOutputScenario_EVPI._data['CAPEX']
-                print(f"cpex_sto: {cpex_sto}")
-                print(f"cpex_det: {cpex_det}")
-                # print the difference between the capex values
-                print(f"cpex_sto - cpex_det: {cpex_sto - cpex_det}")
-
-                # get the opex of the stochastic model
-                opex_sto = sto_model_output._data['OPEX'][sc]
-                opex_det = modelOutputScenario_EVPI._data['OPEX']
-                print(f"opex_sto: {opex_sto}")
-                print(f"opex_det: {opex_det}")
-                # print the difference between the opex values
-                print(f"opex_sto - opex_det: {opex_sto - opex_det}")
-
-                profit_sto = sto_model_output._data['PROFITS_TOT'][sc]
-                profit_det = modelOutputScenario_EVPI._data['PROFITS_TOT']
-                print(f"profit_sto: {profit_sto}")
-                print(f"profit_det: {profit_det}")
-                # print the difference between the opex values
-                print(f"profit_sto - profit_det: {profit_sto - profit_det}")
-
-
-                print()
-
-
-
-
-        # Print a newline character to ensure the next console output is on a new line.
-        print()
-        # reactivate the warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.WARNING)
-        # count the unique sets of selected technologies
-        self.count_unique_sets(selectedTechnologies)
-
-        # make a set of infeasible scenarios to get rid of duplicates
-        infeasibleScenarios = set(infeasibleScenarios)
-        # todo now assuming all odds are equal, i.e. 1/number of scenarios s
-        #  we need to sum over the objective values and multiple by the odds of scenario i occuring
-
-        # todo should take the average value in stead of returning the list
-
-        return objectiveValueList_EVPI, infeasibleScenarios
-
-    def debug_VSS(self, sto_model_output, stochastic_input_data=None, solver="gurobi", interface="local",
-                  solver_path=None,
-                  options=None):
-        """
-        This function is used to calculate the VSS of a stochastic problem.
-        :param stochastic_model_output: is the model output of the stochastic optimisation
-        :param input_data of the signal optimisation run::
-        :param optimization_mode:
-        :param solver:
-        :param interface:
-        :param solver_path:
-        :param options:
-        :return:
-        """
-
-        def MassBalance_3_rule(self, u_s, u):
-            return self.FLOW_ADD[u_s, u] <= self.alpha[u] * self.Y[u]  # Big M constraint
-
-        def MassBalance_6_rule(self, u, uu, i):
-            if (u, uu) not in self.U_DIST_SUB:
-                if (u, uu) in self.U_CONNECTORS:
-                    return self.FLOW[u, uu, i] <= self.myu[u, uu, i] * self.FLOW_OUT[
-                        u, i
-                    ] + self.alpha[u] * (1 - self.Y[uu])
-                else:
-                    return Constraint.Skip
-
-            else:
-                return self.FLOW[u, uu, i] <= sum(
-                    self.FLOW_DIST[u, uu, uk, k, i]
-                    for (uk, k) in self.DC_SET
-                    if (u, uu, uk, k) in self.U_DIST_SUB2
-                ) + self.alpha[u] * (1 - self.Y[uu])
-
-        def MassBalance_7_rule(self, u, uu, i):
-            if (u, uu) in self.U_CONNECTORS:
-                return self.FLOW[u, uu, i] <= self.alpha[u] * self.Y[uu]
-            else:
-                return Constraint.Skip
-
-        def MassBalance_8_rule(self, u, uu, i):
-            if (u, uu) not in self.U_DIST_SUB:
-                if (u, uu) in self.U_CONNECTORS:
-                    return self.FLOW[u, uu, i] >= self.myu[u, uu, i] * self.FLOW_OUT[
-                        u, i
-                    ] - self.alpha[u] * (1 - self.Y[uu])
-                else:
-                    return Constraint.Skip
-            else:
-                return self.FLOW[u, uu, i] >= sum(
-                    self.FLOW_DIST[u, uu, uk, k, i]
-                    for (uk, k) in self.DC_SET
-                    if (u, uu, uk, k) in self.U_DIST_SUB2
-                ) - self.alpha[u] * (1 - self.Y[uu])
-
-        def GWP_6_rule(self, u):
-            return self.GWP_UNITS[u] == self.em_fac_unit[u] / self.LT[u] * self.Y[u]
-
-        def ProcessGroup_logic_1_rule(self, u, uu):
-
-            ind = False
-
-            for i, j in self.groups.items():
-
-                if u in j and uu in j:
-                    return self.Y[u] == self.Y[uu]
-                    ind = True
-
-            if ind == False:
-                return Constraint.Skip
-
-        def ProcessGroup_logic_2_rule(self, u, k):
-
-            ind = False
-
-            for i, j in self.connections.items():
-                if u == i:
-                    if j[k]:
-                        return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
-                        ind = True
-
-            if ind == False:
-                return Constraint.Skip
-
-        # start with the VSS calculation by setting up a model instance with the single optimisation data parameters
-        # first run the single run optimisation to get the unit operations
-        singleInput = stochastic_input_data.parameters_single_optimization
-        # singleInput.optimization_mode = "single" # just to make sure
-        optimization_mode = "single"
-        # populate the model instance with the input data
-        model_instance_deterministic_average = self.setup_model_instance(singleInput, optimization_mode,
-                                                                         printTimer=False)
-        model_instance_variable_params = model_instance_deterministic_average.clone()
-
-        # STEP 1: solve the deterministic model with the average values (i.e. the expected value)
-        # -----------------------------------------------------------------------------------------------
-        # solve the deterministic model with the average values of the stochastic parameters (i.e. the expected value)
-        # set the options for the single run optimisation
-        # set model options
-        mode_options = self.set_mode_options(optimization_mode, singleInput)
-        # settings optimisation problem
-        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                         mode_options, singleInput)
-        # run the optimisation
-        # EVV expected value problem or mean value problem
-        model_output_VSS_average = optimizer.run_optimization(model_instance=model_instance_deterministic_average,
-                                                              tee=False, printTimer=False, VSS_EVPI_mode=True)
-
-        if model_output_VSS_average == 'infeasible':
-            raise Exception(
-                "The model to calculate the VSS is infeasible, please check the input data for the single optimisation problem is correct ")
-
-        # extract the first stage decisions from the model output, i.e. the boolean variables
-        BooleanVariables = model_output_VSS_average._data['Y']
-
-        # STEP 2: make the model instance for the VSS calculation with 1st stage decisions fixed
-        # -------------------------------------------------------------------------------------------------
-        # now make the model where the boolean variables are fixed as parameters
-        # loop of ther BooleanVariables and transform the item in the dict to the absolute value
-        for key, value in BooleanVariables.items():
-            if value is not None:
-                BooleanVariables[key] = abs(value)
-
-        # change the model instance copy and fix the boolean variables as parameters
-        model_instance_variable_params.del_component(model_instance_variable_params.Y)
-        model_instance_variable_params.Y = Param(model_instance_variable_params.U, initialize=BooleanVariables,
-                                                 mutable=True, within=Any)
-
-        # delete and redefine the constraints which are affected by the boolean variables
-        model_instance_variable_params.del_component(model_instance_variable_params.MassBalance_3)
-        model_instance_variable_params.del_component(model_instance_variable_params.MassBalance_6)
-        model_instance_variable_params.del_component(model_instance_variable_params.MassBalance_7)
-        model_instance_variable_params.del_component(model_instance_variable_params.MassBalance_8)
-        model_instance_variable_params.del_component(model_instance_variable_params.EnvironmentalEquation6)  # GWP_6
-        model_instance_variable_params.del_component(model_instance_variable_params.ProcessGroup_logic_1)
-        model_instance_variable_params.del_component(model_instance_variable_params.ProcessGroup_logic_2)
-
-        # define the constraints again
-        model_instance_variable_params.MassBalance_33 = Constraint(model_instance_variable_params.U_SU,
-                                                                   rule=MassBalance_3_rule)
-        model_instance_variable_params.MassBalance_66 = Constraint(model_instance_variable_params.U,
-                                                                   model_instance_variable_params.UU,
-                                                                   model_instance_variable_params.I,
-                                                                   rule=MassBalance_6_rule)
-        model_instance_variable_params.MassBalance_77 = Constraint(model_instance_variable_params.U,
-                                                                   model_instance_variable_params.UU,
-                                                                   model_instance_variable_params.I,
-                                                                   rule=MassBalance_7_rule)
-        model_instance_variable_params.MassBalance_88 = Constraint(model_instance_variable_params.U,
-                                                                   model_instance_variable_params.UU,
-                                                                   model_instance_variable_params.I,
-                                                                   rule=MassBalance_8_rule)
-        model_instance_variable_params.EnvironmentalEquation66 = Constraint(model_instance_variable_params.U_C,
-                                                                            rule=GWP_6_rule)
-        model_instance_variable_params.ProcessGroup_logic_11 = Constraint(model_instance_variable_params.U,
-                                                                          model_instance_variable_params.UU,
-                                                                          rule=ProcessGroup_logic_1_rule)
-        numbers = [1, 2, 3]
-        model_instance_variable_params.ProcessGroup_logic_22 = Constraint(model_instance_variable_params.U, numbers,
-                                                                          rule=ProcessGroup_logic_2_rule)
-
-        # STEP 3: loop over all scenarios and solve the model for each scenario save the results in a list
-        # -------------------------------------------------------------------------------------------------
-        # now we need to run the single run optimisation for each scenario and save the results in a list
-        # now we have the model instance with the fixed boolean variables as parameters
-        # the next step is to run individual optimisations for each scenario and save the results in a list
-        # first we need to get the scenarios from the input data
-        scenarios = stochastic_input_data.Scenarios['SC']
-        total_scenarios = len(scenarios)
-
-        # now we need to run the single run optimisation for each scenario
-        # preallocate the variables
-        objectiveValueList_VSS = []
-        infeasibleScenarios = []
-
-        # Green and bold text, warning this might take a while
-        print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the VSS\n"
-                             "Please be patient, this might take a while" + "\033[0m")
-
-        # Suppress the specific warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.ERROR)
-
-        # set the options for the single run optimisation
-        # set model options
-        mode_options = self.set_mode_options(optimization_mode, singleInput)
-        # settings optimisation problem
-        optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                         mode_options, singleInput)
-
-        for index, sc in enumerate(scenarios):
-            # model for VSS calculation
-            modelInstanceScemario_VSS = self.set_parameters_of_scenario(scenario=sc, singleInput=singleInput,
-                                                                        stochasticInput=stochastic_input_data,
-                                                                        model=model_instance_variable_params)
-
-            # run the optimisation
-            modelOutputScenario_VSS = optimizer.run_optimization(model_instance=modelInstanceScemario_VSS, tee=False,
-                                                                 keepfiles=False, printTimer=False, VSS_EVPI_mode=True)
-
-            if modelOutputScenario_VSS == 'infeasible':
-                infeasibleScenarios.append(sc)
-            else:
-                objectiveName = modelOutputScenario_VSS._objective_function
-                objectiveValueList_VSS.append(modelOutputScenario_VSS._data[objectiveName])
-                chosenTechnology_det = modelOutputScenario_VSS.return_chosen()
-                chosenTechnology_sto = sto_model_output.return_chosen()
-
-                print('This is scenario', sc)
-
-                # lets compare the objective value of the stochastic model with the objective value of the deterministic model per scenario
-                # when debugging manualy change the objective function name
-                EBIT_sto = sto_model_output._data[objectiveName][sc]
-                EBIT_det = modelOutputScenario_VSS._data[objectiveName]
-                print(f"chosenTechnology_sto: {chosenTechnology_sto}")
-                print(f"chosenTechnology_det: {chosenTechnology_det}")
-
-                print(f"EBIT_sto: {EBIT_sto}")
-                print(f"EBIT_det: {EBIT_det}")
-                # print the difference between the EBIT values
-                print(f"EBIT_sto - EBIT_det: {EBIT_sto - EBIT_det}")
-
-                # get the capex of the stochastic model
-                cpex_sto = sto_model_output._data['CAPEX']
-                cpex_det = modelOutputScenario_VSS._data['CAPEX']
-                print(f"cpex_sto: {cpex_sto}")
-                print(f"cpex_det: {cpex_det}")
-                # print the difference between the capex values
-                print(f"cpex_sto - cpex_det: {cpex_sto - cpex_det}")
-
-                # get the opex of the stochastic model
-                opex_sto = sto_model_output._data['OPEX'][sc]
-                opex_det = modelOutputScenario_VSS._data['OPEX']
-                print(f"opex_sto: {opex_sto}")
-                print(f"opex_det: {opex_det}")
-                # print the difference between the opex values
-                print(f"opex_sto - opex_det: {opex_sto - opex_det}")
-
-                profit_sto = sto_model_output._data['PROFITS_TOT'][sc]
-                profit_det = modelOutputScenario_VSS._data['PROFITS_TOT']
-                print(f"profit_sto: {profit_sto}")
-                print(f"profit_det: {profit_det}")
-                # print the difference between the opex values
-                print(f"profit_sto - profit_det: {profit_sto - profit_det}")
-
-                print()
-
-        EEV = np.mean(objectiveValueList_VSS)
-
-        # Print a newline character to ensure the next console output is on a new line.
-        print()
-        # reactivate the warning if model is infeasible
-        logging.getLogger('pyomo.core').setLevel(logging.WARNING)
-        # make a set of infeasible scenarios to get rid of duplicates
-        infeasibleScenarios = set(infeasibleScenarios)
-        return EEV

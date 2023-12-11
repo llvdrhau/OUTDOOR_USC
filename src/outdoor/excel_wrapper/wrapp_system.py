@@ -4,7 +4,7 @@ Created on Mon Mar 23 15:26:49 2020
 
 @author: Celina
 """
-import sys
+
 
 # Definition des Systempfades der PySuOpt Bibliothek
 
@@ -16,7 +16,7 @@ from . import wrapping_functions as WF
 
 
 
-def wrapp_SystemData(dfi):
+def wrapp_SystemData(dfi, optimization_mode=None):
 
     """
     Description
@@ -76,13 +76,16 @@ def wrapp_SystemData(dfi):
 
     # SET GENERAL DATA
     # -----------------
+    if optimization_mode is None:
+        # optimization mode is specified in the Excel file if it is not given as an argument to the function
+        optimization_mode = df1.loc['Optimization mode'].iloc[0]
 
     obj = Superstructure(ModelName=df1.loc['TestCaseName'].iloc[0],
                          Objective=df1.loc['Objective'].iloc[0],
                          productDriver = df1.loc['Product driven'].iloc[0],
                          MainProduct=df1.loc['Main product'].iloc[0],
                          ProductLoad=df1.loc['Product load'].iloc[0],
-                         OptimizationMode=df1.loc['Optimization mode'].iloc[0])
+                         OptimizationMode=optimization_mode)
 
 
     obj.set_operatingHours(df1.loc['Operating Hours'].iloc[0])
@@ -93,7 +96,7 @@ def wrapp_SystemData(dfi):
     obj.set_interestRate(df1.loc['Interest rate'].iloc[0])
 
     obj.set_linearizationDetail()
-    obj.add_linearisationIntervals
+    #obj.add_linearisationIntervals()
 
     obj.set_omFactor(df1.loc['O&M Factor'].iloc[0])
 

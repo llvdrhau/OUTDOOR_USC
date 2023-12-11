@@ -1,4 +1,4 @@
-import math 
+import math
 
 
 
@@ -15,23 +15,23 @@ class Process():
     """
     Class description
     -----------------
-    
-    This is the overall unit-operation / process class, from which all specific 
+
+    This is the overall unit-operation / process class, from which all specific
     unit-operations classes inherit its structure. It includes the basic data
-    like name, index number, or mass-balance splitfactors. 
-    
+    like name, index number, or mass-balance splitfactors.
+
     It includes setter-methods to fill in the required data as
     single-data set-methods and lumping methods which set more parameters in one
-    step. 
-    
+    step.
+
     """
 
 
-    
+
     def __init__(self, Name, UnitNumber, Parent= None, *args, **kwargs):
 
         super().__init__()
-        
+
         # Lists
         self.ParameterList =[]
 
@@ -46,54 +46,54 @@ class Process():
         self.Type = None
         self.Group = None
         self.Connections = dict()
-        
-        
-        
-        self.Possible_Sources = []
-        
 
-        
+
+
+        self.Possible_Sources = []
+
+
+
 
 
         # FLOW ATTRIBUTES
         # ---------------
 
-        # Indexed Attributes 
+        # Indexed Attributes
         self.myu ={'myu': {}}
         self.conc  ={'conc': {self.Number: 0}}
-        
-        
+
+
         self.kappa_1_lhs_conc = {'kappa_1_lhs_conc': {}}
         self.kappa_2_lhs_conc = {'kappa_2_lhs_conc': {}}
         self.kappa_1_rhs_conc = {'kappa_1_rhs_conc': {}}
         self.kappa_2_rhs_conc = {'kappa_2_rhs_conc': {}}
 
         self.FLH = {'flh': {self.Number: None}}
-        
+
         if Parent is not None:
             Parent.add_UnitOperations(self)
 
 
 
-        
 
-    
+
+
     def fill_unitOperationsList(self, superstructure):
         superstructure.UnitsList.append(self)
         superstructure.UnitsNumberList['U'].append(self.Number)
         superstructure.UnitsNumberList2['UU'].append(self.Number)
-        
+
         for i in self.Possible_Sources:
             if i is not self.Number:
                 superstructure.SourceSet['U_SU'].append((i,self.Number))
-        
-        
+
+
         if self.Group is not None:
             try:
                 superstructure.groups[self.Group].append(self.Number)
             except:
                 superstructure.groups[self.Group] = [self.Number]
-                
+
         if self.Connections:
             superstructure.connections[self.Number] = dict()
             for i,j in self.Connections.items():
@@ -105,12 +105,16 @@ class Process():
     # --------------------
 
     def set_generalData(self,
-                         ProcessGroup,
-                         lifetime  = None,
-                         emissions = 0,
-                         full_load_hours = None
+                        ProcessGroup,
+                        lifetime,
+                        emissions=0,
+                        full_load_hours=None,
+                        maintenancefactor=None,
+                        CostPercentage=None,
+                        TimeSpan=None,
+                        TimeMode=None
                          ):
-       
+
         self.set_group(ProcessGroup)
         self.set_full_load_hours(full_load_hours)
 
@@ -118,10 +122,10 @@ class Process():
 
     def set_name(self, Name):
         self.Name = Name
-        
+
     def set_number(self, Number):
         self.Number = Number
-        
+
     def set_group(self, processgroup):
         self.Group = processgroup
 
@@ -131,11 +135,11 @@ class Process():
 
     def set_connections(self, units_dict):
         self.Connections = units_dict
-        
 
 
 
-    
+
+
     # FLOW DATA SETTING
     # -----------------
 
@@ -147,7 +151,7 @@ class Process():
                       LeftHandSideComponentList = [],
                       SplitfactorDictionary = None,
                       ):
-        
+
 
         self.__set_conc(RequiredConcentration)
         self.__set_myuFactors(SplitfactorDictionary)
@@ -157,12 +161,12 @@ class Process():
         self.__set_kappa_1_rhs_conc(RightHandSideComponentList)
         self.__set_kappa_2_lhs_conc(LeftHandSideReferenceFlow)
         self.__set_kappa_2_rhs_conc(RightHandSideReferenceFlow)
-        
+
 
     def __set_conc(self, concentration):
         self.conc['conc'][self.Number] = concentration
-        
-  
+
+
     def __set_myuFactors(self, myu_dic):
         """
 
@@ -174,8 +178,8 @@ class Process():
         """
         for i in myu_dic:
             self.myu['myu'][self.Number,i] = myu_dic[i]
-                
-  
+
+
     def __set_kappa_1_lhs_conc(self, kappa_1_lhs_conc_list):
         """
         Parameters
@@ -218,7 +222,7 @@ class Process():
             Example: 'FIN' or 'FOUT'
 
         """
-        
+
         if kappa_2_lhs_conc_string  == 'FIN':
             self.kappa_2_lhs_conc['kappa_2_lhs_conc'][self.Number]  = 1
         elif kappa_2_lhs_conc_string  == 'FOUT':
@@ -245,7 +249,7 @@ class Process():
 
 
     def set_possibleSources(self, SourceList):
-        
+
         if type(SourceList) == list:
             for i in SourceList:
                 if i not in self.Possible_Sources:
@@ -253,13 +257,13 @@ class Process():
         else:
             if SourceList not in self.Possible_Sources:
                 self.Possible_Sources.append(SourceList)
-                
 
 
 
 
 
-    # ADDITIONAL METHODS 
+
+    # ADDITIONAL METHODS
     # ------------------
 
 
@@ -272,16 +276,16 @@ class Process():
 
         """
 
-    
+
         self.ParameterList.append(self.conc)
-        self.ParameterList.append(self.myu)            
+        self.ParameterList.append(self.myu)
         self.ParameterList.append(self.kappa_1_lhs_conc)
         self.ParameterList.append(self.kappa_2_lhs_conc)
         self.ParameterList.append(self.kappa_1_rhs_conc)
         self.ParameterList.append(self.kappa_2_rhs_conc)
         self.ParameterList.append(self.FLH)
 
-    
+
 
 
 

@@ -504,11 +504,12 @@ class AdvancedMultiModelAnalyzer:
         (for technology choices)
         """
 
-        cdata_list = ['NPC', 'NPE', 'NPFWD']
+        cdata_list = ['EBIT', 'NPC', 'NPE', 'NPFWD']
 
         countour_line_labels = {'NPC':"%1.0f €/MWh",
                                 'NPE':"%1.0f t-CO2/MWh",
-                                'NPFWD':"%1.0f t-H2O/MWh"}
+                                'NPFWD':"%1.0f t-H2O/MWh",
+                                'EBIT':"%1.0f M€",}
 
         if cdata not in cdata_list:
             print('No method or data to depict the demanded value, please chose from')
@@ -562,7 +563,7 @@ class AdvancedMultiModelAnalyzer:
 
         # Set-up figure
         plt.rcParams["figure.dpi"] = 1200
-        plt.rcParams["font.family"] = "palatino"
+        plt.rcParams["font.family"] = "Times New Roman"
 
         fig = plt.figure()
 

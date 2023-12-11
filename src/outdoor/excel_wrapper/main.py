@@ -25,7 +25,7 @@ from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progre
 
 # function for Pandafunction to read an excelfile:
 
-def get_DataFromExcel(PathName=None):
+def get_DataFromExcel(PathName=None, optimization_mode=None):
 
     """
     Description
@@ -77,8 +77,12 @@ def get_DataFromExcel(PathName=None):
     number_of_processes = len(dataframe.keys()) - len(Hidden_Tables)
     count = 0
 
-    # the Systemblatt is the first sheet in the Excel file and must always be present in the Excel file
-    Superstructure_Object = wrapp_SystemData(dataframe['Systemblatt'])
+    # only add data for the stochastic optimization if the optimization mode is not specified in the function call,
+    # the optimization mode is then specified in the Excel file that is passed on to the Superstructure_Object
+
+    Superstructure_Object = wrapp_SystemData(dataframe['Systemblatt'], optimization_mode=optimization_mode)
+    _optimization_mode = Superstructure_Object.optimization_mode
+
 
 
     for i in dataframe.keys():
@@ -118,8 +122,10 @@ def get_DataFromExcel(PathName=None):
     Superstructure_Object.add_UnitOperations(PU_ObjectList)
     timer = time_printer(timer, 'Exctract data from excel')
 
-    if Superstructure_Object.optimization_mode == '2-stage-recourse':
-        # save the data of the single optimisation variable in the object for VSS and EVPI calculation
+
+
+    if _optimization_mode == '2-stage-recourse':
+        # save the data of the single optimization variable in the object for VSS and EVPI calculation
         Superstructure_Object_duplicate = copy.deepcopy(Superstructure_Object)
         Superstructure_Object.parameters_single_optimization = Superstructure_Object_duplicate
 
@@ -128,6 +134,7 @@ def get_DataFromExcel(PathName=None):
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
         Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
     return Superstructure_Object
 
 

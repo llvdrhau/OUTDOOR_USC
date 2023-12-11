@@ -24,7 +24,8 @@ import datetime
 import cloudpickle as pic
 import random as rnd
 import numpy as np
-import itertools
+import matplotlib.pyplot as plt
+
 
 class ModelOutput:
 
@@ -55,9 +56,10 @@ class ModelOutput:
         self._meta_data = dict()
 
         self._optimization_mode_set = {
-            "Sensitivity analysis",
-            "Single 2-stage recourse optimization",
-            "Single run optimization",
+            "sensitivity",
+            "cross-parameter sensitivity",
+            "2-stage-recourse",
+            "single",
         }
 
         if optimization_mode in self._optimization_mode_set:
@@ -884,3 +886,37 @@ class ModelOutput:
 
 
 
+    def plot_capex_pie_chart(self, savePath=None, saveName=None):
+        """
+        :return: A pie chart of the capital costs of the chosen flow sheet
+        """
+        CT = self._collect_capitalcost_shares()
+        capexShares = CT['Capital costs shares']
+
+        # create the pie chart
+        fig, ax = plt.subplots(figsize=(10, 10))
+        colors = plt.cm.viridis_r(np.linspace(0, 1, len(capexShares)))  # Attractive color palette
+        wedges, texts, autotexts = ax.pie(list(capexShares.values()),
+                                          autopct='%1.1f%%', shadow=True, startangle=140,
+                                          colors=colors, explode=[0.02] * len(capexShares))  # Explode effect
+
+        # Legend with labels, adjusted position
+        ax.legend(wedges, capexShares.keys(),
+                  title="Unit processes",
+                  loc="lower right",
+                  bbox_to_anchor=(1.10, 0.88))  # Adjust this for legend position
+
+        # Styling
+        plt.setp(autotexts, size=10, weight="bold", color="white")
+        ax.set_title('Capital Costs Distribution', fontsize=16, weight='bold')
+
+        ax.axis('equal')  # Equal aspect ratio ensures the pie is circular.
+
+        # save the pie chart
+        if savePath:
+            if saveName:
+                saveLocation = f'{savePath}/{saveName}_Capex_pie_chart.png'
+            else:
+                saveLocation = f'{savePath}/Capex_pie_chart.png'
+            plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
+        plt.show()

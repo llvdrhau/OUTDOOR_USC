@@ -93,11 +93,11 @@ def prepare_mutable_parameters(ModelInstance, input_data):
         elif parameter == "product_price":
             instance.ProductPrice._mutable = True
         else:
-            raise ValueError("Parameter to set mutable not existing")
+            raise ValueError("Parameter {} to set mutable not existing".format(parameter))
 
     for i in input_data:
         name = i[0]
         set_mutable(ModelInstance, name)
-        
+
     return ModelInstance
 

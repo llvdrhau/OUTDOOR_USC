@@ -36,6 +36,10 @@ Data_Path = os.path.dirname(a) + '/outdoor_examples/data/'
 
 superstructure_instance = outdoor.get_DataFromExcel(Excel_Path)
 
+# set optimization mode
+optimization_mode = 'cross-parameter sensitivity'
+
+
 # check the super structure flow sheet for errors
 pathSuperstructureFigure = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test"
 outdoor.create_superstructure_flowsheet(superstructure_instance, pathSuperstructureFigure)
@@ -43,16 +47,21 @@ outdoor.create_superstructure_flowsheet(superstructure_instance, pathSuperstruct
 # solve the optimization problem
 Opt = outdoor.SuperstructureProblem(parser_type='Superstructure')
 model_output = Opt.solve_optimization_problem(input_data=superstructure_instance,
+                                              optimization_mode=optimization_mode,
+                                              calculation_EVPI=False, calculation_VSS=False,
                                               solver='gurobi', # gurobi
                                               interface='local')
 
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+print('---------------')
+
+
 
 # specific place to save the results
 
-if model_output._optimization_mode == "Single run optimization": # single run optimization
+if model_output._optimization_mode == "single": # single run optimization
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(Results_Path)
 
@@ -66,14 +75,14 @@ if model_output._optimization_mode == "Single run optimization": # single run op
     analyzer.create_flowsheet(Results_Path)
     # analyzer.techno_economic_analysis() # Todo fix this, does not work
 
-elif model_output._optimization_mode == 'Multi-criteria optimization':
+elif model_output._optimization_mode == 'multi-objective':
     # if you want to save the results as a txt file, you have to specify the path
     model_output.get_results(savePath=Results_Path_multi)
     # make an analysis of the results by creating the analysis object and calling the method
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
     analyzer.create_mcda_table(table_type= 'relative closeness')
 
-elif model_output._optimization_mode == 'Sensitivity analysis':
+elif model_output._optimization_mode == 'sensitivity':
     # if you want to save the results as a txt file, you have to specify the path
     model_output.get_results(savePath=Results_Path_sensitivity)
     # make an analysis of the results by creating the analysis object and calling the method
@@ -81,16 +90,19 @@ elif model_output._optimization_mode == 'Sensitivity analysis':
     fig = analyzer.create_sensitivity_graph(savePath=Results_Path_sensitivity)
     fig.show()
 
-elif model_output._optimization_mode == 'Cross-parameter sensitivity':
+elif model_output._optimization_mode == 'cross-parameter sensitivity':
     # if you want to save the results as a txt file, you have to specify the path
     model_output.get_results(savePath=Results_Path_cross_sensitivity)
     # make an analysis of the results by creating the analysis object and calling the method
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
-    # analyzer.create_crossparameter_graph()
+    analyzer.create_crossparameter_graph(process_list=[1000, 2100, 2200, 4000],
+                                         cdata= "EBIT",
+                                         xlabel= 'xtest',
+                                         ylabel= 'ytest',
+                                         clabel= 'EBIT',
+                                         )
 
 
 
-
-
-
-
+print('the opimization mode is:')
+print(model_output._optimization_mode)
