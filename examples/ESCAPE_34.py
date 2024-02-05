@@ -41,8 +41,7 @@ optimization_mode = "2-stage-recourse"
 #optimization_mode = "single"
 
 # create the superstructure data from the Excel file and
-superstructure_Data = outdoor.get_DataFromExcel(Excel_Path,
-                                                optimization_mode=optimization_mode)
+superstructure_Data = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode)
 
 # create the superstructure flowsheet
 outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
@@ -58,8 +57,8 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
                                                          optimization_mode=optimization_mode,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_EVPI=False,
-                                                         calculation_VSS=False,
+                                                         calculation_EVPI=True,
+                                                         calculation_VSS=True,
                                                          options=solverOptions,)
 
 current, peak = tracemalloc.get_traced_memory()
@@ -96,7 +95,10 @@ elif model_output._optimization_mode == "2-stage-recourse":  # stochastic optimi
     savePathPLots = Results_Path_stochatic + "/plots"
 
     # # probabilty density function of the EBIT
-    kde = model_output.plot_scenario_analysis_PDF(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)")
+    model_output.plot_scenario_analysis_PDF(variable="OPEX", savePath=savePathPLots, xlabel="OPEX (M€/a)"
+                                                  ,saveName="OPEX")
+    kde = model_output.plot_scenario_analysis_PDF(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)"
+                                                  , saveName="EBIT")
     prob = model_output.calculate_odds_in_range(kde=kde, range_start=2, range_end=2.5)
     print(prob)
     #
@@ -109,7 +111,7 @@ elif model_output._optimization_mode == "2-stage-recourse":  # stochastic optimi
     # model_output.plot_scenario_analysis_histogram(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)")
 
     # polt the capex distribution of all the unit operations in the final flowsheet
-    model_output.plot_capex_pie_chart(savePath=savePathPLots)
+    #model_output.plot_capex_pie_chart(savePath=savePathPLots)
 
     #  --------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------------------------
