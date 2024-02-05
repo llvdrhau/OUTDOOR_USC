@@ -2,7 +2,7 @@
 This is a test case for the outdoor package. It is used to test the functionality of the package.
 Made by Philippe original adapted by Lucas
 
-possible optimisation modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
+Possible optimization modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
 "Cross-parameter sensitivity" , and "Single 2-stage recourse optimization"
 """
 import sys
@@ -26,7 +26,8 @@ sys.path.append(b)
 import outdoor
 
 # define the paths
-Excel_Path = "Test_small_V2.xlsm"
+#Excel_Path = "Test_small_V2.xlsm"
+Excel_Path = "Test_medium.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\single"
 Results_Path_multi = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\multi"
 Results_Path_sensitivity = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\sensitivity"
@@ -34,10 +35,15 @@ Results_Path_cross_sensitivity = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\ex
 
 Data_Path = os.path.dirname(a) + '/outdoor_examples/data/'
 
-superstructure_instance = outdoor.get_DataFromExcel(Excel_Path)
-
 # set optimization mode
-optimization_mode = 'cross-parameter sensitivity'
+optimization_mode = "cross-parameter sensitivity"
+#'multi-objective'
+#optimization_mode = 'single'
+
+
+# create the superstructure instance
+superstructure_instance = outdoor.get_DataFromExcel(Excel_Path, optimization_mode= optimization_mode)
+
 
 
 # check the super structure flow sheet for errors
