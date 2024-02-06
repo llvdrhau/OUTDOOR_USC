@@ -120,7 +120,7 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
 
     print()  # to get a new line after the progress bar
     Superstructure_Object.add_UnitOperations(PU_ObjectList)
-    timer = time_printer(timer, 'Exctract data from excel')
+    timer = time_printer(timer, 'Extracting data from excel')
 
 
 

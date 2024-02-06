@@ -27,7 +27,7 @@ import outdoor
 
 # define the paths
 #Excel_Path = "Test_small_V2.xlsm"
-Excel_Path = "Test_medium.xlsm"
+Excel_Path = "Excel_files/Test_medium.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\single"
 Results_Path_multi = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\multi"
 Results_Path_sensitivity = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\philipp_test\sensitivity"

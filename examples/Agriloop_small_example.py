@@ -25,7 +25,7 @@ import outdoor
 
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "Test_small_AgriLoop.xlsm"
+Excel_Path = "Excel_files/Test_case_study_Biorefinery.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
 Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\single"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\stochastic"
@@ -70,4 +70,8 @@ elif model_output._optimization_mode == "2-stage-recourse":  # single run optimi
     # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(path=Results_Path_stochatic)
 
-    model_output.plot_scenario_analysis(variable="EBIT", savePath=Results_Path_stochatic)
+    # todo
+    # new uncertainty framework for ESCAPE 34
+    # add LHS to the mix
+
+    #model_output.plot_scenario_analysis(variable="EBIT", savePath=Results_Path_stochatic)
