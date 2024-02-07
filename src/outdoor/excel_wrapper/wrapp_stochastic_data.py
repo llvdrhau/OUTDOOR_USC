@@ -20,9 +20,6 @@ def wrapp_stochastic_data(dfi):
     # make the dataframe a series
     generalDataFrame = generalDataFrame.squeeze()
 
-    #generalDataFrame = generalDataFrame.T
-
-
     # get the custom level data
     customLevelRange = WF.convert_total('B', 14, 'B', 21)
     customLevelDataFrame = dfi.iloc[customLevelRange]
@@ -40,51 +37,17 @@ def wrapp_stochastic_data(dfi):
     phiExclusionDF = dfi.iloc[phiExclusionRange]
     obj.set_phi_exclusion_list(phiExclusionDF)
 
+   # make the scenario dataframe, depending on the sampling mode
+    if obj.SamplingMode == 'Combinatorial':
+        # set the grouped parameters (i.e., those with the correlated uncertainty)
+        obj.set_group_dict()
+        obj.make_scenario_dataframe_combinatorial()
 
-    # set the grouped parameters (i.e. those with the correlated uncertainty)
-    obj.set_group_dict()
+    elif obj.SamplingMode == 'LHS':
+        #obj.set_group_dict()
+        obj.make_scenario_dataframe_LHS()
 
-    # set the dataframe of the stochastic object
-    obj.make_scenario_dataframe()
-
-    # the price of the feed stocks (Source units)
-    # materialCostRange = WF.convert_total('I', 47, 'M', 60) # feed price
-    # materialCostDataFrame = dfi.iloc[materialCostRange]
-    # obj._set_general_dict(materialCostDataFrame, 'materialcosts')
-    #
-    # # the price of products (Product pool units)
-    # productPriceRange = WF.convert_total('O', 47, 'S', 60) # product price
-    # productPriceDataFrame = dfi.iloc[productPriceRange]
-    # obj._set_general_dict(productPriceDataFrame, 'ProductPrice')
-    #
-    # # the composition of the feed stocks (Source units)
-    # phiRange = WF.convert_total('B', 10, 'G', 23) # feed composition
-    # phiDataFrame = dfi.iloc[phiRange]
-    # obj._set_general_dict(phiDataFrame, 'phi')
-    #
-    # phiExclusionRange = WF.convert_total('T', 13, 'Z', 20) # feed composition
-    # phiExclusionDF = dfi.iloc[phiExclusionRange]
-    # obj._set_phi_exclusion_list(phiExclusionDF)
-    #
-    # # conversion factor (Stoichiometric reactor units)
-    # thetaRange = WF.convert_total('J', 10, 'P', 23) # conversion factor
-    # thetaDataFrame = dfi.iloc[thetaRange]
-    # obj._set_general_dict(thetaDataFrame, 'theta')
-    #
-    # # stoichiometric factor (Stoichiometric reactor units)
-    # gammaRange = WF.convert_total('J', 28, 'P', 41) # yield factor
-    # gammaDataFrame = dfi.iloc[gammaRange]
-    # obj._set_general_dict(gammaDataFrame, 'gamma')
-    #
-    #
-    # # split factor (Pysical process units)
-    # myuRange = WF.convert_total('B', 28, 'H', 41) # split factor
-    # myuDataFrame = dfi.iloc[myuRange]
-    # obj._set_general_dict(myuDataFrame, 'myu')
-    #
-    # # yield factor (Yield reactor uints)
-    # xiRange = WF.convert_total('B', 47, 'G', 60)  # split factor
-    # xiDataFrame = dfi.iloc[xiRange]
-    # obj._set_general_dict(xiDataFrame, 'xi')
+    else:
+        raise ValueError('Sampling mode not recognized')
 
     return obj

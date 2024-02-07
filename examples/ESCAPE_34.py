@@ -25,7 +25,7 @@ sys.path.append(b)
 import outdoor
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "ESCAPE34_case_study.xlsm"
+Excel_Path = "Excel_files/ESCAPE34_case_study.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study"
 Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\single"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\stochastic"
@@ -111,7 +111,7 @@ elif model_output._optimization_mode == "2-stage-recourse":  # stochastic optimi
     # model_output.plot_scenario_analysis_histogram(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)")
 
     # polt the capex distribution of all the unit operations in the final flowsheet
-    #model_output.plot_capex_pie_chart(savePath=savePathPLots)
+    model_output.plot_capex_pie_chart(savePath=savePathPLots)
 
     #  --------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------------------------

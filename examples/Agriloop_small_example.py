@@ -41,11 +41,16 @@ outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 
+
+solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
+                 "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
+
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_VSS=False,
-                                                         calculation_EVPI=False)
+                                                         calculation_VSS=True,
+                                                         calculation_EVPI=True,
+                                                         options=solverOptions,)
 
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")

@@ -18,7 +18,10 @@ Class description
 import pandas as pd
 import itertools
 import ast
-from numpy import isnan
+from numpy import isnan, random, zeros
+from pyDOE import lhs
+from scipy.stats import norm, uniform
+
 
 
 # from itertools import product
@@ -186,7 +189,7 @@ class StochasticObject():
                 if parameterName == 'gamma':
                     component = row.Component
                     reactionNr = row.Reaction_Number
-                    nrComponentTuple = (unitNr, component, reactionNr)
+                    nrComponentTuple = (unitNr, (component, reactionNr))
 
                 elif parameterName == 'theta':
                     component = row.Component
@@ -265,7 +268,113 @@ class StochasticObject():
 
         return customLevelList
 
-    def make_scenario_dataframe(self):
+    def make_scenario_dataframe_LHS(self):
+        """
+        This function makes a dataframe with the rows representing the scenarios and the columns the parameters which
+        are uncertain. The values in the dataframe are the values of the uncertain parameters for each scenario.
+        The values are sampled using the Latin Hypercube Sampling method.
+
+        :return: self.UncertaintyMatrix (dataframe)
+        """
+        # print in bold green 'make_scenario_dataframe_LHS, this might take a while'
+        print('\033[1;32;40m make_scenario_dataframe_LHS, this might take a while \033[m')
+
+
+        # Set the seed for reproducibility
+        random.seed(42)
+
+        # Get the GeneralDict
+        GeneralDict = self.GeneralDict
+
+        # Define number of parameters and number of samples
+        num_params = len(GeneralDict)
+        num_samples = self.SampleSize
+
+        # Generate LHS sample
+        lhs_sample = lhs(num_params, samples=num_samples)
+        #print(lhs_sample)
+
+        # Prepare to store sampled values
+        sampled_values = zeros((num_samples, num_params))
+        prob_densities = zeros((num_samples, num_params))
+        # Convert LHS samples to match the specified distributions
+        for i, (param, stats) in enumerate(GeneralDict.items()):
+            distribution_type = stats['Distribution_Function']
+            if distribution_type == 'Normal':
+                mean = 1
+                std_dev = stats['(%)']
+                # Convert uniform sample (lhs_sample) to normal distribution
+                sampled_values[:, i] = norm.ppf(lhs_sample[:, i], loc=mean, scale=std_dev)
+                #prob_densities[:, i] = self.calculate_probability_in_interval(sampled_values[:, i], stats)
+
+            elif distribution_type == 'Uniform':
+                lower = 1 - stats['(%)']
+                upper = 1 + stats['(%)']
+                # Scale LHS sample to the range of the uniform distribution
+                sampled_values[:, i] = uniform.ppf(lhs_sample[:, i], loc=lower, scale=upper - lower)
+                #prob_densities[:, i] = self.calculate_probability_in_interval(sampled_values[:, i], stats)
+                #prob_densities[:, i] = uniform.pdf(sampled_values[:, i], loc=lower, scale=upper - lower)
+            else:
+                raise ValueError(f"Unsupported distribution type: {distribution_type}")
+
+        # we need to do some further processing of the sampled values
+        # first all the values need to be subtracted by 1
+        sampled_values = sampled_values - 1
+        # then column names need to be added to the sampled values and the formate needs to be changed to a dataframe
+        sampled_values = pd.DataFrame(sampled_values, columns=list(GeneralDict.keys()))
+
+        # make the list of scenario names and probabilities
+        scenarioNames = []
+        for n in range(num_samples):
+            scenarioNames.append("sc{}".format(n + 1))
+        self.ScenarioNames = scenarioNames
+        # we assume that the probability of each scenario happening is equal
+        self.ScenarioProbabilities = [1 / num_samples for i in scenarioNames]
+        self.UncertaintyMatrix = sampled_values
+        print('\033[1;32;40m LHS, DONE \033[m')
+
+    def calculate_probability_in_interval(sel, data, metadata):
+        """
+        --------------------------------------------------------------------------------------------
+        # THIS FUNCTION NOT REALLY NEEDED, WE WILL ASSUME THAT THE PROBABILITY OF EACH SCENARIO HAPPENING IS EQUAL
+        --------------------------------------------------------------------------------------------
+
+        Calculate the probability of each value in a numpy array falling within the interval
+        [x - 0.001, x + 0.001], given a normal distribution defined by mean and std_dev.
+
+        Parameters:
+        - data: numpy array of values (one-dimensional)
+        - mean: mean of the normal distribution
+        - std_dev: standard deviation of the normal distribution
+
+        Returns:
+        - probabilities: numpy array of probabilities for each element in the input array
+        """
+        bin_width = 0.00001
+
+        if metadata['Distribution_Function'] == 'Normal':
+            mean, std_dev = 1, metadata['(%)']
+
+            # Calculate the CDF for the upper bound of the interval
+            upper_cdf = norm.cdf(data + bin_width, mean, std_dev)
+            # Calculate the CDF for the lower bound of the interval
+            lower_cdf = norm.cdf(data - bin_width, mean, std_dev)
+            # The probability of falling within the interval is the difference
+            probabilities = upper_cdf - lower_cdf
+
+        elif metadata['Distribution_Function'] == 'Uniform':
+            lower, upper = 1 - metadata['(%)'], 1 + metadata['(%)']
+            probabilities = (uniform.cdf(data + bin_width, loc=lower, scale=upper - lower)
+                             - uniform.cdf(data - bin_width, loc=lower, scale=upper - lower))
+
+        else:
+            raise ValueError(f"Unsupported distribution type: {metadata['Distribution_Function']}")
+
+
+        return probabilities
+
+
+    def make_scenario_dataframe_combinatorial(self):
         """
         This function makes a dataframe with all the scenarios and their values for each uncertain parameter
         :return: self.UncertaintyMatrix (dataframe)
