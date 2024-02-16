@@ -173,63 +173,71 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     obj.set_deltaUt(dict3)
 
 
-    # PARAMETERS FOR SPECIAL OPTIMIZATION MODES
-    # -----------------------------------------
-
-    if obj.optimization_mode == 'multi-objective':
-
-        MultiCriteriaRange = WF.convert_total('N', 32, 'P',34)
-        df9 = dfi.iloc [MultiCriteriaRange]
-
-        dict1 = {}
-        dict1[df9.iloc[0,0]] = (df9.iloc[0,1], df9.iloc[0,2])
-        dict1[df9.iloc[1,0]] = (df9.iloc[1,1], df9.iloc[1,2])
-        dict1[df9.iloc[2,0]] = (df9.iloc[2,1], df9.iloc[2,2])
-
-        obj.set_multiObjectives(dict1)
 
 
-    elif obj.optimization_mode == 'sensitivity':
+    # # PARAMETERS FOR SPECIAL OPTIMIZATION MODES
+    # # -----------------------------------------
 
-        SensitivityRange = WF.convert_total('S', 33, 'X',41)
-        df9 = dfi.iloc[SensitivityRange]
+    # added to separate python file (wrapp_parameters_optimisation_mode.py)
+    # functions called in this file:
+    # .src\outdoor\excel_wrapper\main.py
 
-        for i in range(len(df9)):
-            if not pd.isnull(df9.iloc[i,0]):
-
-                p_name = df9.iloc[i,0]
-                min_v = df9.iloc[i,2]
-                max_v = df9.iloc[i,3]
-                steps = df9.iloc[i,4]
-
-                if not pd.isnull(df9.iloc[i,1]):
-                    index =  df9.iloc[i,1]
-                else:
-                    index = None
-
-
-                obj.add_sensi_parameters(p_name, min_v, max_v, steps, index)
-
-    elif obj.optimization_mode == 'cross-parameter sensitivity':
-
-        SensitivityRange = WF.convert_total('S', 33, 'X',41)
-        df9 = dfi.iloc[SensitivityRange]
-
-        for i in range(2):
-            if not pd.isnull(df9.iloc[i,0]):
-
-                p_name = df9.iloc[i,0]
-                min_v = df9.iloc[i,2]
-                max_v = df9.iloc[i,3]
-                steps = df9.iloc[i,4]
-
-                if not pd.isnull(df9.iloc[i,1]):
-                    index =  df9.iloc[i,1]
-                else:
-                    index = None
+    # -----------------------------
+    #
+    # if obj.optimization_mode == 'multi-objective':
+    #
+    #     MultiCriteriaRange = WF.convert_total('N', 32, 'P',34)
+    #     df9 = dfi.iloc [MultiCriteriaRange]
+    #
+    #     dict1 = {}
+    #     dict1[df9.iloc[0,0]] = (df9.iloc[0,1], df9.iloc[0,2])
+    #     dict1[df9.iloc[1,0]] = (df9.iloc[1,1], df9.iloc[1,2])
+    #     dict1[df9.iloc[2,0]] = (df9.iloc[2,1], df9.iloc[2,2])
+    #
+    #     obj.set_multiObjectives(dict1)
 
 
-                obj.add_sensi_parameters(p_name, min_v, max_v, steps, index)
+    # elif obj.optimization_mode == 'sensitivity':
+    #
+    #     SensitivityRange = WF.convert_total('S', 33, 'X',41)
+    #     df9 = dfi.iloc[SensitivityRange]
+    #
+    #     for i in range(len(df9)):
+    #         if not pd.isnull(df9.iloc[i,0]):
+    #
+    #             p_name = df9.iloc[i,0]
+    #             min_v = df9.iloc[i,2]
+    #             max_v = df9.iloc[i,3]
+    #             steps = df9.iloc[i,4]
+    #
+    #             if not pd.isnull(df9.iloc[i,1]):
+    #                 index =  df9.iloc[i,1]
+    #             else:
+    #                 index = None
+    #
+    #
+    #             obj.add_sensi_parameters(p_name, min_v, max_v, steps, index)
+    #
+    # elif obj.optimization_mode == 'cross-parameter sensitivity':
+    #
+    #     SensitivityRange = WF.convert_total('S', 33, 'X',41)
+    #     df9 = dfi.iloc[SensitivityRange]
+    #
+    #     for i in range(2):
+    #         if not pd.isnull(df9.iloc[i,0]):
+    #     #
+    #     #             p_name = df9.iloc[i,0]
+    #     #             min_v = df9.iloc[i,2]
+    #     #             max_v = df9.iloc[i,3]
+    #     #             steps = df9.iloc[i,4]
+    #     #
+    #     #             if not pd.isnull(df9.iloc[i,1]):
+    #     #                 index =  df9.iloc[i,1]
+    #     #             else:
+    #     #                 index = None
+    #     #
+    #     #
+    #     #             obj.add_sensi_parameters(p_name, min_v, max_v, steps, index)
 
 
     return obj

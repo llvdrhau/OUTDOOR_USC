@@ -7,23 +7,23 @@ Created on Tue Jun 15 11:54:16 2021
 """
 
 from ...utils.timer import time_printer
-from pyomo.environ import *
-
-from .change_functions.utility_cost_changer import change_utility_costs
-from .change_functions.capital_cost_changer import change_capital_costs
-from .change_functions.concentration_demand_changer import (
-    change_concentration_demand,
-)
-from .change_functions.heat_demand_changer import change_heat_demand
-from .change_functions.source_cost_changer import (
-    change_source_costs,
-    change_product_price,
-)
-from .change_functions.opex_changer import change_opex_factor
-from .change_functions.simple_capex_changer import change_simple_capex
-
-
+#from pyomo.environ import *
 from numpy import linspace
+
+from .change_functions.parameter_changer_functions import * # contains all funcitions to change the parameters in the model instance called in change_parameter
+
+# from .change_functions.utility_cost_changer import change_utility_costs
+# from .change_functions.capital_cost_changer import change_capital_costs
+# from .change_functions.concentration_demand_changer import (
+#     change_concentration_demand,
+# )
+# from .change_functions.heat_demand_changer import change_heat_demand
+#
+# from .change_functions.opex_changer import change_opex_factor
+# from .change_functions.simple_capex_changer import change_simple_capex
+
+
+
 
 
 def calculate_sensitive_parameters(data_input):
@@ -31,73 +31,87 @@ def calculate_sensitive_parameters(data_input):
     value_dic = dict()
 
     for i in data_input:
-        start = i[1]
-        stop = i[2]
-        dx = i[3]
 
-        if len(i) == 4:
-            value_dic[i[0]] = list(linspace(start, stop, dx))
-        elif len(i) == 5:
-            try:
-                value_dic[i[0]][i[4]] = list(linspace(start, stop, dx))
-            except:
-                value_dic[i[0]] = {}
-                value_dic[i[0]][i[4]] = list(linspace(start, stop, dx))
+        paramName = i['Parameter_Type']
+        start = i['Lower_Bound']
+        stop = i['Upper_Bound']
+        dx = i['Number_of_steps']
+        metadata = i.iloc[1:5]
+        value_dic[paramName] = (list(linspace(start, stop, dx)), metadata)
+
+        # changed to dictionary to make it more readable
+        # if len(i) == 4:
+        #     value_dic[i[0]] = list(linspace(start, stop, dx))
+        # elif len(i) == 5:
+        #     try:
+        #         value_dic[i[0]][i[4]] = list(linspace(start, stop, dx))
+        #     except:
+        #         value_dic[i[0]] = {}
+        #         value_dic[i[0]][i[4]] = list(linspace(start, stop, dx))
 
     return value_dic
 
 
 def error_func(*args):
-    raise ValueError("Parameter not in Variation Parameter set")
+    raise ValueError("Parameter {} not in Variation Parameter set".format(args[-1]))
 
 
-def change_parameter(Instance, parameter, value, index=None, superstructure=None):
+def change_parameter(Instance, parameter, value, metadata=None, superstructure=None):
     timer = time_printer(programm_step = 'Change parameter')
+
     function_dictionary = {
-        "electricity_price": change_utility_costs,
-        "chilling_price": change_utility_costs,
-        "capital_costs": change_capital_costs,
-        "component_concentration": change_concentration_demand,
-        "heating_demand": change_heat_demand,
-        "source_costs": change_source_costs,
-        "opex": change_opex_factor,
-        "simple_capex": change_simple_capex,
-        "product_price": change_product_price,
+        # these are also parameters that can be changed in the stochastic mode
+        'Split factors (myu)': change_myu_parameter,
+        'Feed Composition (phi)': change_phi_parameter,
+        'Conversion factor (theta)': change_theta_parameter,
+        'Stoichiometric factor (gamma)': change_stoich_parameter,
+        'Yield factor (xi)': change_xi_parameter,
+        'Costs (materialcosts)': change_material_costs,
+        'Price (ProductPrice)': change_product_price,
+        # TODO add these parameters to the change_parameter function and to stochastic mode!!
+        "Electricity price (delta_ut)": change_utility_costs,
+        "Chilling price (delta_ut)": change_utility_costs,
+
+        #"Heating price super (delta_q)": change_heat_costs,
+        #"Heating price high (delta_q)": change_heat_costs,
+        # "Heating price medium (delta_q)": change_heat_costs,
+        # "Heating price low (delta_q)": change_heat_costs,
+
+        # "capital_costs": change_capital_costs,
+        # "component_concentration": change_concentration_demand,
+        # "heating_demand": change_heat_demand,
+        # "opex": change_opex_factor,
+        # "simple_capex": change_simple_capex,
+        # "product_price": change_product_price,
     }
 
-    function_dictionary.get(parameter, error_func)(
-        Instance, parameter, value, index, superstructure
-    )
-    timer = time_printer(timer, 'Change parameter')
+    function_dictionary.get(parameter, error_func)(Instance, value, metadata, superstructure, parameter)
+    #timer = time_printer(timer, 'Change parameter')
     return Instance
 
 
 def prepare_mutable_parameters(ModelInstance, input_data):
     def set_mutable(instance, parameter):
-        if parameter == "electricity_price" or parameter == "chilling_price":
-            instance.delta_ut._mutable = True
-        elif parameter == "working_hours":
-            instance.flh._mutable = True
-        elif parameter == "capital_costs" or parameter == "simple_capex":
+        # for parameters where more than 1 model.parameter is changed at the same time
+        if parameter == "Reference Capital costs (C_Ref)":
             instance.lin_CAPEX_x._mutable = True
             instance.lin_CAPEX_y._mutable = True
-        elif parameter == "component_concentration":
-            instance.conc._mutable = True
-        elif parameter == "heating_demand":
+        elif parameter == "Heating demand (tau_h)":
             instance.tau_h._mutable = True
             instance.tau_c._mutable = True
-        elif parameter == "source_costs":
-            instance.materialcosts._mutable = True
-        elif parameter == "opex":
-            instance.K_OM._mutable = True
-        elif parameter == "product_price":
-            instance.ProductPrice._mutable = True
-        else:
-            raise ValueError("Parameter {} to set mutable not existing".format(parameter))
+
 
     for i in input_data:
-        name = i[0]
-        set_mutable(ModelInstance, name)
+        param_name = i.iloc[0]
+        if param_name == "Reference Capital costs (C_Ref)" or param_name == "Heating demand (tau_h)":
+            # if more than one parameter is changed at the same time, we need to set them mutable using the
+            # set_mutable function
+            set_mutable(ModelInstance, param_name)
+        else:
+            param_id = param_name.split("(")[-1][0:-1] # Get the parameter name in between the brackets
+            param = getattr(ModelInstance, param_id)  # Dynamically access the parameter
+            # change the parameter to mutable
+            param._mutable = True
 
     return ModelInstance
 

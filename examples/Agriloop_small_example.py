@@ -48,8 +48,8 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
 model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_VSS=True,
-                                                         calculation_EVPI=True,
+                                                         calculation_VSS=False,
+                                                         calculation_EVPI=False,
                                                          options=solverOptions,)
 
 current, peak = tracemalloc.get_traced_memory()

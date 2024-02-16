@@ -307,7 +307,6 @@ def wrapp_AdditivesData(obj,df1, df2, df3):
     obj.set_connections(connections)
 
 
-
 def wrapp_EconomicData(obj, df, df2):
 
     """
@@ -415,7 +414,6 @@ def wrapp_ProductpoolData(obj, series):
 
     obj.set_freshwaterCredits(FreshWaterCredits)
 
-
 def wrapp_SourceData(obj, series, df, counter):
 
     dic = {}
@@ -462,5 +460,4 @@ def wrapp_DistributorData(obj, series, df, counter) :
     targets_list = WF.read_list_new(df, counter, Start=3, )
 
     obj.set_targets(targets_list)
-
 

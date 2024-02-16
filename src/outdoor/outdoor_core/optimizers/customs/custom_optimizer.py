@@ -83,9 +83,7 @@ class SensitivityOptimizer(SingleOptimizer):
         self.sensi_data = sensi_data
         self.superstructure = superstructure
 
-        self.single_optimizer = SingleOptimizer(
-            solver_name, solver_interface, solver_options
-        )
+        self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
 
     def run_optimization(self, model_instance,
                          optimization_mode = None,
@@ -96,44 +94,21 @@ class SensitivityOptimizer(SingleOptimizer):
                          count_variables_constraints = False):
 
         timer1 = time_printer(programm_step="Sensitivity optimization")
-        self.sensi_data = calculate_sensitive_parameters(self.sensi_data)
+        sensi_data_Dict_lists = calculate_sensitive_parameters(self.sensi_data)
         initial_model_instance = model_instance.clone()
         timer = time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
         model_output = MultiModelOutput(optimization_mode="sensitivity")
 
-        for i, k in self.sensi_data.items():
-            if type(k) is dict:
-                dic = k
-                for j, k2 in dic.items():
-                    value_list = k2
-                    for l in value_list:
+        for parameterName, (value_list, metadata) in sensi_data_Dict_lists.items():
+            for val in value_list:
+                model_instance = change_parameter(model_instance, parameterName, val, metadata)
 
-                        model_instance = change_parameter(
-                            model_instance, i, l, j, self.superstructure
-                        )
+                single_solved = self.single_optimizer.run_optimization(model_instance)
 
-                        single_solved = self.single_optimizer.run_optimization(
-                            model_instance
-                        )
-                        single_solved._tidy_data()
-                        model_output.add_process((i, j, l), single_solved)
+                single_solved._tidy_data()
+                model_output.add_process((parameterName, val), single_solved)
 
-                    model_instance = initial_model_instance
-
-            else:
-                value_list = k
-                for l in value_list:
-
-                    model_instance = change_parameter(model_instance, i, l)
-
-                    single_solved = self.single_optimizer.run_optimization(
-                        model_instance
-                    )
-
-                    single_solved._tidy_data()
-                    model_output.add_process((i, l), single_solved)
-
-                model_instance = initial_model_instance
+            model_instance = initial_model_instance
 
         model_output.set_sensitivity_data(self.sensi_data)
 

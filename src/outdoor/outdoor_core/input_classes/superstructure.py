@@ -69,15 +69,20 @@ class Superstructure():
                                       'cross-parameter sensitivity',
                                       '2-stage-recourse'}
 
-        self.SENSITIVE_PARAMETERS_SET = {'electricity_price',
-                                         'heat_price',
-                                         'capital_costs',
-                                         'heating_demand',
-                                         'component_concentration',
-                                         'source_costs',
-                                         'opex',
-                                         'simple_capex',
-                                         'product_price'}
+        self.SENSITIVE_PARAMETERS_SET = {"Split factors (myu)",
+                                        "Feed Composition (phi)",
+                                        "Conversion factor (theta)",
+                                        "Stoichiometric factor (gamma)",
+                                        "Yield factor (xi)",
+                                        "Costs (materialcosts)",
+                                        "Price (ProductPrice)",
+                                        "Electricity price (delta_ut)",
+                                        "Chilling price (delta_ut)",
+                                        "Heating demand (tau_h)",
+                                        "Electricity demand (tau)",
+                                        "Reference Capital costs (C_Ref)",
+                                        "Component concentration (conc)",
+                                        "Operating and maintenance (K_OM)"}
 
 
 
@@ -593,17 +598,17 @@ class Superstructure():
                              min_value = 0,
                              max_value = 0,
                              steps = 0,
-                             index = None):
+                             metadata = None):
 
         if parameter_name in self.SENSITIVE_PARAMETERS_SET:
-            if index is None:
+            if metadata is None:
                 self.sensitive_parameters.append(
                     (parameter_name,min_value,max_value,steps))
             else:
                 self.sensitive_parameters.append(
-                    (parameter_name,min_value,max_value,steps,index))
+                    (parameter_name,min_value,max_value,steps,metadata))
         else:
-            raise ValueError('Parameter Name is not valid for sensitivity analyis')
+            raise ValueError('Parameter Name {} is not valid for sensitivity analyis'.format(parameter_name))
 
 
 #------------------------------------------------------------------------------
@@ -1321,9 +1326,6 @@ class Superstructure():
 
 
         return newDict
-
-
-
 
 
     def set_uncertainty_data(self, uncertaintyObject):

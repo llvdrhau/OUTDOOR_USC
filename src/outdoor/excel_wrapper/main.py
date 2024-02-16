@@ -19,7 +19,7 @@ from ..outdoor_core.utils.timer import time_printer
 
 from .wrapp_system import wrapp_SystemData
 
-from .wrapp_stochastic_data import wrapp_stochastic_data
+from .wrapp_parameters_optimisation_mode import wrapp_stochastic_data, wrapp_sensitivty_data, wrapp_multi_objective_data
 
 from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progress_bar
 
@@ -73,6 +73,7 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
     Hidden_Tables.append('Component Databases')
     Hidden_Tables.append('Uncertainty_test_idea')
     Hidden_Tables.append('Uncertainty_old')
+    # Hidden_Tables.append('Sensitivity')
 
     number_of_processes = len(dataframe.keys()) - len(Hidden_Tables)
     count = 0
@@ -90,6 +91,9 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
             continue
 
         elif i == 'Uncertainty':
+            continue
+
+        elif i == 'Sensitivity':
             continue
 
         elif i == "Pools":
@@ -134,6 +138,14 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
         Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
+    elif _optimization_mode == 'sensitivity':
+        # collect the sensitivity data & automatically add it to the Superstructure_Object
+        wrapp_sensitivty_data(Superstructure_Object, dataframe['Sensitivity'])
+
+    elif _optimization_mode == 'multi-objective':
+        # collect the multi-objective data & automatically add it to the Superstructure_Object
+        wrapp_multi_objective_data(Superstructure_Object, dataframe['Systemblatt'])
 
     return Superstructure_Object
 
