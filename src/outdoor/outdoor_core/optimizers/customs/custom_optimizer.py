@@ -96,12 +96,16 @@ class SensitivityOptimizer(SingleOptimizer):
         timer1 = time_printer(programm_step="Sensitivity optimization")
         sensi_data_Dict_lists = calculate_sensitive_parameters(self.sensi_data)
         initial_model_instance = model_instance.clone()
-        timer = time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
+        time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
         model_output = MultiModelOutput(optimization_mode="sensitivity")
+
+        superstructureData = self.superstructure
 
         for parameterName, (value_list, metadata) in sensi_data_Dict_lists.items():
             for val in value_list:
-                model_instance = change_parameter(model_instance, parameterName, val, metadata)
+                model_instance = change_parameter(Instance=model_instance,
+                                                  parameter=parameterName, value=val, metadata=metadata,
+                                                  superstructure= superstructureData)
 
                 single_solved = self.single_optimizer.run_optimization(model_instance)
 

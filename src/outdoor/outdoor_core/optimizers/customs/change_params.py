@@ -53,11 +53,11 @@ def calculate_sensitive_parameters(data_input):
 
 
 def error_func(*args):
-    raise ValueError("Parameter {} not in Variation Parameter set".format(args[-1]))
+    raise ValueError("Parameter {} not in Variation Parameter set deffining all changer functions".format(args[-1]))
 
 
 def change_parameter(Instance, parameter, value, metadata=None, superstructure=None):
-    timer = time_printer(programm_step = 'Change parameter')
+    timer = time_printer(programm_step = 'Changing parameter {}'.format(parameter))
 
     function_dictionary = {
         # these are also parameters that can be changed in the stochastic mode
@@ -68,16 +68,26 @@ def change_parameter(Instance, parameter, value, metadata=None, superstructure=N
         'Yield factor (xi)': change_xi_parameter,
         'Costs (materialcosts)': change_material_costs,
         'Price (ProductPrice)': change_product_price,
-        # TODO add these parameters to the change_parameter function and to stochastic mode!!
+
         "Electricity price (delta_ut)": change_utility_costs,
         "Chilling price (delta_ut)": change_utility_costs,
 
-        #"Heating price super (delta_q)": change_heat_costs,
-        #"Heating price high (delta_q)": change_heat_costs,
-        # "Heating price medium (delta_q)": change_heat_costs,
-        # "Heating price low (delta_q)": change_heat_costs,
+        "Heating price super (delta_q)": change_heat_costs,
+        "Heating price high (delta_q)": change_heat_costs,
+        "Heating price medium (delta_q)": change_heat_costs,
+        "Heating price low (delta_q)": change_heat_costs,
 
-        # "capital_costs": change_capital_costs,
+        'Heating demand 1 (tau_h)': change_heating_demand,
+        'Heating demand 2 (tau_h)': change_heating_demand,
+        'Electricity demand (tau)': change_utility_demand,
+        'Chilling demand (tau)': change_utility_demand,
+
+        'Component concentration (conc)': change_concentration_demand,
+        'Reference Capital costs (C_Ref)': change_capital_costs,
+        'Operating and maintenance (K_OM)': change_opex_factor,
+        # TODO add these parameters to the change_parameter function and to stochastic mode!!
+
+
         # "component_concentration": change_concentration_demand,
         # "heating_demand": change_heat_demand,
         # "opex": change_opex_factor,
@@ -99,6 +109,7 @@ def prepare_mutable_parameters(ModelInstance, input_data):
         elif parameter == "Heating demand (tau_h)":
             instance.tau_h._mutable = True
             instance.tau_c._mutable = True
+            instance.tau._mutable = True
 
 
     for i in input_data:

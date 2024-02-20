@@ -6,8 +6,8 @@ Created on Wed Jan 26 15:12:24 2022
 @author: philippkenkel
 """
 import cloudpickle as pic
-import os
-import sys
+# import os
+# import sys
 # import pickle5 as pic5
 import time
 import copy
@@ -15,6 +15,7 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
+import datetime
 
 
 class AdvancedMultiModelAnalyzer:
@@ -33,6 +34,7 @@ class AdvancedMultiModelAnalyzer:
     """
     def __init__(self, model_output=None):
         self.model_output = copy.deepcopy(model_output)
+        self._case_time = datetime.datetime.now()
 
     # INPUT METHODS
     # -------------
@@ -203,7 +205,7 @@ class AdvancedMultiModelAnalyzer:
     # ANALYSIS METHODS FOR SENSITIVTY MODE
     # ------------------------------------
 
-    def _collect_sensi_data(self):
+    def _collect_sensi_data(self, objectiveParameter):
         """
 
         Returns
@@ -225,18 +227,20 @@ class AdvancedMultiModelAnalyzer:
             if titel not in data.keys():
                 data[titel] = [[], []]
                 x = i[-1]
-                y = round(j._data["NPC"], 2)
+                y = round(j._data[objectiveParameter], 2)
                 data[titel][0].append(x)
                 data[titel][1].append(y)
             else:
                 x = i[-1]
-                y = round(j._data["NPC"], 2)
+                y = round(j._data[objectiveParameter], 2)
                 data[titel][0].append(x)
                 data[titel][1].append(y)
 
         return data
 
-    def create_sensitivity_graph(self, savePath=None):
+    import matplotlib.pyplot as plt
+
+    def create_sensitivity_graph(self, savePath=None, saveName=None ,figureMode='subplot'):
         """
         Returns
         -------
@@ -247,47 +251,116 @@ class AdvancedMultiModelAnalyzer:
         Collects data for sensitivity graph by calling _collect_sensi_data
         and creates matplotlib graph to display.
 
+        Parameters
+        ----------
+        savePath : str, optional
+            The path where to save the figure.
+        figureMode : str, optional
+            The mode of the figure. Can be 'subplot' for individual subplots for each dataset,
+            or 'single' for all datasets plotted on a single graph.
         """
 
-        if self.model_output._optimization_mode == "Sensitivity analysis":
+        if self.model_output._optimization_mode != "sensitivity":
+            print("Sensitivity graph presentation only available for Sensitivity analysis mode")
+            return
 
-            data = self._collect_sensi_data()
+        ylabDict = {"NPC": "Net production costs in €/t",
+                    "NPE": "Net production emmisions in t-CO2/t",
+                    "NPFWD": "Fresh Water usage in t-H2O/t",
+                    "EBIT": "Net profits in M€"}
 
-            len_ = len(data)
+        objectiveName = self.model_output._meta_data["Objective Function"]
 
+        ylab = ylabDict[objectiveName]
+
+        data = self._collect_sensi_data(objectiveParameter=objectiveName)
+
+        if figureMode == 'subplot':
             fig = plt.figure()
-
-            count = 1
-
-            for i, j in data.items():
-
-                x_vals = j[0]
-                y_vals = j[1]
-                titel = i
-
-                ax = fig.add_subplot(len_, 1, count)
-
-                ax.set_xlabel(titel)
-                ax.set_ylabel("Net production costs in €/t")
-
+            for count, (title, (x_vals, y_vals)) in enumerate(data.items(), start=1):
+                ax = fig.add_subplot(len(data), 1, count)
                 ax.plot(x_vals, y_vals, linestyle="--", marker="o")
+                ax.set_xlabel(title)
+                ax.set_ylabel(ylab)
+        elif figureMode == 'single':
+            fig, ax = plt.subplots()  # Create a single figure and axes for plotting
+            for title, (x_vals, y_vals) in data.items():
+                x_discreet = list(range(len(x_vals)))
+                ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
+                ax.set_xlabel("Discritised Parameter Values")
+                ax.set_ylabel(ylab)
 
-                count += 1
-            fig.tight_layout()
+            # Place the legend outside the plot on the right side
+            ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-
-            if savePath is not None:
-                fig.savefig(savePath + '/sensitivity_graph.png')
-
-            return fig
+            plt.tight_layout()  # Adjust the layout to make room for the legend
         else:
-            print(
-                "Sensitivity graph presentation only available for  \
-                  Sensitivity analysis mode"
-            )
+            raise ValueError("Invalid figureMode. Choose either 'subplot' or 'single'.")
 
-        # DESIGN SCREENING ALGORITHM METHODS
-        # ---------------------------------
+        fig.tight_layout()
+
+        if savePath is not None:
+            if saveName is not None:
+                saveString = savePath + "/" + saveName + ".png"
+            else:
+                saveString = savePath + "/" + "sensitivity_graph_" + self._case_time[0:13] + ".png"
+
+            fig.savefig(saveString)
+
+        return fig
+
+    # def create_sensitivity_graph(self, savePath=None, figureMode = 'subplot'):
+    #     """
+    #     Returns
+    #     -------
+    #     fig : MATPLOTLIB FIGURE
+    #
+    #     Description
+    #     -----------
+    #     Collects data for sensitivity graph by calling _collect_sensi_data
+    #     and creates matplotlib graph to display.
+    #
+    #     """
+    #
+    #     if self.model_output._optimization_mode == "sensitivity":
+    #
+    #         data = self._collect_sensi_data()
+    #
+    #         len_ = len(data)
+    #
+    #         fig = plt.figure()
+    #
+    #         count = 1
+    #
+    #         for i, j in data.items():
+    #
+    #             x_vals = j[0]
+    #             y_vals = j[1]
+    #             titel = i
+    #
+    #             ax = fig.add_subplot(len_, 1, count)
+    #
+    #             ax.set_xlabel(titel)
+    #             ax.set_ylabel("Net production costs in €/t")
+    #
+    #             ax.plot(x_vals, y_vals, linestyle="--", marker="o")
+    #
+    #             count += 1
+    #         fig.tight_layout()
+    #
+    #
+    #         if savePath is not None:
+    #             fig.savefig(savePath + '/sensitivity_graph.png')
+    #
+    #         return fig
+    #     else:
+    #         print(
+    #             "Sensitivity graph presentation only available for  \
+    #               Sensitivity analysis mode"
+    #         )
+    #
+    #     # DESIGN SCREENING ALGORITHM METHODS
+    #     # ---------------------------------
 
     def _get_contour_numbers(self, process_design, plist):
         """

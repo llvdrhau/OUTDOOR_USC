@@ -30,6 +30,7 @@ Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESC
 Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\single"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\stochastic"
 
+
 # chose optimization mode
 # "Single run optimization", = 'single'
 # "Multi-criteria optimization", = 'multi'

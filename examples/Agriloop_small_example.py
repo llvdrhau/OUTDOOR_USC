@@ -29,6 +29,8 @@ Excel_Path = "Excel_files/Test_case_study_Biorefinery.xlsm"
 Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test"
 Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\single"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\stochastic"
+Results_Path_sensitivity = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\Agriloop_test\sensitivity"
+
 
 # create the superstructure data from the Excel file and
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path)
@@ -75,8 +77,13 @@ elif model_output._optimization_mode == "2-stage-recourse":  # single run optimi
     # create the flow sheets of the superstructure and the optimized flow sheet
     analyzer.create_flowsheet(path=Results_Path_stochatic)
 
-    # todo
-    # new uncertainty framework for ESCAPE 34
-    # add LHS to the mix
+elif model_output._optimization_mode == "sensitivity":  # single run optimization
 
-    #model_output.plot_scenario_analysis(variable="EBIT", savePath=Results_Path_stochatic)
+    model_output.get_results(savePath=Results_Path_sensitivity, pprint=False)
+    # make an analysis of the results by creating the analysis object and calling the method
+    analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
+    fig = analyzer.create_sensitivity_graph(savePath=Results_Path_sensitivity,
+                                            saveName="sensitivity_part2",
+                                            figureMode="single")
+
+

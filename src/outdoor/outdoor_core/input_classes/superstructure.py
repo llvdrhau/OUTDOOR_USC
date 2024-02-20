@@ -679,6 +679,8 @@ class Superstructure():
         after Superstructure Construction in order to create Temperature Grid
 
         """
+        # create a dictionary with all the parameters and the corresponding prices
+        dictTempPrices = {'super': 0, 'high': 0, 'medium': 0, 'low': 0}
 
         for i in self.UnitsList:
             if i.Number in self.CostUnitsList['U_C']:

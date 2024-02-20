@@ -115,6 +115,12 @@ class MultiModelOutput:
         self._meta_data["Identifier"] = str(datetime.datetime.now())[0:19]
         self._meta_data["Total run time"] = total_run_time
 
+        # get the objective function
+        firstKey = list(self._results_data.keys())[0]
+        resultsFirstRun = self._results_data[firstKey]
+        Objective = resultsFirstRun._data['Objective Function']
+        self._meta_data["Objective Function"] = Objective
+
     def _collect_results(self):
         results = dict()
 

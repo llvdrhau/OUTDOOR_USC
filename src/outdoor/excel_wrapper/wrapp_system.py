@@ -166,13 +166,16 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     liste1 = WF.read_list(df8,0)
     liste2 = WF.read_list(df8,1)
 
+    dictTemperaturePrices = {'super': df8.iloc[0,1],
+                             'high': df8.iloc[1,1],
+                             'medium': df8.iloc[2,1],
+                             'low': df8.iloc[3,1]}
 
+    obj.temperaturePricesDict = dictTemperaturePrices
     obj.set_heatUtilities(liste1, liste2)
 
     dict3 = WF.read_type1(df2,0,1)
     obj.set_deltaUt(dict3)
-
-
 
 
     # # PARAMETERS FOR SPECIAL OPTIMIZATION MODES
