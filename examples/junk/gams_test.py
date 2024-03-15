@@ -62,8 +62,6 @@ opt = po.SolverFactory(solvername)
 model.pprint()
 results = opt.solve(model, keepfiles=True, tee=True)
 
-
-
 for v in model.component_objects(ctype=pyo.Var):
     for index in v:
         print('{0} = {1}'.format(v[index], pyo.value(v[index])))

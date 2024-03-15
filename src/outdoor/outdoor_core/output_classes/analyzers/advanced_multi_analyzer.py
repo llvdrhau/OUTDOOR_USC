@@ -278,17 +278,26 @@ class AdvancedMultiModelAnalyzer:
         if figureMode == 'subplot':
             fig = plt.figure()
             for count, (title, (x_vals, y_vals)) in enumerate(data.items(), start=1):
-                ax = fig.add_subplot(len(data), 1, count)
-                ax.plot(x_vals, y_vals, linestyle="--", marker="o")
-                ax.set_xlabel(title)
-                ax.set_ylabel(ylab)
+                if max(y_vals) == min(y_vals):
+                    # skip the graph if all values are the same
+                    continue
+                else:
+                    ax = fig.add_subplot(len(data), 1, count)
+                    ax.plot(x_vals, y_vals, linestyle="--", marker="o")
+                    ax.set_xlabel(title)
+                    ax.set_ylabel(ylab)
+
         elif figureMode == 'single':
             fig, ax = plt.subplots()  # Create a single figure and axes for plotting
             for title, (x_vals, y_vals) in data.items():
-                x_discreet = list(range(len(x_vals)))
-                ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
-                ax.set_xlabel("Discritised Parameter Values")
-                ax.set_ylabel(ylab)
+                if max(y_vals) == min(y_vals):
+                    # skip the graph if all values are the same
+                    continue
+                else:
+                    x_discreet = list(range(len(x_vals)))
+                    ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
+                    ax.set_xlabel("Discritised Parameter Values")
+                    ax.set_ylabel(ylab)
 
             # Place the legend outside the plot on the right side
             ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
