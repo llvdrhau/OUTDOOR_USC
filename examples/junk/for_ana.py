@@ -11,6 +11,11 @@ model.glucose_use = Var(within=NonNegativeReals)
 model.fructose_use = Var(within=NonNegativeReals)
 model.reactor1_ethanol = Var(within=NonNegativeReals)
 model.reactor2_ethanol = Var(within=NonNegativeReals)
+model.money = Var(within=NonNegativeReals)
+model.reactor1_energy_consumption = Var(within=NonNegativeReals)
+model.reactor2_energy_consumption = Var(within=NonNegativeReals)
+model.energy_cost = Var(within=NonNegativeReals)
+
 
 # Bolean variables
 model.glucose_choice = Var(within=Binary)
@@ -23,6 +28,11 @@ model.reactor1_yield_glucose = Param(initialize=0.5)  # Yield of glucose in reac
 model.reactor1_yield_fructose = Param(initialize=0.6) # Yield of fructose in reactor 1
 model.reactor2_yield_glucose = Param(initialize=0.25) # Yield of glucose in reactor 2
 model.reactor2_yield_fructose = Param(initialize=0.3) # Yield of fructose in reactor 2
+model.reactor1_energy=Param(initialize=0.3) # Energy consumed per kg of input in reactor 1
+model.reactor2_energy=Param(initialize=5) # Energy consumed per kg of input in reactor 2
+model.prize_energy=Param(initialize=0.01) # Energy prize
+model.prize_kg=Param(initialize=100) # Money earned per kg of output
+
 
 # Constraints
 # define the constraints for the boolean variables
@@ -36,6 +46,18 @@ model.mass_balance_reactor1 = Constraint(expr=model.reactor1_ethanol == model.re
 
 model.mass_balance_reactor2 = Constraint(expr=model.reactor2_ethanol == model.reactor2_choice *(model.glucose_use* model.reactor2_yield_glucose
                                               + model.fructose_use * model.reactor2_yield_fructose))
+
+model.reactor1_energy_balance = Constraint(expr=model.reactor1_energy_consumption == (model.glucose_use+model.fructose_use)* model.reactor1_energy*model.reactor1_choice)
+
+model.reactor2_energy_balance = Constraint(expr=model.reactor2_energy_consumption == (model.glucose_use+model.fructose_use)* model.reactor2_energy*model.reactor2_choice)
+
+model.reactor_energy_cost = Constraint(expr=model.energy_cost ==
+                                            (model.reactor1_energy_consumption + model.reactor2_energy_consumption)*
+                                       model.prize_energy)
+
+model.profit=Constraint(expr= model.money ==
+                             (model.reactor1_ethanol + model.reactor2_ethanol)* model.prize_kg -
+                             (model.glucose_use+model.fructose_use)* model.energy_cost)
 
 
 
@@ -51,7 +73,7 @@ model.fructose_usage = Constraint(expr=model.fructose_use <= model.fructose_choi
 # model.reactor2_usage = Constraint(expr=model.reactor2_ethanol <= model.reactor2_choice * BigM)
 
 # write objective of the optimization problem
-model.objective = Objective(expr=model.reactor1_ethanol + model.reactor2_ethanol, sense=maximize)
+model.objective = Objective(expr=model.money, sense=maximize)
 
 
 solvername = 'gams'
