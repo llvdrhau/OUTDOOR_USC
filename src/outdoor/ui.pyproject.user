@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 12.0.2, 2024-03-13T15:25:46. -->
+<!-- Written by QtCreator 12.0.2, 2024-03-14T10:48:58. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -150,10 +150,8 @@
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/misc/git/outdoor/OUTDOOR_USC/src/outdoor/ui/outdoor.py</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
     <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{19859727-59c1-43df-9f60-7a3f40bca9c6}</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">/home/misc/git/outdoor/OUTDOOR_USC/src/outdoor/ui/outdoor.py</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/misc/git/outdoor/OUTDOOR_USC/src/outdoor/ui</value>
     <value type="QString" key="RunConfiguration.X11Forwarding">:0</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
