@@ -115,7 +115,6 @@ class SensitivityOptimizer(SingleOptimizer):
             model_instance = initial_model_instance
 
         model_output.set_sensitivity_data(self.sensi_data)
-
         timer = time_printer(timer1, "Sensitivity optimization")
         model_output.fill_information(timer)
         return model_output

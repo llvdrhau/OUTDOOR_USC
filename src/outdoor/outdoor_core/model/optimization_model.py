@@ -551,7 +551,7 @@ class SuperstructureModel(AbstractModel):
                 )
             elif self.kappa_2_ut[u, ut] == 5:
                 return self.REF_FLOW_UT[u, ut] == sum(
-                    0.000277
+                    0.000277   # MWh/MJ conversion factor (1/3600) => uc parameter in thesis Phiilpp Kenkel
                     * self.CP[i]
                     * self.FLOW_IN[u, i]
                     * self.kappa_1_ut[u, ut, i]
