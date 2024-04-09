@@ -6,4 +6,4 @@ At the command line::
 
     pip install outdoor
 
-I will change this to check i it works
+I will change this to check if it works
