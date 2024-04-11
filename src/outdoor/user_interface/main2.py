@@ -13,6 +13,9 @@ from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QTableWidget, QPushButton, QLabel
 
 import sys
+import copy
+
+
 
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
@@ -278,7 +281,7 @@ class ComponentsTab(QWidget):
         tableData = self.collectData()
 
         # Save the data to the central data manager
-        self.centralDataManager.addData("componentsData", tableData)
+        self.centralDataManager.addData("chemicalComponentsData", tableData)
 
         # Change the border of OK button to green
         # self.okButton.setStyleSheet("border: 2px solid green;")
@@ -1200,11 +1203,11 @@ class MovableIcon(QGraphicsObject):
             nonesentialParameters = ['minProduction', 'maxProduction']
 
         elif self.icon_type == 'physical_process':
-            dialog = PhysicalProcessesDialog(initialData=existingData)
+            dialog = PhysicalProcessesDialog(initialData=existingData, centralDataManager=self.centralDataManager)
             nonesentialParameters = []
 
         elif self.icon_type == 'stoichiometric_reactor':
-            dialog = StoichiometricReactorDialog(initialData=existingData)
+            dialog = StoichiometricReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
             nonesentialParameters = []
 
         # elif self.icon_type == 'generator_elec':
@@ -1260,10 +1263,18 @@ class CentralDataManager:
     """
     def __init__(self):
         self.data = {}  # Dictionary to store data indexed by icon ID
+        self.namesChemicalComponents = []  # list to store chemical components data
 
     def addData(self, field, data):
         self.data[field] = data
 
+        if field == 'chemicalComponentsData':
+            for species in data:
+                if species[0] not in self.namesChemicalComponents:
+                    self.namesChemicalComponents.append(species[0]) # Add the species name to the list of chemical components
+
+    def getChemicalComponentNames(self):
+        return self.namesChemicalComponents
     def addComponentData(self, data):
         """
         Handels the data form the components tab (see class XXX todo give name of class)
@@ -1854,7 +1865,7 @@ class PhysicalProcessesDialog(QDialog):
     set the name, processing group, reference flow, and exponent. The user can set the reference flow and exponent as
     floating-point numbers. The processing group and name are text fields.
     """
-    def __init__(self, initialData):
+    def __init__(self, initialData, centralDataManager):
         super().__init__()
         # Set style (existing style setup is fine and will be applied)
         # set style
@@ -1894,6 +1905,7 @@ class PhysicalProcessesDialog(QDialog):
                                                        selection-background-color: #b0daff;
                                                    }
                                                """)
+        self.centralDataManager = centralDataManager
 
         self.setWindowTitle("Physical Processes Parameters")
         self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
@@ -1901,8 +1913,9 @@ class PhysicalProcessesDialog(QDialog):
         self.subtitleFont = QFont("Arial", 9, QFont.Bold)
 
         tabWidget = QTabWidget(self)
-        tabWidget.addTab(self._createGeneralParametersTab(), "General Factors")
-        tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Factors")
+        tabWidget.addTab(self._createGeneralParametersTab(), "General Parameters")
+        tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")
+        tabWidget.addTab(self._createEnergyConsumptionTab(), "Energy Consumption Parameters")
         # You can add more tabs as needed...
 
         layout = QVBoxLayout(self)
@@ -1924,6 +1937,9 @@ class PhysicalProcessesDialog(QDialog):
         if initialData:
             self.populateDialog(initialData)
 
+        self.setFocusPolicy(Qt.StrongFocus)
+
+
     def _createGeneralParametersTab(self):
         # General Factors Tab
         widget = QWidget()
@@ -1936,11 +1952,15 @@ class PhysicalProcessesDialog(QDialog):
 
         # Name input
         self.nameInput = QLineEdit(self)
+        # set object name
+        self.nameInput.setObjectName("nameInput")
         self._addRowWithTooltip(layout, "Name:", self.nameInput,
                                 "This is the name of the unit process.")
 
         # Processing Group input
         self.processingGroupInput = QLineEdit(self)
+        # set object name
+        self.processingGroupInput.setObjectName("processingGroupInput")
         tooltipText = """This parameter is used to group processes together that must be activated if one of the
         technologies from the group is chosen. the group is used to group processes that are mutually exclusive. This
         parameters is indicated by a number."""
@@ -1951,6 +1971,8 @@ class PhysicalProcessesDialog(QDialog):
         # Life time Unit process
         self.lifeTimeUnitProcess = QLineEdit(self)
         self.lifeTimeUnitProcess.setText("20")  # Replace "Your Start Value" with the value you want to set
+        # set object name
+        self.lifeTimeUnitProcess.setObjectName("lifeTimeUnitProcess")
         tooltipText = """The life time of the unit process in years."""
         self._addRowWithTooltip(layout, labelText="Life Time Unit Process (years):", widget=self.lifeTimeUnitProcess,
                                 tooltipText=tooltipText)
@@ -1960,12 +1982,15 @@ class PhysicalProcessesDialog(QDialog):
         # working hours per year
         self.fullLoadingHours = QLineEdit(self)
         self.fullLoadingHours.setText("8000")  # Replace "Your Start Value" with the value you want to set
+        self.fullLoadingHours.setObjectName("fullLoadingHours") # set object name
         tooltipText = """The working hours per year of the unit process."""
         self._addRowWithTooltip(layout, labelText="Working Hours per Year:", widget=self.fullLoadingHours, tooltipText=tooltipText)
 
 
         # CO2 Emissions for Building
         self.co2EmissionsBuilding = QLineEdit(self)
+        self.co2EmissionsBuilding.setText("0.00")  # Replace "Your Start Value" with the value you want to set
+        self.co2EmissionsBuilding.setObjectName("co2EmissionsBuilding")         # set object name
         tooltipText = """This is the CO2 emissions for the building housing the unit process."""
         self._addRowWithTooltip(layout, labelText="CO2 Emissions Building:", widget=self.co2EmissionsBuilding,
                                 tooltipText=tooltipText)
@@ -2072,7 +2097,6 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Turn Over Time:", widget=hlayout, tooltipText=tooltipText)
 
 
-
         # Turn over factor
         self.turnOverFactor = QLineEdit(self)
         tooltipText = """Percentage of the raw purchase equipment costs to pay for parts to replace.""" # Cu^(RE) in the thesis of Philpp
@@ -2089,18 +2113,309 @@ class PhysicalProcessesDialog(QDialog):
         widget = QWidget()
         layout = QFormLayout()
 
+        self._createSectionTitle(text="Parameters for economy of scale", layout=layout)
+
+        # Reference Flow type
+        self.referenceFlowType = QComboBox(self)
+        # add options to ComboBox
+        self.referenceFlowType.addItem("Entering Flow")
+        self.referenceFlowType.addItem("Exiting Flow")
+        self.referenceFlowType.addItem("Electricity consumption")
+        self.referenceFlowType.addItem("Electricity production (generators)")
+        self.referenceFlowType.addItem("Heat production (generators)")
+        self.referenceFlowType.setObjectName("referenceFlowType")
+
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Equipment Costs of
+                                the unit process. The relevant components need to be defined if mass flow are selected."""
+
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowType, tooltipText=tooltipText)
+        # # Connect the signal to the slot function
+        self.referenceFlowType.currentIndexChanged.connect(lambda: self._componentSelectionSwitch())
+
         # Reference Flow input
         self.referenceFlowInput = QLineEdit(self)
-        layout.addRow(QLabel("Reference Flow:"), self.referenceFlowInput)
+        self.referenceFlowInput.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        # set object name
+        self.referenceFlowInput.setObjectName("referenceFlowInput")
+        self.referenceFlowUnit = QLabel(self)
+        self.referenceFlowUnit.setText("t/h")  # Replace "Your Start Value" with the value you want to set
+        self.referenceFlowUnit.setFixedWidth(50)   # make the lable bigger in width
+        self.referenceFlowUnit.setFont(self.subtitleFont)  # make it bold
+
+
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.referenceFlowInput)
+        hlayout.addWidget(self.referenceFlowUnit)
+
+        tooltipText = """The reference flow is the amount of material that is used to produce the product."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow:", widget=hlayout, tooltipText=tooltipText)
+
+
+        #Components table
+        #layout.addWidget(QLabel("Components:"))
+        self.componentsTable = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTable.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTable.setColumnWidth(0, 200)  # make column 1 wider
+
+        # add the table to the layout
+        tooltipText= """The chemicals species selected are the ones that are used to calculate the Equipment Costs of
+                        the unit process based on the mass flow (if Enetering or Exiting flow is the selected Reference flow type)."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTable,
+                                tooltipText=tooltipText)
+        self.componentsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTable.setObjectName("componentsTable")
+
+
+        # Add a row to tabel button
+        self.addRowButton = QPushButton("Add Component", self)
+        self.addRowButton.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButton.setObjectName("addRowButton")
+        layout.addWidget(self.addRowButton)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="cost")
+
+
+        # reference cost
+        self.referenceCost = QLineEdit(self)
+        self.referenceCost.setText("0.00")  # Replace "Your Start Value" with the value you want to set
+        self.referenceCost.setObjectName("referenceCost")  # set object name
+        tooltipText = """The reference cost is the cost of installing the unit with the specified reference flow."""
+        self._addRowWithTooltip(layout, labelText="Reference Cost (M€):", widget=self.referenceCost, tooltipText=tooltipText)
+
+        # reference year
+        self.referenceYear = QLineEdit(self)
+        self.referenceYear.setText("2020")  # Replace "Your Start Value" with the value you want to set
+        self.referenceYear.setObjectName("referenceYear")  # set object name
+        tooltipText = """The reference year is the year in which the reference cost was calculated."""
+        self._addRowWithTooltip(layout, labelText="Reference Year:", widget=self.referenceYear, tooltipText=tooltipText)
+
 
         # Exponent input
         self.exponentInput = QLineEdit(self)
-        layout.addRow(QLabel("Exponent:"), self.exponentInput)
+        self.exponentInput.setText("0.67")  # preallocate the value, with it's default value
+        self.exponentInput.setValidator(QDoubleValidator(0.00, 5.00, 2))
+        # set object name
+        self.exponentInput.setObjectName("exponentInput")
+        tooltipText = """The exponent is used to calculate the Equipment Costs of the unit process according to
+                        economies of scale."""
+        self._addRowWithTooltip(layout, labelText="Exponent:", widget=self.exponentInput, tooltipText=tooltipText)
 
         widget.setLayout(layout)
         return widget
 
-    # Placeholder for other methods...
+    def _createEnergyConsumptionTab(self):
+        # Energy Consumption Tab
+        widget = QWidget()
+        layout = QFormLayout()
+
+        self._createSectionTitle(text="Electricity Requierments", layout=layout)
+
+
+        # Reference Flow type Energy
+        self.referenceFlowTypeEnergy = QComboBox(self)
+        # add options to ComboBox
+        self.referenceFlowTypeEnergy.addItem("Entering mass Flow")
+        self.referenceFlowTypeEnergy.addItem("Exiting mass Flow")
+        self.referenceFlowTypeEnergy.addItem("Entering Molar Flow")
+        self.referenceFlowTypeEnergy.addItem("Exiting Molar Flow")
+        self.referenceFlowTypeEnergy.addItem("Entering Flow Cp")
+        self.referenceFlowTypeEnergy.addItem("Exiting Flow Cp")
+        self.referenceFlowTypeEnergy.setObjectName("referenceFlowTypeEnergy")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Energy Consumption of
+                        the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeEnergy, tooltipText=tooltipText)
+        # add logic to change the units of the energy consumption based on the reference flow type
+        self.referenceFlowTypeEnergy.currentIndexChanged.connect(lambda: self._componentSelectionSwitchEnergy())
+
+
+        # Energy Consumption parameter
+        self.energyConsumption = QLineEdit(self)
+        self.energyConsumption.setText("0.00")
+        self.energyConsumption.setObjectName("energyConsumption")
+        tooltipText = """The energy consumption of the unit process."""
+        # add a label to the energy consumption units
+        self.referenceFlowUnitEnergy = QLabel(self)
+        self.referenceFlowUnitEnergy.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.referenceFlowUnitEnergy.setFixedWidth(70) # make the lable bigger in width
+        self.referenceFlowUnitEnergy.setFont(self.subtitleFont)  # make it bold
+
+        # combine the energy consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.energyConsumption)
+        hlayout.addWidget(self.referenceFlowUnitEnergy)
+        # add the energy consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Energy Consumption:", widget=hlayout, tooltipText=tooltipText)
+
+        # Components table
+        self.componentsTableEnergy = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableEnergy.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableEnergy.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the energy consumption of
+                                the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableEnergy, # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableEnergy.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableEnergy.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableEnergy.setObjectName("componentsTableEnergy")
+
+        # Add a row to tabel button
+        self.addRowButtonEnergy = QPushButton("Add Component", self)
+        self.addRowButtonEnergy.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonEnergy.setObjectName("addRowButtonEnergy")
+        layout.addWidget(self.addRowButtonEnergy)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="energy")
+
+        #
+        self._createSectionTitle(text="Heating/cooling Requierments", layout=layout)
+        # heat consumption
+        self.heatConsumption = QLineEdit(self)
+        self.heatConsumption.setText("0.00")
+        self.heatConsumption.setObjectName("heatConsumption")
+        tooltipText = """The heat consumption of the unit process."""
+        # add a label to the heat consumption units
+        self.heatConsumptionUnit = QLabel(self)
+        self.heatConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.heatConsumptionUnit.setFixedWidth(70)  # make the lable bigger in width
+        self.heatConsumptionUnit.setFont(self.subtitleFont)  # make it bold
+
+        # combine the heat consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.heatConsumption)
+        hlayout.addWidget(self.heatConsumptionUnit)
+        # add the heat consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Heat Consumption:", widget=hlayout, tooltipText=tooltipText)
+
+        self._createSectionTitle(text="Heating/cooling Requierments(2) UNDER CONSTRUCTION ", layout=layout)
+        #♣ todo add the same for the second heat consumption but check if necessary to add a new table
+        self._createSectionTitle(text="Chilling Requierments UNDER CONSTRUCTION ", layout=layout)
+        #♣ todo add the same for the second heat consumption but check if necessary to add a new table
+
+
+
+
+
+
+
+
+
+
+
+        # set layout in the widget
+        widget.setLayout(layout)
+        return widget
+
+    # -----------------------------------------------------------------
+    # Methods for the components table
+    # -----------------------------------------------------------------
+
+    def _addRowToTable(self, tabName:str=''):
+
+        try:
+            senderName = self.sender().objectName()
+        except AttributeError:
+            senderName = None  # or any default value indicating the objectName is not accessible
+
+        # check what button is clicked
+        if tabName == "cost" or senderName == "addRowButton":
+            print('the add row button is clicked')
+            table = self.componentsTable
+        elif tabName == "energy" or senderName == "addRowButtonEnergy":
+            print('the add row button energy is clicked')
+            table = self.componentsTableEnergy
+
+        # Get the current row count and insert a new row at the end
+        rowPosition = table.rowCount()
+        table.insertRow(rowPosition)
+
+        # Create new cells by creating a combo box instance
+        self.comboBoxComponents = NonFocusableComboBox()
+        chemicalNames = self.centralDataManager.getChemicalComponentNames()
+        self.comboBoxComponents.addItems(chemicalNames)
+        self.comboBoxComponents.setObjectName(f"comboBoxComponents_{rowPosition}")
+
+        item = QTableWidgetItem('hack') # adding this item is a bit of a hack otherwise the row can't be selected and deleted
+        table.setItem(rowPosition, 0, item)
+        table.setCellWidget(rowPosition, 0, self.comboBoxComponents)
+
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
+
+        # # Get the current row count and insert a new row at the end
+        # rowPosition = self.componentsTable.rowCount()
+        # self.componentsTable.insertRow(rowPosition)
+        #
+        # # Create new cells by creating a combo box instance
+        # self.comboBoxComponents = NonFocusableComboBox()
+        # chemicalNames = self.centralDataManager.getChemicalComponentNames()
+        # self.comboBoxComponents.addItems(chemicalNames)
+        # self.comboBoxComponents.setObjectName(f"comboBoxComponents_{rowPosition}")
+        #
+        # item = QTableWidgetItem('hack') # adding this item is a bit of a hack otherwise the row can't be selected and deleted
+        # self.componentsTable.setItem(rowPosition, 0, item)
+        # self.componentsTable.setCellWidget(rowPosition, 0, self.comboBoxComponents)
+        #
+        # self.componentsTable.setSelectionBehavior(QTableWidget.SelectRows)
+        # self.componentsTable.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
+
+
+    def _componentSelectionSwitch(self):
+        """ Only fill in the component and product load if the reference flow type is mass flow"""
+        if self.referenceFlowType.currentText() == "Exiting Flow" or self.referenceFlowType.currentText() == "Entering Flow":
+            # If a mass flow is selected, make the button to add components clickable
+            self.referenceFlowUnit.setText("t/h")
+            self.componentsTable.setDisabled(False)
+            self.addRowButton.setDisabled(False)
+            self.addRowButton.setStyleSheet("""
+                            QPushButton {
+                                background-color: #5a9;
+                            }
+                            QPushButton:hover {
+                                background-color: #78d;
+                            }
+                        """)
+
+        else:
+            # If a mass flow is not selected, make the button to add components unclickable
+            self.componentsTable.setDisabled(True)
+            self.addRowButton.setDisabled(True)
+            self.addRowButton.setStyleSheet("""
+                QPushButton {
+                    background-color: grey;
+                }
+            """)
+
+            self.referenceFlowUnit.setText("MWh")
+
+    def _componentSelectionSwitchEnergy(self):
+        if self.referenceFlowTypeEnergy.currentText() == 'Entering mass Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting mass Flow':
+            self.referenceFlowUnitEnergy.setText("MWh/t")
+        elif self.referenceFlowTypeEnergy.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting Molar Flow':
+            self.referenceFlowUnitEnergy.setText("MWh/Mmol")
+        else:
+            self.referenceFlowUnitEnergy.setText("ΔT")
+
+    def keyPressEvent(self, event):
+        # print('the focus of the tabel is:', self.componentsTable.hasFocus()) # for debugging
+        # print('the set focus is:', self.componentsTable.setFocus()) # for debugging
+        checkFocus()
+        if event.key() == Qt.Key_Backspace:
+            # print(f"Key pressed after if: {event.key()}") # for debugging
+            selectedItems = self.componentsTable.selectedItems()
+            # print('the selected item is:', selectedItems) # for debugging
+            if selectedItems:
+                selectedRow = selectedItems[0].row()  # Get the row of the first selected item
+                self.componentsTable.removeRow(selectedRow)
+        else:
+            super().keyPressEvent(event)
+
+    # -----------------------------------------------------------------
+    # Methods for the data storage and retrieval
+    # -----------------------------------------------------------------
     def collectData(self):
         data = {
             'Name': self.nameInput.text(),
@@ -2127,7 +2442,9 @@ class PhysicalProcessesDialog(QDialog):
             self.exponentInput.setText(data['Exponent'])
         # placeholder for other fields...
 
+    # -----------------------------------------------------------------
     # methodes for tool-tips
+    # -----------------------------------------------------------------
     def _addRowWithTooltip(self, layout, labelText, widget, tooltipText, widget2=None):
         label = QLabel(f'{labelText} <a href="#">(i)</a>')
         label.setToolTip(tooltipText)
@@ -2151,105 +2468,114 @@ class PhysicalProcessesDialog(QDialog):
         layout.addRow(title)
         layout.addRow(frame)
 
-class StoichiometricReactorDialog(QDialog):
-    """
-    TODO complete this class and connect it to the main window
-    """
-    def __init__(self, initialData):
-        super().__init__()
-        # set style
-        self.setStyleSheet("""
-                                            QDialog {
-                                                background-color: #f2f2f2;
-                                            }
-                                            QLabel {
-                                                color: #333333;
-                                            }
-                                            QLineEdit {
-                                                border: 1px solid #cccccc;
-                                                border-radius: 2px;
-                                                padding: 5px;
-                                                background-color: #ffffff;
-                                                selection-background-color: #b0daff;
-                                            }
-                                            QPushButton {
-                                                color: #ffffff;
-                                                background-color: #5a9;
-                                                border-style: outset;
-                                                border-width: 2px;
-                                                border-radius: 10px;
-                                                border-color: beige;
-                                                font: bold 14px;
-                                                padding: 6px;
-                                            }
-                                            QPushButton:hover {
-                                                background-color: #78d;
-                                            }
-                                            QPushButton:pressed {
-                                                background-color: #569;
-                                                border-style: inset;
-                                            }
-                                            QTableWidget {
-                                                border: 1px solid #cccccc;
-                                                selection-background-color: #b0daff;
-                                            }
-                                        """)
 
-        self.setWindowTitle("Physical Processes Parameters")
-        self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
+class StoichiometricReactorDialog(PhysicalProcessesDialog):
+    def __init__(self, initialData, centralDataManager):
+        super().__init__(initialData, centralDataManager)  # Initialize the parent class
+        # Additional initialization for StoichiometricReactorDialog
 
-        tabWidget = QTabWidget(self)
-        tabWidget.addTab(self._createGeneralFactorsTab(), "General Factors")
-        tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Factors")
-        tabWidget.addTab(self._createEnergyRelatedFactorsTab(), "Energy Related Factors")
-        tabWidget.addTab(self._createSplitFactorsTab(), "Split Factors")
-        tabWidget.addTab(self._createMaterialFlowSourcesTab(), "Material Flow Sources")
-        tabWidget.addTab(self._createConcentrationFactorsTab(), "Concentration Factors")
+    # TODO complete this class and connect it to the main window
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(tabWidget)
+    # def __init__(self, initialData):
+    #     super().__init__()
+    #     # set style
+    #     self.setStyleSheet("""
+    #                                         QDialog {
+    #                                             background-color: #f2f2f2;
+    #                                         }
+    #                                         QLabel {
+    #                                             color: #333333;
+    #                                         }
+    #                                         QLineEdit {
+    #                                             border: 1px solid #cccccc;
+    #                                             border-radius: 2px;
+    #                                             padding: 5px;
+    #                                             background-color: #ffffff;
+    #                                             selection-background-color: #b0daff;
+    #                                         }
+    #                                         QPushButton {
+    #                                             color: #ffffff;
+    #                                             background-color: #5a9;
+    #                                             border-style: outset;
+    #                                             border-width: 2px;
+    #                                             border-radius: 10px;
+    #                                             border-color: beige;
+    #                                             font: bold 14px;
+    #                                             padding: 6px;
+    #                                         }
+    #                                         QPushButton:hover {
+    #                                             background-color: #78d;
+    #                                         }
+    #                                         QPushButton:pressed {
+    #                                             background-color: #569;
+    #                                             border-style: inset;
+    #                                         }
+    #                                         QTableWidget {
+    #                                             border: 1px solid #cccccc;
+    #                                             selection-background-color: #b0daff;
+    #                                         }
+    #                                     """)
+    #
+    #     self.setWindowTitle("Physical Processes Parameters")
+    #     self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
+    #
+    #     tabWidget = QTabWidget(self)
+    #     tabWidget.addTab(self._createGeneralFactorsTab(), "General Factors")
+    #     tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Factors")
+    #     tabWidget.addTab(self._createEnergyRelatedFactorsTab(), "Energy Related Factors")
+    #     tabWidget.addTab(self._createSplitFactorsTab(), "Split Factors")
+    #     tabWidget.addTab(self._createMaterialFlowSourcesTab(), "Material Flow Sources")
+    #     tabWidget.addTab(self._createConcentrationFactorsTab(), "Concentration Factors")
+    #
+    #     layout = QVBoxLayout(self)
+    #     layout.addWidget(tabWidget)
+    #
+    #     # OK and Cancel buttons
+    #     buttonsLayout = QHBoxLayout()
+    #     self.okButton = QPushButton("OK", self)
+    #     self.okButton.clicked.connect(self.accept)
+    #     buttonsLayout.addWidget(self.okButton)
+    #
+    #     self.cancelButton = QPushButton("Cancel", self)
+    #     self.cancelButton.clicked.connect(self.reject)
+    #     buttonsLayout.addWidget(self.cancelButton)
+    #
+    #     layout.addLayout(buttonsLayout)
+    #
+    # # Define the following methods to create tabs for each category
+    # def _createGeneralFactorsTab(self):
+    #     pass
+    #     # Create and return the widget for General Factors
+    #     # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
+    #
+    # def _createCostRelatedFactorsTab(self):
+    #     # Create and return the widget for Cost Related Factors
+    #     # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
+    #     pass
+    #
+    # def _createEnergyRelatedFactorsTab(self):
+    #     # Create and return the widget for Energy Related Factors
+    #     # This will likely include a QTableWidget for the various energy types
+    #     pass
+    # def _createSplitFactorsTab(self):
+    #     # Create and return the widget for Split Factors
+    #     # This will likely include a QTableWidget for different target processes
+    #     pass
+    # def _createMaterialFlowSourcesTab(self):
+    #     # Create and return the widget for Material Flow Sources
+    #     # This will likely include a QTableWidget for the sources and targets
+    #     pass
+    # def _createConcentrationFactorsTab(self):
+    #     # Create and return the widget for Concentration Factors
+    #     # This will likely include a QTableWidget for flow concentration comparisons
+    #     pass
+    #     # Implement the above methods to create each specific tab.
+    #     # The tabs will contain form fields and tables as per the provided Excel sheet.
 
-        # OK and Cancel buttons
-        buttonsLayout = QHBoxLayout()
-        self.okButton = QPushButton("OK", self)
-        self.okButton.clicked.connect(self.accept)
-        buttonsLayout.addWidget(self.okButton)
 
-        self.cancelButton = QPushButton("Cancel", self)
-        self.cancelButton.clicked.connect(self.reject)
-        buttonsLayout.addWidget(self.cancelButton)
-
-        layout.addLayout(buttonsLayout)
-
-    # Define the following methods to create tabs for each category
-    def _createGeneralFactorsTab(self):
-        pass
-        # Create and return the widget for General Factors
-        # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
-
-    def _createCostRelatedFactorsTab(self):
-        # Create and return the widget for Cost Related Factors
-        # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
-        pass
-
-    def _createEnergyRelatedFactorsTab(self):
-        # Create and return the widget for Energy Related Factors
-        # This will likely include a QTableWidget for the various energy types
-        pass
-    def _createSplitFactorsTab(self):
-        # Create and return the widget for Split Factors
-        # This will likely include a QTableWidget for different target processes
-        pass
-    def _createMaterialFlowSourcesTab(self):
-        # Create and return the widget for Material Flow Sources
-        # This will likely include a QTableWidget for the sources and targets
-        pass
-    def _createConcentrationFactorsTab(self):
-        # Create and return the widget for Concentration Factors
-        # This will likely include a QTableWidget for flow concentration comparisons
-        pass
-        # Implement the above methods to create each specific tab.
-        # The tabs will contain form fields and tables as per the provided Excel sheet.
+# -----------------------------------------------------------------
+# Custom Delegates and helper classes
+# -----------------------------------------------------------------
 
 class DoubleDelegate(QStyledItemDelegate):
     """
@@ -2277,7 +2603,7 @@ class DropDownDelegate(QStyledItemDelegate):
     """
     def __init__(self, items, parent=None):
         super().__init__(parent)
-        self.items = items
+        self.items = ['1','2']
 
     def createEditor(self, parent, option, index):
         editor = QComboBox(parent)
@@ -2291,6 +2617,40 @@ class DropDownDelegate(QStyledItemDelegate):
     def setModelData(self, comboBox, model, index):
         value = comboBox.currentText()
         model.setData(index, value, Qt.EditRole)
+
+class NonFocusableComboBox(QComboBox):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure the combo box cannot gain focus
+        self.setFocusPolicy(Qt.NoFocus)
+
+    # def keyPressEvent(self, event):
+    #     event.ignore()
+
+class CustomTableWidget(QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Backspace:
+            selectedItems = self.selectedItems()
+            if selectedItems:
+                selectedRow = selectedItems[0].row()  # Get the row of the first selected item
+                self.removeRow(selectedRow)
+        else:
+            super().keyPressEvent(event)
+
+def checkFocus():
+    """
+     for debugging purposes, check which widget currently has the focus.
+    """
+    currentFocusWidget = QApplication.instance().focusWidget()
+    if currentFocusWidget:
+        print(f"Current focus widget: {currentFocusWidget.objectName()}")
+    else:
+        print("No widget currently has the focus.")
+        currentFocusWidget = []
+    return currentFocusWidget
 
 def main():
     app = QApplication(sys.argv)
