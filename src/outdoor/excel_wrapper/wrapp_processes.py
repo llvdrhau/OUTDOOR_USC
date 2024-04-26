@@ -20,7 +20,7 @@ from ..outdoor_core.input_classes.unit_operations.library.distributor import Dis
 from ..outdoor_core.input_classes.unit_operations.library.splitter import Splitter
 from ..outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
 from ..outdoor_core.input_classes.unit_operations.library.turbine import ElectricityGenerator
-
+from ..outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
 
 from ..outdoor_core.input_classes.unit_operations.superclasses.physical_process import PhysicalProcess
 from .wrapp_unit_data import *
@@ -90,10 +90,14 @@ def wrapp_processUnits(dfi):
         obj =  ElectricityGenerator(dfi.iat[8,4],dfi.iat[9,4], Efficiency = dfi.iat[19,4])
         wrapp_ReacionData(obj, dfi.iloc[GammaDataRange], dfi.iloc[ThetaDataRange])
 
+    elif process_class == "CHP.Generator":
+        # Todo check if the efficiency is correct, place holder value here
+        #  (see the class CombinedHeatAndPower for more information)
+        obj = CombinedHeatAndPower(dfi.iat[8, 4], dfi.iat[9, 4]) # Efficiency is already predifenied in the class
+        wrapp_ReacionData(obj, dfi.iloc[GammaDataRange], dfi.iloc[ThetaDataRange])
 
     # everything else is a PhysicalProcess (which can only split or distribute streams)
     else:
-
         obj = PhysicalProcess(dfi.iat[8,4],dfi.iat[9,4])
         wrapp_EnergyData(obj, dfi.iloc[EnergyDataRange], dfi.iloc[KappaUtRange], dfi.iloc[GeneralDataRange])
 
