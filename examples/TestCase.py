@@ -35,7 +35,7 @@ Data_Path = os.path.dirname(a) + '/outdoor_examples/data/'
 # set optimization mode
 optimization_mode = "cross-parameter sensitivity"
 #'multi-objective'
-#optimization_mode = 'single'
+optimization_mode = 'single'
 
 
 # create the superstructure instance

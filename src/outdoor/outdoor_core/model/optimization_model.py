@@ -271,11 +271,11 @@ class SuperstructureModel(AbstractModel):
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s]  <= self.ul[u_s]
+            return self.FLOW_SOURCE[u_s] <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s]  >= self.ll[u_s]
+            return self.FLOW_SOURCE[u_s] >= self.ll[u_s]
 
         # stoichimoetric and yield reactor equations
         def MassBalance_5_rule(self, u, i):
