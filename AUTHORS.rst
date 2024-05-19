@@ -2,4 +2,5 @@
 Authors
 =======
 
-* Philipp Kenkel -   
+* Philipp Kenkel -
+* Lucas Van der Hauwaert -

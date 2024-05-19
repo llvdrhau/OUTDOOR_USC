@@ -98,7 +98,6 @@ def wrapp_sensitivty_data(obj, dfi):
             # # add_sensi_parameters is a dumb function, just skip it and add the parameters directly as a list of series
             # # obj.add_sensi_parameters.append((p_name, min_v, max_v, steps, metadata))
 
-
 def wrapp_multi_objective_data(obj, dfi):
 
     MultiCriteriaRange = WF.convert_total('N', 32, 'P',34)

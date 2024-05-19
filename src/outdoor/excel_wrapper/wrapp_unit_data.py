@@ -342,7 +342,7 @@ def wrapp_EconomicData(obj, df, df2):
 
     # this will make the cost practically 0 if the reference flow is 0
     if ReferenceCosts == 0:
-        ReferenceCosts = 0.00001
+        ReferenceCosts = 0.000001
         ReferenceFlow = 1000000
 
 
