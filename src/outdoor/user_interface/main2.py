@@ -13,7 +13,7 @@ from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QTableWidget, QPushButton, QLabel
 
 import sys
-import copy
+
 
 
 
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = self.createSuperstructureMappingTab()
-
+        # todo add a tab, so users can type a description of the project
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
@@ -357,6 +357,22 @@ class GeneralSystemDataTab(QWidget):
         self.detailLevelLineEdit = QComboBox()
         self.detailLevelLineEdit.addItems(["real", "fine", "rough", "average"])  # Add options to the dropdown
         self.layout.addRow(QLabel("Detail level of linearization of CAPEX:"), self.detailLevelLineEdit)
+
+        self.indirectCostsLineEdit = QLineEdit("1.44")
+        self.layout.addRow(QLabel("Indirect costs:"), self.indirectCostsLineEdit)
+
+        self.DirectCostsLineEdit = QLineEdit("2.6")
+        self.layout.addRow(QLabel("Direct costs:"), self.DirectCostsLineEdit)
+
+        # todo: add different standard Direct and indirect costs factors for different processing plant types
+        #  i.e., Solid, solid-liquid and liquid processing plants
+        costFactors = {
+            "Solid": {"Direct": 2.6, "Indirect": 1.44},
+            "Solid-liquid": {"Direct": 2.6, "Indirect": 1.44},
+            "Liquid": {"Direct": 2.6, "Indirect": 1.44}
+        }
+        # reference: p251 Table 6-9 of the book "Plant Design and Economics for Chemical Engineers, fith edition"
+
 
         # self.omFactorLineEdit = QLineEdit("0.04")
         # self.layout.addRow(QLabel("O&M Factor:"), self.omFactorLineEdit)

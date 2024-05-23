@@ -46,10 +46,10 @@ def wrapp_SystemData(dfi, optimization_mode=None):
 
     GeneralDataRange = WF.convert_total('B', 4, 'C', 22)
     UtilitylistRange = WF.convert_total('S', 5, 'V', 8)
-    ComponentlistRange = WF.convert_total('F', 5, 'K', 30)
-    TemperatureIntervals = WF.convert_total('B', 34, 'B', 39)
-    ReactionsListRange = WF.convert_total('N', 5, 'N', 15)
-    ReactantsListRange = WF.convert_total ('P', 5,'P', 15)
+    ComponentlistRange = WF.convert_total('F', 5, 'K', 37)
+    TemperatureIntervals = WF.convert_total('B', 34, 'B', 39) # update range
+    ReactionsListRange = WF.convert_total('N', 5, 'N', 30)  # update range
+    ReactantsListRange = WF.convert_total ('P', 5,'P', 30) # update range
     TemperaturePriceRange = WF.convert_total('T', 14, 'U',18 )
 
     #####

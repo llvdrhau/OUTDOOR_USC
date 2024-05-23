@@ -432,11 +432,11 @@ class BasicModelAnalyzer:
 
         else: # for single run optimization
             for i, j in model_data["FLOW_FT"].items():
-                if j > 1e-06:
+                if j > 1e-05:
                     mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
             for i, j in model_data["FLOW_ADD"].items():
-                if j > 1e-06:
+                if j > 1e-05:
                     mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         return mass_flow_data

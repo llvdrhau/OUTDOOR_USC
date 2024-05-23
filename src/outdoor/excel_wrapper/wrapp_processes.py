@@ -49,17 +49,17 @@ def wrapp_processUnits(dfi):
 
 
     # Set the Excel Ranges
-    GeneralDataRange = WF.convert_total ('E', 10, 'E', 30)
-    EnergyDataRange = WF.convert_total('M', 10, 'Q', 30)
-    KappaUtRange = WF.convert_total('M', 10, 'Q', 30)
-    BalanceDataRange= WF.convert_total('S', 10, 'U', 35)
-    EconomicDataRange= WF.convert_total('H', 11, 'I', 30)
+    GeneralDataRange = WF.convert_total ('E', 10, 'E', 27)
+    EnergyDataRange = WF.convert_total('M', 10, 'Q', 27)
+    KappaUtRange = WF.convert_total('M', 10, 'Q', 27)
+    BalanceDataRange= WF.convert_total('S', 10, 'U', 27)
+    EconomicDataRange= WF.convert_total('H', 11, 'I', 27)
 
     PossibleSourcesRange = WF.convert_total('W', 10, 'Z', 27)
 
-    ConcDataRange = WF.convert_total2('B', 10, 'F', 30)
-    GammaDataRange = WF.convert_total2('H', 10,'J', 30)
-    ThetaDataRange = WF.convert_total2('L', 10, 'N', 33) # increase the range to 33
+    ConcDataRange = WF.convert_total2('B', 10, 'F', 27)
+    GammaDataRange = WF.convert_total2('H', 10,'J', 37) # increase the range to 37
+    ThetaDataRange = WF.convert_total2('L', 10, 'N', 30) # increase the range to 33
     XiDataRange = WF.convert_total2('H', 10, 'J',30)
 
 

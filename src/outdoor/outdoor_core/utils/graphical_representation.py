@@ -113,8 +113,7 @@ def create_superstructure_flowsheet(superstructure, path):
                                         shape='triangle', orientation= 270)
 
                 else:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
-                                        'box')
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v], 'box')
 
 
 
