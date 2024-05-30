@@ -392,12 +392,11 @@ class ModelOutput:
             if i[1] == "Electricity" and j >= 1e-05:
                 total_el += j * model_data.get("flh", 0).get(i[0], 0)
 
-        electricity_shares["Electricity demand shares"][
-            "Heatpump electricity share"
-        ] = round(
+        electricity_shares["Electricity demand shares"]["Heatpump electricity share"] \
+            = round(
             model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / total_el * 100,
             2,
-        )
+            )
 
         for i, j in model_data["ENERGY_DEMAND"].items():
             if i[1] == "Electricity" and j >= 1e-05:
@@ -850,14 +849,14 @@ class ModelOutput:
         for i, j in y.items():
             if j == 1:
                 try:
-                    if flow[i] >= 1e-9:
+                    if flow[i] >= 1e-5:
                         chosen[i] = names[i]
                 except:
                     pass
 
             else:
                 try:
-                    if flow_s[i] >= 1e-9:
+                    if flow_s[i] >= 1e-5:
                         chosen[i] = names[i]
                 except:
                     pass

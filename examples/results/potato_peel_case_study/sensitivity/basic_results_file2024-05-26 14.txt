@@ -1,0 +1,256 @@
+
+Run mode: sensitivity 
+Total run time 75.958913564682 
+ 
+ 
+Identifier of Single run: ('Electricity price (delta_ut)', 0.2) 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               25.21 seconds
+Solver name                   gurobi
+Earnings Before Tax income    2.134 Mil. Euro
+Net production costs          -19.46 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 119  Rotry Drying
+ 149  Starch drying
+ 900  Extrusion + drying
+5000  Starch
+9000  Potato.Prot
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                        -2.16
+Raw material consumption share     -0
+Operating and Maintanence share    -1.22
+Electricity share                  -0.36
+Chilling share                     -0
+Heat integration share           -410.15
+Waste treatment share              -0
+Profits share                     513.88
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                      -0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------
+heat         {400: 3.2955597362160915e-16, 900: 37.721755555555546}
+cooling      {}
+electricity  38229.61179364126
+-----------  ------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 
+Identifier of Single run: ('Electricity price (delta_ut)', 0.8) 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               22.05 seconds
+Solver name                   gurobi
+Earnings Before Tax income    2.111 Mil. Euro
+Net production costs          -19.25 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 119  Rotry Drying
+ 145  Vacu.Fill
+ 149  Starch drying
+ 800  Composting
+ 900  Extrusion + drying
+5000  Starch
+9000  Potato.Prot
+7000  Animal.Feed
+8000  Compost
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                        -2.18
+Raw material consumption share     -0
+Operating and Maintanence share    -1.23
+Electricity share                  -1.45
+Chilling share                     -0
+Heat integration share           -414.61
+Waste treatment share              -0
+Profits share                     519.47
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -----------------------------------------------------
+heat         {400: 3.2955597362160915e-16, 900: 37.72175555555556}
+cooling      {}
+electricity  38229.61179364128
+-----------  -----------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 

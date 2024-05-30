@@ -1,0 +1,54 @@
+
+Basic results-------- 
+----------------------------  ----------------------------------------
+Objective Function            EBIT_final
+Expected Objective value      -2.35 Mil Euros
+Average Yearly product load   110560.31 tons
+VSS                           0 Mil Euros
+EVPI                          0 Mil Euros
+Solver run time               68820.05 s
+Solver name                   gurobi
+Earnings Before Tax income    Min:-7.46 Mean:-2.35 Max:2.33 Mil Euros
+Net production costs          Min:-19.18 Mean:23.3 Max:88.67 Euros/Ton
+Net production GHG emissions  Min:0.65 Mean:0.8 Max:1.02 CO2-eq/Ton
+Net present FWD               Min:0.0 Mean:0.0 Max:0.0 H2O-eq/Ton
+----------------------------  ----------------------------------------
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Scenario Analysis-------- 
+----------------------------------  -------------------------
+Total Inital Scenarios              50
+Percent Feasible                    100.0 %
+phi: (11, 'Phenolics')              min:0.01 max:0.029
+phi: (11, 'Ligin')                  min:0 max:0.014
+phi: (11, 'Starch')                 min:0.045 max:0.146
+phi: (11, 'Ash')                    min:0.022 max:0.047
+phi: (11, 'Sugars')                 min:0 max:0.015
+phi: (11, 'H2O')                    min:0.786 max:0.812
+xi: (420, 'Biomass_pha')            min:0.259 max:0.91
+ProductPrice: (2000,)               min:449.044 max:1131.485
+ProductPrice: (3000,)               min:1621.265 max:8393.937
+ProductPrice: (9000,)               min:1414.427 max:2578.756
+ProductPrice: (6000,)               min:2833.987 max:5181.31
+ProductPrice: (7000,)               min:67.027 max:132.061
+ProductPrice: (9700,)               min:-79.076 max:2887.454
+gamma: (400, 'VFA', 13)             min:0.098 max:0.978
+gamma: (435, 'PHA', 11)             min:0.485 max:0.717
+theta: (200, 14, 'Cellulose ')      min:0 max:0
+theta: (200, 16, 'Hemi-cellulose')  min:0.427 max:0.927
+theta: (600, 5, 'Cellulose ')       min:0.126 max:0.837
+----------------------------------  -------------------------
+
+ 

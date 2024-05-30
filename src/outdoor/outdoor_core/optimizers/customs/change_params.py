@@ -9,6 +9,7 @@ Created on Tue Jun 15 11:54:16 2021
 from ...utils.timer import time_printer
 #from pyomo.environ import *
 from numpy import linspace
+import pandas as pd
 
 from .change_functions.parameter_changer_functions import * # contains all funcitions to change the parameters in the model instance called in change_parameter
 
@@ -33,12 +34,16 @@ def calculate_sensitive_parameters(data_input):
     for i in data_input:
 
         paramName = i['Parameter_Type']
+        # if the series has a number in the field Unit_Number, get the value of that number
+        if isinstance(i['Unit_Number'], int):  # if the value is an integer and i['Unit_Number'] is not 'n.a.'
+            paramName = paramName + "_" + str(int(i['Unit_Number']))
         start = i['Lower_Bound']
         stop = i['Upper_Bound']
         dx = i['Number_of_steps']
         metadata = i.iloc[1:5]
         value_dic[paramName] = (list(linspace(start, stop, dx)), metadata)
 
+        # if
         # changed to dictionary to make it more readable
         # if len(i) == 4:
         #     value_dic[i[0]] = list(linspace(start, stop, dx))
@@ -56,8 +61,19 @@ def error_func(*args):
     raise ValueError("Parameter {} not in Variation Parameter set deffining all changer functions".format(args[-1]))
 
 
-def change_parameter(Instance, parameter, value, metadata=None, superstructure=None):
-    timer = time_printer(programm_step = 'Changing parameter {}'.format(parameter))
+def change_parameter(Instance, parameter, value, metadata=None, superstructure=None, printTimer=True):
+
+    timer = time_printer(programm_step = 'Changing parameter {}'.format(parameter), printTimer=printTimer)
+
+    if '_' in parameter:
+        #parameter = '_'.join(parameter.rsplit('_', 1)[:-1])
+        # This will give you the whole string except the last split-off fraction which is the unit number.
+        parameterParts = parameter.split('_') # remove the number from the parameter name
+        parameterSuffix = parameterParts[-1] # get the number from the parameter name
+        # if the second part of the parameter name is a number, parameter becomes parameterN
+        if parameterSuffix.isnumeric():
+            parameter = '_'.join(parameter.rsplit('_', 1)[:-1]) # remove the number from the parameter name
+
 
     function_dictionary = {
         # these are also parameters that can be changed in the stochastic mode
@@ -119,10 +135,19 @@ def prepare_mutable_parameters(ModelInstance, input_data):
             # set_mutable function
             set_mutable(ModelInstance, param_name)
         else:
-            param_id = param_name.split("(")[-1][0:-1] # Get the parameter name in between the brackets
+            #param_id = param_name.split("(")[-1][0:-1] # Get the parameter name in between the brackets
+            param_id = extract_string_between_brackets(param_name)
             param = getattr(ModelInstance, param_id)  # Dynamically access the parameter
             # change the parameter to mutable
             param._mutable = True
 
     return ModelInstance
 
+import re
+def extract_string_between_brackets(s):
+    # Regular expression pattern to match text within parentheses
+    pattern = r'\((.*?)\)'
+    # Search for the pattern in the input string
+    match = re.search(pattern, s)
+    # If a match is found, return the matched group, otherwise return None
+    return match.group(1) if match else None

@@ -37,6 +37,8 @@ class CombinedHeatAndPower(StoichReactor):
     def fill_unitOperationsList(self, superstructure):
         super().fill_unitOperationsList(superstructure)
         superstructure.HeatGeneratorList['U_FUR'].append(self.Number)
+        superstructure.ElectricityGeneratorList['U_TUR'].append(self.Number)
+
 
     def set_efficiency(self, Efficiency):
         """
@@ -52,6 +54,8 @@ class CombinedHeatAndPower(StoichReactor):
     def fill_parameterList(self):
         super().fill_parameterList()
         self.ParameterList.append(self.Efficiency_FUR)
+        self.ParameterList.append(self.Efficiency_TUR)
+
 
 
 

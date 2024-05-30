@@ -16,6 +16,11 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import datetime
+from matplotlib.colors import ListedColormap
+import matplotlib.cm as cm
+from matplotlib.patches import Patch
+
+
 
 
 class AdvancedMultiModelAnalyzer:
@@ -389,7 +394,7 @@ class AdvancedMultiModelAnalyzer:
 
         Description
         -----------
-        Takes a ProcessResults object and checks for alle chosen technologies if
+        Takes a ProcessResults object and checks for all chosen technologies if
         the required technologies (in plist) are chosen in this design.
         Afterwards hands back the identifier for the technology choices and the name.
 
@@ -399,9 +404,29 @@ class AdvancedMultiModelAnalyzer:
         number = 0
         string_list = list()
 
-        # Retreave chosen technologies for the current ProcessDesign
-
+        # Retrieve chosen technologies for the current ProcessDesign
         dic = process_design.return_chosen()
+
+        #keysSelectedProcesses = list(dic.keys())
+
+        #sourceFlow = process_design._data['FLOW_SOURCE']
+        #processFlows = process_design.results['Mass flows'] #is a dictionary with the mass flows of the processes
+        #processesWithFlows = []
+
+        #for key, val in processFlows.items():
+        #    if val > 1e-3:
+        #        processesWithFlows.append(key[1]) # the second key is the technolgy where flow enters
+
+        #for key, val in sourceFlow.items():
+        #    if val > 1e-3:
+        #        processesWithFlows.append(key)
+
+        # Check if the chosen processes actually have a mass flow going through them
+        #for process in keysSelectedProcesses:
+        #    if process not in processesWithFlows:
+        #        dic.pop(process, None)
+
+
 
         # Set up the numbers for the colorcontours , depending on number
         # of checkable processes.
@@ -414,6 +439,9 @@ class AdvancedMultiModelAnalyzer:
 
         if len(plist) == 4:
             numbers = {plist[0]: 1, plist[1]: 2, plist[2]: 4, plist[3]: 8}
+
+        if len(plist) > 4:
+            raise ValueError("The number of processes to be checked must be between 2 and 4.")
 
         # Check which processes are chosen in the current processdesign
         pset = set(plist)
@@ -485,6 +513,8 @@ class AdvancedMultiModelAnalyzer:
         ----------
         process_list : List
             Process numbers to be checked.
+        cdata : String
+            Data to be depicted on the z-axis i.e. the objective function
 
         Returns
         -------
@@ -522,6 +552,8 @@ class AdvancedMultiModelAnalyzer:
         z = list()
 
         # Iterate through all ProcessResults and get x,y,z and c values
+        # i is the index of the results
+        # j is the results file of that run
         for i, j in self.model_output._results_data.items():
 
             npc = j._data[cdata]
@@ -530,6 +562,7 @@ class AdvancedMultiModelAnalyzer:
                 rounder = 4
             else:
                 rounder = 0
+
             rounder = 4
             x.append(i[1])
             y.append(i[3])
@@ -543,7 +576,7 @@ class AdvancedMultiModelAnalyzer:
 
             n_list.append(n)
 
-        print(z)
+        #print(z)
         iterator = len(set(x))
 
         # Turn x- and y-axis lists into numpy arrays
@@ -705,3 +738,92 @@ class AdvancedMultiModelAnalyzer:
         plt.ylabel(ylabel)
 
         plt.show()
+
+    def create_cross_parameter_plot(self, processList, objective, savePath=None, saveName=None):
+
+        x, y, z, c, label_dict = self._get_graph_data(processList, objective)
+        c , label_dict = self._reorder_labels(c, label_dict)
+        self.plot_contour_with_labels(x, y, z, c, label_dict, savePath, saveName)
+
+    def _reorder_labels(self, labels, labelDict):
+        """
+        I now want the labels to go from 0 to n, where n is the number of unique labels. I have to remap the labels and
+        correct/update the label_dict accordingly.
+        :param labels: nd.array
+        :param label_dict: dict
+        :return: New labels and updated label_dict
+        """
+        uniqueLabels = np.unique(labels)
+        newLabels = np.zeros_like(labels)
+        for i, label in enumerate(uniqueLabels):
+            newLabels[labels == label] = i
+            labelDict[i] = labelDict.pop(label)
+
+        # if the value of the label is an empty string, replace it with 'other'
+        for key, value in labelDict.items():
+            if value == '':
+                labelDict[key] = 'other'
+
+        return newLabels, labelDict
+
+    def plot_contour_with_labels(self, x, y, z, labels, label_dict, savePath, saveName):
+        """
+        Plots a contour plot with contour lines and background colors corresponding to labels using a custom colormap.
+
+        Parameters:
+        x (array-like): X-axis values
+        y (array-like): Y-axis values
+        z (2D array-like): Z-axis values
+        labels (2D array-like): Label values corresponding to each (x, y) point
+        label_dict (dict): Dictionary mapping labels to their corresponding descriptions
+        savePath (str, optional): Path to save the plot
+        saveName (str, optional): Name to save the plot file
+
+        Returns:
+        None
+        """
+        plt.figure(figsize=(10, 6))
+
+        # Number of discrete colors needed
+        num_colors = len(label_dict.keys())
+        # Sample the viridis colormap
+        viridis = cm.get_cmap('viridis', num_colors)
+        # Extract the colors as a list
+        colors = [viridis(i) for i in range(num_colors)]
+        # Create a custom colormap from these colors
+        custom_cmap = ListedColormap(colors)
+
+        # Create a filled contour plot with colors corresponding to labels
+        contourf = plt.contourf(x, y, labels, alpha=0.6, cmap=custom_cmap)
+
+        # Generate a contour plot with only lines
+        contour = plt.contour(x, y, z, colors='black')
+
+        # Add labels to the contour lines
+        #plt.clabel(contour, inline=True, fontsize=8)
+        plt.clabel(contour, inline=True, fontsize=10, fmt='%1.1f', colors='black')
+
+        # Get the axis labels
+        xLabel = list(self.model_output._results_data.keys())[0][0]
+        yLabel = list(self.model_output._results_data.keys())[0][2]
+        plt.xlabel(xLabel)
+        plt.ylabel(yLabel)
+
+        # Create a legend
+        legend_elements = [Patch(facecolor=colors[i], edgecolor='black', label=label) for i, label in
+                           enumerate(label_dict.values())]
+        plt.legend(handles=legend_elements, title='Products', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+        # Adjust layout to fit everything
+        plt.tight_layout()
+
+        # Save the plot to the specified file path
+        if savePath:
+            if saveName:
+                save_path = f"{savePath}/{saveName}.png"
+            else:
+                save_path = f"{savePath}/contour_plot.png"
+            plt.savefig(save_path)
+
+        # Show the plot
+        # plt.show()

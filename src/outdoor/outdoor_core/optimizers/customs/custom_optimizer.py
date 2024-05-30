@@ -19,17 +19,12 @@ from .change_params import (
     calculate_sensitive_parameters,
     change_parameter,
 )
-
 import numpy as np
-
 from pyomo.environ import *
-
 import sys
-
 import logging
-
 import copy
-
+from concurrent.futures import ProcessPoolExecutor
 
 class MCDAOptimizer(SingleOptimizer):
     def __init__(self, solver_name, solver_interface, solver_options=None, mcda_data=None):
@@ -95,16 +90,19 @@ class SensitivityOptimizer(SingleOptimizer):
 
         timer1 = time_printer(programm_step="Sensitivity optimization")
         sensi_data_Dict_lists = calculate_sensitive_parameters(self.sensi_data)
+
         initial_model_instance = model_instance.clone()
         time_printer(passed_time=timer1, programm_step="Create initial ModelInstance copy")
         model_output = MultiModelOutput(optimization_mode="sensitivity")
 
         superstructureData = self.superstructure
 
+
         for parameterName, (value_list, metadata) in sensi_data_Dict_lists.items():
             for val in value_list:
                 model_instance = change_parameter(Instance=model_instance,
-                                                  parameter=parameterName, value=val, metadata=metadata,
+                                                  parameter=parameterName,
+                                                  value=val, metadata=metadata,
                                                   superstructure= superstructureData)
 
                 single_solved = self.single_optimizer.run_optimization(model_instance)
@@ -119,6 +117,35 @@ class SensitivityOptimizer(SingleOptimizer):
         model_output.fill_information(timer)
         return model_output
 
+    def _solve_single_optimisation(self, model_instance, senitivityData):
+        """
+        This function is used to solve the single optimisation problem for each parameter in the sensitivity analysis
+        :param model_instance:
+        :param senitivityData:
+        :return:
+
+        the idea is to use this function to run parralell computing using follwong code:
+         # Using ProcessPoolExecutor to solve models in parallel
+        with ProcessPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(self.solve_single_optimisation, model_instance) for data in data_list]
+            results = [future.result() for future in futures]
+
+        """
+        # parameterName = senitivityData
+        # for parameterName, (value_list, metadata) in sensi_data_Dict_lists.items():
+        #     for val in value_list:
+        #         model_instance = change_parameter(Instance=model_instance,
+        #                                           parameter=parameterName,
+        #                                           value=val, metadata=metadata,
+        #                                           superstructure= superstructureData)
+        #
+        #         single_solved = self.single_optimizer.run_optimization(model_instance)
+        #
+        #         single_solved._tidy_data()
+        #         model_output.add_process((parameterName, val), single_solved)
+        #
+        #     model_instance = initial_model_instance
+        pass
 
 class TwoWaySensitivityOptimizer(SingleOptimizer):
     def __init__(
@@ -146,7 +173,8 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
                          interface="local",
                          solver_path=None,
                          options=None,
-                         count_variables_constraints=False
+                         count_variables_constraints=False,
+                         parralellComputing = False
                          ):
 
         timer1 = time_printer(programm_step="Two-way sensitivity optimimization")
@@ -167,128 +195,78 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
             elif i == index_names[1]:
                 dic_2[i] = j
 
-        for i, j in dic_1.items():
-            if type(j) == dict:
+        paramName1 = list(dic_1.keys())[0]
+        paramName2 = list(dic_2.keys())[0]
 
-                for i2, j2 in j.items():
-                    value_list = j2
-                    string1 = (i, i2)
+        parmaValues1 = list(dic_1.values())[0][0]
+        paramValues2 = list(dic_2.values())[0][0]
 
-                    for l in value_list:
-                        value1 = l
+        metadata1 = list(dic_1.values())[0][1]
+        metadata2 = list(dic_2.values())[0][1]
 
-                        for k, m in dic_2.items():
+        if parralellComputing:
+            # todo make parallel computing work
+            # Using ProcessPoolExecutor to solve models in parallel
+            with ProcessPoolExecutor(max_workers=5) as executor:
+                futures = [executor.submit(self._solve_model_instance,
+                                           paramName1, paramName2,
+                                           paramVal1, paramVal2,
+                                           metadata1, metadata2,
+                                           model_instance, model_output)
+                           for paramVal1 in parmaValues1 for paramVal2 in paramValues2]
 
-                            if type(m) == dict:
-                                for k2, m2 in m.items():
-                                    string2 = (k, k2)
-                                    value_list2 = m2
-                                    for n in value_list2:
-                                        value2 = n
+                results = [future.result() for future in futures]
+            print(results)
+        # model_output.add_process((paramName1, paramVal1, paramName2, paramVal2), single_solved)
 
-                                        model_instance = change_parameter(
-                                            model_instance,
-                                            i,
-                                            l,
-                                            i2,
-                                            self.superstructure,
-                                        )
-                                        model_instance = change_parameter(
-                                            model_instance,
-                                            k,
-                                            n,
-                                            k2,
-                                            self.superstructure,
-                                        )
+        else:
+            for i in parmaValues1:
+                for j in paramValues2:
+                    self._solve_model_instance(paramName1, paramName2,
+                                                 i, j,
+                                                 metadata1, metadata2,
+                                                 model_instance, model_output)
 
-                                        single_solved = self.single_optimizer.run_optimization(
-                                            model_instance
-                                        )
 
-                                        single_solved._tidy_data()
 
-                                        model_output.add_process(
-                                            (string1, value1, string2, value2),
-                                            single_solved,
-                                        )
-
-                            else:
-                                string2 = k
-                                value_list2 = m
-                                for n in value_list2:
-                                    value2 = n
-
-                                    model_instance = change_parameter(
-                                        model_instance, i, l, i2, self.superstructure
-                                    )
-                                    model_instance = change_parameter(
-                                        model_instance, k, n
-                                    )
-
-                                    single_solved = self.single_optimizer.run_optimization(
-                                        model_instance
-                                    )
-
-                                    single_solved._tidy_data()
-
-                                    model_output.add_process(
-                                        (string1, value1, string2, value2),
-                                        single_solved,
-                                    )
-
-            else:
-                string1 = i
-                value_list = j
-                for l in value_list:
-                    value1 = l
-                    for k, m in dic_2.items():
-                        if type(m) == dict:
-                            for k2, m2 in m.items():
-                                string2 = (k, k2)
-                                value_list2 = m2
-                                for n in value_list2:
-                                    value2 = n
-
-                                    model_instance = change_parameter(
-                                        model_instance, i, l
-                                    )
-                                    model_instance = change_parameter(
-                                        model_instance, k, n, k2, self.superstructure
-                                    )
-
-                                    single_solved = self.single_optimizer.run_optimization(
-                                        model_instance
-                                    )
-
-                                    single_solved._tidy_data()
-
-                                    model_output.add_process(
-                                        (string1, value1, string2, value2),
-                                        single_solved,
-                                    )
-
-                        else:
-                            string2 = k
-                            value_list2 = m
-                            for n in value_list2:
-                                value2 = n
-
-                                model_instance = change_parameter(model_instance, i, l)
-                                model_instance = change_parameter(model_instance, k, n)
-
-                                single_solved = self.single_optimizer.run_optimization(
-                                    model_instance
-                                )
-
-                                single_solved._tidy_data()
-
-                                model_output.add_process(
-                                    (string1, value1, string2, value2), single_solved
-                                )
-
-        timer = time_printer(timer1, "Two-way sensitivity optimimization")
+        timer = time_printer(timer1, "Ending Two-way sensitivity Analysis")
         model_output.fill_information(timer)
         return model_output
+
+    def _solve_model_instance(self, paramName1, paramName2,
+                              paramVal1, paramVal2,
+                              metadata1, metadata2,
+                              model_instance, model_output):
+        """
+        This function is used to solve the model instance for a given parameter set
+        :param param1:
+        :param param2:
+        :param model_instance:
+        :param superstructure:
+        :return:
+
+        """
+        superstructure = self.superstructure
+
+        model_instance = change_parameter(Instance=model_instance,
+                                          parameter=paramName1,
+                                          value=paramVal1, metadata=metadata1,
+                                          superstructure=superstructure,
+                                          printTimer=False)
+
+        model_instance = change_parameter(Instance=model_instance,
+                                          parameter=paramName2,
+                                          value=paramVal2, metadata=metadata2,
+                                          superstructure=superstructure,
+                                          printTimer=False)
+
+        single_solved = self.single_optimizer.run_optimization(model_instance,
+                                                               tee=False,
+                                                               keepfiles=True,
+                                                               printTimer=False)
+        single_solved._tidy_data()
+        model_output.add_process((paramName1, paramVal1, paramName2, paramVal2), single_solved)
+        return (paramName1, paramVal1, paramName2, paramVal2), single_solved
 
 
 class StochasticRecourseOptimizer(SingleOptimizer):
@@ -406,7 +384,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             print("\033[95m\033[1mThe EVwPI is:", waitAndSeeSolution, "\033[0m")
 
             # pass on the EVPI
-            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimized
+            if model_output._data['objective_sense'] == 1: # 1 if optimisation is maximised 0 if minimized 1
                 model_output.EVPI = waitAndSeeSolution - expected_value
             else:
                 model_output.EVPI = expected_value - waitAndSeeSolution

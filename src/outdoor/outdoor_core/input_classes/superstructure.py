@@ -593,9 +593,6 @@ class Superstructure():
             k -= 1
 
 
-
-
-
     def add_sensi_parameters(self,
                              parameter_name = None,
                              min_value = 0,
@@ -1422,7 +1419,7 @@ class Superstructure():
                                                          oldDict=unit.xi)
                 unit.xi = newXiDict
 
-            elif unit.Type == "HeatGenerator" or unit.Type == "ElectricityGenerator":
+            elif unit.Type == "HeatGenerator" or unit.Type == "ElectricityGenerator" or unit.Type == "CombinedHeatAndPower":
                 # update the split factors
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
                                                          parameterName='myu',
@@ -1440,6 +1437,9 @@ class Superstructure():
                                                          parameterName='theta',
                                                          oldDict=unit.theta)
                 unit.theta = newThetaDict
+
+            else:
+                raise ValueError("The unit type {} is not recognized".format(unit.Type))
 
 
         print("Uncertainty data is set")

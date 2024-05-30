@@ -19,8 +19,8 @@ class MultiModelOutput:
     Class description
     ----------------
 
-    This class is the main output class for multi-run such as sensitivity or multi-criteria optimization.
-    It includes the case data such as used solver, calculation time, meta data etc.
+    This class is the main output class for multi-run such as sensitivity, cross senitivity or multi-criteria
+    optimization. It includes the case data such as used solver, calculation time, meta data etc.
 
     It also includes methods to
         - fill data into its own structure from the given pyomo model instance
@@ -136,7 +136,7 @@ class MultiModelOutput:
             print(f"Identifier of Single run:{i}")
             j.print_results()
 
-    def get_results(self, pprint=True, savePath=None):
+    def get_results(self, pprint=True, savePath=None, saveName=None):
         results = dict()
 
         for i, j in self._results_data.items():
@@ -150,8 +150,10 @@ class MultiModelOutput:
         if savePath is not None:
             if not os.path.exists(savePath):
                 os.makedirs(savePath)
-
-            save = savePath + "/" + "basic_results_file" + self._case_time[0:13] + ".txt"
+            if saveName is not None:
+                save = savePath + "/" + saveName + self._case_time[0:13] + ".txt"
+            else:
+                save = savePath + "/" + "basic_results_file" + self._case_time[0:13] + ".txt"
 
             self._save_results(results, save)
 

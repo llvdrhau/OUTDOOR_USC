@@ -50,6 +50,7 @@ class StochasticObject():
                           'xi': {},
                           'ProductPrice': {},
                           'materialcosts': {},
+                          'delta_ut': {},
                           'Decimal_numbers': {}
                           }
 
@@ -207,6 +208,9 @@ class StochasticObject():
 
                 elif parameterName == 'ProductPrice' or parameterName == 'materialcosts' or parameterName == 'Decimal_numbers':
                     nrComponentTuple = (unitNr)
+
+                # elif parameterName == 'delta_ut':
+                #     nrComponentTuple = () # no component or unit number is needed for delta_ut
 
                 else:
                     raise ValueError("The parameter {} is not supported yet".format(parameterName))

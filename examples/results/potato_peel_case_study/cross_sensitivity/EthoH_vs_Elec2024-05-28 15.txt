@@ -1,0 +1,3730 @@
+
+Run mode: cross-parameter sensitivity 
+Total run time 1051.521593093872 
+ 
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1200.0, 'Electricity price (delta_ut)', 70.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902071.62 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -0.535 Mil. Euro
+Net production costs          4.88 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                          8.61
+Raw material consumption share       0
+Operating and Maintanence share      4.85
+Electricity share                  500.47
+Chilling share                       0
+Heat integration share            1636.68
+Waste treatment share                0
+Profits share                    -2050.61
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -----------------------------------------------------
+heat         {400: 3.2955597362160915e-16, 900: 37.72175555555556}
+cooling      {}
+electricity  38229.61179364127
+-----------  -----------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1200.0, 'Electricity price (delta_ut)', 97.5) 
+
+Basic results-------- 
+----------------------------  --------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902095.4 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -1.586 Mil. Euro
+Net production costs          14.46 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            -0.0 H2O-eq/ton
+----------------------------  --------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                         2.9
+Raw material consumption share      0
+Operating and Maintanence share     1.64
+Electricity share                 235.01
+Chilling share                      0
+Heat integration share            551.79
+Waste treatment share               0
+Profits share                    -691.34
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------------------
+heat         {110: 4.3907112033440994e-18, 140: 2.1336657383963508e-14, 149: 9.451267715362151e-14, 400: 3.2955597362160915e-16, 900: 37.72175555555556}
+cooling      {}
+electricity  38229.61179363707
+-----------  -------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1200.0, 'Electricity price (delta_ut)', 125.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902117.48 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -2.637 Mil. Euro
+Net production costs          24.05 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                         1.75
+Raw material consumption share      0
+Operating and Maintanence share     0.98
+Electricity share                 181.19
+Chilling share                      0
+Heat integration share            331.83
+Waste treatment share               0
+Profits share                    -415.75
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -----------------------------------------------------
+heat         {400: 3.2955597362160915e-16, 900: 37.72175555555556}
+cooling      {}
+electricity  38229.61179364128
+-----------  -----------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1200.0, 'Electricity price (delta_ut)', 152.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902149.82 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -3.351 Mil. Euro
+Net production costs          84.52 euro/ton
+Net production GHG emissions  2.85 CO2-eq/ton
+Net production FWD            -1.99 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -----------------
+ 100  Grinding
+ 200  Hydrolysis
+ 210  EthOH.Ferm
+ 230  Distillation.EOH
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+2000  Ethanol
+8000  Compost
+  11  PotatoPeels
+  22  Water
+  33  Air
+  88  Enzyms
+ 888  PPW splitter
+ 777  Gas splitter
+ 111  Hyroly splitter
+----  -----------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                       322.25
+Raw material consumption share    158.72
+Operating and Maintanence share   187.43
+Electricity share                 -21.02
+Chilling share                      0
+Heat integration share            224.26
+Waste treatment share               0
+Profits share                    -771.64
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-----------------  -----
+Heat pump           0
+Grinding            0.43
+Hydrolysis         46.93
+EthOH.Ferm         34.05
+Distillation.EOH    1.44
+Anaerobic Digest.  14.53
+Composting          2.62
+-----------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    95.81
+EthOH.Ferm                   2.37
+Anaerobic Digest.            1.82
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    34.44
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        2.49
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      34.44
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                49763
+Electricity                     -1524
+Heat                            64859
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -79050
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+heat         {200: 6.153892431254083, 210: 0.7299650401800013, 230: 27.28697437602657, 400: 3.2955597362160915e-16, 600: 0.2660901001120154}
+cooling      {}
+electricity  9348.36288955446
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.17
+(888, 600)    0.13
+(888, 200)   67.04
+(777, 700)    2.04
+(111, 210)   67.04
+(200, 111)   67.04
+(210, 230)   66.55
+(210, 600)    3.17
+(230, 2000)   4.19
+(600, 777)    2.04
+(600, 800)    1.83
+(800, 8000)   0.76
+(11, 100)    69.97
+(88, 200)     0.13
+(22, 210)     9.88
+(33, 700)    18.63
+(11, 800)     0.03
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1200.0, 'Electricity price (delta_ut)', 180.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902191.95 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -3.224 Mil. Euro
+Net production costs          81.31 euro/ton
+Net production GHG emissions  2.85 CO2-eq/ton
+Net production FWD            -1.99 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -----------------
+ 100  Grinding
+ 200  Hydrolysis
+ 210  EthOH.Ferm
+ 230  Distillation.EOH
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+2000  Ethanol
+8000  Compost
+  11  PotatoPeels
+  22  Water
+  33  Air
+  88  Enzyms
+ 888  PPW splitter
+ 777  Gas splitter
+ 111  Hyroly splitter
+----  -----------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                       334.94
+Raw material consumption share    164.97
+Operating and Maintanence share   194.82
+Electricity share                 -25.78
+Chilling share                      0
+Heat integration share            233.09
+Waste treatment share               0
+Profits share                    -802.04
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-----------------  -----
+Heat pump           0
+Grinding            0.43
+Hydrolysis         46.93
+EthOH.Ferm         34.05
+Distillation.EOH    1.44
+Anaerobic Digest.  14.53
+Composting          2.62
+-----------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    95.81
+EthOH.Ferm                   2.37
+Anaerobic Digest.            1.82
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    34.44
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        2.49
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      34.44
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                49763
+Electricity                     -1524
+Heat                            64859
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -79050
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------
+heat         {200: 6.153892375589953, 210: 0.7299651003566139, 230: 27.28697644621903, 600: 0.26609001982962}
+cooling      {}
+electricity  9348.362815248422
+-----------  ------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.17
+(888, 600)    0.13
+(888, 200)   67.04
+(777, 700)    2.04
+(111, 210)   67.04
+(200, 111)   67.04
+(210, 230)   66.55
+(210, 600)    3.17
+(230, 2000)   4.19
+(600, 777)    2.04
+(600, 800)    1.83
+(800, 8000)   0.76
+(11, 100)    69.97
+(88, 200)     0.13
+(22, 210)     9.88
+(33, 700)    18.63
+(11, 800)     0.03
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1350.0, 'Electricity price (delta_ut)', 70.0) 
+
+Basic results-------- 
+----------------------------  --------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902246.3 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -0.535 Mil. Euro
+Net production costs          4.88 euro/ton
+Net production GHG emissions  0.8 CO2-eq/ton
+Net production FWD            0.0 H2O-eq/ton
+----------------------------  --------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                          8.61
+Raw material consumption share       0
+Operating and Maintanence share      4.85
+Electricity share                  500.48
+Chilling share                       0
+Heat integration share            1636.7
+Waste treatment share                0
+Profits share                    -2050.64
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+---------  ---
+Heat pump    0
+Grinding   100
+---------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    23.44
+Extrusion + drying          76.56
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                    0
+Electricity                     12616
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  -----------------------------------------------------
+heat         {400: 3.2955597362160915e-16, 900: 37.72175555555556}
+cooling      {}
+electricity  38229.61179364128
+-----------  -----------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1350.0, 'Electricity price (delta_ut)', 97.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902279.41 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -1.416 Mil. Euro
+Net production costs          50.37 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                        880.24
+Raw material consumption share       0
+Operating and Maintanence share    507
+Electricity share                   27.26
+Chilling share                       0
+Heat integration share             152.34
+Waste treatment share                0
+Profits share                    -1466.84
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+heat         {230: 3.604731134987358e-08, 400: 0.6412156653052659, 500: 2.1160116955073764, 550: 8.698909808074731, 600: 0.3532157919118141}
+cooling      {}
+electricity  21074.304130898417
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1350.0, 'Electricity price (delta_ut)', 125.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902396.98 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -1.526 Mil. Euro
+Net production costs          54.26 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                        817.28
+Raw material consumption share       0
+Operating and Maintanence share    470.74
+Electricity share                   32.44
+Chilling share                       0
+Heat integration share             141.44
+Waste treatment share                0
+Profits share                    -1361.91
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------
+heat         {400: 0.641215625004621, 500: 2.116011562515249, 550: 8.698909261344978, 600: 0.3532157221343616}
+cooling      {}
+electricity  21074.303365126943
+-----------  -------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1350.0, 'Electricity price (delta_ut)', 152.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902444.08 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -1.635 Mil. Euro
+Net production costs          58.13 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                        762.83
+Raw material consumption share       0
+Operating and Maintanence share    439.37
+Electricity share                   36.94
+Chilling share                       0
+Heat integration share             132.02
+Waste treatment share                0
+Profits share                    -1271.16
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                      -0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ---------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156659999997, 500: 2.1160116977893764, 550: 8.69890981745647, 600: 0.35321573253041477}
+cooling      {}
+electricity  21074.3041160069
+-----------  ---------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1350.0, 'Electricity price (delta_ut)', 180.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902492.41 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -1.743 Mil. Euro
+Net production costs          62.0 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                        715.18
+Raw material consumption share      -0
+Operating and Maintanence share    411.93
+Electricity share                   40.88
+Chilling share                       0
+Heat integration share             123.77
+Waste treatment share                0
+Profits share                    -1191.76
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------
+heat         {400: 0.641215665999257, 500: 2.116011697797547, 550: 8.698909817490058, 600: 0.3532157919223937}
+cooling      {}
+electricity  21074.30415406193
+-----------  -------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1500.0, 'Electricity price (delta_ut)', 70.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902541.06 seconds
+Solver name                   gurobi
+Earnings Before Tax income    0.97 Mil. Euro
+Net production costs          -34.48 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                      -1285.23
+Raw material consumption share      -0
+Operating and Maintanence share   -740.27
+Electricity share                  -28.59
+Chilling share                      -0
+Heat integration share            -222.57
+Waste treatment share               -0
+Profits share                     2376.66
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.49
+Pastur.Decant         0.44
+MP.Ferm.             32.32
+Dewater.Prot         24.89
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.39
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156660000008, 500: 2.116011697800001, 550: 8.69890981749968, 600: 0.3532157919210017}
+cooling      {}
+electricity  21074.3041540751
+-----------  -------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1500.0, 'Electricity price (delta_ut)', 97.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902604.11 seconds
+Solver name                   gurobi
+Earnings Before Tax income    0.848 Mil. Euro
+Net production costs          -30.17 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                      -1469.56
+Raw material consumption share      -0
+Operating and Maintanence share   -846.43
+Electricity share                  -45.5
+Chilling share                      -0
+Heat integration share            -254.33
+Waste treatment share               -0
+Profits share                     2715.83
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                      -0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ----------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156658078458, 500: 2.1160116971658907, 550: 8.698909814892867, 600: 0.35321579176356027}
+cooling      {}
+electricity  21074.30414738834
+-----------  ----------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1500.0, 'Electricity price (delta_ut)', 125.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902642.35 seconds
+Solver name                   gurobi
+Earnings Before Tax income    0.74 Mil. Euro
+Net production costs          -26.3 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                      -1685.93
+Raw material consumption share      -0
+Operating and Maintanence share   -971.06
+Electricity share                  -66.93
+Chilling share                      -0
+Heat integration share            -291.78
+Waste treatment share               -0
+Profits share                     3115.7
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {110: 2.2323376812391404e-18, 210: -2.583889616117174e-09, 230: -1.2562314933204933e-07, 400: 0.641215665999646, 500: 2.116011697798831, 550: 8.698909817495348, 600: 0.3532157919220387, 900: 1.8711662145657708e-10}
+cooling      {}
+electricity  21074.304154068865
+-----------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1500.0, 'Electricity price (delta_ut)', 152.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902690.01 seconds
+Solver name                   gurobi
+Earnings Before Tax income    0.631 Mil. Euro
+Net production costs          -22.43 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                      -1977.01
+Raw material consumption share      -0
+Operating and Maintanence share  -1138.72
+Electricity share                  -95.75
+Chilling share                      -0
+Heat integration share            -342.15
+Waste treatment share               -0
+Profits share                     3653.63
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------
+heat         {400: 0.641215628005164, 500: 2.116011572416885, 550: 8.698909302051018, 600: 0.3532157919225236}
+cooling      {}
+electricity  21074.30346427523
+-----------  -------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1500.0, 'Electricity price (delta_ut)', 180.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902734.41 seconds
+Solver name                   gurobi
+Earnings Before Tax income    0.522 Mil. Euro
+Net production costs          -18.56 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  --------
+CAPEX share                      -2389.64
+Raw material consumption share      -0
+Operating and Maintanence share  -1376.38
+Electricity share                 -136.6
+Chilling share                      -0
+Heat integration share            -413.57
+Waste treatment share               -0
+Profits share                     4416.19
+-------------------------------  --------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156659993005, 500: 2.11601169779769, 550: 8.698909817490659, 600: 0.3532157919234399}
+cooling      {}
+electricity  21074.30415406016
+-----------  -------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1650.0, 'Electricity price (delta_ut)', 70.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902770.29 seconds
+Solver name                   gurobi
+Earnings Before Tax income    3.223 Mil. Euro
+Net production costs          -114.6 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -386.91
+Raw material consumption share     -0
+Operating and Maintanence share  -222.85
+Electricity share                  -8.6
+Chilling share                     -0
+Heat integration share            -66.96
+Waste treatment share              -0
+Profits share                     785.33
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ---------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156659992376, 500: 2.116011697797475, 550: 8.698909817489813, 600: 0.35321579192275415}
+cooling      {}
+electricity  21074.304154061218
+-----------  ---------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1650.0, 'Electricity price (delta_ut)', 97.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902820.42 seconds
+Solver name                   gurobi
+Earnings Before Tax income    3.114 Mil. Euro
+Net production costs          -110.73 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -400.45
+Raw material consumption share     -0
+Operating and Maintanence share  -230.65
+Electricity share                 -12.4
+Chilling share                     -0
+Heat integration share            -69.3
+Waste treatment share              -0
+Profits share                     812.8
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ---------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156660014956, 500: 2.1160116978049346, 550: 8.698909817519965, 600: 0.3532157919227216}
+cooling      {}
+electricity  21074.304154103145
+-----------  ---------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1650.0, 'Electricity price (delta_ut)', 125.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902875.11 seconds
+Solver name                   gurobi
+Earnings Before Tax income    3.005 Mil. Euro
+Net production costs          -106.86 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -414.96
+Raw material consumption share     -0
+Operating and Maintanence share  -239.01
+Electricity share                 -16.47
+Chilling share                     -0
+Heat integration share            -71.82
+Waste treatment share              -0
+Profits share                     842.25
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ---------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156564617821, 500: 2.1160116663238804, 550: 8.698909688101882, 600: 0.3532157775703325}
+cooling      {}
+electricity  21074.30396839174
+-----------  ---------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1650.0, 'Electricity price (delta_ut)', 152.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902896.94 seconds
+Solver name                   gurobi
+Earnings Before Tax income    2.896 Mil. Euro
+Net production costs          -102.99 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -430.56
+Raw material consumption share     -0
+Operating and Maintanence share  -248
+Electricity share                 -20.85
+Chilling share                     -0
+Heat integration share            -74.52
+Waste treatment share              -0
+Profits share                     873.93
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  --------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156659999801, 500: 2.116011697799933, 550: 8.698909817499082, 600: 0.3532157919216173}
+cooling      {}
+electricity  21074.30415407471
+-----------  --------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1650.0, 'Electricity price (delta_ut)', 180.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902918.68 seconds
+Solver name                   gurobi
+Earnings Before Tax income    2.787 Mil. Euro
+Net production costs          -99.11 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -447.39
+Raw material consumption share     -0
+Operating and Maintanence share  -257.68
+Electricity share                 -25.57
+Chilling share                     -0
+Heat integration share            -77.43
+Waste treatment share              -0
+Profits share                     908.07
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ----------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156659976824, 500: 2.1160116977923504, 550: 8.698909817467912, 600: 0.35321579192005564}
+cooling      {}
+electricity  21074.30415403054
+-----------  ----------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1800.0, 'Electricity price (delta_ut)', 70.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902944.72 seconds
+Solver name                   gurobi
+Earnings Before Tax income    5.488 Mil. Euro
+Net production costs          -195.16 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -227.21
+Raw material consumption share     -0
+Operating and Maintanence share  -130.87
+Electricity share                  -5.05
+Chilling share                     -0
+Heat integration share            -39.32
+Waste treatment share              -0
+Profits share                     502.45
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  --------------------------------------------------------------------------------------------------------------------------------
+heat         {149: 2.973596364383245e-14, 400: 0.6412156659881636, 500: 2.1160116977609387, 550: 8.698909817339109, 600: 0.35321579191615066}
+cooling      {}
+electricity  21074.304153682046
+-----------  --------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1800.0, 'Electricity price (delta_ut)', 97.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716902998.87 seconds
+Solver name                   gurobi
+Earnings Before Tax income    5.379 Mil. Euro
+Net production costs          -191.29 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -231.81
+Raw material consumption share     -0
+Operating and Maintanence share  -133.51
+Electricity share                  -7.18
+Chilling share                     -0
+Heat integration share            -40.12
+Waste treatment share              -0
+Profits share                     512.62
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+heat         {230: 8.192535538853463e-13, 400: 0.6412156659792467, 500: 2.116011697731513, 550: 8.698909817218603, 600: 0.35321579191899705}
+cooling      {}
+electricity  21074.304153601497
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1800.0, 'Electricity price (delta_ut)', 125.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716903042.88 seconds
+Solver name                   gurobi
+Earnings Before Tax income    5.27 Mil. Euro
+Net production costs          -187.42 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -236.6
+Raw material consumption share     -0
+Operating and Maintanence share  -136.27
+Electricity share                  -9.39
+Chilling share                     -0
+Heat integration share            -40.95
+Waste treatment share              -0
+Profits share                     523.21
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  --------------------------------------------------------------------------------------------------------------------------------
+heat         {149: 2.0594618326332773e-09, 400: 0.6412156644665864, 500: 2.1160116963903945, 550: 8.698909817149286, 600: 0.3532157239143067}
+cooling      {}
+electricity  21074.304079508154
+-----------  --------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1800.0, 'Electricity price (delta_ut)', 152.5) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716903069.39 seconds
+Solver name                   gurobi
+Earnings Before Tax income    5.161 Mil. Euro
+Net production costs          -183.54 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -241.59
+Raw material consumption share     -0
+Operating and Maintanence share  -139.15
+Electricity share                 -11.7
+Chilling share                     -0
+Heat integration share            -41.81
+Waste treatment share              -0
+Profits share                     534.25
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                       0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156243412317, 500: 2.116011560326064, 550: 8.698909252344933, 600: 0.3532157919227001, 900: 3.3376121249478137e-12}
+cooling      {}
+electricity  21074.30339775893
+-----------  -------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 
+Identifier of Single run: ('Price (ProductPrice)_9700', 1800.0, 'Electricity price (delta_ut)', 180.0) 
+
+Basic results-------- 
+----------------------------  ---------------------
+Objective Function            EBIT
+Yearly product load
+Solver run time               1716903095.64 seconds
+Solver name                   gurobi
+Earnings Before Tax income    5.052 Mil. Euro
+Net production costs          -179.67 euro/ton
+Net production GHG emissions  3.16 CO2-eq/ton
+Net production FWD            -0.6 H2O-eq/ton
+----------------------------  ---------------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+----  -------------------
+ 100  Grinding
+ 400  Mixed.culture.Ferm.
+ 500  Pastur.Decant
+ 510  MP.Ferm.
+ 520  Dewater.Prot
+ 550  Spray.Dry.MP
+ 600  Anaerobic Digest.
+ 700  CHP
+ 800  Composting
+8000  Compost
+9700  Micro.Prot.
+  11  PotatoPeels
+  22  Water
+  33  Air
+ 888  PPW splitter
+ 777  Gas splitter
+ 222  MCF splitter
+----  -------------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                      -246.8
+Raw material consumption share     -0
+Operating and Maintanence share  -142.15
+Electricity share                 -14.11
+Chilling share                     -0
+Heat integration share            -42.71
+Waste treatment share              -0
+Profits share                     545.76
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+-------------------  -----
+Heat pump             0
+Grinding              0.37
+Mixed.culture.Ferm.  27.48
+Pastur.Decant         0.44
+MP.Ferm.             32.3
+Dewater.Prot         24.87
+Spray.Dry.MP          6.3
+Anaerobic Digest.     6.45
+Composting            1.79
+-------------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    42.52
+Mixed.culture.Ferm.          0.92
+MP.Ferm.                     0.79
+Dewater.Prot                54.7
+Anaerobic Digest.            1.07
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -----
+Total heating demand                    11.81
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        3.06
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      11.81
+Net cooling demand                      -0
+--------------------------------------  -----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  -----
+Direct emissions                68466
+Electricity                      1307
+Heat                            19185
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  ------
+Indirect demand from raw materials    -16800
+Utilities (Electricity and chilling)       0
+Utilities (Heating)                        0
+Avoided burden from byproducds            -0
+------------------------------------  ------
+
+ 
+
+Energy data-------- 
+-----------  ----------------------------------------------------------------------------------------------------
+heat         {400: 0.6412156315509334, 500: 2.1160115841180787, 550: 8.698909350153745, 600: 0.35321579192280833}
+cooling      {}
+electricity  21074.30352865075
+-----------  ----------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+-----------  -----
+(100, 888)   67.2
+(888, 400)   67.2
+(777, 700)    2.72
+(222, 500)   59.84
+(400, 222)   59.84
+(400, 600)    5.46
+(500, 510)   50.27
+(500, 600)    0.66
+(510, 520)   48.03
+(520, 550)   13.3
+(550, 9700)   1.89
+(600, 777)    2.72
+(600, 800)    3.92
+(800, 8000)   1.63
+(11, 100)    70
+(22, 400)     2.1
+(33, 700)    21.44
+-----------  -----
+
+ 

@@ -109,7 +109,7 @@ class SingleOptimizer:
 
         timer = time_printer(programm_step='Superstructure optimization run', printTimer=printTimer)
 
-
+        # Solve the model
         results = self.solver.solve(model_instance, keepfiles=keepfiles, tee=tee)
 
 
@@ -137,7 +137,8 @@ class SingleOptimizer:
             (results["Problem"][0]["Upper bound"] - results["Problem"][0]["Lower bound"])
             / results["Problem"][0]["Upper bound"]) * 100
 
-        timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)
+        if printTimer:
+            timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)
 
         if stochastic_optimisation: # if the run is a stochastic run we need to use the stochastic model output class
             model_output = StochasticModelOutput(model_instance=model_instance, # the model instance now contains the optimised values

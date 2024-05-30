@@ -25,7 +25,7 @@ from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progre
 
 # function for Pandafunction to read an excelfile:
 
-def get_DataFromExcel(PathName=None, optimization_mode=None):
+def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_params=None):
 
     """
     Description
@@ -45,6 +45,8 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
     Parameters
     ----------
     PathName : String, Path to Exceldata
+    optimization_mode : String, optional, overrides the optimisation mode defined in the Excel file
+    cross_sensitivity_params : Dict, optional, overrides the cross sensitivity parameters defined in the Excel file
 
     Returns
     -------
@@ -139,9 +141,9 @@ def get_DataFromExcel(PathName=None, optimization_mode=None):
         Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
         Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
 
-    elif _optimization_mode == 'sensitivity':
+    elif _optimization_mode == 'sensitivity' or _optimization_mode == 'cross-parameter sensitivity':
         # collect the sensitivity data & automatically add it to the Superstructure_Object
-        wrapp_sensitivty_data(Superstructure_Object, dataframe['Sensitivity'])
+        wrapp_sensitivty_data(Superstructure_Object, dataframe['Sensitivity'], cross_sensitivity_params)
 
     elif _optimization_mode == 'multi-objective':
         # collect the multi-objective data & automatically add it to the Superstructure_Object

@@ -77,6 +77,7 @@ class SuperstructureProblem:
         calculation_EVPI=True,
         calculation_VSS=True,
         count_variables_constraints=False,
+        cross_sensitivity_parameters=None,
     ):
         """
 
@@ -319,13 +320,17 @@ class SuperstructureProblem:
             optimizer = MCDAOptimizer(solver, interface, options, mode_options)
 
         elif optimization_mode == "sensitivity":
-            optimizer = SensitivityOptimizer(
-                solver, interface, options, mode_options, superstructure)
+            optimizer = SensitivityOptimizer(solver, interface, options,
+                                             mode_options, superstructure)
 
         elif optimization_mode == "cross-parameter sensitivity":
             optimizer = TwoWaySensitivityOptimizer(
-                solver, interface, options, mode_options, superstructure
-            )
+                solver_name=solver,
+                solver_interface=interface,
+                solver_options=options,
+                two_way_data=mode_options,
+                superstructure=superstructure)
+
         else:
             raise ValueError("Optimization mode not supported")
 
@@ -354,8 +359,7 @@ class SuperstructureProblem:
         if optimization_mode == "multi-objective":
             mode_options = superstructure.multi_objectives
         elif (
-            optimization_mode == "sensitivity" or optimization_mode == "cross-parameter sensitivity"
-        ):
+            optimization_mode == "sensitivity" or optimization_mode == "cross-parameter sensitivity"):
             mode_options = superstructure.sensitive_parameters
         else:
             mode_options = None

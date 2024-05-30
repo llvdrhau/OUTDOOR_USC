@@ -56,9 +56,7 @@ def wrapp_stochastic_data(dfi):
 
     return obj
 
-def wrapp_sensitivty_data(obj, dfi):
-
-
+def wrapp_sensitivty_data(obj, dfi, cross_sensitivity_params):
 
     sensitivity_data = {}
 
@@ -72,12 +70,16 @@ def wrapp_sensitivty_data(obj, dfi):
         rangeSensitivity = range(len(dfSensi))
 
     elif obj.optimization_mode == 'cross-parameter sensitivity':
-        DataRange = WF.convert_total('C', 9, 'S', 11)
-        dfSensi = dfi.iloc[DataRange]
-        # make the first row the column names
-        dfSensi.columns = dfSensi.iloc[0]
-        dfSensi = dfSensi.drop(dfSensi.index[0])
-        # get the range to loop over
+        if cross_sensitivity_params:
+            # get the cross sensitivity parameters
+            dfSensi = pd.DataFrame(cross_sensitivity_params)
+        else:
+            DataRange = WF.convert_total('L', 9, 'S', 11)
+            dfSensi = dfi.iloc[DataRange]
+            # make the first row the column names
+            dfSensi.columns = dfSensi.iloc[0]
+            dfSensi = dfSensi.drop(dfSensi.index[0])
+        # get the range to loop over, which will always be two
         rangeSensitivity = range(2)
     else:
         raise ValueError('The optimization mode {} is not recognized'.format(obj.optimization_mode))

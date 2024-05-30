@@ -40,7 +40,7 @@ def change_myu_parameter(Instance, Value, metadata, *args):
     :return: model instance
     """
     # nrComponentTuple = (unitNr, (targetUnit, component))
-    index = (metadata['Unit_Number'], (metadata['Target_Unit'], metadata['Component']))
+    index = (metadata['Unit_Number'], int(metadata['Target_Unit']), metadata['Component'])
     try :
         Instance.myu[index] = Value
     except KeyError:
@@ -117,7 +117,7 @@ def change_theta_parameter(Instance, Value, metadata, *args):
     """
 
     # nrComponentTuple = (unitNr, (reactionNr, component))
-    index = (metadata['Unit_Number'], (metadata['Reaction_Number'], metadata['Component']))
+    index = (metadata['Unit_Number'], metadata['Reaction_Number'], metadata['Component'])
     try:
         Instance.theta[index] = Value
     except KeyError:
