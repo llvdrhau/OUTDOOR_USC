@@ -756,9 +756,9 @@ class Canvas(QGraphicsView):
 
         # Mapping of text to icon_type and index
         icon_map = {
-            "Boolean split": ("split", self.index_split),
-            "Defined split 2": ("split", self.index_split),
-            "Undefined split": ("split", self.index_split),
+            "Boolean split": ("bool_split", self.index_split),
+            "Defined split 2": ("defined_split", self.index_split),
+            "Undefined split": ("undefined_split", self.index_split),
 
             "Input": ("input", self.index_input),
             "Output": ("output", self.index_output),
@@ -808,13 +808,26 @@ class Canvas(QGraphicsView):
         :param pos: Position of the mouse click
         :return:
         """
-        # Start drawing a new line from this port
-        print('iniciating start line')
-        self.startPort = port
-        self.startPoint = pos  # Always corresponds to the exit port
-        self.currentLine = InteractiveLine(pos, pos)  # QGraphicsLineItem(QLineF(pos, pos))
-        port.connectionLines.append(self.currentLine)
-        self.scene.addItem(self.currentLine)
+        if port.occupied:
+            # do not start a new line if the port is already connected
+            return
+        else:
+            if 'split' not in port.iconType and port.portType == 'exit' and len(port.connectionLines) > 0:
+                # the port of an icon that is not a split icon and is an exit port is now occupied only one
+                # stream can leave. The extra if statement is to avoid the case where the line was deleted
+                # and no longer exists
+                port.occupied = True
+                # stop the line drawing process with return statement
+                return
+
+            # Start drawing a new line from this port
+            print('iniciating start line')
+            self.startPort = port
+            self.startPoint = pos  # Always corresponds to the exit port
+            self.currentLine = InteractiveLine(startPoint=pos, endPoint=pos,
+                                               startPort=port)  # QGraphicsLineItem(QLineF(pos, pos))
+            port.connectionLines.append(self.currentLine)
+            self.scene.addItem(self.currentLine)
 
     def endLine(self, port, pos):
         """
@@ -823,8 +836,22 @@ class Canvas(QGraphicsView):
         :param pos: Position of the mouse click
         :return:
         """
+        # Do not start a new line if the startPort is not set error has occured
+        if self.startPort is None:
+            return
+
+        # Do not end a new line in a port that is already occupied
+        if port.occupied:
+            return
+
+        if 'split' in port.iconType and port.portType == 'entry' and len(port.connectionLines) > 0:
+            port.occupied = True
+            # stop the line drawing process with return statement
+            return
+
+
         print('initiating end line')
-        port.connectionLines.append(self.currentLine)
+        #port.connectionLines.append(self.currentLine)
         self.endPort = port
         self.endPoint = pos # allways corresponds to the entry port
         # Here you might want to validate if the startPort and endPort can be connected
@@ -832,6 +859,7 @@ class Canvas(QGraphicsView):
         print(self.startPort != self.endPort)
         if self.currentLine and self.startPort != port:
             self.currentLine.endPoint = pos  # Update the end point
+            self.currentLine.endPort = port # Update the end port
             self.currentLine.updateAppearance()  # Update the line appearance based on its current state
             port.connectionLines.append(self.currentLine)
             self.centralDataManager.addConnection(self.startPort, port, self.startPoint, pos, self.currentLine)
@@ -847,7 +875,18 @@ class Canvas(QGraphicsView):
             for item in self.scene.selectedItems():
                 if isinstance(item, MovableIcon):
                     for port in item.ports:
+                        #port.occupied = False
                         for line in port.connectionLines:
+                            # remove the line from the port object
+                            line.startPort.connectionLines.remove(line)
+                            # update the occupancy of the port to False
+                            line.startPort.occupied = False
+                            # remove the line from the port object
+                            line.endPort.connectionLines.remove(line)
+                            # update the occupancy of the port to False
+                            line.endPort.occupied = False
+
+                            # remove the line from the scene
                             self.scene.removeItem(line)
                     self.scene.removeItem(item)
 
@@ -924,6 +963,8 @@ class IconPort(QGraphicsEllipseItem):
         self.iconID = iconID
         self.setBrush(Qt.black)
         self.connectionLines = []  # List to store the lines connected to this iconPort
+        self.occupied = False  # Flag to indicate if the port is already connected to a line
+        self.iconType = parent.icon_type
 
         if pos:
             self.setPos(pos) # Set the position if it was passed (for split icons)
@@ -1010,7 +1051,11 @@ class MovableIcon(QGraphicsObject):
                 self.ports.append(IconPort(self, portType='exit', iconID=iconID))
             case 'output':
                 self.ports.append(IconPort(self, portType='entry', iconID=iconID))
-            case 'split':
+            case 'bool_split':
+                self.addSplitPorts()
+            case 'defined_split':
+                self.addSplitPorts()
+            case 'undefined_split':
                 self.addSplitPorts()
             # otherwise give port for entry and exit
             case _:
@@ -1022,14 +1067,20 @@ class MovableIcon(QGraphicsObject):
         entryPort = IconPort(self, portType='entry', iconID=self.iconID,
                              pos=QPointF(0, self.boundingRect().height() / 2))
         self.ports.append(entryPort)
+
         # Add exit ports
-        hightTriangle = self.boundingRect().height()
-        step = hightTriangle / (self.nExitPorts + 1)  # +1 to distribute evenly
-        for n in range(self.nExitPorts):
-            hightPosition = step * (n + 1)  # +1 because n starts at 0
-            exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), hightPosition),
-                                         portType='exit', iconID=self.iconID)
-            self.ports.append(exitPort)
+        exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), self.boundingRect().height() / 2),
+                            portType='exit', iconID=self.iconID)
+        self.ports.append(exitPort)
+
+        # code for multiple exit ports, deleet if your not gonq use it
+        # hightTriangle = self.boundingRect().height()
+        # step = hightTriangle / (self.nExitPorts + 1)  # +1 to distribute evenly
+        # for n in range(self.nExitPorts):
+        #     hightPosition = step * (n + 1)  # +1 because n starts at 0
+        #     exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), hightPosition),
+        #                                  portType='exit', iconID=self.iconID)
+        #     self.ports.append(exitPort)
     def updateExitPorts(self, nExitPortsNew):
         # Calculate the new step size
         hightTriangle = self.boundingRect().height()
@@ -1071,43 +1122,40 @@ class MovableIcon(QGraphicsObject):
             # update the number of exit ports
             self.nExitPorts = nExitPortsNew
     def boundingRect(self):
-        match self.icon_type:
-            case 'split':
-                return QRectF(0, 0, 60, 60)
-            case _:
-                return QRectF(0, 0, 120, 40)
+        if 'split' in self.icon_type:
+            return QRectF(0, 0, 60, 60)
+        else:
+            return QRectF(0, 0, 120, 40)
 
     def paint(self, painter, option, widget=None):
 
-        match self.icon_type:
-            case 'split':
-                # Set background color based on the icon type
-                backgroundColor = QColor(self.getBackgroundColor(self.text))
-                painter.setBrush(backgroundColor)
+        if 'split' in self.icon_type:
+            # Set background color based on the icon type
+            backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
+            painter.setBrush(backgroundColor)
 
-                # Create a QPainterPath object
-                path = QPainterPath()
-                path.moveTo(0, 30)
-                path.lineTo(60, 60)
-                path.lineTo(60, 0)
-                path.closeSubpath()
+            # Create a QPainterPath object
+            path = QPainterPath()
+            path.moveTo(0, 30)
+            path.lineTo(60, 60)
+            path.lineTo(60, 0)
+            path.closeSubpath()
 
-                # Draw the triangle
-                painter.fillPath(path, painter.brush())
-                painter.setPen(self.pen)
+            # Draw the triangle
+            painter.fillPath(path, painter.brush())
+            painter.setPen(self.pen)
+        else:
+            # Set background color based on the icon type
+            backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
+            painter.setBrush(backgroundColor)
+            painter.setPen(self.pen)
+            painter.drawRoundedRect(self.boundingRect(), 10, 10)
 
+            painter.setPen(Qt.black)
+            font = QFont("Arial", 10)
+            painter.setFont(font)
+            painter.drawText(self.boundingRect(), Qt.AlignCenter, self.text)
 
-            case _: # for all other icons
-                # Set background color based on the icon type
-                backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
-                painter.setBrush(backgroundColor)
-                painter.setPen(self.pen)
-                painter.drawRoundedRect(self.boundingRect(), 10, 10)
-
-                painter.setPen(Qt.black)
-                font = QFont("Arial", 10)
-                painter.setFont(font)
-                painter.drawText(self.boundingRect(), Qt.AlignCenter, self.text)
     def getBackgroundColor(self, icon_type):
         if icon_type == 'input':
             return "#c6e2e9"
@@ -1115,8 +1163,16 @@ class MovableIcon(QGraphicsObject):
             return "#ffcaaf"
         elif icon_type == 'physical_process':
             return "#a7bed3"
-        elif icon_type == 'split':
-            return "#DDA0DD"
+        elif icon_type == 'bool_split':
+            # the color dark red
+            return '#8B0000'
+        elif icon_type == 'defined_split':
+            # the color dark green
+            return '#006400'
+        elif icon_type == 'undefined_split':
+            # the color dark blue
+            return '#00008B'
+        # if none of the above return a gray color
         return "#D3D3D3"
 
     def mousePressEvent(self, event):
@@ -1146,7 +1202,7 @@ class MovableIcon(QGraphicsObject):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
-            if self.icon_type == 'split':
+            if 'split' in self.icon_type:
                 self.openSplittingDialog()
             else:
                 self.openParametersDialog()
@@ -1416,15 +1472,17 @@ class InteractiveLine(QGraphicsPathItem):
     double-clicking on the line to toggle between the two modes. The control point for curved lines is only shown when
     the line is curved and selected.
     """
-    def __init__(self, startPoint, endPoint, parent=None):
+    def __init__(self, startPoint, endPoint, startPort=None, endPort=None , parent=None):
         super().__init__(parent)
         self.startPoint = startPoint
         self.endPoint = endPoint
         self.isCurved = False  # Line starts as straight
         self.controlPoint = None  # Control point is not created until needed
+        self.startPort = startPort
+        self.endPort = endPort
 
         # set Flags
-        #self.setAcceptHoverEvents(True)  # Enable hover events
+        # self.setAcceptHoverEvents(True)  # Enable hover events
         # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsFocusable)  # Enable focus
 
@@ -1481,7 +1539,17 @@ class InteractiveLine(QGraphicsPathItem):
             # Delete the line if the Backspace key is pressed while the line is selected
             self.scene().removeItem(self)
             self.setSelectedLine(False)
-            # todo remove the line from the data dict as well
+
+            # reset the occupied flag of the start and end port
+            self.startPort.occupied = False
+            self.endPort.occupied = False
+
+            # deleet the line from the connectionLines list of the ports
+            self.startPort.connectionLines.remove(self)
+            self.endPort.connectionLines.remove(self)
+
+            # todo remove the line from the data dict as well, from the centralDataManager
+
         super().keyPressEvent(event)
 
     def updateAppearance(self):
@@ -1931,7 +1999,8 @@ class PhysicalProcessesDialog(QDialog):
         tabWidget = QTabWidget(self)
         tabWidget.addTab(self._createGeneralParametersTab(), "General Parameters")
         tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")
-        tabWidget.addTab(self._createEnergyConsumptionTab(), "Energy Consumption Parameters")
+        tabWidget.addTab(self._createUtilityConsumptionTab(), "Utility Consumption")
+        tabWidget.addTab(self._createHeatingConsumptionTab(), "Heating Requirements")
         # You can add more tabs as needed...
 
         layout = QVBoxLayout(self)
@@ -2146,7 +2215,7 @@ class PhysicalProcessesDialog(QDialog):
 
         self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowType, tooltipText=tooltipText)
         # # Connect the signal to the slot function
-        self.referenceFlowType.currentIndexChanged.connect(lambda: self._componentSelectionSwitch())
+        self.referenceFlowType.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Cost"))
 
         # Reference Flow input
         self.referenceFlowInput = QLineEdit(self)
@@ -2221,32 +2290,38 @@ class PhysicalProcessesDialog(QDialog):
         widget.setLayout(layout)
         return widget
 
-    def _createEnergyConsumptionTab(self):
+    def _createUtilityConsumptionTab(self):
+
+        # Create common elements
+        def createReferenceFlowTypeComboBox(name):
+            comboBox = QComboBox(self)
+            comboBox.addItems([
+                "Entering mass Flow", "Exiting mass Flow",
+                "Entering Molar Flow", "Exiting Molar Flow",
+                "Entering Flow Cp", "Exiting Flow Cp"
+            ])
+            comboBox.setObjectName(name)
+            return comboBox
+
+
         # Energy Consumption Tab
         widget = QWidget()
         layout = QFormLayout()
 
-        self._createSectionTitle(text="Electricity Requierments", layout=layout)
-
+        # ----------------------------------------------------------------------------------------------------------
+        # Electricity Requirements
+        self._createSectionTitle(text="Electricity Requirements", layout=layout)
+        # ----------------------------------------------------------------------------------------------------------
 
         # Reference Flow type Energy
-        self.referenceFlowTypeEnergy = QComboBox(self)
-        # add options to ComboBox
-        self.referenceFlowTypeEnergy.addItem("Entering mass Flow")
-        self.referenceFlowTypeEnergy.addItem("Exiting mass Flow")
-        self.referenceFlowTypeEnergy.addItem("Entering Molar Flow")
-        self.referenceFlowTypeEnergy.addItem("Exiting Molar Flow")
-        self.referenceFlowTypeEnergy.addItem("Entering Flow Cp")
-        self.referenceFlowTypeEnergy.addItem("Exiting Flow Cp")
-        self.referenceFlowTypeEnergy.setObjectName("referenceFlowTypeEnergy")
+        self.referenceFlowTypeEnergy = createReferenceFlowTypeComboBox("referenceFlowTypeEnergy")
         tooltipText = """The reference flow type is the type of flow that is used to calculate the Energy Consumption of
-                        the unit process."""
-        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeEnergy, tooltipText=tooltipText)
-        # add logic to change the units of the energy consumption based on the reference flow type
-        self.referenceFlowTypeEnergy.currentIndexChanged.connect(lambda: self._componentSelectionSwitchEnergy())
+                            the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeEnergy,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeEnergy.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Electricity"))
 
-
-        # Energy Consumption parameter
+        # Electricity Consumption parameter
         self.energyConsumption = QLineEdit(self)
         self.energyConsumption.setText("0.00")
         self.energyConsumption.setObjectName("energyConsumption")
@@ -2254,7 +2329,7 @@ class PhysicalProcessesDialog(QDialog):
         # add a label to the energy consumption units
         self.referenceFlowUnitEnergy = QLabel(self)
         self.referenceFlowUnitEnergy.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
-        self.referenceFlowUnitEnergy.setFixedWidth(70) # make the lable bigger in width
+        self.referenceFlowUnitEnergy.setFixedWidth(120) # make the lable bigger in width
         self.referenceFlowUnitEnergy.setFont(self.subtitleFont)  # make it bold
 
         # combine the energy consumption and the unit in a horizontal layout
@@ -2286,48 +2361,184 @@ class PhysicalProcessesDialog(QDialog):
         # Initialize the table with an example row (optional)
         self._addRowToTable(tabName="energy")
 
-        #
-        self._createSectionTitle(text="Heating/cooling Requierments", layout=layout)
-        # heat consumption
-        self.heatConsumption = QLineEdit(self)
-        self.heatConsumption.setText("0.00")
-        self.heatConsumption.setObjectName("heatConsumption")
-        tooltipText = """The heat consumption of the unit process."""
-        # add a label to the heat consumption units
-        self.heatConsumptionUnit = QLabel(self)
-        self.heatConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
-        self.heatConsumptionUnit.setFixedWidth(70)  # make the lable bigger in width
-        self.heatConsumptionUnit.setFont(self.subtitleFont)  # make it bold
+        # ----------------------------------------------------------------------------------------------------------
+        # Chilling Requirements
+        self._createSectionTitle(text="Chilling Requierments", layout=layout)
+        # ----------------------------------------------------------------------------------------------------------
 
-        # combine the heat consumption and the unit in a horizontal layout
+        # Reference Flow type Chilling
+        self.referenceFlowTypeChilling = createReferenceFlowTypeComboBox("referenceFlowTypeChilling")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Energy Consumption of
+                            the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeChilling,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeChilling.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Chilling"))
+
+        # Chilling Consumption parameter
+        self.chillingConsumption = QLineEdit(self)
+        self.chillingConsumption.setText("0.00")
+        self.chillingConsumption.setObjectName("chillingConsumption")
+        tooltipText = """The chilling consumption of the unit process."""
+        # add a label to the chilling consumption units
+        self.chillingConsumptionUnit = QLabel(self)
+        self.chillingConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.chillingConsumptionUnit.setFixedWidth(120)  # make the lable bigger in width
+        self.chillingConsumptionUnit.setFont(self.subtitleFont)  # make it bold
+        # combine the chilling consumption and the unit in a horizontal layout
         hlayout = QHBoxLayout()
-        hlayout.addWidget(self.heatConsumption)
-        hlayout.addWidget(self.heatConsumptionUnit)
-        # add the heat consumption to the layout
-        self._addRowWithTooltip(layout, labelText="Heat Consumption:", widget=hlayout, tooltipText=tooltipText)
+        hlayout.addWidget(self.chillingConsumption)
+        hlayout.addWidget(self.chillingConsumptionUnit)
+        # add the chilling consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Chilling Consumption:", widget=hlayout, tooltipText=tooltipText)
 
-        self._createSectionTitle(text="Heating/cooling Requierments(2) UNDER CONSTRUCTION ", layout=layout)
-        #♣ todo add the same for the second heat consumption but check if necessary to add a new table
-        self._createSectionTitle(text="Chilling Requierments UNDER CONSTRUCTION ", layout=layout)
-        #♣ todo add the same for the second heat consumption but check if necessary to add a new table
+        # Components table
+        self.componentsTableChilling = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableChilling.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableChilling.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the chilling consumption of
+                                the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableChilling, # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableChilling.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableChilling.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableChilling.setObjectName("componentsTableChilling")
+        # Add a row to tabel button
+        self.addRowButtonChilling = QPushButton("Add Component", self)
+        self.addRowButtonChilling.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonChilling.setObjectName("addRowButtonChilling")
+        layout.addWidget(self.addRowButtonChilling)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="chilling")
 
 
-
-
-
-
-
-
-
-
+        # internal method to create the layout of
 
         # set layout in the widget
         widget.setLayout(layout)
         return widget
 
+    def _createHeatingConsumptionTab(self):
+
+        def createReferenceFlowTypeComboBox(name):
+            comboBox = QComboBox(self)
+            comboBox.addItems([
+                "Entering mass Flow", "Exiting mass Flow",
+                "Entering Molar Flow", "Exiting Molar Flow",
+                "Entering Flow Cp", "Exiting Flow Cp"
+            ])
+            comboBox.setObjectName(name)
+            return comboBox
+
+        # Energy Consumption Tab
+        widget = QWidget()
+        layout = QFormLayout()
+
+        # -------------------------------------------------------------------------------------------------
+        # Heat Consumption 1
+        self._createSectionTitle(text="Heating/cooling Requirements", layout=layout)
+        # -------------------------------------------------------------------------------------------------
+        # drop down menu for the reference flow type
+        # Reference Flow type Heat
+        self.referenceFlowTypeHeat1 = createReferenceFlowTypeComboBox("referenceFlowTypeHeat1")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Heat Consumption of
+                                       the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeHeat1,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeHeat1.currentIndexChanged.connect(
+            lambda: self._componentSelectionSwitch(type="Heat1"))
+        # heat consumption
+        self.heatConsumption = QLineEdit(self)
+        self.heatConsumption.setText("0.00")
+        self.heatConsumption.setObjectName("heatConsumption")
+        tooltipText = """The cooling (Negative) or heating (Positive) required for the unit process."""
+        # add a label to the heat consumption units
+        self.heatConsumptionUnit = QLabel(self)
+        self.heatConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.heatConsumptionUnit.setFixedWidth(120)  # make the label bigger in width
+        self.heatConsumptionUnit.setFont(self.subtitleFont)  # make it bold
+        # combine the heat consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.heatConsumption)
+        hlayout.addWidget(self.heatConsumptionUnit)
+        # add the heat consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Required Cooling/Heating:", widget=hlayout, tooltipText=tooltipText)
+        # Components table
+        self.componentsTableHeat1 = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableHeat1.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableHeat1.setColumnWidth(0, 200)
+        # add the table to the layout
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the heat consumption of
+                                   the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableHeat1,
+                                tooltipText=tooltipText)
+        self.componentsTableHeat1.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableHeat1.setSelectionMode(QTableWidget.SingleSelection)
+        self.componentsTableHeat1.setObjectName("componentsTableHeat1")
+        # Add a row to tabel button
+        self.addRowButtonHeat1 = QPushButton("Add Component", self)
+        self.addRowButtonHeat1.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonHeat1.setObjectName("addRowButtonHeat1")
+        layout.addWidget(self.addRowButtonHeat1)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="heat1")
+        self._createSectionTitle(text="Heating/cooling Requierments(2)", layout=layout)
+        # Dropdown reference flow type Heat2
+        self.referenceFlowTypeHeat2 = createReferenceFlowTypeComboBox("referenceFlowTypeHeat2")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Heat Consumption of
+                                       the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeHeat2,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeHeat2.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Heat2"))
+
+        # Heat consumption 2
+        self.heatConsumption2 = QLineEdit(self)
+        self.heatConsumption2.setText("0.00")
+        self.heatConsumption2.setObjectName("heatConsumption2")
+        tooltipText = """The second cooling (Negative) or heating (Positive) required for the unit process."""
+        self.heatConsumption2Unit = QLabel(self)
+        self.heatConsumption2Unit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.heatConsumption2Unit.setFixedWidth(120)  # make the label bigger in width
+        self.heatConsumption2Unit.setFont(self.subtitleFont)  # make it bold
+        # combine the heat consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.heatConsumption2)
+        hlayout.addWidget(self.heatConsumption2Unit)
+        # add the heat consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Required Cooling/Heating:", widget=hlayout, tooltipText=tooltipText)
+        # Components table Heat2
+        self.componentsTableHeat2 = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableHeat2.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableHeat2.setColumnWidth(0, 200)
+        # add the table to the layout
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the heat consumption of
+                                   the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableHeat2,
+                                tooltipText=tooltipText)
+        self.componentsTableHeat2.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableHeat2.setSelectionMode(QTableWidget.SingleSelection)
+        self.componentsTableHeat2.setObjectName("componentsTableHeat2")
+        # Add row button Heat2
+        self.addRowButtonHeat2 = QPushButton("Add Component", self)
+        self.addRowButtonHeat2.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonHeat2.setObjectName("addRowButtonHeat2")
+        layout.addWidget(self.addRowButtonHeat2)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="heat2")
+
+        # set layout in the widget
+        widget.setLayout(layout)
+        return widget
+
+
     # -----------------------------------------------------------------
     # Methods for the components table
     # -----------------------------------------------------------------
+        # Create common elements
+        # Create common elements
 
     def _addRowToTable(self, tabName:str=''):
 
@@ -2338,11 +2549,21 @@ class PhysicalProcessesDialog(QDialog):
 
         # check what button is clicked
         if tabName == "cost" or senderName == "addRowButton":
-            print('the add row button is clicked')
+            #print('the add row button is clicked')
             table = self.componentsTable
         elif tabName == "energy" or senderName == "addRowButtonEnergy":
-            print('the add row button energy is clicked')
+            #print('the add row button energy is clicked')
             table = self.componentsTableEnergy
+        elif tabName == "heat1" or senderName == "addRowButtonHeat1":
+            #print('the add row button heat1 is clicked')
+            table = self.componentsTableHeat1
+        elif tabName == "heat2" or senderName == "addRowButtonHeat2":
+            #print('the add row button heat2 is clicked')
+            table = self.componentsTableHeat2
+
+        elif tabName == "chilling" or senderName == "addRowButtonChilling":
+            #print('the add row button chilling is clicked')
+            table = self.componentsTableChilling
 
         # Get the current row count and insert a new row at the end
         rowPosition = table.rowCount()
@@ -2379,41 +2600,67 @@ class PhysicalProcessesDialog(QDialog):
         # self.componentsTable.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
 
 
-    def _componentSelectionSwitch(self):
+    def _componentSelectionSwitch(self, type):
         """ Only fill in the component and product load if the reference flow type is mass flow"""
-        if self.referenceFlowType.currentText() == "Exiting Flow" or self.referenceFlowType.currentText() == "Entering Flow":
-            # If a mass flow is selected, make the button to add components clickable
-            self.referenceFlowUnit.setText("t/h")
-            self.componentsTable.setDisabled(False)
-            self.addRowButton.setDisabled(False)
-            self.addRowButton.setStyleSheet("""
-                            QPushButton {
-                                background-color: #5a9;
-                            }
-                            QPushButton:hover {
-                                background-color: #78d;
-                            }
-                        """)
+        if type == "Cost":
+            if self.referenceFlowType.currentText() == "Exiting Flow" or self.referenceFlowType.currentText() == "Entering Flow":
+                # If a mass flow is selected, make the button to add components clickable
+                self.referenceFlowUnit.setText("t/h")
+                self.componentsTable.setDisabled(False)
+                self.addRowButton.setDisabled(False)
+                self.addRowButton.setStyleSheet("""
+                                QPushButton {
+                                    background-color: #5a9;
+                                }
+                                QPushButton:hover {
+                                    background-color: #78d;
+                                }
+                            """)
 
-        else:
-            # If a mass flow is not selected, make the button to add components unclickable
-            self.componentsTable.setDisabled(True)
-            self.addRowButton.setDisabled(True)
-            self.addRowButton.setStyleSheet("""
-                QPushButton {
-                    background-color: grey;
-                }
-            """)
+            else:
+                # If a mass flow is not selected, make the button to add components unclickable
+                self.componentsTable.setDisabled(True)
+                self.addRowButton.setDisabled(True)
+                self.addRowButton.setStyleSheet("""
+                    QPushButton {
+                        background-color: grey;
+                    }
+                """)
 
-            self.referenceFlowUnit.setText("MWh")
+                self.referenceFlowUnit.setText("MWh")
 
-    def _componentSelectionSwitchEnergy(self):
-        if self.referenceFlowTypeEnergy.currentText() == 'Entering mass Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting mass Flow':
-            self.referenceFlowUnitEnergy.setText("MWh/t")
-        elif self.referenceFlowTypeEnergy.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting Molar Flow':
-            self.referenceFlowUnitEnergy.setText("MWh/Mmol")
-        else:
-            self.referenceFlowUnitEnergy.setText("ΔT")
+        elif type == "Electricity":
+            if self.referenceFlowTypeEnergy.currentText() == 'Entering mass Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting mass Flow':
+                self.referenceFlowUnitEnergy.setText("MWh/t")
+            elif self.referenceFlowTypeEnergy.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting Molar Flow':
+                self.referenceFlowUnitEnergy.setText("MWh/Mmol")
+            else:
+                self.referenceFlowUnitEnergy.setText("ΔT")
+
+        elif type == "Heat1":
+            if self.referenceFlowTypeHeat1.currentText() == 'Entering mass Flow' or self.referenceFlowTypeHeat1.currentText() == 'Exiting mass Flow':
+                self.heatConsumptionUnit.setText("MWh/t")
+            elif self.referenceFlowTypeHeat1.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeHeat1.currentText() == 'Exiting Molar Flow':
+                self.heatConsumptionUnit.setText("MWh/Mmol")
+            else:
+                self.heatConsumptionUnit.setText("ΔT")
+
+        elif type == "Heat2":
+            if self.referenceFlowTypeHeat2.currentText() == 'Entering mass Flow' or self.referenceFlowTypeHeat2.currentText() == 'Exiting mass Flow':
+                self.heatConsumption2Unit.setText("MWh/t")
+            elif self.referenceFlowTypeHeat2.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeHeat2.currentText() == 'Exiting Molar Flow':
+                self.heatConsumption2Unit.setText("MWh/Mmol")
+            else:
+                self.heatConsumption2Unit.setText("ΔT")
+
+        elif type == "Chilling":
+            if self.referenceFlowTypeChilling.currentText() == 'Entering mass Flow' or self.referenceFlowTypeChilling.currentText() == 'Exiting mass Flow':
+                self.chillingConsumptionUnit.setText("MWh/t")
+            elif self.referenceFlowTypeChilling.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeChilling.currentText() == 'Exiting Molar Flow':
+                self.chillingConsumptionUnit.setText("MWh/Mmol")
+            else:
+                self.chillingConsumptionUnit.setText("ΔT")
+
 
     def keyPressEvent(self, event):
         # print('the focus of the tabel is:', self.componentsTable.hasFocus()) # for debugging
