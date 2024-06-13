@@ -1,6 +1,6 @@
 """
 This is the case-study of the potato peel residue for the project AGRILOOP.
-Made by Philippe adapted by Lucas
+Made by Philippe Kenkle adapted by Lucas Van der Hauwaert
 
 Possible optimization modes: "Single run optimization", "Multi-criteria optimization", "Sensitivity analysis",
 "Cross-parameter sensitivity", and "Single 2-stage recourse optimization"
@@ -34,10 +34,10 @@ Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\r
 
 
 # set optimization mode
-#optimization_mode = 'single'
+optimization_mode = 'single'
 #optimization_mode= 'sensitivity'
 #optimization_mode = 'cross-parameter sensitivity'
-optimization_mode = "2-stage-recourse"
+#optimization_mode = "2-stage-recourse"
 
 
 
@@ -90,9 +90,9 @@ elif model_output._optimization_mode == "cross-parameter sensitivity":
     # save and analyze the new results
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
     # create figure cross-parameter sensitivity
-    analyzer.create_cross_parameter_plot(processList=[2000, 5000, 9700], objective='EBIT',
+    analyzer.create_cross_parameter_plot(processList=[2000, 5000, 9700, 7000], objective='EBIT',
                                          savePath=Results_Path_cross_sensitivity,
-                                         saveName="Cross_PriceEthOH_PriceMP.png")
+                                         saveName="MP_yield_vs_Starch_comp.png")
 
 #
 elif model_output._optimization_mode == "2-stage-recourse":  # single run optimization

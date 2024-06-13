@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from scipy.stats import gaussian_kde
+import json
 
 class StochasticModelOutput(ModelOutput):
     """
@@ -47,6 +48,14 @@ class StochasticModelOutput(ModelOutput):
 
         if savePath is not None:
             self._save_results(model_results, savePath)
+
+        # save the _data in the ModelOutput to a JSON file
+        if savePath:
+            savePathData = savePath + '/data_file.json'
+            rawData = self._data
+            with open(savePathData, 'w') as json_file:
+                json.dump(rawData, json_file, indent=4)
+
 
     def _collect_results(self):
         """

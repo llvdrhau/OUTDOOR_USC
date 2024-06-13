@@ -27,7 +27,7 @@ import outdoor
 # define the paths to the Excel file and the results directories
 Excel_Path = "Excel_files/potato_peel_case_study_reduced.xlsm"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\potato_peel_case_study\stochastic\reduced_stochastic"
-savePathPLots = Results_Path_stochatic + "/plots"
+savePathPLots = Results_Path_stochatic + "/plots2"
 
 # set optimization mode
 optimization_mode = "2-stage-recourse"
@@ -70,6 +70,7 @@ if model_output._optimization_mode == "2-stage-recourse":  # stochastic optimiza
                                                   , saveName="EBIT")
     prob = model_output.calculate_odds_in_range(kde=kde, range_start=2, range_end=2.5)
     print(prob)
+
     #
     # # probabilty density function of the energy demand of the drying unit
     # variable = {"Variable":"ENERGY_DEMAND_TOT",
@@ -80,7 +81,7 @@ if model_output._optimization_mode == "2-stage-recourse":  # stochastic optimiza
     # model_output.plot_scenario_analysis_histogram(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)")
 
     # polt the capex distribution of all the unit operations in the final flowsheet
-    model_output.plot_capex_pie_chart(savePath=savePathPLots)
+    # model_output.plot_capex_pie_chart(savePath=savePathPLots)
 
     #  --------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------------------------

@@ -310,6 +310,18 @@ class SuperstructureProblem:
                                                     single_model_instance=single_model_instance,
                                                     stochastic_options=stochastic_options,
                                                     remakeMetadata=remakeMetadata)
+        if optimization_mode == "wait and see":
+            singleInput = superstructure.parameters_single_optimization
+            single_model_instance = self.setup_model_instance(singleInput, optimization_mode='single',
+                                                              printTimer=False)
+            stochastic_options.update({'Wait_and_see': True})
+
+            optimizer = StochasticRecourseOptimizer(solver_name=solver, solver_interface=interface,
+                                                    solver_options=options, input_data=superstructure,
+                                                    single_model_instance=single_model_instance,
+                                                    stochastic_options=stochastic_options,
+                                                    remakeMetadata=remakeMetadata)
+
 
         elif optimization_mode == "single":
             optimizer = SingleOptimizer(solver_name=solver, solver_interface=interface,

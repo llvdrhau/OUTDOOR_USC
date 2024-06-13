@@ -1,0 +1,50 @@
+
+Basic results-------- 
+----------------------------  ----------------------------------------
+Objective Function            EBIT_final
+Expected Objective value      -2.36 Mil Euros
+Average Yearly product load   110148.51 tons
+VSS                           -1.66 Mil Euros
+EVPI                          1.97 Mil Euros
+Solver run time               119276.78 s
+Solver name                   gurobi
+Earnings Before Tax income    Min:-5.2 Mean:-2.36 Max:0.44 Mil Euros
+Net production costs          Min:-3.51 Mean:22.64 Max:55.01 Euros/Ton
+Net production GHG emissions  Min:0.68 Mean:0.8 Max:0.93 CO2-eq/Ton
+Net present FWD               Min:0.0 Mean:0.0 Max:0.0 H2O-eq/Ton
+----------------------------  ----------------------------------------
+
+ 
+
+Chosen technologies-------- 
+----  ------------------
+ 100  Grinding
+ 900  Extrusion + drying
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ------------------
+
+ 
+
+Scenario Analysis-------- 
+----------------------------------  -------------------------
+Total Inital Scenarios              25
+Percent Feasible                    100.0 %
+phi: (11, 'Phenolics')              min:0.013 max:0.027
+phi: (11, 'Ligin')                  min:0 max:0.01
+phi: (11, 'Starch')                 min:0.067 max:0.124
+phi: (11, 'Ash')                    min:0.028 max:0.042
+phi: (11, 'Sugars')                 min:0 max:0.01
+ProductPrice: (2000,)               min:668.015 max:926.245
+ProductPrice: (7000,)               min:86.164 max:120.839
+ProductPrice: (9700,)               min:1299.866 max:1764.525
+gamma: (210, 'EthOH', 17)           min:0.358 max:0.6
+gamma: (400, 'VFA', 13)             min:0.158 max:0.937
+gamma: (510, 'Microbial.Prot', 11)  min:0.219 max:0.442
+theta: (200, 15, 'Cellulose ')      min:0.452 max:1
+theta: (200, 16, 'Hemi-cellulose')  min:0.435 max:1
+theta: (600, 5, 'Cellulose ')       min:0.281 max:0.636
+----------------------------------  -------------------------
+
+ 

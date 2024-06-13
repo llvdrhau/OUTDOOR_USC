@@ -793,4 +793,73 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             percent = round((count / total_sets) * 100, 1)
             print("\033[95m\033[1mDictionary:", dict(unique_dict), "percent (%):", percent, "\033[0m")
 
+class WaitAndSeeOptimizer(StochasticRecourseOptimizer):
+    def __init__(
+        self,
+        solver_name,
+        solver_interface,
+        input_data,
+        solver_options=None,
+        single_model_instance=None,
+        stochastic_options=None,
+        remakeMetadata = None
+    ):
+
+        super().__init__(solver_name, solver_interface, solver_options)
+        self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
+        self.input_data = input_data
+        self.single_model_instance_4_EVPI = single_model_instance.clone()
+        self.single_model_instance_4_VSS = single_model_instance.clone()
+        self. remakeMetadata = remakeMetadata
+        if stochastic_options is None:
+            self.stochastic_options = {
+                "calculation_EVPI": True,
+                "calculation_VSS": True,
+            }
+        else:
+            self.stochastic_options = stochastic_options
+
+    def run_optimization(self,
+                         model_instance,
+                         optimization_mode=None,
+                         solver="gurobi",
+                         interface="local",
+                         solver_path=None,
+                         options=None,
+                         count_variables_constraints=False):
+
+        # preallocate the variables
+        infeasibleScenarios = None
+        waitAndSeeSolution = 0
+        average_VSS = 0
+
+        # get the input data and stochastic options
+        input_data = self.input_data
+        calculation_EVPI = self.stochastic_options["calculation_EVPI"]
+        calculation_VSS = self.stochastic_options["calculation_VSS"]
+
+        waitAndSeeSolutionDict = {}
+        EEVDict = {}
+
+
+
+        # make a deep copy of the input data so the stochastic parameters can be transformed to final dataformat
+        Stochastic_input_EVPI = copy.deepcopy(input_data)
+        Stochastic_input_EVPI.create_DataFile()
+        Stochastic_input_vss = copy.deepcopy(Stochastic_input_EVPI)
+
+
+        # timer for the EVPI calculation
+        startEVPI = time_printer(programm_step="Wait and see calculation")
+        # create the Data_File Dictionary in the object input_data
+
+        waitAndSeeSolutionDict, infeasibleScenarios = self.get_WaitAndSee(Stochastic_input_EVPI)
+        time_printer(passed_time=startEVPI, programm_step="Wait and see calculation")
+
+
+
+
+
+
+
 
