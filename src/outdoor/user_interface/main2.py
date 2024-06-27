@@ -1073,7 +1073,7 @@ class MovableIcon(QGraphicsObject):
                             portType='exit', iconID=self.iconID)
         self.ports.append(exitPort)
 
-        # code for multiple exit ports, deleet if your not gonq use it
+        # code for multiple exit ports, deleet if you're not going to use it
         # hightTriangle = self.boundingRect().height()
         # step = hightTriangle / (self.nExitPorts + 1)  # +1 to distribute evenly
         # for n in range(self.nExitPorts):
@@ -1081,6 +1081,7 @@ class MovableIcon(QGraphicsObject):
         #     exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), hightPosition),
         #                                  portType='exit', iconID=self.iconID)
         #     self.ports.append(exitPort)
+
     def updateExitPorts(self, nExitPortsNew):
         # Calculate the new step size
         hightTriangle = self.boundingRect().height()
@@ -1811,6 +1812,7 @@ class InputParametersDialog(QDialog):
             self.componentsTable.setRowCount(0)  # Clear existing rows
             for component_name, composition in data['components']:
                 self.addRowToComponentsTable(component_name, composition)
+
 # Dialog for output parameters
 class OutputParametersDialog(QDialog):
     """
@@ -2001,6 +2003,7 @@ class PhysicalProcessesDialog(QDialog):
         tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")
         tabWidget.addTab(self._createUtilityConsumptionTab(), "Utility Consumption")
         tabWidget.addTab(self._createHeatingConsumptionTab(), "Heating Requirements")
+        tabWidget.addTab(self._createConcentrationTab(), "Concentration Factors")
         # You can add more tabs as needed...
 
         layout = QVBoxLayout(self)
@@ -2247,6 +2250,8 @@ class PhysicalProcessesDialog(QDialog):
                         the unit process based on the mass flow (if Enetering or Exiting flow is the selected Reference flow type)."""
         self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTable,
                                 tooltipText=tooltipText)
+
+        # make selectable, so rows can be deleted by pressing the delete key
         self.componentsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
         self.componentsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTable.setObjectName("componentsTable")
@@ -2291,9 +2296,18 @@ class PhysicalProcessesDialog(QDialog):
         return widget
 
     def _createUtilityConsumptionTab(self):
+        """
+        Create the tab for the utility consumption parameters.
+        :return:
+        """
 
         # Create common elements
         def createReferenceFlowTypeComboBox(name):
+            """
+            Create a combobox for the reference flow type.
+            :param name:
+            :return:
+            """
             comboBox = QComboBox(self)
             comboBox.addItems([
                 "Entering mass Flow", "Exiting mass Flow",
@@ -2324,6 +2338,7 @@ class PhysicalProcessesDialog(QDialog):
         # Electricity Consumption parameter
         self.energyConsumption = QLineEdit(self)
         self.energyConsumption.setText("0.00")
+        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
         self.energyConsumption.setObjectName("energyConsumption")
         tooltipText = """The energy consumption of the unit process."""
         # add a label to the energy consumption units
@@ -2377,6 +2392,8 @@ class PhysicalProcessesDialog(QDialog):
         # Chilling Consumption parameter
         self.chillingConsumption = QLineEdit(self)
         self.chillingConsumption.setText("0.00")
+        # only double values are allowed
+        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
         self.chillingConsumption.setObjectName("chillingConsumption")
         tooltipText = """The chilling consumption of the unit process."""
         # add a label to the chilling consumption units
@@ -2403,6 +2420,7 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableChilling.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
         self.componentsTableChilling.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTableChilling.setObjectName("componentsTableChilling")
+
         # Add a row to tabel button
         self.addRowButtonChilling = QPushButton("Add Component", self)
         self.addRowButtonChilling.clicked.connect(self._addRowToTable)
@@ -2420,8 +2438,20 @@ class PhysicalProcessesDialog(QDialog):
         return widget
 
     def _createHeatingConsumptionTab(self):
+        """
+        Creates and returns a QWidget containing UI elements for configuring heating/cooling requirements.
+        """
 
         def createReferenceFlowTypeComboBox(name):
+            """
+            Creates a QComboBox with predefined items for selecting reference flow types.
+
+            Args:
+            - name (str): Object name for the QComboBox.
+
+            Returns:
+            - QComboBox: Initialized QComboBox object.
+            """
             comboBox = QComboBox(self)
             comboBox.addItems([
                 "Entering mass Flow", "Exiting mass Flow",
@@ -2439,56 +2469,60 @@ class PhysicalProcessesDialog(QDialog):
         # Heat Consumption 1
         self._createSectionTitle(text="Heating/cooling Requirements", layout=layout)
         # -------------------------------------------------------------------------------------------------
-        # drop down menu for the reference flow type
-        # Reference Flow type Heat
+
+        # Reference Flow Type Heat1
         self.referenceFlowTypeHeat1 = createReferenceFlowTypeComboBox("referenceFlowTypeHeat1")
         tooltipText = """The reference flow type is the type of flow that is used to calculate the Heat Consumption of
-                                       the unit process."""
+                         the unit process."""
         self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeHeat1,
                                 tooltipText=tooltipText)
-        self.referenceFlowTypeHeat1.currentIndexChanged.connect(
-            lambda: self._componentSelectionSwitch(type="Heat1"))
-        # heat consumption
+        self.referenceFlowTypeHeat1.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Heat1"))
+
+        # Heat consumption 1
         self.heatConsumption = QLineEdit(self)
         self.heatConsumption.setText("0.00")
+        self.heatConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
         self.heatConsumption.setObjectName("heatConsumption")
         tooltipText = """The cooling (Negative) or heating (Positive) required for the unit process."""
-        # add a label to the heat consumption units
         self.heatConsumptionUnit = QLabel(self)
-        self.heatConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
-        self.heatConsumptionUnit.setFixedWidth(120)  # make the label bigger in width
-        self.heatConsumptionUnit.setFont(self.subtitleFont)  # make it bold
-        # combine the heat consumption and the unit in a horizontal layout
+        self.heatConsumptionUnit.setText("MWh/t")
+        self.heatConsumptionUnit.setFixedWidth(120)
+        self.heatConsumptionUnit.setFont(self.subtitleFont)
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.heatConsumption)
         hlayout.addWidget(self.heatConsumptionUnit)
-        # add the heat consumption to the layout
         self._addRowWithTooltip(layout, labelText="Required Cooling/Heating:", widget=hlayout, tooltipText=tooltipText)
-        # Components table
-        self.componentsTableHeat1 = QTableWidget(0, 1, self)  # Initial rows, columns
+
+        # Components table Heat1
+        self.componentsTableHeat1 = QTableWidget(0, 1, self)
         self.componentsTableHeat1.setHorizontalHeaderLabels(["Component Name"])
         self.componentsTableHeat1.setColumnWidth(0, 200)
-        # add the table to the layout
-        tooltipText = """The chemicals species selected are the ones that are used to calculate the heat consumption of
-                                   the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        tooltipText = """The chemical species selected are used to calculate the heat consumption of
+                         the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t))."""
         self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableHeat1,
                                 tooltipText=tooltipText)
-        self.componentsTableHeat1.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableHeat1.setSelectionBehavior(QTableWidget.SelectRows)
         self.componentsTableHeat1.setSelectionMode(QTableWidget.SingleSelection)
         self.componentsTableHeat1.setObjectName("componentsTableHeat1")
-        # Add a row to tabel button
+
+        # Add row button Heat1
         self.addRowButtonHeat1 = QPushButton("Add Component", self)
         self.addRowButtonHeat1.clicked.connect(self._addRowToTable)
-        # set object name
         self.addRowButtonHeat1.setObjectName("addRowButtonHeat1")
         layout.addWidget(self.addRowButtonHeat1)
+
         # Initialize the table with an example row (optional)
         self._addRowToTable(tabName="heat1")
-        self._createSectionTitle(text="Heating/cooling Requierments(2)", layout=layout)
-        # Dropdown reference flow type Heat2
+
+        # -------------------------------------------------------------------------------------------------
+        # Heat Consumption 2
+        self._createSectionTitle(text="Heating/cooling Requirements (2)", layout=layout)
+        # -------------------------------------------------------------------------------------------------
+
+        # Reference Flow Type Heat2
         self.referenceFlowTypeHeat2 = createReferenceFlowTypeComboBox("referenceFlowTypeHeat2")
         tooltipText = """The reference flow type is the type of flow that is used to calculate the Heat Consumption of
-                                       the unit process."""
+                         the unit process."""
         self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeHeat2,
                                 tooltipText=tooltipText)
         self.referenceFlowTypeHeat2.currentIndexChanged.connect(lambda: self._componentSelectionSwitch(type="Heat2"))
@@ -2496,49 +2530,179 @@ class PhysicalProcessesDialog(QDialog):
         # Heat consumption 2
         self.heatConsumption2 = QLineEdit(self)
         self.heatConsumption2.setText("0.00")
+        self.heatConsumption2.setValidator(QDoubleValidator(0.00, 999999.99, 2))
         self.heatConsumption2.setObjectName("heatConsumption2")
         tooltipText = """The second cooling (Negative) or heating (Positive) required for the unit process."""
         self.heatConsumption2Unit = QLabel(self)
-        self.heatConsumption2Unit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
-        self.heatConsumption2Unit.setFixedWidth(120)  # make the label bigger in width
-        self.heatConsumption2Unit.setFont(self.subtitleFont)  # make it bold
-        # combine the heat consumption and the unit in a horizontal layout
+        self.heatConsumption2Unit.setText("MWh/t")
+        self.heatConsumption2Unit.setFixedWidth(120)
+        self.heatConsumption2Unit.setFont(self.subtitleFont)
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.heatConsumption2)
         hlayout.addWidget(self.heatConsumption2Unit)
-        # add the heat consumption to the layout
         self._addRowWithTooltip(layout, labelText="Required Cooling/Heating:", widget=hlayout, tooltipText=tooltipText)
+
         # Components table Heat2
-        self.componentsTableHeat2 = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableHeat2 = QTableWidget(0, 1, self)
         self.componentsTableHeat2.setHorizontalHeaderLabels(["Component Name"])
         self.componentsTableHeat2.setColumnWidth(0, 200)
-        # add the table to the layout
-        tooltipText = """The chemicals species selected are the ones that are used to calculate the heat consumption of
-                                   the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        tooltipText = """The chemical species selected are used to calculate the heat consumption of
+                         the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t))."""
         self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableHeat2,
                                 tooltipText=tooltipText)
-        self.componentsTableHeat2.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableHeat2.setSelectionBehavior(QTableWidget.SelectRows)
         self.componentsTableHeat2.setSelectionMode(QTableWidget.SingleSelection)
         self.componentsTableHeat2.setObjectName("componentsTableHeat2")
+
         # Add row button Heat2
         self.addRowButtonHeat2 = QPushButton("Add Component", self)
         self.addRowButtonHeat2.clicked.connect(self._addRowToTable)
-        # set object name
         self.addRowButtonHeat2.setObjectName("addRowButtonHeat2")
         layout.addWidget(self.addRowButtonHeat2)
+
         # Initialize the table with an example row (optional)
         self._addRowToTable(tabName="heat2")
 
-        # set layout in the widget
+        # Set layout in the widget
         widget.setLayout(layout)
         return widget
 
+    def _createConcentrationTab(self):
+        """
+        Creates and returns a QWidget containing UI elements for configuring concentration factors.
+        """
 
+        def createReferenceFlowTypeComboBox(name):
+            """
+            Creates a QComboBox with predefined items for selecting reference flow types.
+
+            Args:
+            - name (str): Object name for the QComboBox.
+
+            Returns:
+            - QComboBox: Initialized QComboBox object.
+            """
+            comboBox = QComboBox(self)
+            comboBox.addItems([
+                "Entering mass Flow (F_IN)",
+                "Exiting mass Flow (F_OUT)",
+            ])
+            comboBox.setObjectName(name)
+            return comboBox
+
+        # initialise widget
+        widget = QWidget()
+        layout = QFormLayout()
+
+        # Create a title for the tab
+        self._createSectionTitle(text="Concentration Factors", layout=layout)
+
+        # create me a text box where I can explain what this tab does
+        self.concentrationFactorDescription = QLabel(self)
+        self.concentrationFactorDescription.setText("The concentration factor is the ratio of the mass of FLOW1 to "
+                                                    "the mass of FLOW2: \n Concentration Factor = FLOW1 / FLOW2")
+        layout.addRow(self.concentrationFactorDescription)
+
+
+        self.concentrationFactor = QLineEdit(self)
+        self.concentrationFactor.setText("0.00")
+        self.concentrationFactor.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.concentrationFactor.setObjectName("concentrationFactor")
+        tooltipText = """ The concentration factor is the ratio of the mass of FLOW1 to the mass of FLOW2,
+                        specified underneath."""
+        self._addRowWithTooltip(layout, labelText="Concentration Factor:", widget=self.concentrationFactor,
+                                tooltipText=tooltipText)
+
+        # creat subtitel
+        self._createSectionTitle(text="Reference Flow 1", layout=layout)
+        # Create drop down menu for the reference flow1
+        self.referenceFlow1Concentration = createReferenceFlowTypeComboBox("referenceFlow1Concentration")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the concentration of
+                        the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlow1Concentration,
+                                tooltipText=tooltipText)
+        # create table for the components
+        self.componentsTableConcentration1 = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableConcentration1.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableConcentration1.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected for flow1, sum(species) = FLOW1."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableConcentration1, # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableConcentration1.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableConcentration1.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableConcentration1.setObjectName("componentsTableConcentration1")
+
+        # Add a row to tabel button
+        self.addRowButtonConcentration1 = QPushButton("Add Component", self)
+        self.addRowButtonConcentration1.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonConcentration1.setObjectName("addRowButtonConcentration1")
+        layout.addWidget(self.addRowButtonConcentration1)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="concentration1")
+
+        # creat subtitel flow2
+        self._createSectionTitle(text="Reference Flow 2", layout=layout)
+        # Create drop down menu for the reference flow2
+        self.referenceFlow2Concentration = createReferenceFlowTypeComboBox("referenceFlow2Concentration")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the concentration of
+                        the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlow2Concentration,
+                                tooltipText=tooltipText)
+        # create table for the components
+        self.componentsTableConcentration2 = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableConcentration2.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableConcentration2.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected for flow2, sum(species) = FLOW2."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableConcentration2, # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableConcentration2.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableConcentration2.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableConcentration2.setObjectName("componentsTableConcentration2")
+
+        # add row button
+        self.addRowButtonConcentration2 = QPushButton("Add Component", self)
+        self.addRowButtonConcentration2.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonConcentration2.setObjectName("addRowButtonConcentration2")
+        layout.addWidget(self.addRowButtonConcentration2)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="concentration2")
+
+
+        # return the widget
+        widget.setLayout(layout)
+        return widget
+
+    # -----------------------------------------------------------------
+    # methods for tool-tips,
+    # -----------------------------------------------------------------
+    def _addRowWithTooltip(self, layout, labelText, widget, tooltipText, widget2=None):
+        label = QLabel(f'{labelText} <a href="#">(i)</a>')
+        label.setToolTip(tooltipText)
+        label.linkActivated.connect(self._showTooltip)
+        layout.addRow(label, widget)
+
+    def _showTooltip(self, _):
+        QToolTip.setFont(QFont('SansSerif', 10))
+        QToolTip.showText(QCursor.pos(), self.sender().toolTip())
+
+    def _createSectionTitle(self, text, color="#e1e1e1", centerAlign=False, layout=None):
+        title = QLabel(text)
+        title.setFont(self.subtitleFont)
+        title.setStyleSheet(f"background-color: {color}; padding: 3px;")
+        if centerAlign:
+            title.setAlignment(Qt.AlignCenter)
+        frame = QFrame()
+        frame.setFrameShape(QFrame.HLine)
+        frame.setFrameShadow(QFrame.Sunken)
+        layout.addRow(title)
+        layout.addRow(frame)
     # -----------------------------------------------------------------
     # Methods for the components table
     # -----------------------------------------------------------------
-        # Create common elements
-        # Create common elements
 
     def _addRowToTable(self, tabName:str=''):
 
@@ -2560,10 +2724,20 @@ class PhysicalProcessesDialog(QDialog):
         elif tabName == "heat2" or senderName == "addRowButtonHeat2":
             #print('the add row button heat2 is clicked')
             table = self.componentsTableHeat2
-
         elif tabName == "chilling" or senderName == "addRowButtonChilling":
             #print('the add row button chilling is clicked')
             table = self.componentsTableChilling
+        elif tabName == "concentration1" or senderName == "addRowButtonConcentration1":
+            #print('the add row button concentration1 is clicked')
+            table = self.componentsTableConcentration1
+
+        elif tabName == "concentration2" or senderName == "addRowButtonConcentration2":
+            #print('the add row button concentration2 is clicked')
+            table = self.componentsTableConcentration2
+
+        else:
+            raise ValueError("The add row button is not connected to any table please check the "
+                             "object name of the button")
 
         # Get the current row count and insert a new row at the end
         rowPosition = table.rowCount()
@@ -2581,23 +2755,6 @@ class PhysicalProcessesDialog(QDialog):
 
         table.setSelectionBehavior(QTableWidget.SelectRows)
         table.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
-
-        # # Get the current row count and insert a new row at the end
-        # rowPosition = self.componentsTable.rowCount()
-        # self.componentsTable.insertRow(rowPosition)
-        #
-        # # Create new cells by creating a combo box instance
-        # self.comboBoxComponents = NonFocusableComboBox()
-        # chemicalNames = self.centralDataManager.getChemicalComponentNames()
-        # self.comboBoxComponents.addItems(chemicalNames)
-        # self.comboBoxComponents.setObjectName(f"comboBoxComponents_{rowPosition}")
-        #
-        # item = QTableWidgetItem('hack') # adding this item is a bit of a hack otherwise the row can't be selected and deleted
-        # self.componentsTable.setItem(rowPosition, 0, item)
-        # self.componentsTable.setCellWidget(rowPosition, 0, self.comboBoxComponents)
-        #
-        # self.componentsTable.setSelectionBehavior(QTableWidget.SelectRows)
-        # self.componentsTable.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
 
 
     def _componentSelectionSwitch(self, type):
@@ -2661,18 +2818,15 @@ class PhysicalProcessesDialog(QDialog):
             else:
                 self.chillingConsumptionUnit.setText("ΔT")
 
-
     def keyPressEvent(self, event):
-        # print('the focus of the tabel is:', self.componentsTable.hasFocus()) # for debugging
-        # print('the set focus is:', self.componentsTable.setFocus()) # for debugging
-        checkFocus()
         if event.key() == Qt.Key_Backspace:
-            # print(f"Key pressed after if: {event.key()}") # for debugging
-            selectedItems = self.componentsTable.selectedItems()
-            # print('the selected item is:', selectedItems) # for debugging
-            if selectedItems:
-                selectedRow = selectedItems[0].row()  # Get the row of the first selected item
-                self.componentsTable.removeRow(selectedRow)
+            focused_widget = QApplication.focusWidget()
+
+            if isinstance(focused_widget, QTableWidget):
+                selectedItems = focused_widget.selectedItems()
+                if selectedItems:
+                    selectedRow = selectedItems[0].row()
+                    focused_widget.removeRow(selectedRow)
         else:
             super().keyPressEvent(event)
 
@@ -2705,31 +2859,8 @@ class PhysicalProcessesDialog(QDialog):
             self.exponentInput.setText(data['Exponent'])
         # placeholder for other fields...
 
-    # -----------------------------------------------------------------
-    # methodes for tool-tips
-    # -----------------------------------------------------------------
-    def _addRowWithTooltip(self, layout, labelText, widget, tooltipText, widget2=None):
-        label = QLabel(f'{labelText} <a href="#">(i)</a>')
-        label.setToolTip(tooltipText)
-        label.linkActivated.connect(self._showTooltip)
-        layout.addRow(label, widget)
 
 
-    def _showTooltip(self, _):
-        QToolTip.setFont(QFont('SansSerif', 10))
-        QToolTip.showText(QCursor.pos(), self.sender().toolTip())
-
-    def _createSectionTitle(self, text, color="#e1e1e1", centerAlign=False, layout=None):
-        title = QLabel(text)
-        title.setFont(self.subtitleFont)
-        title.setStyleSheet(f"background-color: {color}; padding: 3px;")
-        if centerAlign:
-            title.setAlignment(Qt.AlignCenter)
-        frame = QFrame()
-        frame.setFrameShape(QFrame.HLine)
-        frame.setFrameShadow(QFrame.Sunken)
-        layout.addRow(title)
-        layout.addRow(frame)
 
 
 class StoichiometricReactorDialog(PhysicalProcessesDialog):
