@@ -25,7 +25,7 @@ from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progre
 
 # function for Pandafunction to read an excelfile:
 
-def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_params=None):
+def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_params=None, stochastic_mode=None):
 
     """
     Description
@@ -138,8 +138,18 @@ def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_p
         # set the uncertainty data in the object
         df_stochastic = dataframe['Uncertainty']
         uncertaintyObject = wrapp_stochastic_data(df_stochastic)
-        Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
-        Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
+        # add an if statement to check what kind of uncertainty model we're dealing with
+        if stochastic_mode is None:
+            Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
+            Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
+        elif stochastic_mode == 'mpi-sspy':
+            Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
+            Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+        else:
+            raise ValueError('The stochastic mode {} is not recognized. '
+                             '\n Please choose either None or "mpi-sspy".'.format(stochastic_mode))
 
     elif _optimization_mode == 'sensitivity' or _optimization_mode == 'cross-parameter sensitivity':
         # collect the sensitivity data & automatically add it to the Superstructure_Object

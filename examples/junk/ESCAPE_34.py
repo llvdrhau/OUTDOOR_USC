@@ -25,10 +25,10 @@ sys.path.append(b)
 import outdoor
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "Excel_files/ESCAPE34_case_study.xlsm"
-Results_Path = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study"
-Results_Path_single = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\single"
-Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\ESCAPE34_case_study\stochastic"
+Excel_Path = "../Excel_files/ESCAPE34_case_study.xlsm"
+Results_Path = r"/examples/results/ESCAPE34_case_study"
+Results_Path_single = r"/examples/results/ESCAPE34_case_study/single"
+Results_Path_stochatic = r"/examples/results/ESCAPE34_case_study/stochastic"
 
 
 # chose optimization mode
@@ -38,8 +38,8 @@ Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\r
 # "Cross-parameter sensitivity" = 'cross-sensitivity'
 # "2-stage recourse optimization" = '2-stage-recourse'
 
-optimization_mode = "2-stage-recourse"
-#optimization_mode = "single"
+#optimization_mode = "2-stage-recourse"
+optimization_mode = "single"
 
 # create the superstructure data from the Excel file and
 superstructure_Data = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode)

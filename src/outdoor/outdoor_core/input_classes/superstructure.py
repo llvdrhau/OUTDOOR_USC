@@ -49,12 +49,18 @@ class Superstructure():
 
         super().__init__()
 
+
+
         # Non-indexed Attribute
         # is the process product driven or not
         self.productDriven = productDriver
+
         # uncertainty parameters for the stochastic problem. filled in if stochastic problem is solved
         self.uncertaintyDict = {}
 
+        # if using mpi-sspy the dictionary is filled with the scenario data files
+        self.scearioDataFiles = {}
+        self.stochasticMode = None
 
 
         # CONSTANT SETS
@@ -1293,7 +1299,6 @@ class Superstructure():
         """
         changeDict = {}
         ScenarioNames = uncertaintyObject.ScenarioNames
-        PhiExclusionDict = uncertaintyObject.PhiExclusionDict
         PhiExclusionList = uncertaintyObject.PhiExclusionList
         newDictUnpacked = newDict['phi']
         oldDict = oldDict['phi']
@@ -1310,7 +1315,6 @@ class Superstructure():
                         if key not in PhiExclusionList:
                             changedList.append(key)
 
-
                 for i in changedList:
                     updatedValue = oldDict[i] + sum(diffList) / len(changedList)
                     # todo the massbalances should be modified. It is possible that the updated value is
@@ -1326,9 +1330,7 @@ class Superstructure():
         for keys in changeDict.keys():
             newDict['phi'][keys] = changeDict[keys]
 
-
         return newDict
-
 
     def set_uncertainty_data(self, uncertaintyObject):
         """
@@ -1444,4 +1446,234 @@ class Superstructure():
 
         print("Uncertainty data is set")
 
+    # --------------------------------------------------------------------------------------------------------------
+    # Methods for mpi-sppy
+    # --------------------------------------------------------------------------------------------------------------
+    def set_uncertainty_data_mpisspy(self, uncertaintyObject):
+        """
+         In this function, we set the uncertainty data for the mpisspy model based on the uncertainty object. mpi-sppy
+         is a parallel implementation of stochastic programming. The function is similar to the set_uncertainty_data
+
+        :param uncertaintyObject:
+        :return: scearioDataFiles: a dictionary that contains the data files for each scenario
+        """
+
+        # set the list of Scenarios so the set can be declared in pyomo
+        self.Scenarios = {'SC': uncertaintyObject.ScenarioNames}
+        self.Odds = {'odds': {sc: uncertaintyObject.ScenarioProbabilities[i]
+                              for i, sc in enumerate(uncertaintyObject.ScenarioNames)}}
+
+        # uncertainty data
+        uncertaintyMatrix = uncertaintyObject.UncertaintyMatrix
+        uncertaintyDict = self.invert_dictionary(uncertaintyObject.LableDict)
+        phiExcludeList = uncertaintyObject.PhiExclusionList
+
+        # make the base case data_file of the model
+        baseCaseDataFile = self.create_DataFile()
+
+        scenarioDataFiles = {}
+        for scenario in self.Scenarios['SC']:
+            dataFile = copy.deepcopy(baseCaseDataFile)
+            adjustedPhiDict = {}
+            # loop over each row of the uncertainty matrix
+            for i, row in uncertaintyMatrix.iterrows():
+                for j, value in row.items():
+                    parameterName = j.split('_')[0] # the parameter name is the first part of the column name remove everything after the first underscore
+                    index = uncertaintyDict[parameterName][j]
+                    # get the basecase value of the parameter
+                    currentValue = baseCaseDataFile[None][parameterName][index]
+                    # get the value of the parameter for the current scenario
+                    newValue = currentValue * (1 + value)
+                    # update the data file with the new value
+                    dataFile[None][parameterName][index] = newValue
+                    # keep a dictionary of the compostition of the source units, so later the other fractions can be updated
+                    # so the sum of the fractions is equal to 1
+                    if parameterName == 'phi':  # phi being the parameter name for the composition of the source units
+                        adjustedPhiDict[index] = newValue
+
+                # update the composition of the source units to keep the sum of the fractions equal to 1, do this for each scenario
+                if adjustedPhiDict:
+                    dataFile = self.adjust_phi_data(adjustedPhiDict, dataFile, baseCaseDataFile, phiExcludeList)
+
+            scenarioDataFiles[scenario] = dataFile
+
+        self.scenarioDataFiles = scenarioDataFiles
+        self.stochasticMode = 'mpi-sspy'
+        #print('pause')
+        return scenarioDataFiles
+
+    def invert_dictionary(self, originalDict):
+        """
+        Inverts the keys and values of the given dictionary, allowing for non-unique values.
+        If a value is not unique or unhashable, the resulting key will map to a list of original keys.
+
+        Parameters:
+        originalDict (dict): The dictionary to be inverted.
+
+        Returns:
+        dict: A new dictionary with values as keys and original keys as values (lists in case of duplicates).
+        """
+        invertedDict = {}
+        for key, dict in originalDict.items():
+            subInvertedDict = {}
+            for sub_key, value in dict.items():
+                if value not in invertedDict:
+                    subInvertedDict[value] = sub_key
+                    invertedDict[key] = subInvertedDict
+        return invertedDict
+
+    def adjust_phi_data(self,adjustedPhiDict, dataFile, baseCaseDataFile, phiExcludeList):
+        """
+           Adjust the composition of the source units to keep the sum of the fractions equal to 1.
+
+           This method modifies the data file of the model by adjusting the composition of the source units
+           based on the new values provided in `adjustedPhiDict`. The sum of the fractions for the source
+           units is maintained at 1. Certain sources can be excluded from adjustment as specified in
+           `phiExcludeList`.
+
+           Parameters:
+           ----------
+           adjustedPhiDict : dict
+               A dictionary containing the new values of the parameter `phi` for each source unit.
+               The keys are the source unit identifiers, and the values are the new `phi` values.
+
+           dataFile : dict
+               The data file of the model that will be adjusted.
+
+           baseCaseDataFile : dict
+               The base case data file of the model, used as a reference.
+
+           phiExcludeList : list
+               A list of source components identifiers that should be excluded from the adjustment process.
+
+           Returns:
+           -------
+           dataFileAdjusted : dict
+               The data file of the model with the updated composition of the source units.
+           """
+        def split_dictionary(instance):
+            """
+            spilt dictionary for each source unit (indicated by the first element of the key)
+            """
+            if isinstance(instance, dict):
+                splitDict = {}
+                for key, value in instance.items():
+                    if key[0] not in splitDict:
+                        splitDict[key[0]] = {}
+                    splitDict[key[0]][(key[0], key[1])] = value
+                return splitDict
+
+            elif isinstance(instance, list):
+                splitDict = {}
+                for key in instance:
+                    if key[0] not in splitDict:
+                        splitDict[key[0]] = []
+                    splitDict[key[0]].append(key)
+                return splitDict
+
+        def reajust_composition(originalSourceDict, newPhiDict, toAdjustDict):
+            """
+            Re-adjusts the composition of source units to ensure the sum of fractions equals 1.
+
+            This function takes the original composition of source units, applies new adjustments to certain
+            compounds, and ensures the total composition remains consistent at 100%. It handles cases where
+            certain compounds should not be adjusted based on an exclusion criterion.
+
+            Parameters:
+            ----------
+            originalSourceDict : dict
+                Dictionary containing the original composition of the source units.
+                Keys are source unit identifiers, and values are dictionaries with compounds and their fractions.
+
+            newPhiDict : dict
+                Dictionary containing the new adjusted values for the source units.
+                Keys are source unit identifiers, and values are dictionaries with compounds and their new fractions.
+
+            toAdjustDict : dict
+                Dictionary specifying which parts of the composition need to be adjusted for each source unit.
+                Keys are source unit identifiers, and values are dictionaries with compounds and their fractions that need adjustment.
+
+            Returns:
+            -------
+            dict
+                A dictionary with the adjusted composition of the source units, where the total fraction for each unit is equal to 1.
+
+            Raises:
+            ------
+            ValueError
+                If the total new percentages exceed 100% or if the new percentages are too high and cannot be adjusted to 100%.
+
+            """
+            returnDict = {}
+
+            for unit in newPhiDict:
+                # get the original composition of the source unit
+                originalComposition = originalSourceDict[unit]
+                # get the new composition of the source unit
+                newComposition = newPhiDict[unit]
+                # get the composition of the source unit that needs to be adjusted
+                toAdjustComposition = toAdjustDict[unit]
+
+                adjustDict = {}
+                for compound in toAdjustComposition:
+                    if compound not in newComposition:
+                        # these compounds are from the excluded list, so they should not be adjusted!
+                        # keep the original values in other words
+                        adjustDict.update({compound: originalComposition[compound]})
+                    else:
+                        # these compounds are changed due to uncertainty
+                        adjustDict.update({compound: newComposition[compound]})
+
+                totalAdjusted = sum(adjustDict.values())
+                if totalAdjusted > 1:
+                    raise ValueError("Total new percentages exceeds 100 %")
+
+                totalOtherComponents = sum(originalComposition.values()) - sum(originalComposition[idx] for idx in adjustDict.keys())
+                totalNewOtherComponents = 1 - totalAdjusted
+
+                if totalNewOtherComponents < 0:
+                    raise ValueError("New percentages are too high, total cannot exceed 100%")
+
+                    # Calculate adjustment factor
+                adjustmentFactor = totalNewOtherComponents / totalOtherComponents if totalOtherComponents != 0 else 0
+
+                # Adjust the composition of the source unit
+                addDict = {
+                    i: originalComposition[i] * adjustmentFactor if i not in adjustDict else adjustDict[i]
+                    for i in originalComposition
+                }
+
+                returnDict.update(addDict)
+                check = sum(addDict.values())
+                if check > 1.000000001:
+                    raise ValueError("Total new percentages exceeds 100 %, please check for errors")
+
+            return returnDict
+
+        # -------------------------------------------------------------------------------------------
+        # -------------------------------------------------------------------------------------------
+
+        # get the original source dictionary
+        originalSourceDict = baseCaseDataFile[None]['phi']
+        sourceDict = split_dictionary(originalSourceDict)
+
+        # get the adjusted source dictionary and split it
+        newPhiDict = split_dictionary(adjustedPhiDict)
+
+        # get the adjusted source list
+        adjustedPhiList = list(adjustedPhiDict.keys()) + phiExcludeList # add the excluded sources to the list
+        adjustedPhiDict = split_dictionary(adjustedPhiList)
+
+        dictNewCompositions = reajust_composition(originalSourceDict=sourceDict,
+                                    newPhiDict=newPhiDict,
+                                    toAdjustDict=adjustedPhiDict)
+
+        for key in dictNewCompositions:
+            dataFile[None]['phi'][key] = dictNewCompositions[key]
+
+        return dataFile
+
+
+
+        #for source, dict in sourceDict.items():
 

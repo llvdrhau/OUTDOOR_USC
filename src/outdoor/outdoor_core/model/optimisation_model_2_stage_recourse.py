@@ -967,7 +967,7 @@ class SuperstructureModel_2_Stage_recourse(AbstractModel):
 
         # Utilitiy Costs ( El, Heat, El-TOT, HEN)
         self.ENERGY_COST = Var(self.U_UT, self.SC)
-        self.COST_HEAT = Var(self.HI)
+        self.COST_HEAT = Var(self.HI, initialize=0)
         self.COST_UT = Var(self.SC)
         self.ELCOST = Var(self.SC)
         self.HEATCOST = Var(self.HI, self.SC)

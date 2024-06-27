@@ -31,24 +31,29 @@ savePathPLots = Results_Path_stochatic + "/plots2"
 
 # set optimization mode
 optimization_mode = "2-stage-recourse"
+stochastic_mode = "mpi-sspy"
+#stochastic_mode = None
 
 # create the superstructure data from the Excel file and
-superstructure_Data = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode)
+superstructureObject = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode,
+                                                stochastic_mode=stochastic_mode)
 
 # create the superstructure flowsheet
-outdoor.create_superstructure_flowsheet(superstructure_Data, savePathPLots)
+outdoor.create_superstructure_flowsheet(superstructureObject, savePathPLots)
 
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
+
+# solver options
 solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
                  "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
 
-model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
+model_output = abstract_model.solve_optimization_problem(input_data=superstructureObject,
                                                          optimization_mode=optimization_mode,
                                                          solver='gurobi',
                                                          interface='local',
-                                                         calculation_VSS=True,
-                                                         calculation_EVPI=True,
+                                                         calculation_VSS=False,
+                                                         calculation_EVPI=False,
                                                          options=solverOptions,)
 
 current, peak = tracemalloc.get_traced_memory()

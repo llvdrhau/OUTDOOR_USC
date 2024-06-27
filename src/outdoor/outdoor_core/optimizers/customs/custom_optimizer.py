@@ -289,8 +289,8 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         self. remakeMetadata = remakeMetadata
         if stochastic_options is None:
             self.stochastic_options = {
-                "calculation_EVPI": True,
-                "calculation_VSS": True,
+                "calculation_EVPI": False,
+                "calculation_VSS": False,
             }
         else:
             self.stochastic_options = stochastic_options

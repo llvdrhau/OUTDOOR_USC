@@ -13,10 +13,14 @@ from ..optimizers.customs.custom_optimizer import (
 from ..utils.timer import time_printer
 from ..optimizers.customs.change_params import prepare_mutable_parameters
 
+import mpisppy.utils.sputils as sputils
+from mpisppy.opt.ef import ExtensiveForm
+from mpisppy.opt.ph import PH
 
 import numpy as np
 
 from pyomo.environ import *
+import pyomo.environ as pyo
 
 # import sys
 #
@@ -300,6 +304,8 @@ class SuperstructureProblem:
 
         timer = time_printer(programm_step="Optimizer setup", printTimer=printTimer)
 
+
+
         if optimization_mode == "2-stage-recourse":
             singleInput = superstructure.parameters_single_optimization
             single_model_instance = self.setup_model_instance(singleInput, optimization_mode = 'single',
@@ -310,7 +316,8 @@ class SuperstructureProblem:
                                                     single_model_instance=single_model_instance,
                                                     stochastic_options=stochastic_options,
                                                     remakeMetadata=remakeMetadata)
-        if optimization_mode == "wait and see":
+
+        elif optimization_mode == "wait and see":
             singleInput = superstructure.parameters_single_optimization
             single_model_instance = self.setup_model_instance(singleInput, optimization_mode='single',
                                                               printTimer=False)
@@ -473,6 +480,107 @@ class SuperstructureProblem:
         # the default scenario becomes the first scenario in the list
         defaultScenario = data_file[None]['SC'][None][0]
         return data_file, defaultScenario
+
+
+    # -------------------------------------------------------------------------------------------------------------
+    # methods for the stochastic recourse model using mpi-sppy for the 2-stage-recourse optimization
+    # -------------------------------------------------------------------------------------------------------------
+
+    def scenario_creator(self, scenarioName):
+        """
+        This function is used to create instances of a scenario, used to run optimization problems under uncertainty
+        using mpi-sppy. The function is called by mpi-sppy and should return a Pyomo model instance for the scenario
+
+        :param scenario_name:
+        :param inputObject:
+        :return: model_instance
+        """
+
+        # retrive the data file for all scenarios
+        inputObject = self.inputObject
+        scenarioDataFile = inputObject.scenarioDataFiles
+
+        # initialize the model
+        model = SuperstructureModel(inputObject)
+
+        # create the model equations
+        model.create_ModelEquations()
+
+        # get the correct data file for the scenarioDataFile
+        dataFile = scenarioDataFile[scenarioName]
+
+        # populate the model instance
+        modelInstance = model.populateModel(dataFile)
+
+        # introduce the model instance to mpi-sppy
+        sputils.attach_root_node(modelInstance,
+                                 modelInstance.Objective, # the objective function
+                                 # the first stage variables, which are non-anticipative constraints.
+                                 # i.e., do not change across scenarios. In this case, the binary variables responsible
+                                 # for the selection of the technology
+                                 [modelInstance.Y])
+
+        modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
+
+        return modelInstance
+
+
+    def run_extensive_form(self, options, allScenarioNames):
+        """
+        This function runs the extensive form of the optimization problem. The extensive form is a deterministic
+        optimization problem where all scenarios are considered. The function returns the objective value and the
+        solution of the extensive form.
+
+        :param options: a dictionary with options for the extensive form
+        :param allScenarioNames: a list with the names of all scenarios
+        :param scenario_creator: a function which creates the model instance for a scenario
+        :return: objective value, solution
+        """
+
+        ef = ExtensiveForm(options, allScenarioNames, self.scenario_creator)
+        results = ef.solve_extensive_form()
+
+        objval = ef.get_objective_value()
+        soln = ef.get_root_solution()
+
+        return objval, soln
+
+
+    def run_progressive_hedging(self, inputObject, options):
+        """
+        This function runs the progressive hedging algorithm for solving the stochastic optimization problem. The
+        function returns the objective value and the solution of the progressive hedging algorithm.
+
+        :param options: a dictionary with options for the progressive hedging algorithm
+        :param all_scenario_names: a list with the names of all scenarios
+        :param scenario_creator: a function which creates the model instance for a scenario
+        :return: objective value, solution
+        """
+        allScenarioNames = list(inputObject.scenarioDataFiles.keys())
+        self.inputObject = inputObject
+
+        ph = PH(options,
+                allScenarioNames,
+                self.scenario_creator)
+
+        ph.ph_main()
+
+        variablesR0 = ph.gather_var_values_to_rank0()
+
+        # for (scenario_name, variable_name) in variablesR0:
+        #     variable_value = variablesR0[scenario_name, variable_name]
+        #     print(scenario_name, variable_name, variable_value)
+
+        # Gather and print all variable values for the first scenario
+        scenario = ph.local_scenarios[allScenarioNames[0]]
+        print(f"\nResults for scenario {allScenarioNames[0]}:")
+        for var in scenario.component_objects(pyo.Var, active=True):
+            var_object = getattr(scenario, str(var))
+            for index in var_object:
+                print(f"{var}[{index}] = {pyo.value(var_object[index])}")
+
+        return variablesR0
+
 
 
 

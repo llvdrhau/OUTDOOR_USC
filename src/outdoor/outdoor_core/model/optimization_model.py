@@ -888,8 +888,8 @@ class SuperstructureModel(AbstractModel):
 
         # Utilitiy Costs ( El, Heat, El-TOT, HEN)
         self.ENERGY_COST = Var(self.U_UT)
-        self.COST_HEAT = Var(self.HI)
-        self.COST_UT = Var()
+        self.COST_HEAT = Var(self.HI, initialize=0)
+        self.COST_UT = Var(initialize=0)
         self.ELCOST = Var()
         self.HEATCOST = Var(self.HI)
         self.C_TOT = Var()
@@ -914,13 +914,13 @@ class SuperstructureModel(AbstractModel):
         self.CAPEX = Var()
 
         # OPEX (Raw Materials, O&M, , UtilitiesTotal, Profits)
-        self.RM_COST = Var(self.U_C, within=NonNegativeReals)
+        # self.RM_COST = Var(self.U_C, within=NonNegativeReals) #not used
         self.RM_COST_TOT = Var(within=NonNegativeReals)
         self.M_COST = Var(self.U_C)
         self.M_COST_TOT = Var(within=NonNegativeReals)
-        self.O_H = Var()
-        self.O_COST = Var()
-        self.OM_COST = Var(within=NonNegativeReals)
+        # self.O_H = Var()  # doesn't seem to be used
+        # self.O_COST = Var()  # doesn't seem to be used
+        # self.OM_COST = Var(within=NonNegativeReals)  # doesn't seem to be used
         self.OPEX = Var()
         self.PROFITS = Var(self.U_PP)
         self.PROFITS_TOT = Var()
@@ -1186,7 +1186,7 @@ class SuperstructureModel(AbstractModel):
         self.GWP_UNITS = Var(self.U_C)
         self.GWP_CREDITS = Var(self.U_PP)
         self.GWP_CAPTURE = Var()
-        self.GWP_U = Var(self.U)
+        self.GWP_U = Var(self.U, initialize=0)
         self.GWP_UT = Var(self.UT)
         self.GWP_TOT = Var()
 
@@ -1393,7 +1393,7 @@ class SuperstructureModel(AbstractModel):
         # Variables
         # ---------
 
-        self.MainProductFlow = Var()
+        self.MainProductFlow = Var(initialize=0)
 
         self.NPC = Var()
         self.NPFWD = Var()
