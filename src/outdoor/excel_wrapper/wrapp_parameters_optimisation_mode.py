@@ -12,7 +12,7 @@ from . import wrapping_functions as WF
 import pandas as pd
 
 
-def wrapp_stochastic_data(dfi):
+def wrapp_stochastic_data(dfi, seed=66):
     # make the initial stochastic object
     obj = StochasticObject()
 
@@ -49,7 +49,7 @@ def wrapp_stochastic_data(dfi):
 
     elif obj.SamplingMode == 'LHS':
         #obj.set_group_dict()
-        obj.make_scenario_dataframe_LHS()
+        obj.make_scenario_dataframe_LHS(seed=seed)
 
     else:
         raise ValueError('Sampling mode not recognized')
@@ -92,10 +92,11 @@ def wrapp_sensitivty_data(obj, dfi, cross_sensitivity_params):
             # p_name = dfSensiRow['Parameter_Type']
             # min_v = dfSensiRow['Lower_Bound']
             # max_v = dfSensiRow['Upper_Bound']
+
             # steps = dfSensiRow['Number_of_steps']
             # metadata = dfSensiRow.iloc[1:5]
             # # get the metadata to pass it on so we know what indexes to use when acessing the parameters
-            #
+
             # # add the sensitivity parameters to the object
             # # add_sensi_parameters is a dumb function, just skip it and add the parameters directly as a list of series
             # # obj.add_sensi_parameters.append((p_name, min_v, max_v, steps, metadata))

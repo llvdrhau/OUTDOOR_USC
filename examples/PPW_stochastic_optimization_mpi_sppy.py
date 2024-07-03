@@ -23,7 +23,6 @@ sys.path.append(b)
 import outdoor
 
 
-
 # define the paths to the Excel file and the results directories
 Excel_Path = "Excel_files/potato_peel_case_study_reduced.xlsm"
 Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\results\potato_peel_case_study_mpi-sppy"
@@ -31,8 +30,7 @@ savePathPLots = Results_Path_stochatic + "/plots2"
 
 # set optimization mode
 optimization_mode = "2-stage-recourse"
-stochastic_mode = "mpi-sspy"
-#stochastic_mode = None
+stochastic_mode = "mpi-sppy"
 
 # create the superstructure data from the Excel file and
 superstructureObject = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode,
@@ -42,12 +40,12 @@ superstructureObject = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=o
 outdoor.create_superstructure_flowsheet(superstructureObject, savePathPLots)
 
 # solve the optimization problem
-abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
+abstractStochaticModel = outdoor.SuperstructureProblem(parser_type='Superstructure')
 
 
 # solver options
 solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
-                     "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
+                 "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
 
 # mpi-sppy options, integrates the solver options as well
 options = {
@@ -62,11 +60,12 @@ options = {
     "iterk_solver_options": solverOptions,
 }
 
-model_output = abstract_model.run_progressive_hedging(inputObject=superstructureObject,
-                                                     options=options)
+model_output = abstractStochaticModel.solve_optimization_problem(input_data=superstructureObject,
+                                                         mpi_sppy_options=options)
 
-# print(model_output)
+model_output.save_2_json(savePath=Results_Path_stochatic,
+                         saveName="model_output_test")
 
-# for (scenario_name, variable_name) in model_output:
-#         variable_value = model_output[scenario_name, variable_name]
-#         print(scenario_name, variable_name, variable_value)
+
+
+#

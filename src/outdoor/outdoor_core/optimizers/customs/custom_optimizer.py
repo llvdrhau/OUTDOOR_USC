@@ -9,6 +9,9 @@ Created on Tue Jun 15 12:19:19 2021
 
 from .change_objective import change_objective_function
 from ...output_classes.multi_model_output import MultiModelOutput
+from ...model.optimization_model import SuperstructureModel
+from ...output_classes.stochastic_model_output import StochasticModelOutput_mpi_sppy
+
 
 from ..main_optimizer import SingleOptimizer
 from ...utils.timer import time_printer
@@ -25,6 +28,15 @@ import sys
 import logging
 import copy
 from concurrent.futures import ProcessPoolExecutor
+
+import mpisppy.utils.sputils as sputils
+from mpisppy.opt.ef import ExtensiveForm
+from mpisppy.opt.ph import PH
+
+import pyomo.environ as pyo
+
+
+
 
 class MCDAOptimizer(SingleOptimizer):
     def __init__(self, solver_name, solver_interface, solver_options=None, mcda_data=None):
@@ -856,7 +868,155 @@ class WaitAndSeeOptimizer(StochasticRecourseOptimizer):
         waitAndSeeSolutionDict, infeasibleScenarios = self.get_WaitAndSee(Stochastic_input_EVPI)
         time_printer(passed_time=startEVPI, programm_step="Wait and see calculation")
 
+class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
 
+    def __init__(
+        self,
+        solver_name,
+        solver_interface,
+        inputObject,
+        mpiOptions,
+        solver_options=None,
+    ):
+        # initialize the single optimizer
+        super().__init__(solver_name, solver_interface, solver_options)
+
+        # set the optimization mode
+        # todo find where the optimisation mode is passed on, this is not the right place to define it but ok for now
+        self.optimization_mode = "2-stage-recourse"
+
+        # initialize the input object
+        if inputObject is None:
+            raise Exception("No input object is provided")
+        else:
+            self.inputObject = inputObject
+
+        if mpiOptions is None:
+            raise Exception("No mpi-sppy options are provided")
+        else:
+            self.options = mpiOptions
+
+    def run_optimization(self,*args, **kwargs):
+
+        StartTimer = time_printer(printTimer=False)
+
+        # run the stochastic optimization
+        phResults = self.run_progressive_hedging(inputObject=self.inputObject,options=self.options)
+        # phResults is a tuple with the following elements: (variablesR0, allVariables, VariableWarningDict)
+
+        timeMpiSppy = time_printer(passed_time=StartTimer,
+                                   printTimer=False)
+
+
+
+        modelOutput = StochasticModelOutput_mpi_sppy(optimization_mode = '2-stage-recourse', #todo again shady, find where this variable is set and pass it on
+                                                     mpi_sppy_results=phResults,
+                                                     run_time = timeMpiSppy)
+
+        return modelOutput
+
+    def scenario_creator(self, scenarioName):
+        """
+        This function is used to create instances of a scenario, used to run optimization problems under uncertainty
+        using mpi-sppy. The function is called by mpi-sppy and should return a Pyomo model instance for the scenario
+
+        :param scenario_name:
+        :param inputObject:
+        :return: model_instance
+        """
+
+        # retrive the data file for all scenarios
+        inputObject = self.inputObject
+        scenarioDataFile = inputObject.scenarioDataFiles
+
+        # initialize the model
+        model = SuperstructureModel(inputObject)
+
+        # create the model equations
+        model.create_ModelEquations()
+
+        # get the correct data file for the scenarioDataFile
+        dataFile = scenarioDataFile[scenarioName]
+
+        # populate the model instance
+        modelInstance = model.populateModel(dataFile)
+
+        # introduce the model instance to mpi-sppy
+        sputils.attach_root_node(modelInstance,
+                                 modelInstance.Objective,  # the objective function
+                                 # the first stage variables, which are non-anticipative constraints.
+                                 # i.e., do not change across scenarios. In this case, the binary variables responsible
+                                 # for the selection of the technology
+                                 [modelInstance.Y])  # todo add?  ,modelInstance.Y_DIST
+
+        modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
+
+        return modelInstance
+
+    def run_extensive_form(self, options, allScenarioNames):
+        """
+        This function runs the extensive form of the optimization problem. The extensive form is a deterministic
+        optimization problem where all scenarios are considered. The function returns the objective value and the
+        solution of the extensive form.
+
+        :param options: a dictionary with options for the extensive form
+        :param allScenarioNames: a list with the names of all scenarios
+        :param scenario_creator: a function which creates the model instance for a scenario
+        :return: objective value, solution
+        """
+
+        ef = ExtensiveForm(options, allScenarioNames, self.scenario_creator)
+        results = ef.solve_extensive_form()
+
+        objval = ef.get_objective_value()
+        soln = ef.get_root_solution()
+
+        return objval, soln
+
+    def run_progressive_hedging(self, inputObject, options):
+        """
+        This function runs the progressive hedging algorithm for solving the stochastic optimization problem. The
+        function returns the objective value and the solution of the progressive hedging algorithm.
+
+        :param options: a dictionary with options for the progressive hedging algorithm
+        :param all_scenario_names: a list with the names of all scenarios
+        :param scenario_creator: a function which creates the model instance for a scenario
+        :return: objective value, solution
+        """
+        allScenarioNames = list(inputObject.scenarioDataFiles.keys())
+        self.inputObject = inputObject
+
+        ph = PH(options,
+                allScenarioNames,
+                self.scenario_creator)
+
+        ph.ph_main()
+
+        variablesR0 = ph.gather_var_values_to_rank0()
+
+        # Gather and print all variable values for the first scenario
+        allVariables = {}
+        VariableWarningDict = {}
+        for sc in allScenarioNames:
+            scenario = ph.local_scenarios[sc]
+            allVariables.update({sc: {}})
+            VariableWarningDict.update({sc: {}})
+            # print(f"\nResults for scenario {allScenarioNames[0]}:")
+            for var in scenario.component_objects(pyo.Var, active=None):
+                try:
+                    var_object = getattr(scenario, str(var))
+                    for index in var_object:
+                        allVariables[sc].update({f"{var}[{index}]": pyo.value(var_object[index])})
+
+                        # if sc == allScenarioNames[0]: # only print the variables for the first scenario
+                        #     print(f"{var}[{index}] = {pyo.value(var_object[index])}")
+
+                except:
+                    VariableWarningDict[sc].update({str(var): "Variable not calculated"})
+                    # print(f"Variable {var_object} is not calculated!!")
+                    continue
+
+        return variablesR0, allVariables, VariableWarningDict
 
 
 

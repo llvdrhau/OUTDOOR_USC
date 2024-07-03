@@ -25,7 +25,11 @@ from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progre
 
 # function for Pandafunction to read an excelfile:
 
-def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_params=None, stochastic_mode=None):
+def get_DataFromExcel(PathName=None,
+                      optimization_mode=None,
+                      cross_sensitivity_params=None,
+                      stochastic_mode=None,
+                      seed=66):
 
     """
     Description
@@ -47,6 +51,8 @@ def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_p
     PathName : String, Path to Exceldata
     optimization_mode : String, optional, overrides the optimisation mode defined in the Excel file
     cross_sensitivity_params : Dict, optional, overrides the cross sensitivity parameters defined in the Excel file
+    stochastic_mode : String, optional, switch to use mpi-sspy for stochastic optimization
+    seed : int, optional, seed for the random number generator default is 66
 
     Returns
     -------
@@ -137,19 +143,19 @@ def get_DataFromExcel(PathName=None, optimization_mode=None, cross_sensitivity_p
 
         # set the uncertainty data in the object
         df_stochastic = dataframe['Uncertainty']
-        uncertaintyObject = wrapp_stochastic_data(df_stochastic)
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed)
 
         # add an if statement to check what kind of uncertainty model we're dealing with
         if stochastic_mode is None:
             Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
 
-        elif stochastic_mode == 'mpi-sspy':
+        elif stochastic_mode == 'mpi-sppy':
             Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
         else:
             raise ValueError('The stochastic mode {} is not recognized. '
-                             '\n Please choose either None or "mpi-sspy".'.format(stochastic_mode))
+                             '\n Please choose either None or "mpi-sppy".'.format(stochastic_mode))
 
     elif _optimization_mode == 'sensitivity' or _optimization_mode == 'cross-parameter sensitivity':
         # collect the sensitivity data & automatically add it to the Superstructure_Object

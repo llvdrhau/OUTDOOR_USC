@@ -397,8 +397,38 @@ class BasicModelAnalyzer:
         """
 
         mass_flow_data = {"Mass flows": {}}
-        # for stochastic flows the data is structured differently
-        if 'SC' in model_data.keys():
+        # for stochastic flows the data is structured differently, there are 2 different formats, from the Extensive form
+        # and from the Progressive Hedging algorithm with mpi-sppy, you can differentiate between them by checking if the key 'SC' is in the dictionary
+
+        if list(model_data.keys())[0] == 'sc1':
+            # todo check this works for mpi-sppy
+            scenarioKeys = list(model_data.keys())
+            flowFt = []
+            flowAdd = []
+            max_flow_value_ft = -float('inf')
+            max_flow_value_add = -float('inf')
+
+            for sc in scenarioKeys:
+                scenarioData = model_data[sc]
+                for i, j in scenarioData["FLOW_FT"].items():
+                    tupleScenarioFt = ((i, sc), j)  # tuple with the unit operation and the scenario
+                    flowFt.append(tupleScenarioFt)
+                    if j > max_flow_value_ft:
+                        max_flow_value_ft = j
+
+                for i, j in scenarioData["FLOW_ADD"].items():
+                    tupleScenarioAdd = ((i, sc), j)  # tuple with the unit operation and the scenario
+                    flowAdd.append(tupleScenarioAdd)
+                    if j > max_flow_value_add:
+                        max_flow_value_add = j
+
+            if max_flow_value_ft > 1e-04:
+                mass_flow_data["Mass flows"].update({(i, sc): round(j, nDecimals) for (i, sc), j in flowFt})
+
+            if max_flow_value_add > 1e-04:
+                mass_flow_data["Mass flows"].update({(i, sc): round(j, nDecimals) for (i, sc), j in flowAdd})
+
+        elif 'SC' in model_data.keys():
             step = len(model_data['SC'])
             pointerStart = 0
             pointerEnd = step
@@ -930,11 +960,10 @@ class BasicModelAnalyzer:
         if len(list(data.keys())[0]) > 2: # if the first key is a tuple > 2, we're dealing with a stochastic model
             dataStochastic = self.min_mean_max_streams_stochastic(data)
             for i, j in dataStochastic.items():
-                tester = j
+                # tester = j #for debugging
                 edges[i[0], i[1]] = make_link(flowchart, nodes[i[0]], nodes[i[1]], f"{j[0]}", color=j[1], width=j[2])
         else:
             for i, j in data.items():
-
                 if j < 1e-6:
                     flow = round(j * 1e9, 2)
                     labelEdge = f"{flow} mg/h"

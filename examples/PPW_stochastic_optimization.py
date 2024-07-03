@@ -31,8 +31,8 @@ savePathPLots = Results_Path_stochatic + "/plots2"
 
 # set optimization mode
 optimization_mode = "2-stage-recourse"
-stochastic_mode = "mpi-sspy"
-#stochastic_mode = None
+#stochastic_mode = "mpi-sspy"
+stochastic_mode = None
 
 # create the superstructure data from the Excel file and
 superstructureObject = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode,
@@ -63,7 +63,7 @@ if model_output._optimization_mode == "2-stage-recourse":  # stochastic optimiza
     # delete old file in the results directory, so it does not pile up
     delete_all_files_in_directory(directory_path=Results_Path_stochatic)
     # save the results as a txt file, you have to specify the path
-    model_output.get_results(savePath=Results_Path_stochatic, pprint=True)
+    model_output.get_results(savePath=None, pprint=True)
     # make a plot of the results
 
     # ------------- plot the results of the optimization problem -----------------
@@ -71,8 +71,10 @@ if model_output._optimization_mode == "2-stage-recourse":  # stochastic optimiza
     # # probabilty density function of the EBIT
     model_output.plot_scenario_analysis_PDF(variable="OPEX", savePath=savePathPLots, xlabel="OPEX (M€/a)"
                                                   ,saveName="OPEX")
+
     kde = model_output.plot_scenario_analysis_PDF(variable="EBIT", savePath=savePathPLots, xlabel="EBIT (M€/a)"
                                                   , saveName="EBIT")
+
     prob = model_output.calculate_odds_in_range(kde=kde, range_start=2, range_end=2.5)
     print(prob)
 

@@ -272,7 +272,7 @@ class StochasticObject():
 
         return customLevelList
 
-    def make_scenario_dataframe_LHS(self):
+    def make_scenario_dataframe_LHS(self, seed=66):
         """
         This function makes a dataframe with the rows representing the scenarios and the columns the parameters which
         are uncertain. The values in the dataframe are the values of the uncertain parameters for each scenario.
@@ -285,7 +285,7 @@ class StochasticObject():
 
 
         # Set the seed for reproducibility
-        random.seed(42)
+        random.seed(seed)
 
         # Get the GeneralDict
         GeneralDict = self.GeneralDict

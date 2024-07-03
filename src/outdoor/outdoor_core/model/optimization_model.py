@@ -1376,8 +1376,6 @@ class SuperstructureModel(AbstractModel):
 
     def create_ObjectiveFunction(self):
         """
-
-
         Description
         -------
         Defines the main product flow and the objetive function.

@@ -1498,7 +1498,7 @@ class Superstructure():
             scenarioDataFiles[scenario] = dataFile
 
         self.scenarioDataFiles = scenarioDataFiles
-        self.stochasticMode = 'mpi-sspy'
+        self.stochasticMode = 'mpi-sppy'
         #print('pause')
         return scenarioDataFiles
 

@@ -56,7 +56,6 @@ class StochasticModelOutput(ModelOutput):
             with open(savePathData, 'w') as json_file:
                 json.dump(rawData, json_file, indent=4)
 
-
     def _collect_results(self):
         """
         Description
@@ -275,7 +274,6 @@ class StochasticModelOutput(ModelOutput):
 
         return scenario_results
 
-
     def upack_tuples(self, tupleKeys):
         """"
         unpacks the tuples in a list, this is the case for theta parameter where the keys are a nested tuples but the
@@ -448,4 +446,108 @@ class StochasticModelOutput(ModelOutput):
             plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
         plt.show()
 
+
+class StochasticModelOutput_mpi_sppy(ModelOutput):
+
+    def __init__(self, model_instance=None, optimization_mode="2-stage-recourse", solver_name=None, run_time=None, gap=None,
+                 mpi_sppy_results=None):
+        super().__init__(model_instance, optimization_mode, solver_name, run_time, gap)
+
+
+        # get the results from the mpi_sppy
+        self.solver_name = solver_name
+        self.optimization_mode = optimization_mode
+        self._run_time = run_time
+        self.stochastic_mode = "mpi-sspy"
+
+        if mpi_sppy_results:
+            self.fistStageVars = mpi_sppy_results[0]
+            self.dataFile = mpi_sppy_results[1]
+            self.warningVariables = mpi_sppy_results[2]
+            # consistency checks
+            self.check_warning_variables()
+            consistent, variable = self.check_first_stage_variable_consistency()
+            if not consistent:
+                raise Exception(f"First stage decision Variable {variable} is not consistent across scenarios.")
+
+
+    def check_first_stage_variable_consistency(self):
+        data_dict = self.fistStageVars
+        # Create a dictionary to store the variable values for each variable
+        variable_values = {}
+
+        # Iterate over the items in the input dictionary
+        for (scenario, variable), value in data_dict.items():
+            # If the variable is not already in the variable_values dictionary, add it
+            if variable not in variable_values:
+                variable_values[variable] = value
+            # If the variable is already in the variable_values dictionary, check if the value is the same
+            elif variable_values[variable] != value:
+                return False, variable
+
+        # If all values are consistent, return True
+        return True, None
+
+    def check_warning_variables(self):
+        wanringVariables = self.warningVariables
+        for sc, dictSc in wanringVariables.items():
+            if dictSc:
+                print("----------------------\n"
+                      "-----------------------")
+                print(f"Warning: Some variables where not caluclated for scenario {sc}")
+
+    def save_2_json(self, savePath, saveName):
+        """
+        Save the results to a JSON file
+        :param savePath: The path to save the JSON file
+        """
+        # save the _data in the ModelOutput to a JSON file
+        if savePath:
+            if not saveName:
+                savePathData = savePath + '/output_data_file.json'
+            else:
+                if '.json' not in saveName:
+                    saveName = saveName + '.json'
+                savePathData = savePath + '/' + saveName
+
+            rawData = self.dataFile
+            rawData.update({'Solver': self.solver_name,
+                            'Optimisation Mode': self.optimization_mode,
+                            'Timer': self._run_time,
+                            'Stochastic Mode': self.stochastic_mode,
+
+                            })
+
+            with open(savePathData, 'w') as json_file:
+                json.dump(rawData, json_file, indent=4)
+
+
+
+    def load_from_json(self, savedLocation):
+        """
+        Load the results from a JSON file
+        :param savedLocation: The path to the JSON file
+        """
+
+        with open(savedLocation, 'r') as json_file:
+            data = json.load(json_file)
+            self.dataFile = data
+
+            self.solver_name = data['Solver']
+            self.optimization_mode = data['Optimisation Mode']
+            self._run_time = data['Timer']
+
+            # remove the keys, solver, optimisation mode and timer from the data
+            data.pop('Solver')
+            data.pop('Optimisation Mode')
+            data.pop('Timer')
+            self.dataFile = data
+
+        # initialise the object with the data
+        self.__init__(model_instance=None,
+                      optimization_mode= self.optimization_mode,
+                      solver_name= self.solver_name,
+                      run_time= self._run_time,
+                      gap=None,
+                     mpi_sppy_results=None)
 

@@ -883,8 +883,6 @@ class ModelOutput:
             unitDict[u] = max(scList)
         return unitDict
 
-
-
     def plot_capex_pie_chart(self, savePath=None, saveName=None):
         """
         :return: A pie chart of the capital costs of the chosen flow sheet

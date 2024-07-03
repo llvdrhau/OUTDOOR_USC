@@ -34,10 +34,10 @@ Results_Path_stochatic = r"C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\r
 
 
 # set optimization mode
-#optimization_mode = 'single'
+optimization_mode = 'single'
 #optimization_mode= 'sensitivity'
 #optimization_mode = 'cross-parameter sensitivity'
-optimization_mode = "2-stage-recourse"
+#optimization_mode = "2-stage-recourse"
 
 
 

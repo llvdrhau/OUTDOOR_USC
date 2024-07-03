@@ -7,7 +7,8 @@ from ..optimizers.customs.custom_optimizer import (
     MCDAOptimizer,
     SensitivityOptimizer,
     TwoWaySensitivityOptimizer,
-    StochasticRecourseOptimizer
+    StochasticRecourseOptimizer,
+    StochasticRecourseOptimizer_mpi_sppy
 )
 
 from ..utils.timer import time_printer
@@ -68,6 +69,7 @@ class SuperstructureProblem:
             )
 
         self.CheckNoneVariables = []
+        self.stochastic_mode = None
 
 
     def solve_optimization_problem(
@@ -82,6 +84,7 @@ class SuperstructureProblem:
         calculation_VSS=True,
         count_variables_constraints=False,
         cross_sensitivity_parameters=None,
+        mpi_sppy_options=None
     ):
         """
 
@@ -107,6 +110,7 @@ class SuperstructureProblem:
             DESCRIPTION. The default is None. Solver options as dictionary.
                 Keys are options, values are values. Keys have to be permitted by
                 chosen solver.
+        stochastic_mode : string, optional (only for 2-stage-recourse) defines if you want to use mpi-sspy
 
 
         Returns
@@ -127,6 +131,10 @@ class SuperstructureProblem:
 
         """
 
+        # check if the stochastic mode is set correctly for the 2-stage-recourse optimization mode
+        self.stochastic_mode = input_data.stochasticMode
+
+        # what are the permitted optimization modes
         OptimisationPermissionList = ["single", "multi-objective", "sensitivity", "cross-parameter sensitivity", "2-stage-recourse"]
 
         if optimization_mode is None:
@@ -148,8 +156,11 @@ class SuperstructureProblem:
 
         if self.parser == "Superstructure":
 
-            # populate the model instance with the input data
-            model_instance = self.setup_model_instance(input_data, optimization_mode)
+            if optimization_mode == "2-stage-recourse" and self.stochastic_mode == "mpi-sppy":
+                model_instance = None # we do not need to create a model instance for the mpi-sppy mode
+            else:
+                # populate the model instance with the input data
+                model_instance = self.setup_model_instance(input_data, optimization_mode)
 
             if count_variables_constraints:
                 self.print_count_variables_constraints(model_instance)
@@ -162,7 +173,8 @@ class SuperstructureProblem:
             stochastic_options = {'calculation_EVPI': calculation_EVPI, 'calculation_VSS': calculation_VSS}
             # settings optimisation problem
             optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                             mode_options, input_data, stochastic_options)
+                                             mode_options, input_data, stochastic_options,
+                                             mpi_sppy_options=mpi_sppy_options) #add options for mpi-sppy None if not mpi-sppy
             # run the optimization
             model_output = optimizer.run_optimization(model_instance)
 
@@ -224,9 +236,9 @@ class SuperstructureProblem:
             data_file, defaultScenario = self.curate_stochastic_data_file(data_file, infeasibleScenarios)
             input_data.DefaultScenario = defaultScenario
 
-        if optimization_mode == "2-stage-recourse":
+        if optimization_mode == "2-stage-recourse" and self.stochastic_mode == None:
             model = SuperstructureModel_2_Stage_recourse(input_data)
-        else: # single, multi or sensitivity optimisation
+        else: # single, multi or sensitivity optimisation or mpi-sspy mode for 2-stage-recourse
             model = SuperstructureModel(input_data)
 
         model.create_ModelEquations()
@@ -253,7 +265,8 @@ class SuperstructureProblem:
         superstructure,
         stochastic_options,
         printTimer=True,
-        remakeMetadata=None
+        remakeMetadata=None,
+        mpi_sppy_options=None
     ):
         """
 
@@ -305,8 +318,7 @@ class SuperstructureProblem:
         timer = time_printer(programm_step="Optimizer setup", printTimer=printTimer)
 
 
-
-        if optimization_mode == "2-stage-recourse":
+        if optimization_mode == "2-stage-recourse" and self.stochastic_mode == None:
             singleInput = superstructure.parameters_single_optimization
             single_model_instance = self.setup_model_instance(singleInput, optimization_mode = 'single',
                                                               printTimer=False)
@@ -316,6 +328,13 @@ class SuperstructureProblem:
                                                     single_model_instance=single_model_instance,
                                                     stochastic_options=stochastic_options,
                                                     remakeMetadata=remakeMetadata)
+
+        elif optimization_mode == "2-stage-recourse" and self.stochastic_mode == "mpi-sppy":
+            optimizer = StochasticRecourseOptimizer_mpi_sppy(solver_name= solver,
+                                                             solver_interface=interface,
+                                                             inputObject=superstructure,
+                                                             mpiOptions=mpi_sppy_options)
+
 
         elif optimization_mode == "wait and see":
             singleInput = superstructure.parameters_single_optimization
@@ -484,6 +503,8 @@ class SuperstructureProblem:
 
     # -------------------------------------------------------------------------------------------------------------
     # methods for the stochastic recourse model using mpi-sppy for the 2-stage-recourse optimization
+    # attention!! these methodes have been place in custom_optimizer.py (StochasticRecourseOptimizer_mpi_sppy class)
+    # file and should not be used here, for debugging purposes only
     # -------------------------------------------------------------------------------------------------------------
 
     def scenario_creator(self, scenarioName):
@@ -518,7 +539,7 @@ class SuperstructureProblem:
                                  # the first stage variables, which are non-anticipative constraints.
                                  # i.e., do not change across scenarios. In this case, the binary variables responsible
                                  # for the selection of the technology
-                                 [modelInstance.Y])
+                                 [modelInstance.Y]) # todo add?  ,modelInstance.Y_DIST
 
         modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
 
@@ -567,19 +588,30 @@ class SuperstructureProblem:
 
         variablesR0 = ph.gather_var_values_to_rank0()
 
-        # for (scenario_name, variable_name) in variablesR0:
-        #     variable_value = variablesR0[scenario_name, variable_name]
-        #     print(scenario_name, variable_name, variable_value)
-
         # Gather and print all variable values for the first scenario
-        scenario = ph.local_scenarios[allScenarioNames[0]]
-        print(f"\nResults for scenario {allScenarioNames[0]}:")
-        for var in scenario.component_objects(pyo.Var, active=True):
-            var_object = getattr(scenario, str(var))
-            for index in var_object:
-                print(f"{var}[{index}] = {pyo.value(var_object[index])}")
+        allVariables = {}
+        VariableWarningDict = {}
+        for sc in allScenarioNames:
+            scenario = ph.local_scenarios[sc]
+            allVariables.update({sc: {}})
+            VariableWarningDict.update({sc: {}})
+            #print(f"\nResults for scenario {allScenarioNames[0]}:")
+            for var in scenario.component_objects(pyo.Var, active=None):
+                try:
+                    var_object = getattr(scenario, str(var))
+                    for index in var_object:
+                        allVariables[sc].update({f"{var}[{index}]": pyo.value(var_object[index])})
 
-        return variablesR0
+                        # if sc == allScenarioNames[0]: # only print the variables for the first scenario
+                        #     print(f"{var}[{index}] = {pyo.value(var_object[index])}")
+
+                except:
+                    VariableWarningDict[sc].update({str(var): "Variable not calculated"})
+                    #print(f"Variable {var_object} is not calculated!!")
+                    continue
+
+
+        return variablesR0, allVariables, VariableWarningDict
 
 
 
