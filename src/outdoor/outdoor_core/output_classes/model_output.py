@@ -60,6 +60,7 @@ class ModelOutput:
             "cross-parameter sensitivity",
             "2-stage-recourse",
             "single",
+            "wait and see",
         }
 
         if optimization_mode in self._optimization_mode_set:
@@ -73,6 +74,9 @@ class ModelOutput:
             self._fill_data(model_instance)
         if solver_name is not None and run_time is not None:
             self._fill_information(solver_name, run_time, gap)
+
+        # stochastic mode None unless otherwise specified
+        self.stochastic_mode = None
 
 # -----------------------------------------------------------------------------
 # -------------------------Private methods ------------------------------------
@@ -95,52 +99,34 @@ class ModelOutput:
         """
 
         for i in instance.component_objects():
-
-
             if "pyomo.core.base.var.SimpleVar" in str(type(i)):
-
                 self._data[i.local_name] = i.value
-
             elif "pyomo.core.base.var.ScalarVar" in str(type(i)):
                 self._data[i.local_name] = i.value
-
             elif "pyomo.core.base.param.SimpleParam" in str(type(i)):
                 self._data[i.local_name] = i.value
-
             elif "pyomo.core.base.param.ScalarParam" in str(type(i)):
-
                 self._data[i.local_name] = i.value
-
             elif "pyomo.core.base.param.IndexedParam" in str(type(i)):
-
                 self._data[i.local_name] = i.extract_values()
-
             elif "pyomo.core.base.var.IndexedVar" in str(type(i)):
                 self._data[i.local_name] = i.extract_values()
-
             elif "pyomo.core.base.set.SetProduct_OrderedSet" in str(type(i)):
                 self._data[i.local_name] = i.ordered_data()
-
             elif "pyomo.core.base.sets.SimpleSet" in str(type(i)):
-
                 self._data[i.local_name] = i.value_list
-
             elif "pyomo.core.base.sets.ScalarSet" in str(type(i)):
-
                 self._data[i.local_name] = i.value_list
-
             elif "pyomo.core.base.set.OrderedScalarSet" in str(type(i)):
                 self._data[i.local_name] = i.ordered_data()
-
             elif "pyomo.core.base.objective.SimpleObjective" in str(type(i)):
-
                 self._data["Objective Function"] = i.expr.to_string()
-
             elif "pyomo.core.base.objective.ScalarObjective" in str(type(i)):
-
                 self._data["Objective Function"] = i.expr.to_string()
             else:
                 continue
+
+        return self._data
 
     def _fill_information(self, solver_name, run_time, gap):
         """
@@ -173,18 +159,24 @@ class ModelOutput:
         self._meta_data['Case identifier'] = str(self._case_number)
 
 
-    def _tidy_data(self):
+    def _tidy_data(self, data=None):
         """
         Description
         -----------
         Runs through data file and clears all zero values which are not important
         to save memory space.
 
+        :param data: Dictionary, optional, default is None
+
+        :return: Dictionary, if data is given, otherwise saves the data directly
+
         """
+        if data is None:
+            data = self._data
 
         temp = dict()
         exeptions = ["Y", "Y_DIST", "lin_CAPEX_z", "Y_HEX"]
-        for i, j in self._data.items():
+        for i, j in data.items():
             if "index" not in i:
                 if type(j) == dict:
                     temp[i] = dict()
@@ -196,7 +188,12 @@ class ModelOutput:
                             temp[i][k] = m
                 else:
                     temp[i] = j
-        self._data = temp
+
+        # return temp if data is given, otherwise for a single run save it directly in the object
+        if data is None:
+            self._data = temp
+        else:
+            return temp
 
     # Extracting methods to get important results
 
@@ -819,7 +816,8 @@ class ModelOutput:
         with open(path, "wb") as output:
             pic.dump(self, output)
 
-    def return_chosen(self):
+
+    def return_chosen(self, data=None):
         """
         Returns
         -------
@@ -832,18 +830,24 @@ class ModelOutput:
         and returns a dictionary with the chosen index numbers and defined names.
 
         """
-        flow = self._data["FLOW_SUM"]
-        flow_s = self._data["FLOW_SOURCE"]
+
+        if data is None:
+            flow = self._data["FLOW_SUM"]
+            flow_s = self._data["FLOW_SOURCE"]
+            data = self._data
+        else:
+            flow = data["FLOW_SUM"]
+            flow_s = data["FLOW_SOURCE"]
 
         # if the key of flow is a tuple then the solution id from the stochastic model
         # Extract the maximum value of the flows for each scenario
         if isinstance(list(flow.keys())[0], tuple):
-            flow = self.find_max_value_of_scenarios(dict=flow, unitNr=self._data['U'])
-            flow_s = self.find_max_value_of_scenarios(dict=flow_s, unitNr=self._data['U_S'])
+            flow = self.find_max_value_of_scenarios(dict=flow, unitNr=data['U'])
+            flow_s = self.find_max_value_of_scenarios(dict=flow_s, unitNr=data['U_S'])
 
 
-        y = self._data["Y"]
-        names = self._data["Names"]
+        y = data["Y"]
+        names = data["Names"]
         chosen = {}
 
         for i, j in y.items():
@@ -917,3 +921,93 @@ class ModelOutput:
                 saveLocation = f'{savePath}/Capex_pie_chart.png'
             plt.savefig(saveLocation, format='png', dpi=300)  # High-resolution saving for publication
         plt.show()
+
+
+    # ---------------------------- Pickle methods --------------------------------
+    # methodes to save and load the object as pickle file
+
+    def save_with_pickel(self, path, saveName=None, option="raw"):
+        """
+        Parameters
+        ----------
+        path : String type of where to save the ProcessResults object as pickle
+            class object.
+
+        saveName : String type of the name of the saved file, default is None
+
+        option: String, default is 'raw' which saves all data also including zero
+            values. If this value is set to 'tidy' an cleaning algorithm deletes
+            zero values which saves data space.
+
+        Description
+        ----------
+        Saves the output file as a pickle-file, which can be laoded into an
+        Analyzer-Object on another machine or at a different time.
+        """
+
+        # if the attribute self.ph exists deleete it
+        if hasattr(self, 'ph'):
+            del self.ph
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        if option == "tidy":
+            # todo find the right switches to tidy the data according to its structure and optimisation mode
+            # tidy the data
+            # for i in self._results_data.values():
+            #     i._tidy_data()
+            pass
+
+        if saveName:
+            if 'pkl' in saveName:
+                path = path + "/" + saveName
+            else:
+                path = path + "/" + saveName + ".pkl"
+
+        else:
+            saveName = "data_file_" + self._case_time[0:-10]
+            path = path + "/" + saveName + ".pkl"
+
+        with open(path, "wb") as output:
+            pic.dump(self, output, protocol=4)
+
+        # print location of saved file in purple
+        print('\033[95m' + f"Data saved at: {path}")
+
+    @classmethod
+    def load_from_pickle(cls, path):
+        """
+        Parameters
+        ----------
+        filepath : String type of the path to the pickle file to load
+
+        Description
+        ----------
+        Loads the object from a pickle file and returns it.
+
+        Returns
+        -------
+        MultiModelOutput instance
+        """
+
+        with open(path, "rb") as input_file:
+            loaded_object = pic.load(input_file)
+
+        # self.__dict__.update(loaded_object.__dict__)
+        return loaded_object
+
+    def update_from_loaded(self, loaded_object):
+        """
+        Parameters
+        ----------
+        loaded_object : MultiModelOutput instance
+
+        Description
+        ----------
+        Updates the current instance with the attributes of the loaded object.
+        """
+        self.__dict__.update(loaded_object.__dict__)
+
+
+

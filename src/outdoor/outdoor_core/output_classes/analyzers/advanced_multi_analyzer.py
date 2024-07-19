@@ -323,58 +323,9 @@ class AdvancedMultiModelAnalyzer:
 
         return fig
 
-    # def create_sensitivity_graph(self, savePath=None, figureMode = 'subplot'):
-    #     """
-    #     Returns
-    #     -------
-    #     fig : MATPLOTLIB FIGURE
-    #
-    #     Description
-    #     -----------
-    #     Collects data for sensitivity graph by calling _collect_sensi_data
-    #     and creates matplotlib graph to display.
-    #
-    #     """
-    #
-    #     if self.model_output._optimization_mode == "sensitivity":
-    #
-    #         data = self._collect_sensi_data()
-    #
-    #         len_ = len(data)
-    #
-    #         fig = plt.figure()
-    #
-    #         count = 1
-    #
-    #         for i, j in data.items():
-    #
-    #             x_vals = j[0]
-    #             y_vals = j[1]
-    #             titel = i
-    #
-    #             ax = fig.add_subplot(len_, 1, count)
-    #
-    #             ax.set_xlabel(titel)
-    #             ax.set_ylabel("Net production costs in €/t")
-    #
-    #             ax.plot(x_vals, y_vals, linestyle="--", marker="o")
-    #
-    #             count += 1
-    #         fig.tight_layout()
-    #
-    #
-    #         if savePath is not None:
-    #             fig.savefig(savePath + '/sensitivity_graph.png')
-    #
-    #         return fig
-    #     else:
-    #         print(
-    #             "Sensitivity graph presentation only available for  \
-    #               Sensitivity analysis mode"
-    #         )
-    #
-    #     # DESIGN SCREENING ALGORITHM METHODS
-    #     # ---------------------------------
+
+    # DESIGN SCREENING ALGORITHM METHODS
+    # ---------------------------------
 
     def _get_contour_numbers(self, process_design, plist):
         """
@@ -827,3 +778,124 @@ class AdvancedMultiModelAnalyzer:
 
         # Show the plot
         # plt.show()
+
+
+    # METHODES FOR WAIT AND SEE ANALYSIS
+    # ---------------------------------
+    def plot_scenario_analysis(self, variableName=None, path=None, saveName=None, showPlot=False):
+        """
+        This method creates a figure of the different possible design spaces for the wait and see analysis.
+        the graph are box plots where each box represents the distribution of the objective function for a given flow
+        sheet design.
+
+        :return:
+        """
+
+        if self.model_output._optimization_mode != "wait and see":
+            ValueError("Scenario analysis methode is only available for 'wait and see' analysis.")
+
+        flowsheetDict = self._get_flow_sheet_designs()
+
+        if variableName is None:
+            variableName = self.model_output._results_data['sc1']._data['ObjectiveFunctionName']
+            # print in orange
+            print('')
+            self._print_warning()
+            print(f"No variable name was provided for the methode plot_scenario_analysis.\n "
+                  f"Using the objective function {variableName}.\n")
+
+        boxPlotData = self._get_distribution_variable(variableName, flowsheetDict)
+
+        xTickLabels = self._identify_products(flowsheetDict)
+
+        # Create the box plot
+        fig, ax = plt.subplots()
+        ax.boxplot(boxPlotData.values())
+        ax.set_xticklabels(xTickLabels)
+        ax.set_ylabel(variableName)
+        ax.set_title(f"Distribution of {variableName} per flow sheet design")
+
+        # show the plot
+        if showPlot:
+            plt.show()
+
+        # save the plot
+        if path:
+            if saveName:
+                save_path = f"{path}/{saveName}.png"
+            else:
+                save_path = f"{path}/scenario_analysis.png"
+            fig.savefig(save_path)
+
+    def _get_distribution_variable(self, variable, flowsheetDict):
+        """
+        Returns the distribution of a specifed variable for the different scenarios with the same
+        flow sheet design.
+
+        :param variable: str
+            The variable for which the distribution should be calculated.
+        :param flowsheetDict: dict
+            A dictionary with the flow sheet design as key and the data of the different scenarios as value.
+        :return: dict
+            The distribution of the specified variable per flow sheet design.
+        """
+
+        variableDistribution = {} # Dictionary to store the distribution of the variable per flow sheet design
+        for key, listData in flowsheetDict.items():
+            collectVariable = []
+            for data in listData:
+                try:
+                    collectVariable.append(data[variable])
+                except:
+                    ValueError(f"Variable {variable} not found in the data.")
+            variableDistribution[key] = collectVariable
+
+        return variableDistribution
+
+    def _get_flow_sheet_designs(self):
+        """
+        Returns a dictionary with the flow sheet design as key and the data of the different scenarios as value with
+        that flow sheet as a design.
+
+        :return: dict
+            A dictionary with the flow sheet design as key and the data of the different scenarios as value.
+        """
+        # Get the data from the model output
+        dataAllScenarios = self.model_output._results_data
+
+        flowsheetDict = {}
+        for scenario in dataAllScenarios:
+            dataScenario = dataAllScenarios[scenario]._data
+            flowsheet = self.model_output.return_chosen(dataScenario)  # Get the chosen technologies for each scenario
+            keyFlowSheet = tuple(flowsheet.items())
+
+            # Check if the flowsheet is already in the dictionary
+            if keyFlowSheet not in flowsheetDict:
+                flowsheetDict[keyFlowSheet] = []
+            # Append the data to the dictionary with the flow sheet as key
+            flowsheetDict[keyFlowSheet].append(dataScenario)
+
+        return flowsheetDict
+
+    def _identify_products(self, flowsheetDict):
+        productIDs = self.model_output._results_data['sc1']._data['U_PP']
+        generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
+                                 self.model_output._results_data['sc1']._data['U_FUR']))
+
+        productIDs = productIDs + generatorIDs
+
+        productsPerFlowsheet = []
+        for flowsheet in flowsheetDict.keys():
+            tupleProducts = ()
+            for (key1,key2) in flowsheet:
+                if key1 in productIDs:
+                    tupleProducts = tupleProducts + (key2,)
+
+            productsPerFlowsheet.append(tupleProducts)
+
+        return productsPerFlowsheet
+
+    def _print_warning(self):
+        orange_color = "\033[33m"
+        reset_color = "\033[0m"
+        print(f"{orange_color}-------WARNING-------{reset_color}")

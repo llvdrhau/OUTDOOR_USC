@@ -193,10 +193,10 @@ class SuperstructureModel(AbstractModel):
 
         # Flow parameters (Split factor, concentrations, full load hours)
         self.myu = Param(self.U_CONNECTORS, self.I, initialize=0, mutable=True)
-        self.conc = Param(self.U, initialize=0, within=Any)
-        self.flh = Param(self.U)
-        self.MinProduction = Param(self.U_PP, initialize=0)
-        self.MaxProduction = Param(self.U_PP, initialize=100000)
+        self.conc = Param(self.U, initialize=0, within=Any, mutable=True)
+        self.flh = Param(self.U, mutable=True)
+        self.MinProduction = Param(self.U_PP, initialize=0, mutable=True)
+        self.MaxProduction = Param(self.U_PP, initialize=100000, mutable=True)
 
 
         # Reaction parameters(Stoich. / Yield Coefficients)
@@ -211,11 +211,11 @@ class SuperstructureModel(AbstractModel):
         self.kappa_2_lhs_conc = Param(self.U, initialize=3)
         self.kappa_2_rhs_conc = Param(self.U, initialize=3)
         self.Names = Param(self.U, within= Any)
-        self.alpha = Param(self.U, initialize=100000)
+        self.alpha = Param(self.U, initialize=100000, mutable=True)
 
         # upper and lower bounds for source flows
-        self.ul = Param(self.U_S, initialize=100000)
-        self.ll = Param(self.U_S, initialize=0)
+        self.ul = Param(self.U_S, initialize=100000, mutable=True)
+        self.ll = Param(self.U_S, initialize=0, mutable=True)
 
         # component composition parameters
         self.phi = Param(self.U_S, self.I, initialize=0, mutable=True)
@@ -225,7 +225,7 @@ class SuperstructureModel(AbstractModel):
 
         # Decimal_numbers help to model the distributor equations
         # it sets the degree of "detail" for the distributor
-        self.Decimal_numbers = Param(self.DC_SET)
+        self.Decimal_numbers = Param(self.DC_SET, mutable=True)
 
         # Variables
         # --------
@@ -473,10 +473,10 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         # Energy demand (El, Heating/Cooling, Interval H and C)
-        self.tau = Param(self.U, self.UT, initialize=0, within=Any)
-        self.tau_h = Param(self.H_UT, self.U, initialize=0)
-        self.tau_c = Param(self.H_UT, self.U, initialize=0)
-        self.beta = Param(self.U, self.H_UT, self.HI, initialize=0)
+        self.tau = Param(self.U, self.UT, initialize=0, within=Any, mutable=True)
+        self.tau_h = Param(self.H_UT, self.U, initialize=0, mutable=True)
+        self.tau_c = Param(self.H_UT, self.U, initialize=0, mutable=True)
+        self.beta = Param(self.U, self.H_UT, self.HI, initialize=0, mutable=True)
 
         # Slack Parameters (Flow Choice, HEN, Upper bounds)
         self.kappa_1_ut = Param(self.U, self.UT, self.I, initialize=0)
@@ -484,13 +484,14 @@ class SuperstructureModel(AbstractModel):
         self.kappa_3_heat = Param(self.U, self.HI, initialize=0)
         self.kappa_3_heat2 = Param(self.U, self.HI, initialize=0)
         self.alpha_hex = Param(initialize=100000)
+
         self.Y_HEX = Var(self.HI, within=Binary)
 
         # Additional unit operations (Heat Pump, EL / Heat Generator)
-        self.COP_HP = Param(initialize=0)
-        self.Efficiency_TUR = Param(self.U_TUR, initialize=0)
-        self.Efficiency_FUR = Param(self.U_FUR, initialize=0)
-        self.LHV = Param(self.I, initialize=0)
+        self.COP_HP = Param(initialize=0, mutable=True)
+        self.Efficiency_TUR = Param(self.U_TUR, initialize=0, mutable=True)
+        self.Efficiency_FUR = Param(self.U_FUR, initialize=0, mutable=True)
+        self.LHV = Param(self.I, initialize=0, mutable=True)
         self.H = Param()
 
         # Variables
@@ -522,8 +523,8 @@ class SuperstructureModel(AbstractModel):
         self.ENERGY_DEMAND_HP = Var(within=NonNegativeReals)
         self.ENERGY_DEMAND_HP_USE = Var(within=NonNegativeReals)
 
-        self.MW = Param(self.I, initialize=1)
-        self.CP = Param(self.I, initialize=0)
+        self.MW = Param(self.I, initialize=1, mutable=True)
+        self.CP = Param(self.I, initialize=0, mutable=True)
 
         # Constraints
         # -----------
@@ -860,18 +861,18 @@ class SuperstructureModel(AbstractModel):
 
         # Specific costs (Utility, raw materials, Product prices)
 
-        self.delta_ut = Param(self.U_UT, initialize=0)
-        self.delta_q = Param(self.HI, initialize=30)
-        self.delta_cool = Param(initialize=15)
+        self.delta_ut = Param(self.U_UT, initialize=0, mutable=True)
+        self.delta_q = Param(self.HI, initialize=30, mutable=True)
+        self.delta_cool = Param(initialize=15, mutable=True)
         self.ProductPrice = Param(self.U_PP, initialize=0, mutable=True)
 
         # Cost factors (CAPEX, Heat Pump)
-        self.DC = Param(self.U, initialize=0)
-        self.IDC = Param(self.U, initialize=0)
-        self.ACC_Factor = Param(self.U, initialize=0)
+        self.DC = Param(self.U, initialize=0, mutable=True)
+        self.IDC = Param(self.U, initialize=0, mutable=True)
+        self.ACC_Factor = Param(self.U, initialize=0, mutable=True)
 
-        self.HP_ACC_Factor = Param(initialize=1)
-        self.HP_Costs = Param(initialize=1)
+        self.HP_ACC_Factor = Param(initialize=1, mutable=True)
+        self.HP_Costs = Param(initialize=1, mutable=True)
 
         # Piecewise Linear CAPEX
         self.lin_CAPEX_x = Param(self.U_C, self.J, initialize=0)
@@ -881,7 +882,7 @@ class SuperstructureModel(AbstractModel):
 
         # OPEX factors
 
-        self.K_OM = Param(self.U_C, initialize=0.04)
+        self.K_OM = Param(self.U_C, initialize=0.04, mutable=True)
 
         # Variables
         # ---------
@@ -906,7 +907,7 @@ class SuperstructureModel(AbstractModel):
         self.EC = Var(self.U_C, within=NonNegativeReals)
         self.FCI = Var(self.U_C, within=NonNegativeReals)
         self.ACC = Var(self.U_C, within=NonNegativeReals)
-        self.to_acc = Param(self.U_C, initialize=0)
+        self.to_acc = Param(self.U_C, initialize=0, mutable=True)
         self.TO_CAPEX = Var(self.U_C, within=NonNegativeReals)
         self.TO_CAPEX_TOT = Var(within=NonNegativeReals)
         self.ACC_HP = Var(within=NonNegativeReals)
@@ -1171,14 +1172,14 @@ class SuperstructureModel(AbstractModel):
         # --------
 
         # Emission factors (Utilities, Components, Products, Building of units)
-        self.em_fac_ut = Param(self.UT, initialize=0)
-        self.em_fac_comp = Param(self.I, initialize=0)
-        self.em_fac_prod = Param(self.U_PP, initialize=0)
-        self.em_fac_unit = Param(self.U_C, initialize=0)
-        self.em_fac_source = Param(self.U_S, initialize=0)
+        self.em_fac_ut = Param(self.UT, initialize=0, mutable=True)
+        self.em_fac_comp = Param(self.I, initialize=0, mutable=True)
+        self.em_fac_prod = Param(self.U_PP, initialize=0, mutable=True)
+        self.em_fac_unit = Param(self.U_C, initialize=0, mutable=True)
+        self.em_fac_source = Param(self.U_S, initialize=0, mutable=True)
 
         # Lifetime of Units
-        self.LT = Param(self.U, initialize=1)
+        self.LT = Param(self.U, initialize=1, mutable=True)
 
         # Variables
         # ---------
@@ -1272,9 +1273,9 @@ class SuperstructureModel(AbstractModel):
         self.FWD_C = Var()
         self.FWD_TOT = Var()
 
-        self.fw_fac_source = Param(self.U_S, initialize=0)
-        self.fw_fac_ut = Param(self.UT, initialize=0)
-        self.fw_fac_prod = Param(self.U_PP, initialize=0)
+        self.fw_fac_source = Param(self.U_S, initialize=0, mutable=True)
+        self.fw_fac_ut = Param(self.UT, initialize=0, mutable=True)
+        self.fw_fac_prod = Param(self.U_PP, initialize=0, mutable=True)
 
         def FWD_1_rule(self):
             return self.FWD_S == sum(
@@ -1386,6 +1387,7 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         self.ProductLoad = Param()
+        self.ObjectiveFunctionName = Param(within=Any, initialize=self.objective_name)
 
 
         # Variables
@@ -1493,5 +1495,7 @@ class SuperstructureModel(AbstractModel):
                 return self.objective_sense == 1  # 1 for maximizing
             else:
                 return self.objective_sense == 0  # 0 for minimizing
+
+
 
         self.objective_sense_rule = Constraint(rule=objective_sense_rule1)

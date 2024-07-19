@@ -61,6 +61,7 @@ class Superstructure():
         # if using mpi-sspy the dictionary is filled with the scenario data files
         self.scearioDataFiles = {}
         self.stochasticMode = None
+        self._dataStochastic = None
 
 
         # CONSTANT SETS
@@ -73,7 +74,8 @@ class Superstructure():
                                       'multi-objective',
                                       'sensitivity',
                                       'cross-parameter sensitivity',
-                                      '2-stage-recourse'}
+                                      '2-stage-recourse',
+                                      'wait and see'}
 
         self.SENSITIVE_PARAMETERS_SET = {"Split factors (myu)",
                                         "Feed Composition (phi)",
@@ -1472,30 +1474,39 @@ class Superstructure():
         baseCaseDataFile = self.create_DataFile()
 
         scenarioDataFiles = {}
-        for scenario in self.Scenarios['SC']:
-            dataFile = copy.deepcopy(baseCaseDataFile)
+        for rowIndex, scenario in enumerate(self.Scenarios['SC']):
+            dataFileScenario = copy.deepcopy(baseCaseDataFile)
             adjustedPhiDict = {}
+            # get the row of the uncertaintyMatrix corresponding to the rowIndex (int)
+            row = uncertaintyMatrix.iloc[rowIndex]
             # loop over each row of the uncertainty matrix
-            for i, row in uncertaintyMatrix.iterrows():
-                for j, value in row.items():
-                    parameterName = j.split('_')[0] # the parameter name is the first part of the column name remove everything after the first underscore
-                    index = uncertaintyDict[parameterName][j]
-                    # get the basecase value of the parameter
-                    currentValue = baseCaseDataFile[None][parameterName][index]
-                    # get the value of the parameter for the current scenario
-                    newValue = currentValue * (1 + value)
-                    # update the data file with the new value
-                    dataFile[None][parameterName][index] = newValue
-                    # keep a dictionary of the compostition of the source units, so later the other fractions can be updated
-                    # so the sum of the fractions is equal to 1
-                    if parameterName == 'phi':  # phi being the parameter name for the composition of the source units
-                        adjustedPhiDict[index] = newValue
+
+            for j, value in row.items():
+                parameterName = j.split('_')[0] # the parameter name is the first part of the column name remove everything after the first underscore
+                index = uncertaintyDict[parameterName][j]
+                # get the basecase value of the parameter
+                currentValue = baseCaseDataFile[None][parameterName][index]
+                # get the value of the parameter for the current scenario
+                newValue = currentValue * (1 + value)
+
+                # constrain to be equal to 1, otherwise mass balance problems will occur
+                constrained_parameters = ('myu', 'theta', 'gamma', 'phi', 'xi')
+                if parameterName in constrained_parameters:
+                    if newValue > 1:
+                        newValue = 1  # constrain to be equal to 1, otherwise mass balance problems will occur
+
+                # update the data file with the new value
+                dataFileScenario[None][parameterName][index] = newValue
+                # keep a dictionary of the compostition of the source units, so later the other fractions can be updated
+                # so the sum of the fractions is equal to 1
+                if parameterName == 'phi':  # phi being the parameter name for the composition of the source units
+                    adjustedPhiDict[index] = newValue
 
                 # update the composition of the source units to keep the sum of the fractions equal to 1, do this for each scenario
                 if adjustedPhiDict:
-                    dataFile = self.adjust_phi_data(adjustedPhiDict, dataFile, baseCaseDataFile, phiExcludeList)
+                    dataFileScenario = self.adjust_phi_data(adjustedPhiDict, dataFileScenario, baseCaseDataFile, phiExcludeList)
 
-            scenarioDataFiles[scenario] = dataFile
+            scenarioDataFiles[scenario] = dataFileScenario
 
         self.scenarioDataFiles = scenarioDataFiles
         self.stochasticMode = 'mpi-sppy'

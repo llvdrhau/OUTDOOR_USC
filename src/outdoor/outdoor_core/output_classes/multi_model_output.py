@@ -11,9 +11,10 @@ from tabulate import tabulate
 import os
 import datetime
 import cloudpickle as pic
+from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
 
 
-class MultiModelOutput:
+class MultiModelOutput(ModelOutput):
 
     """
     Class description
@@ -31,7 +32,16 @@ class MultiModelOutput:
 
     """
 
-    def __init__(self, optimization_mode=None):
+    def __init__(self,
+                 model_instance = None,
+                optimization_mode = None, # 'wait and see'
+                solver_name = None,
+                run_time = None,
+                gap = None):
+
+        # initiate the parent class
+        super().__init__(model_instance, optimization_mode, solver_name, run_time, gap)
+
         self._total_run_time = None
         self._case_time = None
         self._results_data = {}
@@ -41,12 +51,13 @@ class MultiModelOutput:
             "sensitivity",
             "multi-objective",
             "cross-parameter sensitivity",
+            "wait and see",
         }
 
         if optimization_mode in self._optimization_mode_set:
             self._optimization_mode = optimization_mode
         else:
-            print("Optimization mode not supported")
+            Warning("Optimization mode not supported")
 
         self._meta_data = dict()
 
@@ -102,8 +113,7 @@ class MultiModelOutput:
 
         """
         self._total_run_time = total_run_time
-        self._case_time = datetime.datetime.now()
-        self._case_time = str(self._case_time)
+        self._case_time = str(datetime.datetime.now())
 
         self._meta_data["Optimization mode"] = self._optimization_mode
 
@@ -209,31 +219,7 @@ class MultiModelOutput:
 
                 f.write(" ----------------- \n \n")
 
-    def save_file(self, path, option="raw"):
-        """
-        Parameters
-        ----------
-        path : String type of where to save the ProcessResults object as pickle
-            class object.
-        option: String, default is 'raw' which saves all data also including zero
-            values. If this value is set to 'tidy' an cleaning algorithm deletes
-            zero values which saves data space.
 
-        Description
-        ----------
-        Saves the output file as a pickle-file, which can be laoded into an
-        Analyzer-Object on another machine or at a different time.
-        """
 
-        if not os.path.exists(path):
-            os.makedirs(path)
 
-        if option == "tidy":
 
-            for i in self._results_data.values():
-                i._tidy_data()
-
-        path = path + "/" + "data_file" + self._case_time + ".pkl"
-
-        with open(path, "wb") as output:
-            pic.dump(self, output, protocol=4)

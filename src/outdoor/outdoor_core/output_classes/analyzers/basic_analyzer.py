@@ -40,6 +40,7 @@ class BasicModelAnalyzer:
     def __init__(self, model_output=None):
 
         self.model_output = copy.deepcopy(model_output)
+        #self.model_output = model_output
 
 # -----------------------------------------------------------------------------
 # -------------------------Private methods ------------------------------------
@@ -401,32 +402,24 @@ class BasicModelAnalyzer:
         # and from the Progressive Hedging algorithm with mpi-sppy, you can differentiate between them by checking if the key 'SC' is in the dictionary
 
         if list(model_data.keys())[0] == 'sc1':
-            # todo check this works for mpi-sppy
             scenarioKeys = list(model_data.keys())
-            flowFt = []
-            flowAdd = []
-            max_flow_value_ft = -float('inf')
-            max_flow_value_add = -float('inf')
 
-            for sc in scenarioKeys:
-                scenarioData = model_data[sc]
-                for i, j in scenarioData["FLOW_FT"].items():
-                    tupleScenarioFt = ((i, sc), j)  # tuple with the unit operation and the scenario
-                    flowFt.append(tupleScenarioFt)
-                    if j > max_flow_value_ft:
-                        max_flow_value_ft = j
+            for key in model_data['sc1']["FLOW_FT"].keys():
+                scFT = []
+                for sc in scenarioKeys:
+                    flow = model_data[sc]["FLOW_FT"][key]
+                    scFT.append(flow)
+                if max(scFT) > 1e-04:
+                    mass_flow_data["Mass flows"].update({key+('sc' + '{}'.format(i+1),): round(value, nDecimals) for i, value in enumerate(scFT)})
 
-                for i, j in scenarioData["FLOW_ADD"].items():
-                    tupleScenarioAdd = ((i, sc), j)  # tuple with the unit operation and the scenario
-                    flowAdd.append(tupleScenarioAdd)
-                    if j > max_flow_value_add:
-                        max_flow_value_add = j
+            for key in model_data['sc1']["FLOW_ADD"].keys():
+                scAdd = []
+                for sc in scenarioKeys:
+                    flow = model_data[sc]["FLOW_ADD"][key]
+                    scAdd.append(flow)
+                if max(scAdd) > 1e-04:
+                    mass_flow_data["Mass flows"].update({key+('sc' + '{}'.format(i+1),): round(value, nDecimals) for i, value in enumerate(scAdd)})
 
-            if max_flow_value_ft > 1e-04:
-                mass_flow_data["Mass flows"].update({(i, sc): round(j, nDecimals) for (i, sc), j in flowFt})
-
-            if max_flow_value_add > 1e-04:
-                mass_flow_data["Mass flows"].update({(i, sc): round(j, nDecimals) for (i, sc), j in flowAdd})
 
         elif 'SC' in model_data.keys():
             step = len(model_data['SC'])
@@ -835,7 +828,7 @@ class BasicModelAnalyzer:
 
         return fig
 
-    def create_flowsheet(self, path):
+    def create_flowsheet(self, path, saveName=None):
 
         """
         Parameters
@@ -911,49 +904,59 @@ class BasicModelAnalyzer:
             "flowchart", rankdir="LR", ratio="compress", size="15!,1", dpi="500"
         )
 
+        if self.model_output.stochastic_mode == "mpi-sppy":
+            model_data = model_data['sc1']
+
         for i, j in data.items():
 
             for v in i[0:2]: # i[0:2] is the tuple of the unit-operation, we don't need the scenario label
 
                 if v not in nodes.keys():
 
+                    if isinstance(list(model_data["Names"].keys())[0], str):
+
+                        # studid fix for the case where the names are strings
+                        # (when loading from json the keys of model_data["Names"] are strings for some reason)
+                        # transform the keys to integers to be able to compare them with the unit numbers
+                        model_data["Names"] = {int(k): v for k, v in model_data["Names"].items()}
+
                     if v in model_data["U_S"]:
-                        nodes[v] = make_node(
+                        nodes[int(v)] = make_node(
                             flowchart, model_data["Names"][v], shape="ellipse", color='green'
                         )
 
                     elif v in model_data["U_STOICH_REACTOR"]:
 
                         if v in model_data["U_TUR"]:
-                            nodes[v] = make_node(
+                            nodes[int(v)] = make_node(
                                 flowchart, model_data["Names"][v], "doubleoctagon"
                             )
 
                         elif v in model_data["U_FUR"]:
-                            nodes[v] = make_node(
+                            nodes[int(v)] = make_node(
                                 flowchart, model_data["Names"][v], "doubleoctagon"
                             )
 
                         else:
-                            nodes[v] = make_node(
+                            nodes[int(v)] = make_node(
                                 flowchart, model_data["Names"][v], "octagon"
                             )
 
                     elif v in model_data["U_YIELD_REACTOR"]:
-                        nodes[v] = make_node(
+                        nodes[int(v)] = make_node(
                             flowchart, model_data["Names"][v], "octagon"
                         )
 
                     elif v in model_data["U_PP"]:
-                        nodes[v] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
+                        nodes[int(v)] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
 
                     elif v in model_data["U_DIST"]:
-                        nodes[v] = make_node(
+                        nodes[int(v)] = make_node(
                             flowchart, model_data["Names"][v], shape="triangle", orientation=270
                         )
 
                     else:
-                        nodes[v] = make_node(flowchart, model_data["Names"][v], "box")
+                        nodes[int(v)] = make_node(flowchart, model_data["Names"][v], "box")
 
         # if we're dealing with a Stochastic model, we need to create a new dictionary where the labels are the min,
         # mean and max values. For this we to transform the stream data to get the right labels
@@ -982,7 +985,10 @@ class BasicModelAnalyzer:
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = path + '/flowchart' + '-' + self.model_output._case_number + '.png'
+        if saveName is None:
+            path = path + '/flowchart' + '-' + self.model_output._case_number + '.png'
+        else:
+            path = path + '/' + saveName + '.png'
 
         flowchart.write_png(path)
 
@@ -1009,11 +1015,16 @@ class BasicModelAnalyzer:
                 unit = " t/h"
             return scaled_value, unit
 
+        # differentiation between the two different data structures (nrml stochastic vs mpi-sppy)
+        if hasattr(self.model_output._data, 'SC'):
+            scenario_values = self.model_output._data['SC']
+            model_output = self.model_output._data
+        else:
+            scenario_values = list(self.model_output._data.keys())
+            model_output = self.model_output._data[scenario_values[0]]
 
-
-        scenario_values = self.model_output._data['SC']
-        units = self.model_output._data['U']
-        unitConnestors = self.model_output._data['U_CONNECTORS'] + self.model_output._data['U_SU']
+        #units = self.model_output._data['U']
+        unitConnestors = model_output['U_CONNECTORS'] + model_output['U_SU']
 
         unitDict = {}
         colorCode = 'black'
@@ -1094,5 +1105,4 @@ class BasicModelAnalyzer:
                 unitDict.update({(u,uu): (label, colorCode, width)})
 
         return unitDict
-
 

@@ -136,6 +136,7 @@ class SensitivityOptimizer(SingleOptimizer):
         :param senitivityData:
         :return:
 
+        # NOT REALLY WORKING LORD HELP ME PLEASE
         the idea is to use this function to run parralell computing using follwong code:
          # Using ProcessPoolExecutor to solve models in parallel
         with ProcessPoolExecutor(max_workers=4) as executor:
@@ -805,68 +806,95 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             percent = round((count / total_sets) * 100, 1)
             print("\033[95m\033[1mDictionary:", dict(unique_dict), "percent (%):", percent, "\033[0m")
 
-class WaitAndSeeOptimizer(StochasticRecourseOptimizer):
+class WaitAndSeeOptimizer(SingleOptimizer):
     def __init__(
         self,
         solver_name,
         solver_interface,
-        input_data,
+        inputObject,
         solver_options=None,
-        single_model_instance=None,
-        stochastic_options=None,
-        remakeMetadata = None
     ):
-
         super().__init__(solver_name, solver_interface, solver_options)
+
+        self.inputObject = inputObject # superstructure object
         self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
-        self.input_data = input_data
-        self.single_model_instance_4_EVPI = single_model_instance.clone()
-        self.single_model_instance_4_VSS = single_model_instance.clone()
-        self. remakeMetadata = remakeMetadata
-        if stochastic_options is None:
-            self.stochastic_options = {
-                "calculation_EVPI": True,
-                "calculation_VSS": True,
-            }
-        else:
-            self.stochastic_options = stochastic_options
 
     def run_optimization(self,
-                         model_instance,
-                         optimization_mode=None,
-                         solver="gurobi",
-                         interface="local",
-                         solver_path=None,
-                         options=None,
-                         count_variables_constraints=False):
+                         optimization_mode = None,
+                         solver = "gurobi",
+                         interface = "local",
+                         solver_path = None,
+                         options = None,
+                         count_variables_constraints = False):
 
-        # preallocate the variables
-        infeasibleScenarios = None
-        waitAndSeeSolution = 0
-        average_VSS = 0
+        # start timer
+        timer1 = time_printer(programm_step="Start wait and see", printTimer=False)
 
-        # get the input data and stochastic options
-        input_data = self.input_data
-        calculation_EVPI = self.stochastic_options["calculation_EVPI"]
-        calculation_VSS = self.stochastic_options["calculation_VSS"]
-
-        waitAndSeeSolutionDict = {}
-        EEVDict = {}
+        # create output object to store the results
 
 
 
-        # make a deep copy of the input data so the stochastic parameters can be transformed to final dataformat
-        Stochastic_input_EVPI = copy.deepcopy(input_data)
-        Stochastic_input_EVPI.create_DataFile()
-        Stochastic_input_vss = copy.deepcopy(Stochastic_input_EVPI)
+        model_output = MultiModelOutput(model_instance = None,
+                                        optimization_mode = self.inputObject.optimization_mode, # 'wait and see'
+                                        solver_name = self.solver_name,
+                                        run_time = None,
+                                        gap = None)
+
+        # get the scenario data files
+        scenarioDataFiles = self.inputObject.scenarioDataFiles
+
+        # preallocate the list of infeasible scenarios
+        infeasibleScenarios = []
+
+        # Green and bold text
+        print("\033[1;32m" + "Calculating the objective values for each scenario to calculate the EVPI\n"
+                             "Please be patient, this might take a while" + "\033[0m")
+
+        # Suppress the specific warning if model is infeasible
+        logging.getLogger('pyomo.core').setLevel(logging.ERROR)
+        total_scenarios = len(scenarioDataFiles)
+
+        for index, (scenario, dataFile) in enumerate(scenarioDataFiles.items()):
+            # create a model instance for the scenario
+            # initialize the model
+            model = SuperstructureModel(self.inputObject)
+
+            # create the model equations
+            model.create_ModelEquations()
+
+            # populate the model instance
+            modelInstance = model.populateModel(dataFile)
+
+            # run the optimization problem for the scenario
+            single_solved = self.single_optimizer.run_optimization(model_instance=modelInstance,
+                                                                   tee=False,
+                                                                   keepfiles=False,
+                                                                   printTimer=False,
+                                                                   VSS_EVPI_mode=True)
+
+            if single_solved == 'infeasible':
+                infeasibleScenarios.append(scenario)
+            else:
+                # tidy the data, i.e., delete variables and constraints that are 0
+                single_solved._tidy_data()
+                # add the results to the model output
+                model_output.add_process(scenario, single_solved)
+
+            # print the progress bar
+            print_progress_bar(iteration=index, total=total_scenarios, prefix='EVPI', suffix='')
 
 
-        # timer for the EVPI calculation
-        startEVPI = time_printer(programm_step="Wait and see calculation")
-        # create the Data_File Dictionary in the object input_data
+        timer = time_printer(timer1, printTimer=False, programm_step="Ending wait and see")
+        model_output.fill_information(timer)
 
-        waitAndSeeSolutionDict, infeasibleScenarios = self.get_WaitAndSee(Stochastic_input_EVPI)
-        time_printer(passed_time=startEVPI, programm_step="Wait and see calculation")
+        # Print a newline character to ensure the next console output is on a new line.
+        print()
+        # reactivate the warning if model is infeasible
+        logging.getLogger('pyomo.core').setLevel(logging.WARNING)
+
+        return model_output
+
+
 
 class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
 
@@ -947,7 +975,7 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
                                  # the first stage variables, which are non-anticipative constraints.
                                  # i.e., do not change across scenarios. In this case, the binary variables responsible
                                  # for the selection of the technology
-                                 [modelInstance.Y])  # todo add?  ,modelInstance.Y_DIST
+                                 [modelInstance.Y, modelInstance.Y_DIST])  # todo add?  ,modelInstance.Y_DIST
 
         modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
 
@@ -1016,7 +1044,7 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
                     # print(f"Variable {var_object} is not calculated!!")
                     continue
 
-        return variablesR0, allVariables, VariableWarningDict
+        return variablesR0, allVariables, VariableWarningDict, ph
 
 
 

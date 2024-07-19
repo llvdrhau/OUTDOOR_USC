@@ -147,7 +147,9 @@ class SingleOptimizer:
         else:
             model_output = ModelOutput(model_instance=model_instance,
                                        optimization_mode='single',
-                                       solver_name=self.solver_name, run_time=timer, gap=gap)
+                                       solver_name=self.solver_name,
+                                       run_time=timer,
+                                       gap=gap)
 
         return model_output
 

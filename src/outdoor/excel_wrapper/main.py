@@ -125,7 +125,7 @@ def get_DataFromExcel(PathName=None,
         else: # for the unit operations
             PU_ObjectList.append(wrapp_processUnits(dataframe[i]))
 
-        data_extraction = count / number_of_processes * 100
+        # data_extraction = count / number_of_processes * 100
 
         print_progress_bar(iteration= count, total= number_of_processes, prefix= 'Data Extraction' )
         count += 1
@@ -150,12 +150,25 @@ def get_DataFromExcel(PathName=None,
             Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
 
-        elif stochastic_mode == 'mpi-sppy':
+        elif stochastic_mode == 'mpi-sppy' or _optimization_mode == 'wait and see':
             Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
         else:
             raise ValueError('The stochastic mode {} is not recognized. '
                              '\n Please choose either None or "mpi-sppy".'.format(stochastic_mode))
+
+    elif _optimization_mode == "wait and see":
+        # save the data of the single optimization variable in the object for VSS and EVPI calculation
+        Superstructure_Object_duplicate = copy.deepcopy(Superstructure_Object)
+        Superstructure_Object.parameters_single_optimization = Superstructure_Object_duplicate
+
+        # set the uncertainty data in the object
+        df_stochastic = dataframe['Uncertainty']
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed)
+
+        # create the uncertainty data for the Superstructure_Object
+        Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
+        Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
 
     elif _optimization_mode == 'sensitivity' or _optimization_mode == 'cross-parameter sensitivity':
         # collect the sensitivity data & automatically add it to the Superstructure_Object

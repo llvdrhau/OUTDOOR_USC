@@ -2860,9 +2860,6 @@ class PhysicalProcessesDialog(QDialog):
         # placeholder for other fields...
 
 
-
-
-
 class StoichiometricReactorDialog(PhysicalProcessesDialog):
     def __init__(self, initialData, centralDataManager):
         super().__init__(initialData, centralDataManager)  # Initialize the parent class

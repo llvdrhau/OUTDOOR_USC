@@ -6,6 +6,10 @@ import numpy as np
 import seaborn as sns
 from scipy.stats import gaussian_kde
 import json
+import random as rnd
+import datetime
+import pickle as pic
+import os
 
 class StochasticModelOutput(ModelOutput):
     """
@@ -458,17 +462,28 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         self.solver_name = solver_name
         self.optimization_mode = optimization_mode
         self._run_time = run_time
-        self.stochastic_mode = "mpi-sspy"
+        self.stochastic_mode = "mpi-sppy"
+        self.dataFile = {}
+        self._dataStochastic = {}
+
+        # create a case number
+        self._case_time = str(datetime.datetime.now())
+        self._case_number = self._case_time[0:10] + '--Nr ' + str(rnd.randint(1, 10000))
+
 
         if mpi_sppy_results:
             self.fistStageVars = mpi_sppy_results[0]
-            self.dataFile = mpi_sppy_results[1]
+            self.dataFileVariables = mpi_sppy_results[1]
             self.warningVariables = mpi_sppy_results[2]
+            self.ph = mpi_sppy_results[3] # raw results from the ph object in mpi_sppy
+            # make the data dictionary from the ph object
+            self.get_data()
             # consistency checks
             self.check_warning_variables()
-            consistent, variable = self.check_first_stage_variable_consistency()
+            consistent, value, variable, scenario = self.check_first_stage_variable_consistency()
             if not consistent:
-                raise Exception(f"First stage decision Variable {variable} is not consistent across scenarios.")
+                raise Warning(f"First stage decision Variable {variable} : {value} is not consistent across scenarios {scenario}"
+                              f"Please check the data and rerun the optimization")
 
 
     def check_first_stage_variable_consistency(self):
@@ -483,10 +498,10 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
                 variable_values[variable] = value
             # If the variable is already in the variable_values dictionary, check if the value is the same
             elif variable_values[variable] != value:
-                return False, variable
+                return False, value, variable, scenario
 
         # If all values are consistent, return True
-        return True, None
+        return True, None, None, None
 
     def check_warning_variables(self):
         wanringVariables = self.warningVariables
@@ -494,13 +509,106 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
             if dictSc:
                 print("----------------------\n"
                       "-----------------------")
-                print(f"Warning: Some variables where not caluclated for scenario {sc}")
+                print(f"\033[93mWarning: Some variables were not calculated for scenario {sc}\033[0m")
+                print(f"Scenario: {sc} will be deleeted from the data set \n")
 
-    def save_2_json(self, savePath, saveName):
+    def get_data(self):
+        """
+        gets the data from the ph object, uses the local_scenarios attribute to get the instance of the scenarios
+        use _fill_data to fill the data of that scenario
+        """
+
+        #dataDictTest = {}
+        for scenario_name, scenario_instance in self.ph.local_scenarios.items():
+            if not self.warningVariables[scenario_name]: # if the de warning scenario is epmty then fill the data
+                dataScenario = self._fill_data(scenario_instance)
+                dataScenario = self._tidy_data(dataScenario)
+                self._dataStochastic.update({scenario_name: dataScenario})
+
+        self._data = self._dataStochastic # duplicate for the parent class
+    def _fill_data(self, instance):
+        """
+
+        Parameters
+        ----------
+        instance : SupstructureModel Class objective that is already solved
+
+
+        Description
+        -------
+        Goes through all block of the Model object and extracts the data
+        (Parameter, Variables, Sets, Objectives) to a Python dictionary
+        that is called ProcessDesign._data
+
+        """
+        data = {}
+        for i in instance.component_objects():
+            if "pyomo.core.base.var.SimpleVar" in str(type(i)):
+                data[i.local_name] = i.value
+            elif "pyomo.core.base.var.ScalarVar" in str(type(i)):
+                data[i.local_name] = i.value
+            elif "pyomo.core.base.param.SimpleParam" in str(type(i)):
+                data[i.local_name] = i.value
+            elif "pyomo.core.base.param.ScalarParam" in str(type(i)):
+                data[i.local_name] = i.value
+            elif "pyomo.core.base.param.IndexedParam" in str(type(i)):
+                data[i.local_name] = i.extract_values()
+            elif "pyomo.core.base.var.IndexedVar" in str(type(i)):
+                data[i.local_name] = i.extract_values()
+            elif "pyomo.core.base.set.SetProduct_OrderedSet" in str(type(i)):
+                data[i.local_name] = i.ordered_data()
+            elif "pyomo.core.base.sets.SimpleSet" in str(type(i)):
+                data[i.local_name] = i.value_list
+            elif "pyomo.core.base.sets.ScalarSet" in str(type(i)):
+                data[i.local_name] = i.value_list
+            elif "pyomo.core.base.set.OrderedScalarSet" in str(type(i)):
+                data[i.local_name] = i.ordered_data()
+            elif "pyomo.core.base.objective.SimpleObjective" in str(type(i)):
+                data["Objective Function"] = i.expr.to_string()
+            elif "pyomo.core.base.objective.ScalarObjective" in str(type(i)):
+                data["Objective Function"] = i.expr.to_string()
+            else:
+                continue
+
+        return data
+
+    def calulate_EVPI(self, resultsWaitAndSee):
+        """
+        Calculate the Expected Value of Perfect Information (EVPI) of the given objective function.
+
+        :param resultsWaitAndSee: a dict with the results of the wait-and-see scenarios.
+        :return: The EVPI value.
+        """
+        # todo get this function up and runnning
+
+        # Get the objective function value for each scenario
+        ExpectedValueList = [value for key, value in self._dataStochastic["Objective Function"].items()]
+        recourseSolution = sum(ExpectedValueList)/len(ExpectedValueList)
+
+        # Expected value of the objective function under perfect information
+        waitAndSeeSolution = resultsWaitAndSee["Objective Function"]
+
+        # Calculate the Expected Value of Perfect Information (EVPI)
+        # get the sens of the objective function
+        sensOptimisation = self._dataStochastic["Sense"]  # this will be wrong
+
+        if sensOptimisation:
+            EVPI = recourseSolution - waitAndSeeSolution
+        else:
+            EVPI = waitAndSeeSolution - recourseSolution
+
+
+        return EVPI
+
+    # Save and load ModelOutput --------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+
+    def save_2_json(self, savePath=None, saveName=None):
         """
         Save the results to a JSON file
         :param savePath: The path to save the JSON file
         """
+
         # save the _data in the ModelOutput to a JSON file
         if savePath:
             if not saveName:
@@ -510,18 +618,19 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
                     saveName = saveName + '.json'
                 savePathData = savePath + '/' + saveName
 
-            rawData = self.dataFile
+            rawData = self._dataStochastic
             rawData.update({'Solver': self.solver_name,
                             'Optimisation Mode': self.optimization_mode,
                             'Timer': self._run_time,
                             'Stochastic Mode': self.stochastic_mode,
-
+                            'Case Number': self._case_number
                             })
 
+            rawDataCompatible = self.dict_to_json_compatible(rawData)
+
+
             with open(savePathData, 'w') as json_file:
-                json.dump(rawData, json_file, indent=4)
-
-
+                json.dump(rawDataCompatible, json_file, indent=4)
 
     def load_from_json(self, savedLocation):
         """
@@ -531,23 +640,75 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
         with open(savedLocation, 'r') as json_file:
             data = json.load(json_file)
-            self.dataFile = data
 
-            self.solver_name = data['Solver']
-            self.optimization_mode = data['Optimisation Mode']
-            self._run_time = data['Timer']
+        # model output data is stored in the object
+        self.dataFile = data
+        self.solver_name = data['Solver']
+        self.optimization_mode = data['Optimisation Mode']
+        self._run_time = data['Timer']
+        self.stochastic_mode = data['Stochastic Mode']
+        self._case_number = data['Case Number']
 
-            # remove the keys, solver, optimisation mode and timer from the data
-            data.pop('Solver')
-            data.pop('Optimisation Mode')
-            data.pop('Timer')
-            self.dataFile = data
+        # remove the keys, solver, optimisation mode and timer from the data
+        data.pop('Solver')
+        data.pop('Optimisation Mode')
+        data.pop('Timer')
+        data.pop('Stochastic Mode')
+        data.pop('Case Number')
+
+        # # Deserialize from JSON
+        # deserialized_dict = json.loads(json_str)
+        # Convert back to original format
+        # restored_dict = self.json_compatible_to_dict(data)
+        # self._data = restored_dict
+        self._data = data
 
         # initialise the object with the data
-        self.__init__(model_instance=None,
-                      optimization_mode= self.optimization_mode,
-                      solver_name= self.solver_name,
-                      run_time= self._run_time,
-                      gap=None,
-                     mpi_sppy_results=None)
+        # self.__init__(model_instance=None,
+        #               optimization_mode= self.optimization_mode,
+        #               solver_name= self.solver_name,
+        #               run_time= self._run_time,
+        #               gap=None,
+        #              mpi_sppy_results=None)
+
+    def dict_to_json_compatible(self, d):
+        def convert_keys(obj):
+            if isinstance(obj, dict):
+                new_dict = {}
+                for k, v in obj.items():
+                    new_key = str(k) if isinstance(k, tuple) else k
+                    new_dict[new_key] = convert_keys(v)
+                return new_dict
+            elif isinstance(obj, list):
+                return [convert_keys(item) for item in obj]
+            else:
+                return obj
+
+        return convert_keys(d)
+
+    def json_compatible_to_dict(self, d):
+        def convert_keys(obj):
+            if isinstance(obj, dict):
+                new_dict = {}
+                for k, v in obj.items():
+                    new_key = self.parse_tuple(k) if isinstance(k, str) and k.startswith('(') and k.endswith(')') else k
+                    new_dict[new_key] = convert_keys(v)
+                return new_dict
+            elif isinstance(obj, list):
+                return [convert_keys(item) for item in obj]
+            else:
+                return obj
+
+        return convert_keys(d)
+
+    def parse_tuple(self, s):
+        try:
+            return tuple(map(int, s.strip("()").split(",")))
+        except:
+            return s
+
+
+
+
+
 

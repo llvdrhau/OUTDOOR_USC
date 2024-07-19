@@ -9,7 +9,7 @@ Possible optimization modes: "Single run optimization", "Multi-criteria optimiza
 import sys
 import os
 import tracemalloc
-from delete_function import delete_all_files_in_directory
+from examples.scripts_Agriloop_Stochastic.delete_function import delete_all_files_in_directory
 
 
 # start the memory profiler
