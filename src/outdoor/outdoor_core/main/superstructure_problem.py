@@ -180,8 +180,11 @@ class SuperstructureProblem:
             # pass on stochastic optimization options dictionary
             stochastic_options = {'calculation_EVPI': calculation_EVPI, 'calculation_VSS': calculation_VSS}
             # settings optimisation problem
-            optimizer = self.setup_optimizer(solver, interface, solver_path, options, optimization_mode,
-                                             mode_options, input_data, stochastic_options,
+            optimizer = self.setup_optimizer(solver,
+                                             interface,
+                                             solver_path,
+                                             options, optimization_mode,mode_options,
+                                             input_data, stochastic_options,
                                              mpi_sppy_options=mpi_sppy_options) #add options for mpi-sppy None if not mpi-sppy
             # run the optimization
             model_output = optimizer.run_optimization(model_instance)

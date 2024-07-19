@@ -101,7 +101,6 @@ def change_parameter(Instance, parameter, value, metadata=None, superstructure=N
         'Component concentration (conc)': change_concentration_demand,
         'Reference Capital costs (C_Ref)': change_capital_costs,
         'Operating and maintenance (K_OM)': change_opex_factor,
-        # TODO add these parameters to the change_parameter function and to stochastic mode!!
 
 
         # "component_concentration": change_concentration_demand,

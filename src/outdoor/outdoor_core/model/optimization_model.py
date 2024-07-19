@@ -1361,6 +1361,10 @@ class SuperstructureModel(AbstractModel):
             for i, j in self.connections.items():
                 if u == i:
                     if j[k]:
+                        # todo change logic to sum(self.Y[uu] for uu in j[k]) == self.Y[u]
+                        # so only 1 connection is allowed
+                        # also this currently does not work if you want your input to only go into one unit...,
+                        # Might have to build that functionality in the SOURCE tab of the Excel file
                         return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
                         ind = True
 

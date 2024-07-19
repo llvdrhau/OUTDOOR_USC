@@ -838,7 +838,8 @@ class WaitAndSeeOptimizer(SingleOptimizer):
                                         optimization_mode = self.inputObject.optimization_mode, # 'wait and see'
                                         solver_name = self.solver_name,
                                         run_time = None,
-                                        gap = None)
+                                        gap = None,
+                                        dataFiles=self.inputObject.scenarioDataFiles)
 
         # get the scenario data files
         scenarioDataFiles = self.inputObject.scenarioDataFiles
@@ -893,8 +894,6 @@ class WaitAndSeeOptimizer(SingleOptimizer):
         logging.getLogger('pyomo.core').setLevel(logging.WARNING)
 
         return model_output
-
-
 
 class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
 

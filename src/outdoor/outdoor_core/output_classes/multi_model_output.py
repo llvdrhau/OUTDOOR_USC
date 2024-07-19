@@ -37,7 +37,8 @@ class MultiModelOutput(ModelOutput):
                 optimization_mode = None, # 'wait and see'
                 solver_name = None,
                 run_time = None,
-                gap = None):
+                gap = None,
+                dataFiles = None,):
 
         # initiate the parent class
         super().__init__(model_instance, optimization_mode, solver_name, run_time, gap)
@@ -60,6 +61,10 @@ class MultiModelOutput(ModelOutput):
             Warning("Optimization mode not supported")
 
         self._meta_data = dict()
+
+        # fill the data files of the different scenarios
+        self._dataFiles = dataFiles
+
 
     def add_process(self, index, process_results):
         """

@@ -5,16 +5,19 @@ the script reads in the pickel file and analyzes the results of the stochastic o
 import sys
 import os
 import time
-
 scrPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src'))
 sys.path.insert(0, scrPath)
-
 import outdoor
+
+n_scenarios = 11
 
 startTime = time.time()
 
 # define file name that contains the results
-fileName = "test2.pkl"
+fileName = "stochastic_mpi_sppy_{}sc.pkl".format(n_scenarios)
+# define the name of the data to save
+saveName = "flowsheet_{}sc".format('test11')
+
 
 # define save locations
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +34,7 @@ outputObject = outdoor.StochasticModelOutput_mpi_sppy.load_from_pickle(path=file
 analyzer = outdoor.BasicModelAnalyzer(outputObject)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePathPLots,
-                          saveName="flowsheet_test_3_scenarios_pickel2")
+                          saveName=saveName)
 
 endTime = time.time()
 

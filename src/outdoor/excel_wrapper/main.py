@@ -29,6 +29,7 @@ def get_DataFromExcel(PathName=None,
                       optimization_mode=None,
                       cross_sensitivity_params=None,
                       stochastic_mode=None,
+                      scenario_size=None,
                       seed=66):
 
     """
@@ -143,14 +144,14 @@ def get_DataFromExcel(PathName=None,
 
         # set the uncertainty data in the object
         df_stochastic = dataframe['Uncertainty']
-        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed)
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed, scenario_size)
 
         # add an if statement to check what kind of uncertainty model we're dealing with
         if stochastic_mode is None:
             Superstructure_Object.set_uncertainty_data(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
 
-        elif stochastic_mode == 'mpi-sppy' or _optimization_mode == 'wait and see':
+        elif stochastic_mode == 'mpi-sppy':
             Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
         else:
@@ -164,7 +165,7 @@ def get_DataFromExcel(PathName=None,
 
         # set the uncertainty data in the object
         df_stochastic = dataframe['Uncertainty']
-        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed)
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed, scenario_size)
 
         # create the uncertainty data for the Superstructure_Object
         Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)

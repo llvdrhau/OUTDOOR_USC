@@ -12,7 +12,7 @@ from . import wrapping_functions as WF
 import pandas as pd
 
 
-def wrapp_stochastic_data(dfi, seed=66):
+def wrapp_stochastic_data(dfi, seed=66, scenario_size=None):
     # make the initial stochastic object
     obj = StochasticObject()
 
@@ -29,7 +29,7 @@ def wrapp_stochastic_data(dfi, seed=66):
     customLevelDataFrame = dfi.iloc[customLevelRange]
 
     # set the general data
-    obj.set_general_data(generalDataFrame, customLevelDataFrame)
+    obj.set_general_data(generalDataFrame, customLevelDataFrame, scenario_size)
 
     # extract the uncertain parameters from the dataframe
     UncertainParametersRange = WF.convert_total('B', 25, 'K', 52)

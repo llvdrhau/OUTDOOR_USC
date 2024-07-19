@@ -91,8 +91,6 @@ def wrapp_processUnits(dfi):
         wrapp_ReacionData(obj, dfi.iloc[GammaDataRange], dfi.iloc[ThetaDataRange])
 
     elif process_class == "CHP.Generator":
-        # Todo check if the efficiency is correct, place holder value here
-        #  (see the class CombinedHeatAndPower for more information)
         obj = CombinedHeatAndPower(dfi.iat[8, 4], dfi.iat[9, 4]) # Efficiency is already predifenied in the class
         wrapp_ReacionData(obj, dfi.iloc[GammaDataRange], dfi.iloc[ThetaDataRange])
 

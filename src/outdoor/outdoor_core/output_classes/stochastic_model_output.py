@@ -482,8 +482,10 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
             self.check_warning_variables()
             consistent, value, variable, scenario = self.check_first_stage_variable_consistency()
             if not consistent:
-                raise Warning(f"First stage decision Variable {variable} : {value} is not consistent across scenarios {scenario}"
-                              f"Please check the data and rerun the optimization")
+                warningMessage = (f"First stage decision Variable {variable} : {value} is not consistent across scenarios"
+                                  f" {scenario} Please check the data and rerun the optimization")
+                self.warningMessage = warningMessage
+                raise Warning(warningMessage)
 
 
     def check_first_stage_variable_consistency(self):
@@ -518,11 +520,11 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         use _fill_data to fill the data of that scenario
         """
 
-        #dataDictTest = {}
         for scenario_name, scenario_instance in self.ph.local_scenarios.items():
             if not self.warningVariables[scenario_name]: # if the de warning scenario is epmty then fill the data
                 dataScenario = self._fill_data(scenario_instance)
-                dataScenario = self._tidy_data(dataScenario)
+                # todo should I tidy the data or not??????
+                # dataScenario = self._tidy_data(dataScenario)
                 self._dataStochastic.update({scenario_name: dataScenario})
 
         self._data = self._dataStochastic # duplicate for the parent class
@@ -601,6 +603,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         return EVPI
 
     # Save and load ModelOutput --------------------------------------------------------------------
+    # in JSON format, not recommended for use-------------------------------------------------------
     # ----------------------------------------------------------------------------------------------
 
     def save_2_json(self, savePath=None, saveName=None):

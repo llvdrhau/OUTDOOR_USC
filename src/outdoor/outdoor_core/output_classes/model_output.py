@@ -817,7 +817,7 @@ class ModelOutput:
             pic.dump(self, output)
 
 
-    def return_chosen(self, data=None):
+    def return_chosen(self, data=None, threshold=1e-5):
         """
         Returns
         -------
@@ -853,14 +853,14 @@ class ModelOutput:
         for i, j in y.items():
             if j == 1:
                 try:
-                    if flow[i] >= 1e-5:
+                    if flow[i] >= threshold:
                         chosen[i] = names[i]
                 except:
                     pass
 
             else:
                 try:
-                    if flow_s[i] >= 1e-5:
+                    if flow_s[i] >= threshold:
                         chosen[i] = names[i]
                 except:
                     pass
@@ -994,7 +994,6 @@ class ModelOutput:
         with open(path, "rb") as input_file:
             loaded_object = pic.load(input_file)
 
-        # self.__dict__.update(loaded_object.__dict__)
         return loaded_object
 
     def update_from_loaded(self, loaded_object):

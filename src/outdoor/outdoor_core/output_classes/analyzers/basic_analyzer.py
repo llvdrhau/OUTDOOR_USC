@@ -403,7 +403,6 @@ class BasicModelAnalyzer:
 
         if list(model_data.keys())[0] == 'sc1':
             scenarioKeys = list(model_data.keys())
-
             for key in model_data['sc1']["FLOW_FT"].keys():
                 scFT = []
                 for sc in scenarioKeys:

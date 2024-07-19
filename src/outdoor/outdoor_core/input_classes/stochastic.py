@@ -54,7 +54,7 @@ class StochasticObject():
                           'Decimal_numbers': {}
                           }
 
-    def set_general_data(self, GeneralDataFrame, customLevelDataFrame):
+    def set_general_data(self, GeneralDataFrame, customLevelDataFrame, sampleSize=None):
         """
         This function sets the general data for the stochastic problem
         :param GeneralDataFrame:
@@ -87,7 +87,11 @@ class StochasticObject():
 
         elif GeneralDataFrame.Combinatorial == "False" and GeneralDataFrame.LHS_Sampling == "True":  # if the switch LHS Sampling is True
             self.SamplingMode = "LHS"
-            self.SampleSize = GeneralDataFrame.Sample_Size
+            # overwrite the sample size if it is given in the script
+            if sampleSize is not None:
+                self.SampleSize = sampleSize
+            else:
+                self.SampleSize = GeneralDataFrame.Sample_Size
         else:
             raise Exception("On the Sheet Uncertainty, make sure one switch for the sampling settings is selected "
                             "(i.e., one True and the other False")
