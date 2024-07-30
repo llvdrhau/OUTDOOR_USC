@@ -12,6 +12,9 @@ import os
 import datetime
 import cloudpickle as pic
 from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
 
 
 class MultiModelOutput(ModelOutput):
@@ -223,6 +226,93 @@ class MultiModelOutput(ModelOutput):
                     f.write(f"{k}: {t} \n \n")
 
                 f.write(" ----------------- \n \n")
+
+
+  # Calculate the SRC for the sensitivity analysis ------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    def calculate_SRC(self):
+        """
+        Calculates the standerdized regression coefficients SRC of the wait and see analysis
+        :return:
+        """
+
+
+        if self._optimization_mode != "wait and see":
+            ValueError("Scenario analysis methode is only available for 'wait and see' analysis.")
+
+        # return the objective function name of the simulations
+        objectiveFunctionName = self._results_data['sc1']._data['ObjectiveFunctionName']
+        # objectiveFunctionName2 = self._objective_function
+
+        # retrive uncetainty matrix
+        uncertaintyMatrix = self.uncertaintyMatrix
+
+        # turn uncertainty matrix into numpy array
+        parameterArray = np.array(uncertaintyMatrix)
+
+
+        # get the results of the wait and see analysis
+        objectiveFunctionList = []
+        for i, j in self._results_data.items():
+            objectiveFunctionList.append(j._data[objectiveFunctionName])
+
+        # turn into numpy array
+        results = np.array(objectiveFunctionList)
+        results = results.reshape(-1, 1)
+
+
+        # Standardize data using sklearn (so-called mean-centred sigma-scaling)
+        scaler = StandardScaler()
+        parametersStandardized = scaler.fit_transform(parameterArray)
+        resultsStandardized = scaler.fit_transform(results)
+
+        # Perform regression analysis
+        reg = LinearRegression()
+        reg.fit(parametersStandardized, resultsStandardized)
+        #reg.fit(parameterArray, results)
+
+        # Obtain SRCs
+        srcs = reg.coef_
+
+        srcDict = {}
+        squareSumSRC = 0
+        for i, parameterName in enumerate(uncertaintyMatrix.columns):
+            # standerdiseCoef = np.std(parameterArray[:, i]) / np.std(results)
+            standerdiseCoef = 1
+            src = srcs[0, i] * standerdiseCoef
+            srcDict[parameterName] = src
+            squareSumSRC += src**2
+            print(f"SRC for parameter {parameterName}: {src}")
+
+
+        # Obtain R-squared value
+        RSquared = reg.score(parametersStandardized, resultsStandardized)
+
+        # #plot y_reg vs y
+        # get the results from the regression model
+        # y_reg = reg.predict(parametersStandardized)
+        # y_reg = reg.predict(parameterArray)
+        # import matplotlib.pyplot as plt
+        # plt.plot(results, y_reg, 'o')
+        # plt.xlabel('True values')
+        # plt.ylabel('Predicted values')
+        # # plot diagonal line
+        # plt.plot([np.min(results), np.max(results)], [np.min(results), np.max(results)], 'r-')
+        # plt.show()
+
+        #
+        # for i, y in enumerate(objectiveFunctionList):
+        #     test = (y_reg[i, 0] - yAverage)**2 / (y - yAverage)**2
+        #     RSquared += (y_reg[i, 0] - yAverage)**2 / (y - yAverage)**2
+
+
+        print('Sum of SRC squared: ', squareSumSRC)
+        print('R squared: ', RSquared)
+        self.SRC = srcDict
+
+        sorted_src = dict(sorted(srcDict.items(), key=lambda item: item[1], reverse=True))
+        print(sorted_src)
+
 
 
 

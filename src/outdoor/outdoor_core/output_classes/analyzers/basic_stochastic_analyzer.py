@@ -3,7 +3,7 @@
 """
 Created on Wed Jully 03 2024
 
-@author: philippkenkel
+@author: Lucas Van der Hauwaert
 """
 
 

@@ -9,7 +9,8 @@ from ..optimizers.customs.custom_optimizer import (
     TwoWaySensitivityOptimizer,
     StochasticRecourseOptimizer,
     WaitAndSeeOptimizer,
-    StochasticRecourseOptimizer_mpi_sppy
+    StochasticRecourseOptimizer_mpi_sppy,
+    HereAndNowOptimizer
 )
 
 from ..utils.timer import time_printer
@@ -85,7 +86,8 @@ class SuperstructureProblem:
         calculation_VSS=True,
         count_variables_constraints=False,
         cross_sensitivity_parameters=None,
-        mpi_sppy_options=None
+        mpi_sppy_options=None,
+        outputFileDesignSpace=None,
     ):
         """
 
@@ -135,13 +137,18 @@ class SuperstructureProblem:
         # check if the stochastic mode is set correctly for the 2-stage-recourse optimization mode
         self.stochastic_mode = input_data.stochasticMode
 
+        # give the design space output file to the superstructure object
+        if outputFileDesignSpace is not None:
+            input_data.outputFileDesignSpace = outputFileDesignSpace
+
         # what are the permitted optimization modes
         OptimisationPermissionList = ["single",
                                       "multi-objective",
                                       "sensitivity",
                                       "cross-parameter sensitivity",
                                       "2-stage-recourse",
-                                      "wait and see"]
+                                      "wait and see",
+                                      "here and now"]
 
         if optimization_mode is None:
             optimization_mode = input_data.optimization_mode
@@ -164,7 +171,7 @@ class SuperstructureProblem:
 
             if optimization_mode == "2-stage-recourse" and self.stochastic_mode == "mpi-sppy":
                 model_instance = None  # we do not need to create a model instance for the mpi-sppy mode
-            elif optimization_mode == "wait and see":
+            elif optimization_mode == "wait and see" or optimization_mode == "here and now":
                 model_instance = None  # we do not need to create a model instance for the wait and see mode
             else:
                 # populate the model instance with the input data
@@ -319,6 +326,7 @@ class SuperstructureProblem:
                         "cross-parameter sensitivity",
                         "2-stage-recourse",
                         "wait and see",
+                        "here and now"
                         }
 
         if optimization_mode not in MODE_LIBRARY:
@@ -353,7 +361,9 @@ class SuperstructureProblem:
             optimizer = WaitAndSeeOptimizer(solver_name=solver, solver_interface=interface,
                                             solver_options=options, inputObject=superstructure)
 
-
+        elif optimization_mode == "here and now":
+            optimizer = HereAndNowOptimizer(solver_name=solver, solver_interface=interface,
+                                            solver_options=options, inputObject=superstructure)
 
         elif optimization_mode == "single":
             optimizer = SingleOptimizer(solver_name=solver, solver_interface=interface,

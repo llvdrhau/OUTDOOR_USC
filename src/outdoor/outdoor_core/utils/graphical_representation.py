@@ -9,7 +9,7 @@ import pydot
 import os
 
 
-def create_superstructure_flowsheet(superstructure, path):
+def create_superstructure_flowsheet(superstructure, path, saveName=None):
 
     def make_node(graph, name, shape, orientation = 0, color = 'black'):
         """
@@ -122,9 +122,18 @@ def create_superstructure_flowsheet(superstructure, path):
 
     # path  = path + '/superstructure_flowsheet.pdf'
 
-    if not  os.path.exists(path):
+    if not os.path.exists(path):
         os.makedirs(path)
 
-    savePath  = path + '/superstructure_flowsheet.png'
+    # give appropriate name to the file
+    if saveName is None:
+        saveName = '/superstructure_flowsheet.png'
+    else:
+        if 'png' not in saveName:
+            saveName = saveName + '.png'
+        saveName = '/' + saveName
+
+
+    savePath  = path + saveName
     # flowchart.write_pdf(path)
     flowchart.write_png(savePath)

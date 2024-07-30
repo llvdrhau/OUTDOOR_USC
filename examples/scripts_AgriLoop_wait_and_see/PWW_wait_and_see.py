@@ -27,17 +27,20 @@ Results_Path = r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_Agr
 optimization_mode = 'wait and see'
 
 # create the superstructure data from the Excel file
-superstructure_Data = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode)
+superstructure_Object = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=optimization_mode)
+
+# check if the uncertainty data is correct
+superstructure_Object.check_uncertainty_data()
 
 # create the superstructure flowsheet
-outdoor.create_superstructure_flowsheet(superstructure_Data, Results_Path)
+outdoor.create_superstructure_flowsheet(superstructure_Object, Results_Path)
 
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
 solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
                  "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
 
-model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Data,
+model_output = abstract_model.solve_optimization_problem(input_data=superstructure_Object,
                                                          optimization_mode=optimization_mode,
                                                          solver='gurobi',
                                                          interface='local',

@@ -21,13 +21,17 @@ class SuperstructureModel(AbstractModel):
 
 
 
-    def __init__(self, superstructure_input=None, *args, **kwargs):
+    def __init__(self, superstructure_input=None, fixedDesign=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if superstructure_input is not None:
             self._set_optionals_from_superstructure(superstructure_input)
         else:
             self._set_optionals_from_external(kwargs)
+
+        # if True, the model will make the binary variables parameters for flow choice, therefore fixing the design of
+        # the flowsheet
+        self._fixedDesign = fixedDesign
 
     def _set_optionals_from_superstructure(self, superstructure_input):
         """
@@ -61,9 +65,16 @@ class SuperstructureModel(AbstractModel):
         self.groups = superstructure_input.groups
         self.connections = superstructure_input.connections
 
+        checkList = []
         for i in superstructure_input.UnitsList:
             if i.Type == "ProductPool" and i.ProductType == "MainProduct":
                 self.main_pool = i.Number
+                checkList.append(i.Number)
+
+        # create warning if more than one main product pool is defined and the model is product driven
+        if len(checkList) > 1 and self.productDriven == 'yes':
+            raise ValueError("There is more than one product pool defined as the mainProduct. "
+                             "Please check the superstructure input.")
 
     def _set_options_from_external(self, **kwargs):
         print("There is no external parsing implemented at the moment.")
@@ -238,13 +249,19 @@ class SuperstructureModel(AbstractModel):
         self.FLOW_ADD = Var(self.U_SU, within=NonNegativeReals)
         self.FLOW_ADD_TOT = Var(self.U, self.I, within=NonNegativeReals)
         self.FLOW_SUM = Var(self.U, within=NonNegativeReals)
-        self.Y = Var(self.U, within=Binary)
         self.FLOW_SOURCE = Var(self.U_S, within=NonNegativeReals)
-
         self.FLOW_DIST = Var(self.U_DIST_SUB2, self.I, within=NonNegativeReals)
-        self.Y_DIST = Var(self.U_DIST_SUB2, within=Binary)
-
         self.FLOW_FT = Var(self.U_CONNECTORS, within=NonNegativeReals)
+
+        # Binary Variables for flow choice also 1ste Stage Variables of the stochastic models!
+        if self._fixedDesign:
+            # Binary but can be any value to avoid errors (for values which aren't exactly 0 or 1)
+            self.Y = Param(self.U, within=AnyWithNone)
+            self.Y_DIST = Param(self.U_DIST_SUB2, within=AnyWithNone)
+        else:
+            self.Y = Var(self.U, within=Binary)
+            self.Y_DIST = Var(self.U_DIST_SUB2, within=Binary)
+
 
         # Constraints
         # -----------
@@ -1133,13 +1150,13 @@ class SuperstructureModel(AbstractModel):
 
         # Profits
 
-        def Profit_1_rule(self, u): # in M€ (million euro)
+        def Profit_1_rule(self, u): # profit per 1000€
             return (
                 self.PROFITS[u]
                 == sum(self.FLOW_IN[u, i] for i in self.I) * self.ProductPrice[u] / 1000
             )
 
-        def Profit_2_rule(self):
+        def Profit_2_rule(self): # profit per M€ (million euro)
             return (
                 self.PROFITS_TOT
                 == sum(self.PROFITS[u] for u in self.U_PP) * self.H / 1000
@@ -1343,6 +1360,10 @@ class SuperstructureModel(AbstractModel):
 
         def ProcessGroup_logic_1_rule(self, u, uu):
 
+            # this constraint is only relevant if the design is not fixed
+            if self._fixedDesign:
+                return Constraint.Skip
+
             ind = False
 
             for i, j in self.groups.items():
@@ -1356,6 +1377,10 @@ class SuperstructureModel(AbstractModel):
 
         def ProcessGroup_logic_2_rule(self, u, k):
 
+            # this constraint is only relevant if the design is not fixed
+            if self._fixedDesign:
+                return Constraint.Skip
+
             ind = False
 
             for i, j in self.connections.items():
@@ -1366,7 +1391,7 @@ class SuperstructureModel(AbstractModel):
                         # also this currently does not work if you want your input to only go into one unit...,
                         # Might have to build that functionality in the SOURCE tab of the Excel file
                         return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
-                        ind = True
+                        #ind = True
 
             if ind == False:
                 return Constraint.Skip
@@ -1442,6 +1467,7 @@ class SuperstructureModel(AbstractModel):
 
         def Specific_NPC_rule(self): # in € per year (euro/ton/year)
             # ProductLoad is 1 is substrate driven, otherwise it is the target production
+            # self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000
             return self.NPC == (self.TAC * 1000)/self.ProductLoad # in € per tonne of product per year (so your target production)
 
 

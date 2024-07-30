@@ -245,7 +245,7 @@ class AdvancedMultiModelAnalyzer:
 
     import matplotlib.pyplot as plt
 
-    def create_sensitivity_graph(self, savePath=None, saveName=None ,figureMode='subplot'):
+    def create_sensitivity_graph(self, savePath=None, saveName=None, figureMode='subplot'):
         """
         Returns
         -------
@@ -299,8 +299,12 @@ class AdvancedMultiModelAnalyzer:
                     # skip the graph if all values are the same
                     continue
                 else:
-                    x_discreet = list(range(len(x_vals)))
-                    ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
+                    if len(data) > 1:
+                        x_discreet = list(range(len(x_vals)))
+                        ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
+                    else:
+                        ax.plot(x_vals, y_vals, linestyle="--", marker="o", label=title)
+
                     ax.set_xlabel("Discritised Parameter Values")
                     ax.set_ylabel(ylab)
 
@@ -782,7 +786,7 @@ class AdvancedMultiModelAnalyzer:
 
     # METHODES FOR WAIT AND SEE ANALYSIS
     # ---------------------------------
-    def plot_scenario_analysis(self, variableName=None, path=None, saveName=None, showPlot=False):
+    def plot_scenario_analysis(self, variableName=None, path=None, saveName=None, showPlot=False, flowThreshold=1e-5):
         """
         This method creates a figure of the different possible design spaces for the wait and see analysis.
         the graph are box plots where each box represents the distribution of the objective function for a given flow
@@ -794,7 +798,7 @@ class AdvancedMultiModelAnalyzer:
         if self.model_output._optimization_mode != "wait and see":
             ValueError("Scenario analysis methode is only available for 'wait and see' analysis.")
 
-        flowsheetDict = self._get_flow_sheet_designs()
+        flowsheetDict = self._get_flow_sheet_designs(threshold=flowThreshold)
 
         if variableName is None:
             variableName = self.model_output._results_data['sc1']._data['ObjectiveFunctionName']
@@ -805,6 +809,7 @@ class AdvancedMultiModelAnalyzer:
                   f"Using the objective function {variableName}.\n")
 
         boxPlotData = self._get_distribution_variable(variableName, flowsheetDict)
+        #percentageOccurence = {key: len(value) / len(self.model_output._results_data) for key, value in boxPlotData.items()}
 
         xTickLabels = self._identify_products(flowsheetDict)
 
@@ -852,7 +857,7 @@ class AdvancedMultiModelAnalyzer:
 
         return variableDistribution
 
-    def _get_flow_sheet_designs(self):
+    def _get_flow_sheet_designs(self, threshold=1e-5):
         """
         Returns a dictionary with the flow sheet design as key and the data of the different scenarios as value with
         that flow sheet as a design.
@@ -866,7 +871,7 @@ class AdvancedMultiModelAnalyzer:
         flowsheetDict = {}
         for scenario in dataAllScenarios:
             dataScenario = dataAllScenarios[scenario]._data
-            flowsheet = self.model_output.return_chosen(dataScenario)  # Get the chosen technologies for each scenario
+            flowsheet = self.model_output.return_chosen(dataScenario,threshold=threshold)  # Get the chosen technologies for each scenario
             keyFlowSheet = tuple(flowsheet.items())
 
             # Check if the flowsheet is already in the dictionary

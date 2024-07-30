@@ -1,0 +1,26 @@
+
+Just some notes on the AgriLoop potato peel waste (PPW) case study to keep track of the progress and issues.
+
+
+found an important bug in the code, if you send source units (i.e., inputs like PPW) to multiple sinks the stream
+to which the source is connected is not the same arcoss multiple scenarios during the stochastic optimization!!
+----------------------------TIPS-----------------
+# 1) to avoid getting error when running the analysis (creating the flowsheert) and to visualise this error make sure NOT to use _tidy_data in StochasticModelOutput_mpi_sppy class
+# 2) make sure in the methode def scenario_creator(self, scenarioName): that Y_DIST and Y are the stage 1 variables (optimiser class)
+# 3) hack: MAKE SURE PWW IS ONLY CONNECTED TO ONE SINK IN THE SUPERSTRUCTURE (i.e., the GRINDER) that way you avoid this error
+
+SOLUTION: in the model constraint: ProcessGroup_logic_2_rule their is a variable self.connections.items()
+make sure through the EXCEL file that you specify that the source can only go to one sink! (like you would do in Material flow soures of a unit process)
+
+IMPLEMENTED ATM: Just make sure that the source is only connected to one sink in the superstructure (i.e., the GRINDER)
+
+
+-----------------------------------------------------
+Something I still want to do: make the scenario analysis more comprehensive by adding results from the here and now caluculations
+to the tail ends of the box plots, that way you can really see the associate risk of the scenarios with the here and now results added to the
+wait and see results.
+
+-----------------------------------------------------
+problem Here and now
+ figure out why only +/- 60% of the scenarios are feasible in here_and_now.py?
+ in wait_and_see_analysis.py almost all scenarios are feasible, what is going wrong here?

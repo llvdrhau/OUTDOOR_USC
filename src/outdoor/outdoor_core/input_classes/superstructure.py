@@ -1,7 +1,7 @@
 
 import copy
 import math
-
+import pandas as pd
 from ..utils.linearizer import capex_calculator
 
 
@@ -75,7 +75,8 @@ class Superstructure():
                                       'sensitivity',
                                       'cross-parameter sensitivity',
                                       '2-stage-recourse',
-                                      'wait and see'}
+                                      'wait and see',
+                                      'here and now'}
 
         self.SENSITIVE_PARAMETERS_SET = {"Split factors (myu)",
                                         "Feed Composition (phi)",
@@ -140,8 +141,9 @@ class Superstructure():
         if OptimizationMode in self.OPTIMIZATION_MODE_SET:
             self.optimization_mode = OptimizationMode
         else:
-            Warning('No correct mode chosen, default mode single is simulated')
-            self.optimization_mode = 'single'
+            ValueError('No correct mode chosen, {} is not define in the set of modes: {}'.format(OptimizationMode,
+                                                                                                 self.OPTIMIZATION_MODE_SET))
+            #self.optimization_mode = 'single'
 
 
         self.ModelName = ModelName
@@ -305,8 +307,6 @@ class Superstructure():
     def set_omFactor(self,OM):
         self.K_OM = OM
 
-
-
     def set_cecpi(self, year):
         """
         Parameters
@@ -319,8 +319,6 @@ class Superstructure():
             raise ValueError('Year is not in the range of 1994 to 2018')
         else:
             self.CECPI['CECPI'] = self.CECPI_SET[year]
-
-
 
     def set_heatPump(self,
                      SpecificCosts,
@@ -388,15 +386,11 @@ class Superstructure():
 
 
 
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #--------------------------ADD COMPONENTS TO LIST METHODS ---------------------
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
-
 
 
 
@@ -1472,8 +1466,11 @@ class Superstructure():
 
         # make the base case data_file of the model
         baseCaseDataFile = self.create_DataFile()
+        unitNames = baseCaseDataFile[None]['Names']
 
         scenarioDataFiles = {}
+        newUncertaintyMatrix = pd.DataFrame()
+
         for rowIndex, scenario in enumerate(self.Scenarios['SC']):
             dataFileScenario = copy.deepcopy(baseCaseDataFile)
             adjustedPhiDict = {}
@@ -1495,6 +1492,17 @@ class Superstructure():
                     if newValue > 1:
                         newValue = 1  # constrain to be equal to 1, otherwise mass balance problems will occur
 
+                # make a new column name
+                if isinstance(index, tuple):
+                    unitNumber = index[0]
+                    compound = str(index[1])
+                    columnName = parameterName + ' ' + str(unitNames[unitNumber]) + ' ' + compound
+                else:
+                    # the index is not a tuple in the case of raw material costs and product prices
+                    columnName = parameterName + '_' + str(unitNames[index])
+
+                newUncertaintyMatrix.at[rowIndex, columnName] = newValue
+
                 # update the data file with the new value
                 dataFileScenario[None][parameterName][index] = newValue
                 # keep a dictionary of the compostition of the source units, so later the other fractions can be updated
@@ -1508,6 +1516,8 @@ class Superstructure():
 
             scenarioDataFiles[scenario] = dataFileScenario
 
+        # add the new uncertainty matrix, dataFiles and stochasticMode to the superstructure object
+        self.uncertaintyMatrix = newUncertaintyMatrix
         self.scenarioDataFiles = scenarioDataFiles
         self.stochasticMode = 'mpi-sppy'
         #print('pause')
@@ -1688,3 +1698,20 @@ class Superstructure():
 
         #for source, dict in sourceDict.items():
 
+    def check_uncertainty_data(self):
+        """
+        check the uncertainty data by printing the min, max, and mean of each uncertain parameter
+
+        :return: prints the min, max, and mean of each uncertain parameter
+        """
+        uncertaintyMatrix = self.uncertaintyMatrix
+        print('')
+        # print in blue color
+        print('\033[94m' + 'Uncertainty Data' + '\033[0m')
+        print('Printing the min, max, and mean of each uncertain parameter\n')
+        for column in uncertaintyMatrix.columns:
+            print(column)
+            print('min:', uncertaintyMatrix[column].min())
+            print('mean:', uncertaintyMatrix[column].mean())
+            print('max:', uncertaintyMatrix[column].max())
+            print('---------------------------------')

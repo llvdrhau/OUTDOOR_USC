@@ -25,12 +25,13 @@ from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progre
 
 # function for Pandafunction to read an excelfile:
 
-def get_DataFromExcel(PathName=None,
+def get_DataFromExcel(path=None,
                       optimization_mode=None,
                       cross_sensitivity_params=None,
                       stochastic_mode=None,
                       scenario_size=None,
-                      seed=66):
+                      seed=66,
+                      scenarioDataFiles=None,):
 
     """
     Description
@@ -54,6 +55,8 @@ def get_DataFromExcel(PathName=None,
     cross_sensitivity_params : Dict, optional, overrides the cross sensitivity parameters defined in the Excel file
     stochastic_mode : String, optional, switch to use mpi-sspy for stochastic optimization
     seed : int, optional, seed for the random number generator default is 66
+    scenario_size : int, optional, number of scenarios for the stochastic optimization
+    dataFilesScenarios : Dict, optional, Dict of data files for the scenarios in the stochastic optimization
 
     Returns
     -------
@@ -61,12 +64,12 @@ def get_DataFromExcel(PathName=None,
 
     """
     print('PATH NAME IS:::')
-    print(PathName)
+    print(path)
 
     timer = time_printer(programm_step='Extract data from excel')
     # Disable the specific warning about Data Validation extension to make code run faster
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-    dataframe = pd.read_excel(PathName, sheet_name = None)
+    dataframe = pd.read_excel(path, sheet_name = None)
 
     PU_ObjectList  =[]
 
@@ -90,7 +93,8 @@ def get_DataFromExcel(PathName=None,
     # only add data for the stochastic optimization if the optimization mode is not specified in the function call,
     # the optimization mode is then specified in the Excel file that is passed on to the Superstructure_Object
 
-    Superstructure_Object = wrapp_SystemData(dataframe['Systemblatt'], optimization_mode=optimization_mode)
+    Superstructure_Object = wrapp_SystemData(dataframe['Systemblatt'],
+                                             optimization_mode=optimization_mode)
     _optimization_mode = Superstructure_Object.optimization_mode
 
 
@@ -154,6 +158,12 @@ def get_DataFromExcel(PathName=None,
         elif stochastic_mode == 'mpi-sppy':
             Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
             Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+            if scenarioDataFiles is not None:
+                # overwrite the scenario data files with the ones from the wait and see analysis
+                # if they are passed on to the function call
+                # --------------------------
+                Superstructure_Object.scenarioDataFiles = scenarioDataFiles
+
         else:
             raise ValueError('The stochastic mode {} is not recognized. '
                              '\n Please choose either None or "mpi-sppy".'.format(stochastic_mode))
@@ -170,6 +180,24 @@ def get_DataFromExcel(PathName=None,
         # create the uncertainty data for the Superstructure_Object
         Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
         Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
+    elif _optimization_mode == 'here and now':
+        # save the data of the single optimization variable in the object for VSS and EVPI calculation
+        Superstructure_Object_duplicate = copy.deepcopy(Superstructure_Object)
+        Superstructure_Object.parameters_single_optimization = Superstructure_Object_duplicate
+
+        # set the uncertainty data in the object
+        df_stochastic = dataframe['Uncertainty']
+        uncertaintyObject = wrapp_stochastic_data(df_stochastic, seed, scenario_size)
+
+        Superstructure_Object.set_uncertainty_data_mpisspy(uncertaintyObject=uncertaintyObject)
+        Superstructure_Object.uncertaintyDict = uncertaintyObject.LableDict
+
+        if scenarioDataFiles is not None:
+            # overwrite the scenario data files with the ones from the wait and see analysis
+            # if they are passed on to the function call
+            # --------------------------
+            Superstructure_Object.scenarioDataFiles = scenarioDataFiles
 
     elif _optimization_mode == 'sensitivity' or _optimization_mode == 'cross-parameter sensitivity':
         # collect the sensitivity data & automatically add it to the Superstructure_Object

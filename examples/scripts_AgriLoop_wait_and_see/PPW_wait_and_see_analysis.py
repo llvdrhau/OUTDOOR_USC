@@ -36,7 +36,7 @@ outputObject = MultiModelOutput.load_from_pickle(path=pickleFilePath)
 
 # Initialise the analyser object and plot the scenario analysis
 analyzer = AdvancedMultiModelAnalyzer(outputObject)
-analyzer.plot_scenario_analysis(path=savePathPLots, showPlot=True)
+analyzer.plot_scenario_analysis(path=savePathPLots, saveName='Scenario_analysis_100', showPlot=True, flowThreshold=0.01)
 
 
 endTime = time.time()

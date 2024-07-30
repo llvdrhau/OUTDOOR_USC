@@ -61,6 +61,7 @@ class ModelOutput:
             "2-stage-recourse",
             "single",
             "wait and see",
+            "here and now",
         }
 
         if optimization_mode in self._optimization_mode_set:
@@ -146,7 +147,7 @@ class ModelOutput:
         self._run_time = run_time
         self._case_time = datetime.datetime.now()
         self._case_time = str(self._case_time)
-        self._objective_function = self._data["Objective Function"]
+        self._objective_function = self._data["ObjectiveFunctionName"]
         self._product_load = self._data["MainProductFlow"]
         self._optimality_gap = gap
         self._case_number = self._case_time[0:10] + '--Nr ' + str(rnd.randint(1,10000))
@@ -684,7 +685,7 @@ class ModelOutput:
         self.results.update(self._collect_energy_data())
         self.results.update(self._collect_mass_flows())
 
-    def _save_results(self, model_results, path):
+    def _save_results(self, model_results, path, saveName=None):
         """
         Parameters
         ----------
@@ -701,7 +702,10 @@ class ModelOutput:
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = path + "/results" + self._case_number + ".txt"
+        if saveName:
+            path = path + "/" + saveName + ".txt"
+        else:
+            path = path + "/results" + self._case_number + ".txt"
 
 
         with open(path, encoding="utf-8", mode="w") as f:
@@ -741,7 +745,7 @@ class ModelOutput:
 # -------------------------Public methods -------------------------------------
 # -----------------------------------------------------------------------------
 
-    def get_results(self, pprint=True, savePath=None):
+    def get_results(self, pprint=True, path=None, saveName=None):
         """
 
         Parameters
@@ -765,8 +769,8 @@ class ModelOutput:
         if pprint is True:
             self._print_results(model_results)
 
-        if savePath is not None:
-            self._save_results(model_results, savePath)
+        if path is not None:
+            self._save_results(model_results, path, saveName=saveName)
 
     def save_data(self, path):
         """

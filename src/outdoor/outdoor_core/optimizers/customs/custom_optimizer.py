@@ -283,6 +283,8 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
 
 
 class StochasticRecourseOptimizer(SingleOptimizer):
+    # NOT USED ANYMORE IN THE NEW VERSION, SEE StochasticOptimizer_mpi_sppy!!
+    # keep it for now, just in case I need code snippets from it
     def __init__(
         self,
         solver_name,
@@ -422,6 +424,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
 
         # self.debug_EVPI(model_output, Stochastic_input_EVPI, solver, interface, solver_path, options)
         # self.debug_VSS(model_output, Stochastic_input_EVPI, solver, interface, solver_path, options)
+
 
         return model_output
 
@@ -806,6 +809,109 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             percent = round((count / total_sets) * 100, 1)
             print("\033[95m\033[1mDictionary:", dict(unique_dict), "percent (%):", percent, "\033[0m")
 
+class HereAndNowOptimizer(SingleOptimizer):
+    def __init__(
+        self,
+        solver_name,
+        solver_interface,
+        inputObject,
+        solver_options=None,
+        scenarioDataFiles=None,
+        *args,
+    ):
+        super().__init__(solver_name, solver_interface, solver_options)
+
+        self.inputObject = inputObject  # superstructure object
+        self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
+        if hasattr(inputObject, 'outputFileDesignSpace'):
+            self.designSpaceFile = inputObject.outputFileDesignSpace
+        self.scenarioDataFiles = scenarioDataFiles
+
+
+    def run_optimization(self,
+                         optimization_mode=None,
+                         solver="gurobi",
+                         interface="local",
+                         solver_path=None,
+                         options=None,
+                         count_variables_constraints=False):
+
+        # start timer
+        timer1 = time_printer(programm_step="Start wait and see", printTimer=False)
+
+        # get the scenario data files
+        if hasattr(self.inputObject, 'scenarioDataFiles'):
+            scenarioDataFiles = self.inputObject.scenarioDataFiles
+        else:
+            scenarioDataFiles = self.scenarioDataFiles
+
+
+        # create output object to store the results
+        model_output = MultiModelOutput(model_instance=None,
+                                        optimization_mode=self.inputObject.optimization_mode,  # 'wait and see'
+                                        solver_name=self.solver_name,
+                                        run_time=None,
+                                        gap=None,
+                                        dataFiles=scenarioDataFiles)
+
+
+        # preallocate the list of infeasible scenarios
+        infeasibleScenarios = []
+
+        # Green and bold text
+        print("\033[1;32m" + "Calculating the objective values for each scenario and each passed on design\n"
+                             "Please be patient, this might take a while" + "\033[0m")
+
+        # Suppress the specific warning if model is infeasible
+        logging.getLogger('pyomo.core').setLevel(logging.ERROR)
+        total_scenarios = len(scenarioDataFiles)
+
+        for index, (scenario, dataFile) in enumerate(scenarioDataFiles.items()):
+            # create a model instance for the scenario
+            # initialize the model
+            model = SuperstructureModel(self.inputObject, fixedDesign=True)
+
+            # create the model equations
+            model.create_ModelEquations()
+
+            # you need to modify the data file to include the design space parameters Y_Dist and Y
+            dataFile[None]['Y'] = self.designSpaceFile['Y']
+            dataFile[None]['Y_DIST'] = self.designSpaceFile['Y_DIST']
+
+            # populate the model instance
+            modelInstance = model.populateModel(dataFile)
+
+            # run the optimization problem for the scenario
+            single_solved = self.single_optimizer.run_optimization(model_instance=modelInstance,
+                                                                   tee=False,
+                                                                   keepfiles=False,
+                                                                   printTimer=False,
+                                                                   VSS_EVPI_mode=True)
+
+            if single_solved == 'infeasible':
+                infeasibleScenarios.append(scenario)
+            else:
+                # tidy the data, i.e., delete variables and constraints that are 0
+                single_solved._tidy_data()
+                # add the results to the model output
+                model_output.add_process(scenario, single_solved)
+
+            # print the progress bar
+            print_progress_bar(iteration=index, total=total_scenarios, prefix='EVPI', suffix='')
+
+        timer = time_printer(timer1, printTimer=False, programm_step="Ending wait and see")
+        model_output.fill_information(timer)
+
+        # Print a newline character to ensure the next console output is on a new line.
+        print()
+        # reactivate the warning if model is infeasible
+        logging.getLogger('pyomo.core').setLevel(logging.WARNING)
+
+        # add the uncertainty matrix to the model output
+        model_output.uncertaintyMatrix = self.inputObject.uncertaintyMatrix
+
+        return model_output
+
 class WaitAndSeeOptimizer(SingleOptimizer):
     def __init__(
         self,
@@ -831,9 +937,6 @@ class WaitAndSeeOptimizer(SingleOptimizer):
         timer1 = time_printer(programm_step="Start wait and see", printTimer=False)
 
         # create output object to store the results
-
-
-
         model_output = MultiModelOutput(model_instance = None,
                                         optimization_mode = self.inputObject.optimization_mode, # 'wait and see'
                                         solver_name = self.solver_name,
@@ -893,6 +996,9 @@ class WaitAndSeeOptimizer(SingleOptimizer):
         # reactivate the warning if model is infeasible
         logging.getLogger('pyomo.core').setLevel(logging.WARNING)
 
+        # add the uncertainty matrix to the model output
+        model_output.uncertaintyMatrix = self.inputObject.uncertaintyMatrix
+
         return model_output
 
 class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
@@ -923,6 +1029,7 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
         else:
             self.options = mpiOptions
 
+
     def run_optimization(self,*args, **kwargs):
 
         StartTimer = time_printer(printTimer=False)
@@ -939,7 +1046,8 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
         modelOutput = StochasticModelOutput_mpi_sppy(optimization_mode = '2-stage-recourse', #todo again shady, find where this variable is set and pass it on
                                                      mpi_sppy_results=phResults,
                                                      run_time = timeMpiSppy)
-
+        # add the uncertainty matrix to the model output
+        modelOutput.uncertaintyMatrix = self.inputObject.uncertaintyMatrix
         return modelOutput
 
     def scenario_creator(self, scenarioName):

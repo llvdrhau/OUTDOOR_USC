@@ -519,15 +519,18 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         gets the data from the ph object, uses the local_scenarios attribute to get the instance of the scenarios
         use _fill_data to fill the data of that scenario
         """
-
-        for scenario_name, scenario_instance in self.ph.local_scenarios.items():
-            if not self.warningVariables[scenario_name]: # if the de warning scenario is epmty then fill the data
-                dataScenario = self._fill_data(scenario_instance)
+        scenarioProbabilities = {}
+        for scenarioName, scenarioInstance in self.ph.local_scenarios.items():
+            if not self.warningVariables[scenarioName]: # if the de warning scenario is epmty then fill the data
+                dataScenario = self._fill_data(scenarioInstance)
                 # todo should I tidy the data or not??????
                 # dataScenario = self._tidy_data(dataScenario)
-                self._dataStochastic.update({scenario_name: dataScenario})
+                self._dataStochastic.update({scenarioName: dataScenario})
+                scenarioProbabilities[scenarioName] = scenarioInstance._mpisppy_probability
 
         self._data = self._dataStochastic # duplicate for the parent class
+        self._scenarioProbabilities = scenarioProbabilities
+
     def _fill_data(self, instance):
         """
 
@@ -574,37 +577,59 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
         return data
 
-    def calulate_EVPI(self, resultsWaitAndSee):
+    # Calculate EVPI  ------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # I should maybe put this methode in a different analyzer class and not in the Basic one idk
+    def calculate_EVPI(self, WaitAndSeeOutputObject):
         """
         Calculate the Expected Value of Perfect Information (EVPI) of the given objective function.
-
         :param resultsWaitAndSee: a dict with the results of the wait-and-see scenarios.
         :return: The EVPI value.
         """
-        # todo get this function up and runnning
 
+        EVDict = {}
         # Get the objective function value for each scenario
-        ExpectedValueList = [value for key, value in self._dataStochastic["Objective Function"].items()]
-        recourseSolution = sum(ExpectedValueList)/len(ExpectedValueList)
+        objectiveFunctionName = self._dataStochastic['sc1']['ObjectiveFunctionName']
+        for scenario, outputDict in self._dataStochastic.items():
+            EVDict[scenario] = outputDict[objectiveFunctionName]
 
-        # Expected value of the objective function under perfect information
-        waitAndSeeSolution = resultsWaitAndSee["Objective Function"]
+        # get the probability of each scenario
+        scenarioProbabilities = self._scenarioProbabilities
 
-        # Calculate the Expected Value of Perfect Information (EVPI)
-        # get the sens of the objective function
-        sensOptimisation = self._dataStochastic["Sense"]  # this will be wrong
+        recourseSolution = 0  # the expected value of the objective function from the recourse solution
+        waitAndSeeSolution = 0
+        for scenario, probability in scenarioProbabilities.items():
+            # average EV solution
+            recourseSolution += EVDict[scenario] * probability
+            # average wait and see solution
+            scenarioWaitAndSee = WaitAndSeeOutputObject._results_data[scenario]._data[objectiveFunctionName]
+            waitAndSeeSolution += scenarioWaitAndSee * probability
 
-        if sensOptimisation:
-            EVPI = recourseSolution - waitAndSeeSolution
-        else:
-            EVPI = waitAndSeeSolution - recourseSolution
+        EVPI = abs(recourseSolution - waitAndSeeSolution)
 
+        self.EVPI = EVPI
 
         return EVPI
 
-    # Save and load ModelOutput --------------------------------------------------------------------
-    # in JSON format, not recommended for use-------------------------------------------------------
+    # Calculate VSS  ------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------
+    # I should maybe put this methode in a different analyzer class and not in the Basic one idk
+    def calculate_VSS(self, WaitAndSeeOutputObject):
+        """
+        Calculate the Value of the Stochastic Solution (VSS) of the given objective function.
+        :param resultsWaitAndSee: a dict with the results of the wait-and-see scenarios.
+        :return: The VSS value.
+        """
+
+        EVDict = {}
+        # Get the objective function value for each scenario
+        objectiveFunctionName = self._dataStochastic['sc1']['ObjectiveFunctionName']
+        for scenario, outputDict in self._dataStochastic.items():
+            EVDict[scenario] = outputDict[objectiveFunctionName]
+
+        # get the probability of each scenario
+        scenarioProbabilities = self._scenarioProbabilities
+        pass
 
     def save_2_json(self, savePath=None, saveName=None):
         """
