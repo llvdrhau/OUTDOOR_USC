@@ -1,0 +1,220 @@
+from PyQt5.QtWidgets import QFormLayout, QComboBox, QFrame, QWidget, QLineEdit, QPushButton, QLabel
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator, QFont
+
+class GeneralSystemDataTab(QWidget):
+    """
+    This class creates a tab for the general system data
+    """
+    def __init__(self, centralDataManager, parent=None):
+        super().__init__(parent)
+        self.centralDataManager = centralDataManager
+
+        # Create a new QWidget for the General System Data tab
+        self.layout = QFormLayout(self)
+        self.subtitleFont = QFont("Arial", 11, QFont.Bold)
+        # Set the background color of the widget
+        self.setStyleSheet("background-color: #f5f5f5;")
+
+        # Title for the general system data (centered)
+        self.createSectionTitle(text="General System Data", centerAlign=True, color="#C7CEEA")
+
+        self.projectNameLineEdit = QLineEdit()
+        self.layout.addRow(QLabel("Project Name:"), self.projectNameLineEdit)
+
+        #self.layout.addRow(QLabel("Project Name:"), QLineEdit(""))
+        # layout.addRow(QLabel("Objective:"), QLineEdit("EBIT"))  # define this in the code
+        # layout.addRow(QLabel("Optimization mode:"), QLineEdit("2-stage-recourse"))  # define this in the code
+
+        # Title for the specific production of a product
+        self.createSectionTitle(text="Specific Production", color="#B5EAD7")
+
+        # Create a dropdown for "Product driven"
+        self.productDrivenDropdown = QComboBox()
+        self.productDrivenDropdown.addItems(["yes", "no"])  # Add options to the dropdown
+        self.layout.addRow(QLabel("Product driven:"), self.productDrivenDropdown)
+
+        self.productSelection = QComboBox()
+        self.productSelection.addItems(["Product 1", "Product 2"])  # Add options to the dropdown
+        self.layout.addRow(QLabel("Main product:"), self.productSelection)
+
+        self.productLoadLineEdit = QLineEdit()
+        self.productLoadLineEdit.setValidator(
+            QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Product load:"), self.productLoadLineEdit)  # only floating numbers allowed as input
+
+        # Connect the signal to the slot function
+        self.productDrivenDropdown.currentIndexChanged.connect(lambda: self.productDrivenSwitch())
+
+        # make title "general CAPEX parameters"
+        self.createSectionTitle(text="General CAPEX parameters", color="#E2F0CB")
+
+        # Add fields for the general CAPEX parameters
+        self.operatingHoursLineEdit = QLineEdit("8000")
+        self.layout.addRow(QLabel("Operating Hours:"), self.operatingHoursLineEdit)
+
+        self.yearOfStudyLineEdit = QLineEdit("2018")
+        self.layout.addRow(QLabel("Year of Study:"), self.yearOfStudyLineEdit)
+
+        self.interestRateLineEdit = QLineEdit("0.05")
+        self.layout.addRow(QLabel("Interest rate:"), self.interestRateLineEdit)
+
+        self.detailLevelLineEdit = QComboBox()
+        self.detailLevelLineEdit.addItems(["real", "fine", "rough", "average"])  # Add options to the dropdown
+        self.layout.addRow(QLabel("Detail level of linearization of CAPEX:"), self.detailLevelLineEdit)
+
+        self.indirectCostsLineEdit = QLineEdit("1.44")
+        self.layout.addRow(QLabel("Indirect costs:"), self.indirectCostsLineEdit)
+
+        self.DirectCostsLineEdit = QLineEdit("2.6")
+        self.layout.addRow(QLabel("Direct costs:"), self.DirectCostsLineEdit)
+
+        # todo: add different standard Direct and indirect costs factors for different processing plant types
+        #  i.e., Solid, solid-liquid and liquid processing plants
+        costFactors = {
+            "Solid": {"Direct": 2.6, "Indirect": 1.44},
+            "Solid-liquid": {"Direct": 2.6, "Indirect": 1.44},
+            "Liquid": {"Direct": 2.6, "Indirect": 1.44}
+        }
+        # reference: p251 Table 6-9 of the book "Plant Design and Economics for Chemical Engineers, fith edition"
+
+
+        # self.omFactorLineEdit = QLineEdit("0.04")
+        # self.layout.addRow(QLabel("O&M Factor:"), self.omFactorLineEdit)
+
+
+        # Heat pump parameters
+        # Title for the Heat pump parameters section
+        self.createSectionTitle("Heat pump parameters", color="#FFDAC1")
+
+        # Add fields for the heat pump parameters
+        self.heatPumpDropdown = QComboBox()
+        self.heatPumpDropdown.addItems(["yes", "no"])  # Add options to the dropdown
+        self.layout.addRow(QLabel("Heat pump switch:"), self.heatPumpDropdown)
+
+        # Add fields for the heat pump parameters
+        self.COPLineEdit = QLineEdit("2.5")
+        self.COPLineEdit.setValidator(
+            QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Coefficient of performance (COP):"), self.COPLineEdit)
+
+        self.costLineEdit = QLineEdit("450")
+        self.costLineEdit.setValidator(
+            QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Cost per kW installed:"), self.costLineEdit)
+
+        self.lifetimeLineEdit = QLineEdit("15")
+        self.lifetimeLineEdit.setValidator(
+            QDoubleValidator(1990, 2018, 0))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Lifetime:"), self.lifetimeLineEdit)
+
+        self.TINLineEdit = QLineEdit()
+        self.TINLineEdit.setValidator(
+            QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Inlet Temperature °C:"), self.TINLineEdit)
+
+        self.TOUTLineEdit = QLineEdit()
+        self.TOUTLineEdit.setValidator(
+            QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
+        self.layout.addRow(QLabel("Outlet Temperature °C:"), self.TOUTLineEdit)
+
+        # Connect the signal to the slot function
+        self.heatPumpDropdown.currentIndexChanged.connect(lambda: self.heatPumpSwitch())
+
+        # Save button setup
+        self.okButton = QPushButton("Save")
+        self.okButton.clicked.connect(self.saveData)
+        self.layout.addWidget(self.okButton)
+
+        # layout widgets:
+        # Customize the appearance of line edits and combo boxes
+        lineEditStyleSheet = "QLineEdit { border-radius: 5px; padding: 5px; background-color: #ffffff; }"
+        comboBoxStyleSheet = "QComboBox { border-radius: 5px; padding: 3px; background-color: #ffffff; }"
+        pushButtonStyleSheet = "QPushButton { border-radius: 5px; padding: 5px; background-color: #FFAAEE; }"
+
+        # Apply the stylesheets to the form layout's children
+        for row in range(self.layout.rowCount()):
+            for index in range(self.layout.rowCount()):
+                widget = self.layout.itemAt(index, QFormLayout.FieldRole).widget()
+                if isinstance(widget, QLineEdit):
+                    widget.setStyleSheet(lineEditStyleSheet)
+                elif isinstance(widget, QComboBox):
+                    widget.setStyleSheet(comboBoxStyleSheet)
+                elif isinstance(widget, QPushButton):
+                    widget.setStyleSheet(pushButtonStyleSheet)
+
+        # Set the layout on the generalSystemDataWidget
+        self.setLayout(self.layout)
+
+    def createSectionTitle(self, text, color="#e1e1e1", centerAlign=False):
+        title = QLabel(text)
+        title.setFont(self.subtitleFont)
+        title.setStyleSheet(f"background-color: {color}; padding: 3px;")
+        if centerAlign:
+            title.setAlignment(Qt.AlignCenter)
+        frame = QFrame()
+        frame.setFrameShape(QFrame.HLine)
+        frame.setFrameShadow(QFrame.Sunken)
+        self.layout.addRow(title)
+        self.layout.addRow(frame)
+
+    def productDrivenSwitch(self):
+        if self.productDrivenDropdown.currentText() == "no":
+            # If "No" is selected, make the other fields not editable
+            self.productSelection.setDisabled(True)
+            self.productLoadLineEdit.setDisabled(True)
+        else:
+            # If "Yes" is selected, make the other fields editable
+            self.productSelection.setDisabled(False)
+            self.productLoadLineEdit.setDisabled(False)
+
+    def heatPumpSwitch(self):
+        if self.heatPumpDropdown.currentText() == "no":
+            # If "No" is selected, make the other fields not editable
+            self.COPLineEdit.setDisabled(True)
+            self.costLineEdit.setDisabled(True)
+            self.lifetimeLineEdit.setDisabled(True)
+            self.TINLineEdit.setDisabled(True)
+            self.TOUTLineEdit.setDisabled(True)
+        else:
+            # If "Yes" is selected, make the other fields editable
+            self.COPLineEdit.setDisabled(False)
+            self.costLineEdit.setDisabled(False)
+            self.lifetimeLineEdit.setDisabled(False)
+            self.TINLineEdit.setDisabled(False)
+            self.TOUTLineEdit.setDisabled(False)
+
+
+    def saveData(self):
+
+        # Collect data from the table
+        generalData = self.collectData()
+
+        # Save the data to the central data manager
+        self.centralDataManager.addData("generalData", generalData)
+        print("data saved")
+        print(generalData)
+
+        # Change the border of OK button to green
+        # self.okButton.setStyleSheet("border: 2px solid green;")
+
+    def collectData(self):
+        # Collect data from the Widget fields
+        data = {
+            "projectName": self.projectNameLineEdit.text(),
+            "productDriven": self.productDrivenDropdown.currentText(),
+            "mainProduct": self.productSelection.currentText(),
+            "productLoad": self.productLoadLineEdit.text(),
+            "operatingHours": self.operatingHoursLineEdit.text(),
+            "yearOfStudy": self.yearOfStudyLineEdit.text(),
+            "interestRate": self.interestRateLineEdit.text(),
+            "detailLevel": self.detailLevelLineEdit.currentText(),
+            # "omFactor": self.omFactorLineEdit.text(), => not used in the code is unit specific and not general
+            "heatPumpSwitch": self.heatPumpDropdown.currentText(),
+            "COP": self.COPLineEdit.text(),
+            "cost": self.costLineEdit.text(),
+            "lifetime": self.lifetimeLineEdit.text(),
+            "TIN": self.TINLineEdit.text(),
+            "TOUT": self.TOUTLineEdit.text(),
+        }
+        return data
