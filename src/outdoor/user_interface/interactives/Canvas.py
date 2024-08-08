@@ -10,6 +10,7 @@ from outdoor.user_interface.dialogs.OutputParametersDialog import OutputParamete
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
 from outdoor.user_interface.dialogs.SplittingDialog import SplittingDialog
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
+from outdoor.user_interface.interactives.DraggableIcon import DraggableIcon
 
 
 class Canvas(QGraphicsView):
@@ -132,7 +133,7 @@ class Canvas(QGraphicsView):
         if text in icon_map:
             icon_type, index_list = icon_map[text]
             # Create unique UUID
-            UUID = uuid.uuid4()
+            UUID = uuid.uuid4().__str__()
             index_list.append(UUID)
             # Create MovableIcon
             iconWidget = MovableIcon(text, centralDataManager=self.centralDataManager, iconID=UUID, icon_type=icon_type)
@@ -307,12 +308,14 @@ class Canvas(QGraphicsView):
 
         super().mousePressEvent(event)
 
+
 class IconPort(QGraphicsEllipseItem):
     """
     A QGraphicsEllipseItem subclass to represent the entry and exit ports of the icons. This class handles the connection
     of lines between the ports.
     """
-    def __init__(self, parent, portType , iconID, pos=None):
+
+    def __init__(self, parent, portType, iconID, pos=None):
         super().__init__(-5, -5, 10, 10, parent)  # A small circle
         self.portType = portType  # 'entry' or 'exit'
         self.iconID = iconID
@@ -322,7 +325,7 @@ class IconPort(QGraphicsEllipseItem):
         self.iconType = parent.icon_type
 
         if pos:
-            self.setPos(pos) # Set the position if it was passed (for split icons)
+            self.setPos(pos)  # Set the position if it was passed (for split icons)
         else:
             # Position the port correctly on the parent icon based on portType
             match portType:
@@ -330,7 +333,6 @@ class IconPort(QGraphicsEllipseItem):
                     self.setPos(parent.boundingRect().width(), parent.boundingRect().height() / 2)
                 case 'entry':
                     self.setPos(0, parent.boundingRect().height() / 2)
-
 
     def mousePressEvent(self, event):
         """
@@ -375,12 +377,14 @@ class IconPort(QGraphicsEllipseItem):
                 # For example, you might update the stored positions of the line's endpoints
                 # if you are tracking those for any reason (not shown in this example).
 
+
 class MovableIcon(QGraphicsObject):
     """
     A QGraphicsObject subclass to represent the icons that can be dragged and dropped onto the canvas. This class also
     handles the ports of the icons. The icon type is used to determine the number and position of the ports. This class
     is used to create the icons in the canvas and makes them draggable, handels their appearance and opens dialogos.
     """
+
     def __init__(self, text, centralDataManager, icon_type, iconID=None):
         super().__init__()
         self.text = text
@@ -389,13 +393,12 @@ class MovableIcon(QGraphicsObject):
         self.centralDataManager = centralDataManager  # to Store and handel dialog data for each icon
 
         # set the flags for the icon to be movable and selectable
-        self.setFlags(QGraphicsObject.ItemIsMovable) # Enable the movable flag
+        self.setFlags(QGraphicsObject.ItemIsMovable)  # Enable the movable flag
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges)  # Enable item change notifications
         self.setFlag(QGraphicsItem.ItemIsSelectable)  # Enable the selectable flag
 
         self.dragStartPosition = None
         self.nExitPorts = 2  # initial Number of exit ports for split icons
-
 
         self.pen = QPen(Qt.black, 1)  # Default pen for drawing the border
         #self.penBoarder = QPen(Qt.NoPen)
@@ -472,11 +475,13 @@ class MovableIcon(QGraphicsObject):
             step = hightTriangle / (nExitPortsNew + 1)
             for n in range(nExitPortsNew):
                 hightPosition = step * (n + 1)
-                exitPort = IconPort(self, portType='exit', pos=QPointF(self.boundingRect().width(), hightPosition), iconID=self.iconID)
+                exitPort = IconPort(self, portType='exit', pos=QPointF(self.boundingRect().width(), hightPosition),
+                                    iconID=self.iconID)
                 self.ports.append(exitPort)
 
             # update the number of exit ports
             self.nExitPorts = nExitPortsNew
+
     def boundingRect(self):
         if 'split' in self.icon_type:
             return QRectF(0, 0, 60, 60)
@@ -604,13 +609,13 @@ class MovableIcon(QGraphicsObject):
             if nExitPorts != self.nExitPorts:
                 self.updateExitPorts(nExitPorts)
 
-
             # Save the data if all fields are filled
             self.centralDataManager.data[self.iconID] = dataDialog
 
             print("{} Dialog accepted".format(self.icon_type))
         else:
             print("{} Dialog canceled".format(self.icon_type))
+
     def openParametersDialog(self):
         """
         Handles the data entered by the user after pressing OK for the icon parameters dialog
@@ -618,8 +623,8 @@ class MovableIcon(QGraphicsObject):
         """
 
         # Retrieve existing data for this icon
-        existingData = self.centralDataManager.data.get(self.iconID, {}) # if the iconID is not in the dict, return an empty dict
-
+        existingData = self.centralDataManager.data.get(self.iconID,
+                                                        {})  # if the iconID is not in the dict, return an empty dict
 
         # choose the dialog to open based on the type of icon that was double clicked
         if self.icon_type == 'input':
@@ -641,9 +646,9 @@ class MovableIcon(QGraphicsObject):
         # elif self.icon_type == 'generator_elec':
         #     dialog = GeneratorElecDialog(initialData=existingData)
         #     nonesentialParameters = []
-
+        # TODO Add support for yield reactors + heat generators
         else:
-            pass # place holder for other icon types
+            pass  # place holder for other icon types
             #raise Exception("Icon type not recognized")
 
         # open the dialog and handle the data entered by the user after pressing OK
@@ -680,11 +685,13 @@ class MovableIcon(QGraphicsObject):
         else:
             print("{} Dialog canceled".format(self.icon_type))
 
+
 class ControlPoint(QGraphicsEllipseItem):
     """
     A QGraphicsEllipseItem subclass to represent the control point for curved lines. This class is used to create the
     control points when a line is curved and allows the user to adjust the curve by moving the control point.
     """
+
     def __init__(self, x, y, parent=None):
         super().__init__(-5, -5, 10, 10, parent)  # A small circle as the control point
         self.setBrush(QColor(255, 0, 0))  # Red color
@@ -696,32 +703,9 @@ class ControlPoint(QGraphicsEllipseItem):
 
     def itemChange(self, change, value):
         if change == QGraphicsEllipseItem.ItemPositionHasChanged and self.parentItem():
-            self.parentItem().updateAppearance() # Update the line's appearance when the control point is moved, the methode is in the InteractiveLine class (the parent)
+            self.parentItem().updateAppearance()  # Update the line's appearance when the control point is moved, the methode is in the InteractiveLine class (the parent)
         return super().itemChange(change, value)
 
-class DraggableIcon(QPushButton):
-    """
-    A QPushButton subclass that allows the button to be dragged and dropped into the canvas. The button text is used to
-    identify the icon type. This class is used to create the icons in the left panel of superstructureMapping Widget.
-
-    """
-    def __init__(self, title, parent=None):
-        super().__init__(title, parent)
-        self.setCheckable(True)
-
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        # Start a drag operation when the mouse moves with the left button held down
-        drag = QDrag(self)
-        mimeData = QMimeData()
-
-        # Use the button's text as the data to be dragged
-        mimeData.setText(self.text())
-        drag.setMimeData(mimeData)
-
-        drag.exec_(Qt.MoveAction)
 
 class InteractiveLine(QGraphicsPathItem):
     """
@@ -729,7 +713,8 @@ class InteractiveLine(QGraphicsPathItem):
     double-clicking on the line to toggle between the two modes. The control point for curved lines is only shown when
     the line is curved and selected.
     """
-    def __init__(self, startPoint, endPoint, startPort=None, endPort=None , parent=None):
+
+    def __init__(self, startPoint, endPoint, startPort=None, endPort=None, parent=None):
         super().__init__(parent)
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -746,7 +731,6 @@ class InteractiveLine(QGraphicsPathItem):
         self.selected = True  # Track selection state
         self.pen = QPen(Qt.black, 1)  # Default pen for drawing the line
         self.updateAppearance()
-
 
     def setStartPoint(self, point):
         self.startPoint = point
@@ -768,9 +752,7 @@ class InteractiveLine(QGraphicsPathItem):
 
             self.updateAppearance()  # Update appearance
 
-
         super().mousePressEvent(event)
-
 
     def mouseDoubleClickEvent(self, event):
         self.isCurved = not self.isCurved  # Toggle between curved and straight line
@@ -789,7 +771,6 @@ class InteractiveLine(QGraphicsPathItem):
             self.controlPoint.setVisible(self.selected)
         elif not self.isCurved and self.controlPoint:
             self.controlPoint.setVisible(False)
-
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace and self.selected:
@@ -826,7 +807,6 @@ class InteractiveLine(QGraphicsPathItem):
         stroker = QPainterPathStroker()
         stroker.setWidth(10)  # Set the hitbox width to be larger than the line width
         return stroker.createStroke(self.path())
-
 
     # def hoverEnterEvent(self, event):
     #     # Show the control point when hovering, but only if the line is curved

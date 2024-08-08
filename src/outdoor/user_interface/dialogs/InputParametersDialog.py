@@ -1,7 +1,7 @@
-
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
+
 
 class InputParametersDialog(QDialog):
     """
@@ -10,6 +10,7 @@ class InputParametersDialog(QDialog):
     format with two columns: Component Name and % Composition. The user can add multiple rows to enter multiple
     components and their composition in the feedstock.
     """
+
     def __init__(self, initialData):
 
         super().__init__()
@@ -78,7 +79,6 @@ class InputParametersDialog(QDialog):
         layout.addWidget(self.addRowButton)
         # Initialize the table with an example row (optional)
         self.addRowToComponentsTable()
-
 
         # CO2 Emission Factor
         layout.addWidget(QLabel("CO2 Emission Factor:"))

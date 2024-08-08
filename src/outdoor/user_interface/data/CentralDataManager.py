@@ -2,6 +2,13 @@
 # Central data manager
 # ------------------------
 # Central data manager for all data related to icons and associated dialogs
+import csv
+import glob
+import pickle
+
+from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
+
+
 class CentralDataManager:
     """
     A class to manage all data related to the icons and data from other tabs and their associated dialogs.
@@ -9,17 +16,26 @@ class CentralDataManager:
     """
 
     def __init__(self):
-        self.data = {}  # Dictionary to store data indexed by icon ID
+        self.data = {}  # Dictionary to store data indexed by icon ID #TODO Make this more structured
         self.namesChemicalComponents = []  # list to store chemical components data
+        self.enabledTabs: list[str] = []
+        self.enabledSuperstructureTabs: list[str] = []
+        self.calculationTypes: dict[str, str] = {}
+        self._loadConfigs()
+        self.generalData = {}
+        self.struct = SuperstructureFrame()
+        self.projects = glob.glob('data/frames/*.pkl')
 
     def addData(self, field, data):
         self.data[field] = data
-
-        if field == 'chemicalComponentsData':
-            for species in data:
-                if species[0] not in self.namesChemicalComponents:
-                    self.namesChemicalComponents.append(
-                        species[0])  # Add the species name to the list of chemical components
+        match field:
+            case "chemicalComponentsData":
+                for species in data:
+                    if species[0] not in self.namesChemicalComponents:
+                        self.namesChemicalComponents.append(
+                            species[0])  # Add the species name to the list of chemical components
+            case "generalData":
+                self.saveGeneral(data)
 
     def getChemicalComponentNames(self):
         return self.namesChemicalComponents
@@ -118,7 +134,44 @@ class CentralDataManager:
         else:
             self.data[iconID]['connectionLineEntry2Exit'].update(
                 {'endIconID': (
-                line.line().p1(), line.line().p2, line)})  # todo I need to find a way to pass on endIconID...
+                    line.line().p1(), line.line().p2, line)})  # todo I need to find a way to pass on endIconID...
             self.data[iconID]['positionExitPortIcon'] = line.line().p1()
 
         print(self.data[iconID]['connectionLineExit2Entry'])
+
+    def _loadConfigs(self):
+        with open('data/configs.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                self.calculationTypes[row[0]] = row[1]
+
+    def calc_configs(self) -> dict[str, str]:
+        return self.calculationTypes
+
+    def updateConfigs(self, update: dict[str, str]):
+        self.calculationTypes = update
+        with open('data/configs.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            for key, value in self.calculationTypes.items():
+                writer.writerow([key, value])
+
+    def dataDump(self):
+        print(self.data)
+
+    def saveAll(self):
+        self.struct.save_frame()
+
+    def saveGeneral(self, gendata):
+        self.struct.ModelName = gendata["projectName"]
+        self.struct.Objective = gendata["objective"]
+        self.struct.MainProduct = gendata["mainProduct"]
+        self.struct.ProductLoad = gendata["productLoad"]
+        self.struct.productDriver = gendata["productDriver"]
+        self.struct.OptimizationMode = gendata["optimizationMode"]
+
+    def reloadProject(self, project_name):
+        target = project_name
+        with open(target, 'rb') as file:
+            self.struct = pickle.load(file)
+
+        print(self.struct)

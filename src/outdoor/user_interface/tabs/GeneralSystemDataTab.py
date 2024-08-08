@@ -22,16 +22,25 @@ class GeneralSystemDataTab(QWidget):
         self.projectNameLineEdit = QLineEdit()
         self.layout.addRow(QLabel("Project Name:"), self.projectNameLineEdit)
 
-        #self.layout.addRow(QLabel("Project Name:"), QLineEdit(""))
-        # layout.addRow(QLabel("Objective:"), QLineEdit("EBIT"))  # define this in the code
-        # layout.addRow(QLabel("Optimization mode:"), QLineEdit("2-stage-recourse"))  # define this in the code
+        self.opti_combo = QComboBox(self)
+        self.opti_combo.addItems(
+            ["Single", "Multi-Objective", "Sensitivity", "Cross-Parameter Sensitivity",
+             "2-Stage-Recourse", "Multi-2-Stage-Recourse"])
+        self.layout.addRow(QLabel("Optimization Mode:"), self.opti_combo)
+
+        # Combo box for the objective function
+        self.objective_combo = QComboBox(self)
+        self.objective_combo.addItems(
+            ["EBIT: Earnings Before Income Taxes", "NPC: Net Production Costs", "NPE: Net Produced CO2 Emissions",
+             "FWD: Freshwater Demand"])
+        self.layout.addRow(QLabel("Objective Function:"), self.objective_combo)
 
         # Title for the specific production of a product
         self.createSectionTitle(text="Specific Production", color="#B5EAD7")
 
         # Create a dropdown for "Product driven"
         self.productDrivenDropdown = QComboBox()
-        self.productDrivenDropdown.addItems(["yes", "no"])  # Add options to the dropdown
+        self.productDrivenDropdown.addItems(["Yes", "No"])  # Add options to the dropdown
         self.layout.addRow(QLabel("Product driven:"), self.productDrivenDropdown)
 
         self.productSelection = QComboBox()
@@ -89,7 +98,7 @@ class GeneralSystemDataTab(QWidget):
 
         # Add fields for the heat pump parameters
         self.heatPumpDropdown = QComboBox()
-        self.heatPumpDropdown.addItems(["yes", "no"])  # Add options to the dropdown
+        self.heatPumpDropdown.addItems(["Yes", "No"])  # Add options to the dropdown
         self.layout.addRow(QLabel("Heat pump switch:"), self.heatPumpDropdown)
 
         # Add fields for the heat pump parameters
@@ -103,7 +112,7 @@ class GeneralSystemDataTab(QWidget):
             QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
         self.layout.addRow(QLabel("Cost per kW installed:"), self.costLineEdit)
 
-        self.lifetimeLineEdit = QLineEdit("15")
+        self.lifetimeLineEdit = QLineEdit(centralDataManager.data['Lifetime'])
         self.lifetimeLineEdit.setValidator(
             QDoubleValidator(1990, 2018, 0))  # Set validator to restrict to floating-point numbers
         self.layout.addRow(QLabel("Lifetime:"), self.lifetimeLineEdit)
@@ -159,7 +168,7 @@ class GeneralSystemDataTab(QWidget):
         self.layout.addRow(frame)
 
     def productDrivenSwitch(self):
-        if self.productDrivenDropdown.currentText() == "no":
+        if self.productDrivenDropdown.currentText() == "No":
             # If "No" is selected, make the other fields not editable
             self.productSelection.setDisabled(True)
             self.productLoadLineEdit.setDisabled(True)
@@ -169,7 +178,7 @@ class GeneralSystemDataTab(QWidget):
             self.productLoadLineEdit.setDisabled(False)
 
     def heatPumpSwitch(self):
-        if self.heatPumpDropdown.currentText() == "no":
+        if self.heatPumpDropdown.currentText() == "No":
             # If "No" is selected, make the other fields not editable
             self.COPLineEdit.setDisabled(True)
             self.costLineEdit.setDisabled(True)
@@ -202,7 +211,9 @@ class GeneralSystemDataTab(QWidget):
         # Collect data from the Widget fields
         data = {
             "projectName": self.projectNameLineEdit.text(),
-            "productDriven": self.productDrivenDropdown.currentText(),
+            "productDriver": self.productDrivenDropdown.currentText().lower(),
+            "objective": self.objective_combo.currentText().lower(),
+            "optimizationMode": self.opti_combo.currentText().split(":")[0],
             "mainProduct": self.productSelection.currentText(),
             "productLoad": self.productLoadLineEdit.text(),
             "operatingHours": self.operatingHoursLineEdit.text(),
@@ -210,7 +221,7 @@ class GeneralSystemDataTab(QWidget):
             "interestRate": self.interestRateLineEdit.text(),
             "detailLevel": self.detailLevelLineEdit.currentText(),
             # "omFactor": self.omFactorLineEdit.text(), => not used in the code is unit specific and not general
-            "heatPumpSwitch": self.heatPumpDropdown.currentText(),
+            "heatPumpSwitch": self.heatPumpDropdown.currentText().lower(),
             "COP": self.COPLineEdit.text(),
             "cost": self.costLineEdit.text(),
             "lifetime": self.lifetimeLineEdit.text(),

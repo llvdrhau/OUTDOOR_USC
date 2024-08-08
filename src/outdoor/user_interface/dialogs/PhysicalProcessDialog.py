@@ -5,7 +5,6 @@ from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
 
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
 
-
 class PhysicalProcessesDialog(QDialog):
     """
     Opens a dialog to set the physical processes parameters for the physical processes icon. The dialog allows the user to
@@ -61,11 +60,18 @@ class PhysicalProcessesDialog(QDialog):
         self.subtitleFont = QFont("Arial", 9, QFont.Bold)
 
         tabWidget = QTabWidget(self)
+        calc_types = self.centralDataManager.calc_configs()
         tabWidget.addTab(self._createGeneralParametersTab(), "General Parameters")
-        tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")
-        tabWidget.addTab(self._createUtilityConsumptionTab(), "Utility Consumption")
-        tabWidget.addTab(self._createHeatingConsumptionTab(), "Heating Requirements")
-        tabWidget.addTab(self._createConcentrationTab(), "Concentration Factors")
+        if calc_types['Cost'] == 'True':
+            tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")
+        if calc_types['Utility Consumption'] == 'True':
+            tabWidget.addTab(self._createUtilityConsumptionTab(), "Utility Consumption")
+        if calc_types['Heating'] == 'True':
+            tabWidget.addTab(self._createHeatingConsumptionTab(), "Heating Requirements")
+        if calc_types['Concentration'] == 'True':
+            tabWidget.addTab(self._createConcentrationTab(), "Concentration Factors")
+        if calc_types['LCA'] == 'True':
+            tabWidget.addTab(self._createLcaDialogTab(), "LCA")
         # You can add more tabs as needed...
 
         layout = QVBoxLayout(self)
@@ -920,3 +926,147 @@ class PhysicalProcessesDialog(QDialog):
         if 'Exponent' in data:
             self.exponentInput.setText(data['Exponent'])
         # placeholder for other fields...
+
+    def _createLcaDialogTab(self):
+        """
+                Create the tab for the utility consumption parameters.
+                :return:
+                """
+
+        # Create common elements
+        def createReferenceFlowTypeComboBox(name):
+            """
+            Create a combobox for the reference flow type.
+            :param name:
+            :return:
+            """
+            comboBox = QComboBox(self)
+            comboBox.addItems([
+                "Entering mass Flow", "Exiting mass Flow",
+                "Entering Molar Flow", "Exiting Molar Flow",
+                "Entering Flow Cp", "Exiting Flow Cp"
+            ])
+            comboBox.setObjectName(name)
+            return comboBox
+
+        # Energy Consumption Tab
+        widget = QWidget()
+        layout = QFormLayout()
+
+        # ----------------------------------------------------------------------------------------------------------
+        # Electricity Requirements
+        self._createSectionTitle(text="LCA Input", layout=layout)
+        # ----------------------------------------------------------------------------------------------------------
+
+        # Reference Flow type Energy
+        self.referenceFlowTypeEnergy = createReferenceFlowTypeComboBox("referenceFlowTypeEnergy")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Energy Consumption of
+                                    the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeEnergy,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeEnergy.currentIndexChanged.connect(
+            lambda: self._componentSelectionSwitch(type="Electricity"))
+
+        # Electricity Consumption parameter
+        self.energyConsumption = QLineEdit(self)
+        self.energyConsumption.setText("0.00")
+        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.energyConsumption.setObjectName("energyConsumption")
+        tooltipText = """The energy consumption of the unit process."""
+        # add a label to the energy consumption units
+        self.referenceFlowUnitEnergy = QLabel(self)
+        self.referenceFlowUnitEnergy.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.referenceFlowUnitEnergy.setFixedWidth(120)  # make the lable bigger in width
+        self.referenceFlowUnitEnergy.setFont(self.subtitleFont)  # make it bold
+
+        # combine the energy consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.energyConsumption)
+        hlayout.addWidget(self.referenceFlowUnitEnergy)
+        # add the energy consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Energy Consumption:", widget=hlayout, tooltipText=tooltipText)
+
+        # Components table
+        self.componentsTableEnergy = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableEnergy.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableEnergy.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the energy consumption of
+                                        the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableEnergy,
+                                # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableEnergy.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableEnergy.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableEnergy.setObjectName("componentsTableEnergy")
+
+        # Add a row to tabel button
+        self.addRowButtonEnergy = QPushButton("Add Component", self)
+        self.addRowButtonEnergy.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonEnergy.setObjectName("addRowButtonEnergy")
+        layout.addWidget(self.addRowButtonEnergy)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="energy")
+
+        # ----------------------------------------------------------------------------------------------------------
+        # Chilling Requirements
+        self._createSectionTitle(text="Chilling Requierments", layout=layout)
+        # ----------------------------------------------------------------------------------------------------------
+
+        # Reference Flow type Chilling
+        self.referenceFlowTypeChilling = createReferenceFlowTypeComboBox("referenceFlowTypeChilling")
+        tooltipText = """The reference flow type is the type of flow that is used to calculate the Energy Consumption of
+                                    the unit process."""
+        self._addRowWithTooltip(layout, labelText="Reference Flow Type:", widget=self.referenceFlowTypeChilling,
+                                tooltipText=tooltipText)
+        self.referenceFlowTypeChilling.currentIndexChanged.connect(
+            lambda: self._componentSelectionSwitch(type="Chilling"))
+
+        # Chilling Consumption parameter
+        self.chillingConsumption = QLineEdit(self)
+        self.chillingConsumption.setText("0.00")
+        # only double values are allowed
+        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.chillingConsumption.setObjectName("chillingConsumption")
+        tooltipText = """The chilling consumption of the unit process."""
+        # add a label to the chilling consumption units
+        self.chillingConsumptionUnit = QLabel(self)
+        self.chillingConsumptionUnit.setText("MWh/t")  # Replace "Your Start Value" with the value you want to set
+        self.chillingConsumptionUnit.setFixedWidth(120)  # make the lable bigger in width
+        self.chillingConsumptionUnit.setFont(self.subtitleFont)  # make it bold
+        # combine the chilling consumption and the unit in a horizontal layout
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.chillingConsumption)
+        hlayout.addWidget(self.chillingConsumptionUnit)
+        # add the chilling consumption to the layout
+        self._addRowWithTooltip(layout, labelText="Chilling Consumption:", widget=hlayout, tooltipText=tooltipText)
+
+        # Components table
+        self.componentsTableChilling = QTableWidget(0, 1, self)  # Initial rows, columns
+        self.componentsTableChilling.setHorizontalHeaderLabels(["Component Name"])
+        self.componentsTableChilling.setColumnWidth(0, 200)  # make column 1 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals species selected are the ones that are used to calculate the chilling consumption of
+                                        the unit process based on the mass flow (e.g., E_consumption (MW) = F_in (t/h) * Tau (MWh/t) )."""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableChilling,
+                                # add same table to the layout
+                                tooltipText=tooltipText)
+        self.componentsTableChilling.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.componentsTableChilling.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.componentsTableChilling.setObjectName("componentsTableChilling")
+
+        # Add a row to tabel button
+        self.addRowButtonChilling = QPushButton("Add Component", self)
+        self.addRowButtonChilling.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonChilling.setObjectName("addRowButtonChilling")
+        layout.addWidget(self.addRowButtonChilling)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="chilling")
+
+        # internal method to create the layout of
+
+        # set layout in the widget
+        widget.setLayout(layout)
+        return widget
