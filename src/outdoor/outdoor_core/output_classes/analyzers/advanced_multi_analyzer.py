@@ -801,7 +801,11 @@ class AdvancedMultiModelAnalyzer:
         flowsheetDict = self._get_flow_sheet_designs(threshold=flowThreshold)
 
         if variableName is None:
-            variableName = self.model_output._results_data['sc1']._data['ObjectiveFunctionName']
+            if isinstance(self.model_output._results_data['sc1'], classmethod):
+                variableName = self.model_output._results_data['sc1']._data['ObjectiveFunctionName']
+            else:
+                variableName = self.model_output._results_data['sc1']['ObjectiveFunctionName']
+
             # print in orange
             print('')
             self._print_warning()
@@ -870,8 +874,13 @@ class AdvancedMultiModelAnalyzer:
 
         flowsheetDict = {}
         for scenario in dataAllScenarios:
-            dataScenario = dataAllScenarios[scenario]._data
-            flowsheet = self.model_output.return_chosen(dataScenario,threshold=threshold)  # Get the chosen technologies for each scenario
+            # depending on the structure of the data, get the data (depends on how it was loaded from the pickle file)
+            if hasattr(dataAllScenarios[scenario], '_data'):
+                dataScenario = dataAllScenarios[scenario]._data
+            else:
+                dataScenario = dataAllScenarios[scenario]
+
+            flowsheet = self.model_output.return_chosen(dataScenario, threshold=threshold)  # Get the chosen technologies for each scenario
             keyFlowSheet = tuple(flowsheet.items())
 
             # Check if the flowsheet is already in the dictionary
@@ -883,9 +892,23 @@ class AdvancedMultiModelAnalyzer:
         return flowsheetDict
 
     def _identify_products(self, flowsheetDict):
-        productIDs = self.model_output._results_data['sc1']._data['U_PP']
-        generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
-                                 self.model_output._results_data['sc1']._data['U_FUR']))
+        """
+        Returns a list with the products for each flow sheet design.
+        :param flowsheetDict: dict
+        :return: productsPerFlowsheet: list
+        """
+        if hasattr(self.model_output._results_data['sc1'], '_data'):
+            productIDs = self.model_output._results_data['sc1']._data['U_PP']
+            generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
+                                    self.model_output._results_data['sc1']._data['U_FUR']))
+        else:
+            productIDs = self.model_output._results_data['sc1']['U_PP']
+            generatorIDs = tuple(set(self.model_output._results_data['sc1']['U_TUR'] +
+                                    self.model_output._results_data['sc1']['U_FUR']))
+
+        # productIDs = self.model_output._results_data['sc1']._data['U_PP']
+        # generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
+        #                          self.model_output._results_data['sc1']._data['U_FUR']))
 
         productIDs = productIDs + generatorIDs
 

@@ -19,29 +19,30 @@ import outdoor
 
 n_scenarios = 100
 
-saveName = 'WaS_{}_sc.pkl'.format(n_scenarios)
+saveName = 'PHA_WaS_{}_sc.pkl'.format(n_scenarios)
 
-Saved_data_Path = r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\saved_files'
 # define the paths to the Excel file and the results directories
 #Excel_Path = '../../examples/Excel_files/potato_peel_case_study.xlsm'
-Excel_Path = '../../examples/Excel_files/potato_peel_case_study_reduced.xlsm'
-Results_Path = r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\results'
+ExcelPath = '../../examples/Excel_files/potato_peel_case_PHA_uncertainty.xlsm'
+currentScriptDir = os.path.dirname(__file__)
+resultsPath = os.path.join(currentScriptDir, 'results')
+saveOutputObjectDir = os.path.join(currentScriptDir, 'saved_files')
 
 
 # set optimization mode
 optimization_mode = 'wait and see'
 
 # create the superstructure data from the Excel file
-superstructure_Object = outdoor.get_DataFromExcel(Excel_Path,
+superstructure_Object = outdoor.get_DataFromExcel(ExcelPath,
                                                   optimization_mode=optimization_mode,
                                                   scenario_size=n_scenarios,
-                                                  seed=45)
+                                                  seed=66)
 
 # check if the uncertainty data is correct
 superstructure_Object.check_uncertainty_data()
 
 # create the superstructure flowsheet
-outdoor.create_superstructure_flowsheet(superstructure_Object, Results_Path)
+# outdoor.create_superstructure_flowsheet(superstructure_Object, Results_Path)
 
 # solve the optimization problem
 abstract_model = outdoor.SuperstructureProblem(parser_type='Superstructure')
@@ -55,7 +56,8 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
                                                          options=solverOptions,)
 
 # save the results in a pickle file for further analysis
-model_output.save_with_pickel(path=Saved_data_Path, saveName=saveName)
+model_output.save_with_pickel(path=saveOutputObjectDir,
+                              saveName=saveName)
 
 
 # print in green

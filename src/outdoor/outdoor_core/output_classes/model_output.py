@@ -942,12 +942,17 @@ class ModelOutput:
         option: String, default is 'raw' which saves all data also including zero
             values. If this value is set to 'tidy' an cleaning algorithm deletes
             zero values which saves data space.
+            it can also be 'small' which saves only the most important data of the object, usefull for MultiModelOutput
+            objects so Objects are not save in nested Objects (makes the file smaller)
 
         Description
         ----------
         Saves the output file as a pickle-file, which can be laoded into an
         Analyzer-Object on another machine or at a different time.
         """
+        # check if the option is valid
+        if option not in ['raw', 'tidy', 'small']:
+            raise ValueError('option must be either "raw", "tidy" or "small"')
 
         # if the attribute self.ph exists deleete it
         if hasattr(self, 'ph'):
@@ -957,11 +962,19 @@ class ModelOutput:
             os.makedirs(path)
 
         if option == "tidy":
-            # todo find the right switches to tidy the data according to its structure and optimisation mode
-            # tidy the data
-            # for i in self._results_data.values():
-            #     i._tidy_data()
+            if hasattr(self, '_results_data'):
+                for i in self._results_data.values():
+                    i._tidy_data()
+
+        elif option == "small":
+            resultsSmall = {}
+            for sc, obj in self._results_data.items():
+                resultsSmall[sc] = obj._data
+            self._results_data = resultsSmall
+
+        else:
             pass
+
 
         if saveName:
             if 'pkl' in saveName:
@@ -979,6 +992,93 @@ class ModelOutput:
         # print location of saved file in purple
         print('\033[95m' + f"Data saved at: {path}")
 
+    def save_chunks_with_pickel(self, path, nChunks, saveName, option="small"):
+        """
+        This methode is used to save the object in chunks. This is useful if the object is too large to be saved/loaded
+        in one go .
+
+        Parameters
+        ----------
+        path : String type of where to save the ProcessResults object as pickle
+            class object.
+
+        nChunks : int, number of chunks to save the object in
+
+        saveName : String type of the name of the saved file, default is None
+
+        option: String, default is 'raw' which saves all data also including zero
+            values. If this value is set to 'tidy' an cleaning algorithm deletes
+            zero values which saves data space.
+            'small' saves only the most important data of the object, usefull for MultiModelOutput
+
+
+        Description
+        ----------
+        Saves the output file as a pickle-file, which can be laoded into an
+        Analyzer-Object on another machine or at a different time.
+        """
+
+        def divide_dict(dictionary, num, option='small'):
+            """
+            This function divides a dictionary into n sub-dictionaries
+            :param dictionary:
+            :param num:
+            :param option:
+            :return:
+            """
+
+            if option == "small":
+                resultsSmall = {}
+                for sc, obj in dictionary.items():
+                    resultsSmall[sc] = obj._data
+                dictionary = resultsSmall
+
+            keys = list(dictionary.keys())
+            subDicts = [{} for _ in range(num)]
+
+            for i, key in enumerate(keys):
+                subDicts[i % num][key] = dictionary[key]
+
+            return subDicts
+
+        # if the attribute self.ph exists, delete it
+        if hasattr(self, 'ph'):
+            del self.ph
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        # add one chunk. chunk 0 is the file containting everything but the _data_Files
+        solutionDataDict = self._results_data
+        # divide the data into nChunks
+        dividedDataDict = divide_dict(solutionDataDict, nChunks, option)
+
+        # delete the _results_data attribute to save memory
+        del self._results_data
+
+        originalSaveName = saveName
+        originalPath = path
+        nChunks += 1 # because the first chunk is the main object without the _results_data attribute
+        for chunk in range(nChunks):
+            newSaveName = originalSaveName
+            if 'pkl' in saveName:
+                newSaveName = newSaveName.split('.pkl')[0]
+                newSaveName = newSaveName + f'_chunk_{chunk}.pkl'
+            else:
+                newSaveName = newSaveName + f'_chunk_{chunk}.pkl'
+
+            path = originalPath + "/" + newSaveName
+
+            if chunk == 0:
+                with open(path, "wb") as output:
+                    pic.dump(self, output, protocol=4)
+            else:
+                with open(path, "wb") as output:
+                    pic.dump(dividedDataDict[chunk-1], output, protocol=4) # -1 because the first chunk is the main object
+
+
+        # print location of saved file in purple
+        print('\033[95m' + f"Data saved at: {path}")
     @classmethod
     def load_from_pickle(cls, path):
         """
@@ -999,6 +1099,64 @@ class ModelOutput:
             loaded_object = pic.load(input_file)
 
         return loaded_object
+
+    @classmethod
+    def load_chunks_from_pickle(cls, path, saveName, nChunks, saveAs = 'dict'):
+        """
+        Load the object from the pickle file. The object is saved in chunks. This method loads all the chunks and
+        combines them into one object.
+
+        Parameters
+        ----------
+        path : String type of the path to the pickle file to load
+        saveName : String type of the name of the saved file, default is None
+        nChunks : int, number of chunks to load
+        saveAs : String, default is 'dict'. If 'dict' the results are saved as a dictionary, if 'object' the results are saved as an object
+        so either {'sc_i': object} or {'sc_i': dict} where dict is the raw data output
+
+        Description
+        ----------
+        Loads the object from a pickle file and returns it.
+
+        Returns
+        -------
+        MultiModelOutput instance
+        """
+
+        # check if saveAs is a valid option
+        if saveAs not in ['dict', 'object']:
+            raise ValueError('saveAs must be either "dict" or "object"')
+
+        if 'pkl' in saveName:
+            originalSaveName = saveName.split('.pkl')[0]
+        else:
+            originalSaveName = saveName
+
+        originalPath = path
+        nChunks += 1  # because the first chunk is the main object without the _results_data attribute
+        for i in range(nChunks):
+            saveName = originalSaveName + f'_chunk_{i}.pkl'
+            filePath = originalPath + "/" + saveName
+            print('loading chunk:', i)
+            with open(filePath, "rb") as input_file:
+                loadedObject = pic.load(input_file)
+                if i == 0:
+                    combinedObject = loadedObject
+                    resultsData = {}
+                else:
+                    if saveAs == 'dict':
+                        for key, object in loadedObject.items():
+                            resultsData[key] = object._data
+                    else:
+                        resultsData.update(loadedObject)
+                    #print(resultsData)
+
+        # sort the dictionary combinedObject._results_data based on the keys
+        # resultsSorted = dict(sorted(resultsData.items()))
+        # combinedObject._results_data = resultsSorted
+        combinedObject._results_data = resultsData
+
+        return combinedObject
 
     def update_from_loaded(self, loaded_object):
         """
