@@ -112,7 +112,7 @@ class GeneralSystemDataTab(QWidget):
             QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
         self.layout.addRow(QLabel("Cost per kW installed:"), self.costLineEdit)
 
-        self.lifetimeLineEdit = QLineEdit(centralDataManager.data['Lifetime'])
+        self.lifetimeLineEdit = QLineEdit("0")
         self.lifetimeLineEdit.setValidator(
             QDoubleValidator(1990, 2018, 0))  # Set validator to restrict to floating-point numbers
         self.layout.addRow(QLabel("Lifetime:"), self.lifetimeLineEdit)
