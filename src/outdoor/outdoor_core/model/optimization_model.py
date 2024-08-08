@@ -103,6 +103,7 @@ class SuperstructureModel(AbstractModel):
         self.create_FreshwaterEvaluation()
         self.create_DecisionMaking()
         self.create_ObjectiveFunction()
+        self.create_LCAEquations()
 
     def populateModel(self, Data_file):
         """
@@ -1332,6 +1333,138 @@ class SuperstructureModel(AbstractModel):
         self.FreshWaterEquation3 = Constraint(rule=FWD_3_rule)
         self.FreshWaterEquation4 = Constraint(rule=FWD_4_rule)
         self.FreshWaterEquation5 = Constraint(rule=FWD_5_rule)
+
+    # *** LCA EQUATIONS ***
+    # ------------------------
+    def create_LCAEquations(self):
+
+        # parameters
+        self.rmh_TAP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_GWP1000 = Param(self.U, initialize=0, mutable=True)
+        self.rmh_FETP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_METP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_TETP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_FFP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_FEP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_MEP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_HTPc = Param(self.U, initialize=0, mutable=True)
+        self.rmh_HTPnc = Param(self.U, initialize=0, mutable=True)
+        self.rmh_IRP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_LOP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_SOP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_ODPinfinite =Param(self.U, initialize=0, mutable=True)
+        self.rmh_PMFP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_HOFP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_EOFP = Param(self.U, initialize=0, mutable=True)
+        self.rmh_WCP = Param(self.U, initialize=0, mutable=True)
+        self.reh_ecosystem_quality = Param(self.U, initialize=0, mutable=True)
+        self.reh_human_health = Param(self.U, initialize=0, mutable=True)
+        self.reh_natural_resources = Param(self.U, initialize=0, mutable=True)
+        self.ced_renewable_energy_resources  = Param(self.U, initialize=0, mutable=True)
+        self.ced_non_renewable_energy_sources  = Param(self.U, initialize=0, mutable=True)
+
+        # variables; the impact per unit process
+        self.rmh_TAP_var = Var(self.U)
+        self.rmh_GWP1000_var = Var(self.U)
+        self.rmh_FETP_var = Var(self.U)
+        self.rmh_METP_var = Var(self.U)
+        self.rmh_TETP_var = Var(self.U)
+        self.rmh_FFP_var = Var(self.U)
+        self.rmh_FEP_var = Var(self.U)
+        self.rmh_MEP_var = Var(self.U)
+        self.rmh_HTPc_var = Var(self.U)
+        self.rmh_HTPnc_var = Var(self.U)
+        self.rmh_IRP_var = Var(self.U)
+        self.rmh_LOP_var = Var(self.U)
+        self.rmh_SOP_var = Var(self.U)
+        self.rmh_ODPinfinite_var = Var(self.U)
+        self.rmh_PMFP_var = Var(self.U)
+        self.rmh_HOFP_var = Var(self.U)
+        self.rmh_EOFP_var = Var(self.U)
+        self.rmh_WCP_var = Var(self.U)
+        self.reh_ecosystem_quality_var = Var(self.U)
+        self.reh_human_health_var = Var(self.U)
+        self.reh_natural_resources_var = Var(self.U)
+        self.ced_renewable_energy_resources_var = Var(self.U)
+        self.ced_non_renewable_energy_sources_var = Var(self.U)
+
+        # the total Enviromental impact
+
+        def LCA_rmh_TAP_rule(self,u):
+            return self.rmh_TAP_var[u] == self.rmh_TAP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_GWP1000_rule(self,u):
+            return self.rmh_GWP1000_var[u] == self.rmh_GWP1000[u] * self.FLOW_SUM[u]
+        def LCA_rmh_FETP_rule(self,u):
+            return self.rmh_FETP_var[u] == self.rmh_FETP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_METP_rule(self,u):
+            return self.rmh_METP_var[u] == self.rmh_METP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_TETP_rule(self,u):
+            return self.rmh_TETP_var[u] == self.rmh_TETP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_FFP_rule(self,u):
+            return self.rmh_FFP_var[u] == self.rmh_FFP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_FEP_rule(self, u):
+            return self.rmh_FEP_var[u] == self.rmh_FEP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_MEP_rule(self, u):
+            return self.rmh_MEP_var[u] == self.rmh_MEP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_HTPc_rule(self, u):
+            return self.rmh_HTPc_var[u] == self.rmh_HTPc[u] * self.FLOW_SUM[u]
+        def LCA_rmh_HTPnc_rule(self, u):
+            return self.rmh_HTPnc_var[u] == self.rmh_HTPnc[u] * self.FLOW_SUM[u]
+        def LCA_rmh_IRP_rule(self, u):
+            return self.rmh_IRP_var[u] == self.rmh_IRP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_LOP_rule(self, u):
+            return self.rmh_LOP_var[u] == self.rmh_LOP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_SOP_rule(self, u):
+            return self.rmh_SOP_var[u] == self.rmh_SOP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_ODPinfinite_rule(self, u):
+            return self.rmh_ODPinfinite_var[u] == self.rmh_ODPinfinite[u] * self.FLOW_SUM[u]
+        def LCA_rmh_PMFP_rule(self, u):
+            return self.rmh_PMFP_var[u] == self.rmh_PMFP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_HOFP_rule(self, u):
+            return self.rmh_HOFP_var[u] == self.rmh_HOFP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_EOFP_rule(self, u):
+            return self.rmh_EOFP_var[u] == self.rmh_EOFP[u] * self.FLOW_SUM[u]
+        def LCA_rmh_WCP_rule(self, u):
+            return self.rmh_WCP_var[u] == self.rmh_WCP[u] * self.FLOW_SUM[u]
+        def LCA_reh_ecosystem_quality_rule(self, u):
+            return self.reh_ecosystem_quality_var[u] == self.reh_ecosystem_quality[u] * self.FLOW_SUM[u]
+        def LCA_reh_human_health_rule(self, u):
+            return self.reh_human_health_var[u] == self.reh_human_health[u] * self.FLOW_SUM[u]
+        def LCA_reh_natural_resources_rule(self, u):
+            return self.reh_natural_resources_var[u] == self.reh_natural_resources[u] * self.FLOW_SUM[u]
+        def LCA_ced_renewable_energy_resources_rule(self, u):
+            return self.ced_renewable_energy_resources_var[u] == self.ced_renewable_energy_resources[u] * self.FLOW_SUM[
+                u]
+        def LCA_ced_non_renewable_energy_sources_rule(self, u):
+            return self.ced_non_renewable_energy_sources_var[u] == self.ced_non_renewable_energy_sources[u] * \
+                self.FLOW_SUM[u]
+
+        # add all the constraints to the model
+        self.LCA_rmh_TAP_Equation = Constraint(self.U, rule=LCA_rmh_TAP_rule)
+        self.LCA_rmh_GWP1000_Equation = Constraint(self.U, rule=LCA_rmh_GWP1000_rule)
+        self.LCA_rmh_FETP_Equation = Constraint(self.U, rule=LCA_rmh_FETP_rule)
+        self.LCA_rmh_METP_Equation = Constraint(self.U, rule=LCA_rmh_METP_rule)
+        self.LCA_rmh_TETP_Equation = Constraint(self.U, rule=LCA_rmh_TETP_rule)
+        self.LCA_rmh_FFP_Equation = Constraint(self.U, rule=LCA_rmh_FFP_rule)
+        self.LCA_rmh_FEP_Equation = Constraint(self.U, rule=LCA_rmh_FEP_rule)
+        self.LCA_rmh_MEP_Equation = Constraint(self.U, rule=LCA_rmh_MEP_rule)
+        self.LCA_rmh_HTPc_Equation = Constraint(self.U, rule=LCA_rmh_HTPc_rule)
+        self.LCA_rmh_HTPnc_Equation = Constraint(self.U, rule=LCA_rmh_HTPnc_rule)
+        self.LCA_rmh_IRP_Equation = Constraint(self.U, rule=LCA_rmh_IRP_rule)
+        self.LCA_rmh_LOP_Equation = Constraint(self.U, rule=LCA_rmh_LOP_rule)
+        self.LCA_rmh_SOP_Equation = Constraint(self.U, rule=LCA_rmh_SOP_rule)
+        self.LCA_rmh_ODPinfinite_Equation = Constraint(self.U, rule=LCA_rmh_ODPinfinite_rule)
+        self.LCA_rmh_PMFP_Equation = Constraint(self.U, rule=LCA_rmh_PMFP_rule)
+        self.LCA_rmh_HOFP_Equation = Constraint(self.U, rule=LCA_rmh_HOFP_rule)
+        self.LCA_rmh_EOFP_Equation = Constraint(self.U, rule=LCA_rmh_EOFP_rule)
+        self.LCA_rmh_WCP_Equation = Constraint(self.U, rule=LCA_rmh_WCP_rule)
+        self.LCA_reh_ecosystem_quality_Equation = Constraint(self.U, rule=LCA_reh_ecosystem_quality_rule)
+        self.LCA_reh_human_health_Equation = Constraint(self.U, rule=LCA_reh_human_health_rule)
+        self.LCA_reh_natural_resources_Equation = Constraint(self.U, rule=LCA_reh_natural_resources_rule)
+        self.LCA_ced_renewable_energy_resources_Equation = Constraint(self.U, rule=LCA_ced_renewable_energy_resources_rule)
+        self.LCA_ced_non_renewable_energy_sources_Equation = Constraint(self.U, rule=LCA_ced_non_renewable_energy_sources_rule)
+
+
 
     # **** DECISION MAKING EQUATIONS *****
     # -------------------------

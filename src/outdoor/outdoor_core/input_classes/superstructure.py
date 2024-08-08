@@ -246,6 +246,32 @@ class Superstructure():
         self.alpha = dict()
         # ---------------
 
+        # -LCA Parameters
+        # ---------------
+        self.rmh_TAP = {'rmh_TAP':{}}
+        self.rmh_GWP1000 = {'rmh_GWP1000':{}}
+        self.rmh_FETP = {'rmh_FETP':{}}
+        self.rmh_METP = {'rmh_METP':{}}
+        self.rmh_TETP = {'rmh_TETP':{}}
+        self.rmh_FFP = {'rmh_FFP':{}}
+        self.rmh_FEP = {'rmh_FEP':{}}
+        self.rmh_MEP = {'rmh_MEP':{}}
+        self.rmh_HTPc = {'rmh_HTPc':{}}
+        self.rmh_HTPnc = {'rmh_HTPnc':{}}
+        self.rmh_IRP = {'rmh_IRP':{}}
+        self.rmh_LOP = {'rmh_LOP':{}}
+        self.rmh_SOP = {'rmh_SOP':{}}
+        self.rmh_ODPinfinite = {'rmh_ODPinfinite':{}}
+        self.rmh_PMFP = {'rmh_PMFP':{}}
+        self.rmh_HOFP = {'rmh_HOFP':{}}
+        self.rmh_EOFP = {'rmh_EOFP':{}}
+        self.rmh_WCP = {'rmh_WCP':{}}
+        self.reh_ecosystem_quality = {'reh_ecosystem_quality':{}}
+        self.reh_human_health = {'reh_human_health':{}}
+        self.reh_natural_resources = {'reh_natural_resources':{}}
+        self.ced_renewable_energy_resources = {'ced_renewable_energy_resources':{}}
+        self.ced_non_renewable_energy_sources = {'ced_non_renewable_energy_sources':{}}
+
         # - Output data structures
         # ------------------------
         self.Data_File = {None: {}}
@@ -481,6 +507,37 @@ class Superstructure():
     def set_cp(self, cp_dic):
         for i, j in cp_dic.items():
             self.cp['CP'][i] = j
+
+    def set_LCA_parameters(self, lca_dic):
+        """
+        Parameters
+        :param lca_dic: dict{UnitNumber, {parameterName :value}}
+        :return:
+        """
+        for i, j in lca_dic.items():
+            self.rmh_TAP['rmh_TAP'][i] = j['rmh_TAP']
+            self.rmh_GWP1000['rmh_GWP1000'][i] = j['rmh_GWP1000']
+            self.rmh_FETP['rmh_FETP'][i] = j['rmh_FETP']
+            self.rmh_METP['rmh_METP'][i] = j['rmh_METP']
+            self.rmh_TETP['rmh_TETP'][i] = j['rmh_TETP']
+            self.rmh_FFP['rmh_FFP'][i] = j['rmh_FFP']
+            self.rmh_FEP['rmh_FEP'][i] = j['rmh_FEP']
+            self.rmh_MEP['rmh_MEP'][i] = j['rmh_MEP']
+            self.rmh_HTPc['rmh_HTPc'][i] = j['rmh_HTPc']
+            self.rmh_HTPnc['rmh_HTPnc'][i] = j['rmh_HTPnc']
+            self.rmh_IRP['rmh_IRP'][i] =  j['rmh_IRP']
+            self.rmh_LOP['rmh_LOP'][i] =  j['rmh_LOP']
+            self.rmh_SOP['rmh_SOP'][i] =  j['rmh_SOP']
+            self.rmh_ODPinfinite['rmh_ODPinfinite'][i] = j['rmh_ODPinfinite']
+            self.rmh_PMFP['rmh_PMFP'][i] =  j['rmh_PMFP']
+            self.rmh_HOFP['rmh_HOFP'][i] =  j['rmh_HOFP']
+            self.rmh_EOFP['rmh_EOFP'][i] =  j['rmh_EOFP']
+            self.rmh_WCP['rmh_WCP'][i] =  j['rmh_WCP']
+            self.reh_ecosystem_quality['reh_ecosystem_quality'][i] = j['reh_ecosystem_quality']
+            self.reh_human_health['reh_human_health'][i] = j['reh_human_health']
+            self.reh_natural_resources['reh_natural_resources'][i] = j['reh_natural_resources']
+            self.ced_renewable_energy_resources['ced_renewable_energy_resources'][i] = j['ced_renewable_energy_resources']
+            self.ced_non_renewable_energy_sources['ced_non_renewable_energy_sources'][i] = j['ced_non_renewable_energy_sources']
 
     def add_linearisationIntervals(self):
         if self.linearizationDetail == "rough":
