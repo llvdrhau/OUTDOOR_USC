@@ -282,36 +282,24 @@ class MultiModelOutput(ModelOutput):
             src = srcs[0, i] * standerdiseCoef
             srcDict[parameterName] = src
             squareSumSRC += src**2
-            print(f"SRC for parameter {parameterName}: {src}")
+            #print(f"SRC for parameter {parameterName}: {src}")
 
 
         # Obtain R-squared value
         RSquared = reg.score(parametersStandardized, resultsStandardized)
 
-        # #plot y_reg vs y
-        # get the results from the regression model
-        # y_reg = reg.predict(parametersStandardized)
-        # y_reg = reg.predict(parameterArray)
-        # import matplotlib.pyplot as plt
-        # plt.plot(results, y_reg, 'o')
-        # plt.xlabel('True values')
-        # plt.ylabel('Predicted values')
-        # # plot diagonal line
-        # plt.plot([np.min(results), np.max(results)], [np.min(results), np.max(results)], 'r-')
-        # plt.show()
-
-        #
-        # for i, y in enumerate(objectiveFunctionList):
-        #     test = (y_reg[i, 0] - yAverage)**2 / (y - yAverage)**2
-        #     RSquared += (y_reg[i, 0] - yAverage)**2 / (y - yAverage)**2
 
 
+        print('')
+        print('-----------------------------------')
         print('Sum of SRC squared: ', squareSumSRC)
         print('R squared: ', RSquared)
+        print('-----------------------------------\n')
         self.SRC = srcDict
-
+        # sort the SRCs and print them in descending order
         sorted_src = dict(sorted(srcDict.items(), key=lambda item: item[1], reverse=True))
-        print(sorted_src)
+        for key, value in sorted_src.items():
+            print(f"SCR, {key}: {value}")
 
 
 

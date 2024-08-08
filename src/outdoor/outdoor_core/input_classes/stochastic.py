@@ -43,16 +43,19 @@ class StochasticObject():
         self.GroupDict = {}
         self.Discretization = 0
         self.PhiComponentsList = []
-        self.LableDict = {'phi': {},
-                          'theta': {},
-                          'myu': {},
-                          'gamma': {},
-                          'xi': {},
-                          'ProductPrice': {},
-                          'materialcosts': {},
-                          'delta_ut': {},
-                          'Decimal_numbers': {}
-                          }
+        self.LableDict = {}
+
+        # don't need to perse define all the keys in the dictionary, they will be added later
+        # self.LableDict = {'phi': {},
+        #                   'theta': {},
+        #                   'myu': {},
+        #                   'gamma': {},
+        #                   'xi': {},
+        #                   'ProductPrice': {},
+        #                   'materialcosts': {},
+        #                   'delta_ut': {},
+        #                   'Decimal_numbers': {}
+        #                   }
 
     def set_general_data(self, GeneralDataFrame, customLevelDataFrame, sampleSize=None):
         """
@@ -213,13 +216,25 @@ class StochasticObject():
                 elif parameterName == 'ProductPrice' or parameterName == 'materialcosts' or parameterName == 'Decimal_numbers':
                     nrComponentTuple = (unitNr)
 
-                # elif parameterName == 'delta_ut':
-                #     nrComponentTuple = () # no component or unit number is needed for delta_ut
+                elif parameterName == 'tau_h':
+                    nrComponentTuple = ('Heat', unitNr)
+
+                elif parameterName == 'delta_ut':
+                    nrComponentTuple = ('Electricity') # no component or unit number is needed for delta_ut
 
                 else:
                     raise ValueError("The parameter {} is not supported yet".format(parameterName))
 
-                self.LableDict[parameterName][nrComponentTuple] = keyName
+                # self.LableDict[parameterName][nrComponentTuple] = keyName
+                # self.LableDict[parameterName] = {nrComponentTuple: keyName}
+                # check if the parameter name is already in the dictionary, if not add it
+                if parameterName in self.LableDict:
+                    self.LableDict[parameterName][nrComponentTuple] = keyName
+                else:
+                    self.LableDict[parameterName] = {nrComponentTuple: keyName}
+
+
+
 
         # print(self.LableDict) #for debugging
 

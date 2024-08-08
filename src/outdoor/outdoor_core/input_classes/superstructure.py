@@ -1479,7 +1479,10 @@ class Superstructure():
             # loop over each row of the uncertainty matrix
 
             for j, value in row.items():
-                parameterName = j.split('_')[0] # the parameter name is the first part of the column name remove everything after the first underscore
+                # parameterName = j.split('_')[0] # the parameter name is the first part of the column name remove everything after the first underscore
+                # Split the string by the last underscore and remove it
+                parameterName = '_'.join(j.split('_')[:-1])
+
                 index = uncertaintyDict[parameterName][j]
                 # get the basecase value of the parameter
                 currentValue = baseCaseDataFile[None][parameterName][index]
@@ -1492,11 +1495,19 @@ class Superstructure():
                     if newValue > 1:
                         newValue = 1  # constrain to be equal to 1, otherwise mass balance problems will occur
 
-                # make a new column name
-                if isinstance(index, tuple):
+                # make a new column name, depending on the parameter name
+                if parameterName == 'tau_h':
+                    unitNumber = index[1] # unit number is the second element of the index tuple
+                    columnName = parameterName + ' ' + str(unitNames[unitNumber])
+
+                elif parameterName == 'delta_ut':
+                    columnName = 'ElectricityPrice'
+
+                elif isinstance(index, tuple):
                     unitNumber = index[0]
                     compound = str(index[1])
                     columnName = parameterName + ' ' + str(unitNames[unitNumber]) + ' ' + compound
+
                 else:
                     # the index is not a tuple in the case of raw material costs and product prices
                     columnName = parameterName + '_' + str(unitNames[index])
@@ -1646,7 +1657,7 @@ class Superstructure():
                         adjustDict.update({compound: newComposition[compound]})
 
                 totalAdjusted = sum(adjustDict.values())
-                if totalAdjusted > 1:
+                if totalAdjusted > 1.000000001:
                     raise ValueError("Total new percentages exceeds 100 %")
 
                 totalOtherComponents = sum(originalComposition.values()) - sum(originalComposition[idx] for idx in adjustDict.keys())

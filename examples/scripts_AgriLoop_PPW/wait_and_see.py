@@ -17,15 +17,14 @@ sys.path.insert(0, scrPath)
 import outdoor
 
 
-n_scenarios = 100
+n_scenarios = 5
 
 saveName = 'WaS_{}_sc.pkl'.format(n_scenarios)
 
 
 Saved_data_Path = r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\saved_files'
 # define the paths to the Excel file and the results directories
-#Excel_Path = '../../examples/Excel_files/potato_peel_case_study.xlsm'
-Excel_Path = '../../examples/Excel_files/potato_peel_case_study_reduced.xlsm'
+Excel_Path = '../../examples/Excel_files/potato_peel_case_study.xlsm'
 Results_Path = r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\results'
 
 
@@ -56,7 +55,7 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
                                                          options=solverOptions,)
 
 # save the results in a pickle file for further analysis
-model_output.save_with_pickel(path=Saved_data_Path, saveName=saveName)
+model_output.save_chunks_with_pickel(path=Saved_data_Path, saveName=saveName, nChunks=5)
 
 
 # print in green
