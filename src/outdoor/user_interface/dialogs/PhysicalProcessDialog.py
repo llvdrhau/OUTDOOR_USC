@@ -74,6 +74,9 @@ class PhysicalProcessesDialog(QDialog):
             tabWidget.addTab(self._createLcaDialogTab(), "LCA")
         # You can add more tabs as needed...
 
+        # save the tabWidget as an attribute so it can be called in other class that inherit from this class
+        self.tabWidget = tabWidget
+
         layout = QVBoxLayout(self)
         layout.addWidget(tabWidget)
 
@@ -803,6 +806,15 @@ class PhysicalProcessesDialog(QDialog):
             #print('the add row button concentration2 is clicked')
             table = self.componentsTableConcentration2
 
+        elif tabName == "reactantsTable" or senderName == "addRowButtonReactantsTable":
+            table = self.reactantsTable
+
+        elif tabName == "productsTable" or senderName == "addRowButtonProductsTable":
+            table = self.productsTable
+
+        elif tabName == "yield" or senderName == "addRowButtonYieldTable":
+            table = self.inertComponentsTable
+
         else:
             raise ValueError("The add row button is not connected to any table please check the "
                              "object name of the button")
@@ -810,6 +822,32 @@ class PhysicalProcessesDialog(QDialog):
         # Get the current row count and insert a new row at the end
         rowPosition = table.rowCount()
         table.insertRow(rowPosition)
+
+        # add restrictions to the Reactants table so stoichiometric and conversion factors are only between 0 and 1
+        if tabName == "reactantsTable" or senderName == "addRowButtonReactantsTable":
+            # Add QTableWidgetItems for "Reactant Name" and "Reaction Number" columns
+            table.setItem(rowPosition, 0, QTableWidgetItem(""))
+            table.setItem(rowPosition, 3, QTableWidgetItem(""))
+            # Add QLineEdit with QDoubleValidator for "Stoichiometric" and "Conversion Factor" columns
+            for columnIndex in [1, 2]:  # Columns "Stoichiometric" and "Conversion Factor"
+                lineEdit = QLineEdit()
+                validator = QDoubleValidator(0.0, 1.0, 5)  # Values between 0 and 1, up to 5 decimal places
+                validator.setNotation(QDoubleValidator.StandardNotation)
+                lineEdit.setValidator(validator)
+                table.setCellWidget(rowPosition, columnIndex, lineEdit)
+
+        # add restrictions to the Products table so stoichiometric and conversion factors are only between 0 and 1
+        if tabName == "productsTable" or senderName == "addRowButtonProductsTable":
+            # Add QTableWidgetItems for "Component Name" and "Reaction Number" columns
+            table.setItem(rowPosition, 0, QTableWidgetItem(""))
+            table.setItem(rowPosition, 2, QTableWidgetItem(""))
+
+            # Add QLineEdit with QDoubleValidator for "Stoichiometric" column
+            lineEdit = QLineEdit()
+            validator = QDoubleValidator(0.0, 1.0, 5)  # Values between 0 and 1, up to 5 decimal places
+            validator.setNotation(QDoubleValidator.StandardNotation)
+            lineEdit.setValidator(validator)
+            table.setCellWidget(rowPosition, 1, lineEdit)
 
         # Create new cells by creating a combo box instance
         self.comboBoxComponents = NonFocusableComboBox()

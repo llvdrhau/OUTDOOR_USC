@@ -1,3 +1,8 @@
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
+    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
+
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
 
 class StoichiometricReactorDialog(PhysicalProcessesDialog):
@@ -5,100 +10,86 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         super().__init__(initialData, centralDataManager)  # Initialize the parent class
         # Additional initialization for StoichiometricReactorDialog
 
-    # TODO complete this class and connect it to the main window
+        tabWidget = self.tabWidget
+        tabWidget.addTab(self._createStoichiometricDialogTab(), "Stoichiometric")
 
-    # def __init__(self, initialData):
-    #     super().__init__()
-    #     # set style
-    #     self.setStyleSheet("""
-    #                                         QDialog {
-    #                                             background-color: #f2f2f2;
-    #                                         }
-    #                                         QLabel {
-    #                                             color: #333333;
-    #                                         }
-    #                                         QLineEdit {
-    #                                             border: 1px solid #cccccc;
-    #                                             border-radius: 2px;
-    #                                             padding: 5px;
-    #                                             background-color: #ffffff;
-    #                                             selection-background-color: #b0daff;
-    #                                         }
-    #                                         QPushButton {
-    #                                             color: #ffffff;
-    #                                             background-color: #5a9;
-    #                                             border-style: outset;
-    #                                             border-width: 2px;
-    #                                             border-radius: 10px;
-    #                                             border-color: beige;
-    #                                             font: bold 14px;
-    #                                             padding: 6px;
-    #                                         }
-    #                                         QPushButton:hover {
-    #                                             background-color: #78d;
-    #                                         }
-    #                                         QPushButton:pressed {
-    #                                             background-color: #569;
-    #                                             border-style: inset;
-    #                                         }
-    #                                         QTableWidget {
-    #                                             border: 1px solid #cccccc;
-    #                                             selection-background-color: #b0daff;
-    #                                         }
-    #                                     """)
-    #
-    #     self.setWindowTitle("Physical Processes Parameters")
-    #     self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
-    #
-    #     tabWidget = QTabWidget(self)
-    #     tabWidget.addTab(self._createGeneralFactorsTab(), "General Factors")
-    #     tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Factors")
-    #     tabWidget.addTab(self._createEnergyRelatedFactorsTab(), "Energy Related Factors")
-    #     tabWidget.addTab(self._createSplitFactorsTab(), "Split Factors")
-    #     tabWidget.addTab(self._createMaterialFlowSourcesTab(), "Material Flow Sources")
-    #     tabWidget.addTab(self._createConcentrationFactorsTab(), "Concentration Factors")
-    #
-    #     layout = QVBoxLayout(self)
-    #     layout.addWidget(tabWidget)
-    #
-    #     # OK and Cancel buttons
-    #     buttonsLayout = QHBoxLayout()
-    #     self.okButton = QPushButton("OK", self)
-    #     self.okButton.clicked.connect(self.accept)
-    #     buttonsLayout.addWidget(self.okButton)
-    #
-    #     self.cancelButton = QPushButton("Cancel", self)
-    #     self.cancelButton.clicked.connect(self.reject)
-    #     buttonsLayout.addWidget(self.cancelButton)
-    #
-    #     layout.addLayout(buttonsLayout)
-    #
-    # # Define the following methods to create tabs for each category
-    # def _createGeneralFactorsTab(self):
-    #     pass
-    #     # Create and return the widget for General Factors
-    #     # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
-    #
-    # def _createCostRelatedFactorsTab(self):
-    #     # Create and return the widget for Cost Related Factors
-    #     # Add QLineEdit, QSpinBox, QDoubleSpinBox, etc. as needed
-    #     pass
-    #
-    # def _createEnergyRelatedFactorsTab(self):
-    #     # Create and return the widget for Energy Related Factors
-    #     # This will likely include a QTableWidget for the various energy types
-    #     pass
-    # def _createSplitFactorsTab(self):
-    #     # Create and return the widget for Split Factors
-    #     # This will likely include a QTableWidget for different target processes
-    #     pass
-    # def _createMaterialFlowSourcesTab(self):
-    #     # Create and return the widget for Material Flow Sources
-    #     # This will likely include a QTableWidget for the sources and targets
-    #     pass
-    # def _createConcentrationFactorsTab(self):
-    #     # Create and return the widget for Concentration Factors
-    #     # This will likely include a QTableWidget for flow concentration comparisons
-    #     pass
-    #     # Implement the above methods to create each specific tab.
-    #     # The tabs will contain form fields and tables as per the provided Excel sheet.
+        # populate the dialog with existing data (initialData) if it is not empty
+        if initialData:
+            self.populateDialog(initialData)
+
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def _createStoichiometricDialogTab(self):
+        """
+        Creates and returns a QWidget containing UI elements for configuring the stoichiometric reactor.
+        """
+
+
+        # initialise widget
+        widget = QWidget()
+        layout = QFormLayout()
+
+        # Create a title for the tab
+        self._createSectionTitle(text="Reaction Tab", layout=layout)
+
+        # create subtitel
+        self._createSectionTitle(text="Reactants", layout=layout)
+
+
+        # create table for the components
+        self.reactantsTable = QTableWidget(0, 4, self)  # Initial rows, columns
+        self.reactantsTable.setHorizontalHeaderLabels(["Reactant Name", "Stoichiometric",
+                                                                      "Conversion Factor","Reaction Number"])
+        self.reactantsTable.setColumnWidth(0, 200)  # make column 1 wider
+        self.reactantsTable.setColumnWidth(1, 200)  # make column 2 wider
+        self.reactantsTable.setColumnWidth(2, 200)  # make column 3 wider
+        self.reactantsTable.setColumnWidth(3, 200)  # make column 4 wider
+
+        #  add the tabel to the widget
+        tooltipText = """define the stoichiometric factors for the reactants (on a mass bassis! g/g), their conversion factors and to what
+                               reaction number them belong to. Numbers needed to distinguish between reactions"""
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.reactantsTable,
+                                tooltipText=tooltipText)
+        self.reactantsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.reactantsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.reactantsTable.setObjectName("reactantsTable")
+
+        # Add a row to tabel button
+        self.addRowButtonReactantsTable = QPushButton("Add Component", self)
+        self.addRowButtonReactantsTable.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonReactantsTable.setObjectName("addRowButtonReactantsTable")
+        layout.addWidget(self.addRowButtonReactantsTable)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="reactantsTable")
+
+        # creat subtitel for Products of the reaction
+        self._createSectionTitle(text="Products", layout=layout)
+
+        # create table for the components
+        self.productsTable = QTableWidget(0, 3, self)  # Initial rows, columns
+        self.productsTable.setHorizontalHeaderLabels(["Component Name", "Stoichiometric", "Reaction Number"])
+        self.productsTable.setColumnWidth(0, 200)  # make column 1 wider
+        self.productsTable.setColumnWidth(1, 200)  # make column 2 wider
+        self.productsTable.setColumnWidth(2, 200) # make column 3 wider
+        #  add the tabel to the widget
+        tooltipText = """The chemicals that are produced. define stoichiometric factors (mass! g/g) for the products and
+         to what reaction number them belong to. Numbers needed to distinguish between reactions."""
+        # add same table to the layout
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.productsTable, tooltipText=tooltipText)
+        self.productsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        self.productsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        self.productsTable.setObjectName("productsTable")
+
+        # add row button
+        self.addRowButtonProductsTable = QPushButton("Add Component", self)
+        self.addRowButtonProductsTable.clicked.connect(self._addRowToTable)
+        # set object name
+        self.addRowButtonProductsTable.setObjectName("addRowButtonProductsTable")
+        layout.addWidget(self.addRowButtonProductsTable)
+        # Initialize the table with an example row (optional)
+        self._addRowToTable(tabName="productsTable")
+
+        # return the widget
+        widget.setLayout(layout)
+        return widget

@@ -10,6 +10,9 @@ from outdoor.user_interface.dialogs.OutputParametersDialog import OutputParamete
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
 from outdoor.user_interface.dialogs.SplittingDialog import SplittingDialog
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
+from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
+from outdoor.user_interface.dialogs.ElectricityGeneratorDialog import ElectricityGeneratorDialog
+from outdoor.user_interface.dialogs.HeatGeneratorDialog import HeatGeneratorDialog
 from outdoor.user_interface.interactives.DraggableIcon import DraggableIcon
 
 
@@ -643,13 +646,22 @@ class MovableIcon(QGraphicsObject):
             dialog = StoichiometricReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
             nonesentialParameters = []
 
-        # elif self.icon_type == 'generator_elec':
-        #     dialog = GeneratorElecDialog(initialData=existingData)
-        #     nonesentialParameters = []
-        # TODO Add support for yield reactors + heat generators
+        elif self.icon_type == 'yield_reactor':
+            dialog = YieldReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
+            nonesentialParameters = []
+
+        elif self.icon_type == 'generator_elec':
+             dialog = ElectricityGeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
+             nonesentialParameters = []
+
+        elif self.icon_type == 'generator_heat':
+            dialog = HeatGeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
+            nonesentialParameters = []
+
         else:
-            pass  # place holder for other icon types
-            #raise Exception("Icon type not recognized")
+            raise Exception("Icon type {} not recognized".format(self.icon_type))  # You can handle this error in a more user-friendly way
+
+
 
         # open the dialog and handle the data entered by the user after pressing OK
         if dialog.exec_():

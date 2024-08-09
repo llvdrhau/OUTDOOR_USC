@@ -4,6 +4,14 @@ from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction
 import sys
 
 from data.CentralDataManager import CentralDataManager
+
+import os
+# Get the current working directory
+current_path = os.getcwd()
+# Print the current working directory
+print(f"Current working directory: {current_path}")
+
+
 from outdoor.user_interface.WelcomeTab import WelcomeTab
 from tabs.ComponentsTab import ComponentsTab
 from tabs.GeneralSystemDataTab import GeneralSystemDataTab

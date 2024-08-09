@@ -6,8 +6,8 @@ import csv
 import glob
 import pickle
 
-from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
-
+#from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
+from data.superstructure_frame import SuperstructureFrame
 
 class CentralDataManager:
     """
