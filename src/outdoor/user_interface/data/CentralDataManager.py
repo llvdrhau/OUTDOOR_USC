@@ -24,7 +24,6 @@ class CentralDataManager:
         self._loadConfigs()
         self.generalData = {}
         self.struct = SuperstructureFrame()
-        self.projects = glob.glob('data/frames/*.pkl')
 
     def addData(self, field, data):
         self.data[field] = data
