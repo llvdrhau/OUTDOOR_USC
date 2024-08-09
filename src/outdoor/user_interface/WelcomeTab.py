@@ -48,14 +48,6 @@ class WelcomeTab(QWidget):
         self.edit_button.clicked.connect(self.editConfigs)
 
         self.layout.addWidget(self.edit_button)
-        self.projectLine = QComboBox(self)
-        self.projectLine.addItems(self.centralDataManager.projects)
-        reloadbutton = QPushButton("Reload", self)
-        reloadbutton.clicked.connect(self.reloadProject)
-        reloadlayout = QFormLayout()
-        reloadlayout.addRow(QLabel("Project:"), self.projectLine)
-        reloadlayout.addWidget(reloadbutton)
-        self.layout.addLayout(reloadlayout)
 
     def editConfigs(self):
 
@@ -66,9 +58,3 @@ class WelcomeTab(QWidget):
             print("{} Dialog accepted")
         else:
             print("{} Dialog canceled")
-
-    #This is a selector so you can hide things you're not using
-
-
-    def reloadProject(self):
-        self.centralDataManager.reloadProject(self.projectLine.currentText())

@@ -1,5 +1,4 @@
-
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel,QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem
 from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
@@ -10,6 +9,7 @@ class ComponentsTab(QWidget):
     This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
+
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
         self.centralDataManager = centralDataManager
@@ -42,7 +42,7 @@ class ComponentsTab(QWidget):
         #self.doubleValidator = QDoubleValidator(0.0, 9999.99, 4)
 
         # add two empty rows to the table
-        self.addComponentRow(data=["Ethanol", "7.44", "2.44", "46.07", ""])
+        self.importData()
         self.addComponentRow()
 
         # Add the table to the layout
@@ -51,7 +51,6 @@ class ComponentsTab(QWidget):
         self.addRowButton = QPushButton("Add Row")
         self.addRowButton.clicked.connect(self.addComponentRow)
         self.layout.addWidget(self.addRowButton)
-
 
         # Save button setup
         self.okButton = QPushButton("Save")
@@ -105,4 +104,15 @@ class ComponentsTab(QWidget):
                 item = self.componentsTable.item(row, column)
                 rowData.append(item.text() if item else "")
             tableData.append(rowData)
+
+        print(tableData)
         return tableData
+
+    def importData(self):
+        try:
+            tabledata = self.centralDataManager.data["chemicalComponentsData"]
+            for row in tabledata:
+                self.addComponentRow(row)
+        except Exception as e:
+            pass
+            # it only gets here if there aren't any saved rows, like in a new project
