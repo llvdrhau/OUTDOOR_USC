@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog
 from PyQt5.QtCore import Qt
 
+from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 
 
@@ -27,7 +28,7 @@ class ComponentsTab(QWidget):
         self.componentsTable.setHorizontalHeaderLabels([
             "Component", "Lower heating Value (MWh/t)",
             "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)",
-            "CO2 - Equivalent"
+            "LCA Data"
         ])
 
         # adjust the width of the columns
@@ -36,12 +37,13 @@ class ComponentsTab(QWidget):
         self.componentsTable.setColumnWidth(2, 180)
         self.componentsTable.setColumnWidth(3, 210)
         self.componentsTable.setColumnWidth(4, 150)
+        self.componentsTable.itemDoubleClicked.connect(self.doubleClickEvent)
 
         # Set validators for the numeric columns using a custom delegate class
         self.doubleDelegate = DoubleDelegate(self.componentsTable)
         #self.doubleValidator = QDoubleValidator(0.0, 9999.99, 4)
 
-        # add two empty rows to the table
+        # add one empty row to the table
         self.importData()
         self.addComponentRow()
 
@@ -64,25 +66,32 @@ class ComponentsTab(QWidget):
     def addComponentRow(self, data=None):
         rowPosition = self.componentsTable.rowCount()
         self.componentsTable.insertRow(rowPosition)
-
         if data is None or isinstance(data, bool):
-            data = ["", "0", "", "", "0"]
+            data = ["", "0", "", "", "Not Defined"]
 
         for i in range(self.componentsTable.columnCount()):
             item = QTableWidgetItem(data[i])
             self.componentsTable.setItem(rowPosition, i, item)
-            if i > 0:  # Set the validator for numeric columns
+            if i in [1, 2, 3]:  # Set the validator for numeric columns
                 # Set the delegate for the column where only double values are allowed
                 self.componentsTable.setItemDelegateForColumn(i, self.doubleDelegate)
+            if i == 4:
+                btn = LcaButton(self.componentsTable, rowPosition, i, self.centralDataManager)
+                btn.setText("Not Defined")
+                btn.clicked.connect(btn.lcaAction)
+                self.componentsTable.setCellWidget(rowPosition, i, btn)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Backspace:
+        if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
             selectedItems = self.componentsTable.selectedItems()
             if selectedItems:
                 selectedRow = selectedItems[0].row()  # Get the row of the first selected item
                 self.componentsTable.removeRow(selectedRow)
         else:
             super().keyPressEvent(event)
+
+    def doubleClickEvent(self, item):
+        print(item.row(), item.column())
 
     def saveData(self):
 
@@ -116,3 +125,22 @@ class ComponentsTab(QWidget):
         except Exception as e:
             pass
             # it only gets here if there aren't any saved rows, like in a new project
+
+
+class LcaButton(QPushButton):
+    def __init__(self, parent=None, row=0, column=0, cdm=None):
+        super().__init__(parent)
+        self.row = row
+        self.column = column
+        self.data = {}
+        self.cdm = cdm
+
+    def lcaAction(self):
+        print("honk honk", type(self.row), self.column)
+        dialog = LCADialog(self.cdm)
+        result = dialog.exec_()
+
+        if result == QDialog.Accepted:
+            print("yee")
+        else:
+            print("no")

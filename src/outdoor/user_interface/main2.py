@@ -7,6 +7,9 @@ import sys
 from data.CentralDataManager import CentralDataManager
 
 import os
+
+from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
+
 # Get the current working directory
 current_path = os.getcwd()
 # Print the current working directory
@@ -29,7 +32,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
     def __init__(self):
         super().__init__()
         self.setWindowTitle("OUTDOOR 2.0 - Open Source Process Simulator")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1200, 800)
         self.ProjectName = ""
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
@@ -52,10 +55,18 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         openAction.triggered.connect(self.openFile)
         self.saveAction.triggered.connect(self.saveFile)
         saveAsAction.triggered.connect(self.saveAsFile)
+
+        editMenu = menu_bar.addMenu('Edit')
+        self.editAction = QAction('Configuration', self)
+        if self.ProjectName == '':
+            self.editAction.setDisabled(True)
+        self.editAction.triggered.connect(self.editConfigs)
+        editMenu.addAction(self.editAction)
         self.initTabs()
 
     def enableSave(self):
         self.saveAction.setEnabled(True)
+        self.editAction.setEnabled(True)
 
 
     def openFile(self):
@@ -68,17 +79,20 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
             with open(self.ProjectPath, 'rb') as file:
                 self.centralDataManager = pickle.load(file)
+            self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+            self.centralDataManager.loadConfigs()
             self.initTabs()
             self.enableSave()
             print("Opened File: ", self.ProjectPath)
         except Exception as e:
             #else:
-            print("cancelled or not found")
+            print("Load cancelled or file not found: ", e)
 
     def saveFile(self):
         with open(self.ProjectPath, 'wb') as file:
             pickle.dump(self.centralDataManager, file)
         print("Saved File: ", self.ProjectPath)
+        self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
 
     def saveAsFile(self):
         try:
@@ -90,8 +104,18 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
             print("Saved File: ", self.ProjectPath)
+            self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
         except Exception as e:
-            print("probably cancelled?")
+            print("Save cancelled.", e)
+
+    def editConfigs(self):
+        dialog = ConfigEditor(self.centralDataManager)
+        if dialog.exec_():
+            print("Editing configs")
+        else:
+            print("Editing configs concluded.")
+        self.initTabs()
+
 
     def initTabs(self):
         # Create a QTabWidget and set it as the central widget

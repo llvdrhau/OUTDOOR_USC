@@ -42,19 +42,3 @@ class WelcomeTab(QWidget):
         self.layout.addWidget(self.titleLabel)
         self.layout.addWidget(self.logoLabel)
         self.layout.addWidget(self.descLabel)
-
-        #add buttons
-        self.edit_button = QPushButton("Edit Configs", self)
-        self.edit_button.clicked.connect(self.editConfigs)
-
-        self.layout.addWidget(self.edit_button)
-
-    def editConfigs(self):
-
-        dialog = ConfigEditor(self.centralDataManager)
-
-        if dialog.exec_():
-
-            print("{} Dialog accepted")
-        else:
-            print("{} Dialog canceled")

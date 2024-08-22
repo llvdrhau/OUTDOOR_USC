@@ -165,7 +165,7 @@ def wrapp_SystemData(dfi, optimization_mode=None):
 
     liste1 = WF.read_list(df8,0)
     liste2 = WF.read_list(df8,1)
-
+    #TODO: I think this dict shit here isn't used by anything. Please verify.
     dictTemperaturePrices = {'super': df8.iloc[0,1],
                              'high': df8.iloc[1,1],
                              'medium': df8.iloc[2,1],

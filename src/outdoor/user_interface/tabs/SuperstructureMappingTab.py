@@ -18,7 +18,7 @@ class SuperstructureMappingTab(QWidget):
         super().__init__(parent)
         self.centralDataManager = centralDataManager
         self.mainLayout = QHBoxLayout()
-
+        self.configs = centralDataManager.configs["componentConfigs"]
         # Left panel for icons divided into sections
         self.leftPanel = QVBoxLayout()
 
@@ -36,14 +36,20 @@ class SuperstructureMappingTab(QWidget):
         # Section 2: Unit Processes
         self.unitProcessesGroup = QGroupBox("Unit Processes")
         self.unitProcessesLayout = QVBoxLayout()
+        self.unitProcessLabels = []
 
-        self.unitProcessLabels = ['Physical process',
-                             'Stoichiometric reactor',
-                             'Yield reactor',
-                             'Generator (elec)',
-                             'Generator (heat)']
+        for key, value in self.configs.items():
+            if value == "True":
+                self.unitProcessLabels.append(key)
 
-        for i in self.unitProcessLabels:  # Adding 4 icons for Unit Processes
+        # self.unitProcessLabels = ['Physical Process',
+        #                      'Stoichiometric Reactor',
+        #                      'Yield Reactor',
+        #                      'Generator (Elec)',
+        #                      'Generator (Heat)',
+        #                           'LCA']
+
+        for i in self.unitProcessLabels:  # Adding icons for Unit Processes
             button = DraggableIcon(i)
             self.unitProcessesLayout.addWidget(button)
 

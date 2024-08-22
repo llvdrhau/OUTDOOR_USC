@@ -1,3 +1,5 @@
+from unittest import case
+
 from PyQt5.QtWidgets import QFormLayout, QComboBox, QFrame, QWidget, QLineEdit, QPushButton, QLabel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont
@@ -18,9 +20,6 @@ class GeneralSystemDataTab(QWidget):
 
         # Title for the general system data (centered)
         self.createSectionTitle(text="General System Data", centerAlign=True, color="#C7CEEA")
-
-        self.projectNameLineEdit = QLineEdit()
-        self.layout.addRow(QLabel("Project Name:"), self.projectNameLineEdit)
 
         self.opti_combo = QComboBox(self)
         self.opti_combo.addItems(
@@ -75,8 +74,8 @@ class GeneralSystemDataTab(QWidget):
         self.indirectCostsLineEdit = QLineEdit("1.44")
         self.layout.addRow(QLabel("Indirect costs:"), self.indirectCostsLineEdit)
 
-        self.DirectCostsLineEdit = QLineEdit("2.6")
-        self.layout.addRow(QLabel("Direct costs:"), self.DirectCostsLineEdit)
+        self.directCostsLineEdit = QLineEdit("2.6")
+        self.layout.addRow(QLabel("Direct costs:"), self.directCostsLineEdit)
 
         # todo: add different standard Direct and indirect costs factors for different processing plant types
         #  i.e., Solid, solid-liquid and liquid processing plants
@@ -154,6 +153,7 @@ class GeneralSystemDataTab(QWidget):
 
         # Set the layout on the generalSystemDataWidget
         self.setLayout(self.layout)
+        self.importData()
 
     def createSectionTitle(self, text, color="#e1e1e1", centerAlign=False):
         title = QLabel(text)
@@ -210,10 +210,10 @@ class GeneralSystemDataTab(QWidget):
     def collectData(self):
         # Collect data from the Widget fields
         data = {
-            "projectName": self.projectNameLineEdit.text(),
-            "productDriver": self.productDrivenDropdown.currentText().lower(),
-            "objective": self.objective_combo.currentText().lower(),
-            "optimizationMode": self.opti_combo.currentText().split(":")[0],
+            "projectName": self.centralDataManager.data["PROJECT_NAME"],
+            "productDriver": self.productDrivenDropdown.currentText(),
+            "objective": self.objective_combo.currentText(),
+            "optimizationMode": self.opti_combo.currentText(),
             "mainProduct": self.productSelection.currentText(),
             "productLoad": self.productLoadLineEdit.text(),
             "operatingHours": self.operatingHoursLineEdit.text(),
@@ -221,11 +221,36 @@ class GeneralSystemDataTab(QWidget):
             "interestRate": self.interestRateLineEdit.text(),
             "detailLevel": self.detailLevelLineEdit.currentText(),
             # "omFactor": self.omFactorLineEdit.text(), => not used in the code is unit specific and not general
-            "heatPumpSwitch": self.heatPumpDropdown.currentText().lower(),
+            "indirectCost": self.indirectCostsLineEdit.text(),
+            "directCost": self.directCostsLineEdit.text(),
+            "heatPumpSwitch": self.heatPumpDropdown.currentText(),
             "COP": self.COPLineEdit.text(),
             "cost": self.costLineEdit.text(),
             "lifetime": self.lifetimeLineEdit.text(),
             "TIN": self.TINLineEdit.text(),
             "TOUT": self.TOUTLineEdit.text(),
         }
+        print(data["objective"])
         return data
+
+    def importData(self):
+        try:
+            generalData = self.centralDataManager.data["generalData"]
+            self.productSelection.setCurrentText(generalData['mainProduct'])
+            self.objective_combo.setCurrentText(generalData["objective"])
+            self.productDrivenDropdown.setCurrentText(generalData["productDriver"])
+            self.productLoadLineEdit.setText(generalData["productLoad"])
+            self.operatingHoursLineEdit.setText(generalData["operatingHours"])
+            self.yearOfStudyLineEdit.setText(generalData["yearOfStudy"])
+            self.interestRateLineEdit.setText(generalData["interestRate"])
+            self.detailLevelLineEdit.setCurrentText(generalData["detailLevel"])
+            self.indirectCostsLineEdit.setText(generalData["indirectCost"])
+            self.directCostsLineEdit.setText(generalData["directCost"])
+            self.heatPumpDropdown.setCurrentText(generalData["heatPumpSwitch"])
+            self.COPLineEdit.setText(generalData["COP"])
+            self.costLineEdit.setText(generalData["cost"])
+            self.lifetimeLineEdit.setText(generalData["lifetime"])
+            self.TINLineEdit.setText(generalData["TIN"])
+            self.TOUTLineEdit.setText(generalData["TOUT"])
+        except Exception as e:
+            print("Cannot load data, no project selected yet.")

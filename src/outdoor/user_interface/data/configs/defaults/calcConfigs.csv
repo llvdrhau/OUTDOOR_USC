@@ -2,4 +2,5 @@ Cost,True
 Utility Consumption,True
 Heating,True
 Concentration,True
-LCA,True
+LCA,False
+Stoichiometry,True
