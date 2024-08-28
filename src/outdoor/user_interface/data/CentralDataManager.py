@@ -9,6 +9,7 @@ import pickle
 
 #from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
+from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 
 class CentralDataManager:
     """
@@ -24,16 +25,17 @@ class CentralDataManager:
         self.configs = {}
         self.loadConfigs()
         self.generalData = {}
+        self.componentData: list[ComponentDTO] = []
         self.struct = SuperstructureFrame()
 
     def addData(self, field, data):
-        self.data[field] = data
+        # self.data[field] = data
         match field:
-            case "chemicalComponentsData":
-                for species in data:
-                    if species[0] not in self.namesChemicalComponents:
-                        self.namesChemicalComponents.append(
-                            species[0])  # Add the species name to the list of chemical components
+        #     case "chemicalComponentsData":
+        #         for species in data:
+        #             if species[0] not in self.namesChemicalComponents:
+        #                 self.namesChemicalComponents.append(
+        #                     species[0])  # Add the species name to the list of chemical components
             case "generalData":
                 self.saveGeneral(data)
 

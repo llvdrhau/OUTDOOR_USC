@@ -85,8 +85,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.enableSave()
             print("Opened File: ", self.ProjectPath)
         except Exception as e:
-            #else:
-            print("Load cancelled or file not found: ", e)
+            print("File opening likely cancelled: ", e)
 
     def saveFile(self):
         with open(self.ProjectPath, 'wb') as file:

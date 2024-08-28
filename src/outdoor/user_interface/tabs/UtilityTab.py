@@ -16,7 +16,7 @@ class UtilityTab(QWidget):
         self.utilitiesTable = QTableWidget(3, 3)  # 3 rows for utilities, 4 columns for data
         self.utilitiesColumns = ["Costs (€/MWh)", "CO2 Emissions (t/MWh)", "Fresh water depletion (t/MWh)"]
         self.utilitiesTable.setHorizontalHeaderLabels(self.utilitiesColumns)
-        self.utilitiesRows = ["Electricity", "Heat", "Cooling"]
+        self.utilitiesRows = ["Electricity", "Heat", "Chilling"]
         self.utilitiesTable.setVerticalHeaderLabels(self.utilitiesRows)
         # set the width of the columns to be bigger so it fits the column names
         self.utilitiesTable.setColumnWidth(0, 120)
