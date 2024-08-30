@@ -60,7 +60,7 @@ class PhysicalProcessesDialog(QDialog):
         self.subtitleFont = QFont("Arial", 9, QFont.Bold)
 
         tabWidget = QTabWidget(self)
-        calc_types = self.centralDataManager.calc_configs()
+        calc_types = self.centralDataManager.configs["calcConfigs"]
         tabWidget.addTab(self._createGeneralParametersTab(), "General Parameters")
         if calc_types['Cost'] == 'True':
             tabWidget.addTab(self._createCostRelatedFactorsTab(), "Cost Related Parameters")

@@ -4,10 +4,12 @@
 # Central data manager for all data related to icons and associated dialogs
 import csv
 import glob
+import os.path
 import pickle
 
 #from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
-from data.superstructure_frame import SuperstructureFrame
+from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
+from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 
 class CentralDataManager:
     """
@@ -20,19 +22,20 @@ class CentralDataManager:
         self.namesChemicalComponents = []  # list to store chemical components data
         self.enabledTabs: list[str] = []
         self.enabledSuperstructureTabs: list[str] = []
-        self.calculationTypes: dict[str, str] = {}
-        self._loadConfigs()
+        self.configs = {}
+        self.loadConfigs()
         self.generalData = {}
+        self.componentData: list[ComponentDTO] = []
         self.struct = SuperstructureFrame()
 
     def addData(self, field, data):
-        self.data[field] = data
+        # self.data[field] = data
         match field:
-            case "chemicalComponentsData":
-                for species in data:
-                    if species[0] not in self.namesChemicalComponents:
-                        self.namesChemicalComponents.append(
-                            species[0])  # Add the species name to the list of chemical components
+        #     case "chemicalComponentsData":
+        #         for species in data:
+        #             if species[0] not in self.namesChemicalComponents:
+        #                 self.namesChemicalComponents.append(
+        #                     species[0])  # Add the species name to the list of chemical components
             case "generalData":
                 self.saveGeneral(data)
 
@@ -138,21 +141,55 @@ class CentralDataManager:
 
         print(self.data[iconID]['connectionLineExit2Entry'])
 
-    def _loadConfigs(self):
-        with open('data/configs.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            for row in reader:
-                self.calculationTypes[row[0]] = row[1]
+    def loadConfigs(self):
+        print("Loading configs...")
+        self.configs["calcConfigs"] = {}
+        self.configs["componentConfigs"] = {}
+        try:
+            if not os.path.isdir(f'data/configs/{self.data["PROJECT_NAME"]}/'):
+                raise Exception("Project folder doesn't exist.")
+            for file in glob.glob(f'data/configs/{self.data["PROJECT_NAME"]}/*.csv'):
+                with open(file) as csvfile:
+                    reader = csv.reader(csvfile, delimiter=',')
+                    if file.split('\\')[-1].split('.')[0] == 'calcConfigs':
+                        calcconfs = {}
+                        for row in reader:
+                            calcconfs[row[0]] = row[1]
+                        self.configs['calcConfigs'] = calcconfs
+                    if file.split('\\')[-1].split('.')[0] == 'componentConfigs':
+                        compconfs = {}
+                        for row in reader:
+                            compconfs[row[0]] = row[1]
+                        self.configs['componentConfigs'] = compconfs
+        except Exception as e:
+            print("Error reloading configs file, initializing with defaults.")
+            self._loadDefaults()
 
-    def calc_configs(self) -> dict[str, str]:
-        return self.calculationTypes
+    def _loadDefaults(self):
+        for file in glob.glob(f'data/configs/defaults/*.csv'):
+            with open(file) as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                if file.split('\\')[-1].split('.')[0] == 'calcConfigs':
+                    calcconfs = {}
+                    for row in reader:
+                        calcconfs[row[0]] = row[1]
+                    self.configs['calcConfigs'] = calcconfs
+                if file.split('\\')[-1].split('.')[0] == 'componentConfigs':
+                    compconfs = {}
+                    for row in reader:
+                        compconfs[row[0]] = row[1]
+                    self.configs['componentConfigs'] = compconfs
 
-    def updateConfigs(self, update: dict[str, str]):
-        self.calculationTypes = update
-        with open('data/configs.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            for key, value in self.calculationTypes.items():
-                writer.writerow([key, value])
+    def updateConfigs(self, update: dict[str, dict]):
+        self.configs = update
+        if not os.path.isdir(f'data/configs/{self.data["PROJECT_NAME"]}/'):
+            os.mkdir(f'data/configs/{self.data["PROJECT_NAME"]}/')
+        for name, dic in update.items():
+            filename = f'data/configs/{self.data["PROJECT_NAME"]}/{name}.csv'
+            with open(filename, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                for key, value in dic.items():
+                    writer.writerow([key, value])
 
     def dataDump(self):
         print(self.data)
@@ -162,11 +199,11 @@ class CentralDataManager:
 
     def saveGeneral(self, gendata):
         self.struct.ModelName = gendata["projectName"]
-        self.struct.Objective = gendata["objective"]
+        self.struct.Objective = gendata["objective"].split(":")[0]
         self.struct.MainProduct = gendata["mainProduct"]
         self.struct.ProductLoad = gendata["productLoad"]
-        self.struct.productDriver = gendata["productDriver"]
-        self.struct.OptimizationMode = gendata["optimizationMode"]
+        self.struct.productDriver = gendata["productDriver"].lower()
+        self.struct.OptimizationMode = gendata["optimizationMode"].lower()
 
     def reloadProject(self, project_name):
         target = project_name

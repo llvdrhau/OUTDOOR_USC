@@ -13,6 +13,7 @@ from outdoor.user_interface.dialogs.StoichiometricReactorDialog import Stoichiom
 from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
 from outdoor.user_interface.dialogs.ElectricityGeneratorDialog import ElectricityGeneratorDialog
 from outdoor.user_interface.dialogs.HeatGeneratorDialog import HeatGeneratorDialog
+from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.interactives.DraggableIcon import DraggableIcon
 
 
@@ -123,13 +124,14 @@ class Canvas(QGraphicsView):
 
             "Input": ("input", self.index_input),
             "Output": ("output", self.index_output),
+            "LCA": ("lca", self.index_process),
 
-            "Physical process": ("physical_process", self.index_process),
-            "Stoichiometric reactor": ("stoichiometric_reactor", self.index_process),
-            "Yield reactor": ("yield_reactor", self.index_process),
+            "Physical Process": ("physical_process", self.index_process),
+            "Stoichiometric Reactor": ("stoichiometric_reactor", self.index_process),
+            "Yield Reactor": ("yield_reactor", self.index_process),
 
-            "Generator (elec)": ("generator_elec", self.index_process),
-            "Generator (heat)": ("generator_heat", self.index_process),
+            "Generator (Elec)": ("generator_elec", self.index_process),
+            "Generator (Heat)": ("generator_heat", self.index_process),
         }
 
         # Check if the text is in the icon_map
@@ -656,6 +658,10 @@ class MovableIcon(QGraphicsObject):
 
         elif self.icon_type == 'generator_heat':
             dialog = HeatGeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
+            nonesentialParameters = []
+
+        elif self.icon_type == 'lca':
+            dialog = LCADialog(initialData=existingData)
             nonesentialParameters = []
 
         else:

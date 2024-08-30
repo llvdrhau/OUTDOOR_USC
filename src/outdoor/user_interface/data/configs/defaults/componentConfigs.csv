@@ -1,0 +1,6 @@
+Physical Process,True
+Stoichiometric Reactor,True
+Yield Reactor,True
+Generator (Elec),True
+Generator (Heat),True
+LCA,False
