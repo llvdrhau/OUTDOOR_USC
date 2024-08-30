@@ -3,7 +3,7 @@ Author: Lucas Van der Hauwaert, 07/2024
 
 Part 2.1 of the AgriLoop case study: wait and see optimization run
 
-This is script runs various scenarios with different parameters and saves the results in a pickle file for further
+This script runs various scenarios with different parameters and saves the results in a pickle file for further
 analysis. See part_2_2_wait_and_see_analysis.py for the analysis and plots.
 
 Objective: EBIT (maximize the profit)
@@ -27,7 +27,7 @@ sys.path.insert(0, scrPath)
 import outdoor
 
 # number of scenarios to be generated
-n_scenarios = 300
+n_scenarios = 200
 # name of the pickle file to save the results
 saveName = 'Part_2_wait_and_see_{}_sc.pkl'.format(n_scenarios)
 

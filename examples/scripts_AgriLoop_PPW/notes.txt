@@ -437,3 +437,45 @@ Data saved at: C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriL
 
 Process finished with exit code 0
 
+
+C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\venv\Scripts\python.exe C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\part_2_2_wait_and_see_analysis.py
+[    0.00] Initializing mpi-sppy
+
+-----------------------------------
+Sum of SRC squared:  0.7774882728488576
+R squared:  0.7448869481873913
+-----------------------------------
+
+SCR, gamma Mixed.culture.Ferm. ('VFA', 22): 0.5602782539946235
+SCR, ProductPrice_Micro.Prot.: 0.38958905536126764
+SCR, gamma MP.Ferm. ('Microbial.Prot', 11): 0.3325275250804605
+SCR, phi PotatoPeels Starch: 0.3085005346583174
+SCR, myu Micro.Filtr (440, 'PHA'): 0.18254080276302578
+SCR, ProductPrice_PHA-Plastic: 0.16889942141892872
+SCR, gamma CSTR.Diges. ('PHA', 11): 0.13343269590953188
+SCR, ProductPrice_Ethanol: 0.038377346068421234
+SCR, ProductPrice_Animal.Feed: 0.03439026304948678
+SCR, gamma Mixed.culture.Ferm. ('VFA', 13): 0.03092194296561468
+SCR, gamma EthOH.Ferm ('EthOH', 17): 0.026254876848584192
+SCR, theta Anaerobic Digest. (5, 'Cellulose '): 0.010918776774377546
+SCR, theta Hydrolysis (16, 'Hemi-cellulose'): 0.008498012979294783
+SCR, myu SC_CO2 (320, 'Phenolics'): -0.02155065193131379
+SCR, materialcosts_Lysol: -0.025084423826064024
+SCR, xi PHA.Accum. Biomass_pha: -0.03331037335118469
+SCR, theta Hydrolysis (15, 'Cellulose '): -0.044896523374130005
+SCR, tau_h Spray.Dry.PHA: -0.05814311975910621
+SCR, ElectricityPrice: -0.07904599653623813
+SCR, phi PotatoPeels Phenolics: -0.08976123300304108
+
+-------WARNING-------
+No variable name was provided for the methode plot_scenario_analysis.
+ Using the objective function EBIT.
+
+Time elapsed:  1603.6321821212769
+Current memory usage is 9929.127726MB; Peak was 10570.984884MB
+------sucess---------
+
+Process finished with exit code 0
+
+
+

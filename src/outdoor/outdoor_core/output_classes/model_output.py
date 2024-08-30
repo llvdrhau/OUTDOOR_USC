@@ -970,6 +970,8 @@ class ModelOutput:
             resultsSmall = {}
             for sc, obj in self._results_data.items():
                 resultsSmall[sc] = obj._data
+            # delete the _results_data attribute to save memory
+            # del self._results_data
             self._results_data = resultsSmall
 
         else:

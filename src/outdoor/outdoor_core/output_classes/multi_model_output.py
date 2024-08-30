@@ -134,10 +134,13 @@ class MultiModelOutput(ModelOutput):
         self._meta_data["Total run time"] = total_run_time
 
         # get the objective function
-        firstKey = list(self._results_data.keys())[0]
-        resultsFirstRun = self._results_data[firstKey]
-        Objective = resultsFirstRun._data['Objective Function']
-        self._meta_data["Objective Function"] = Objective
+        try:
+            firstKey = list(self._results_data.keys())[0]
+            resultsFirstRun = self._results_data[firstKey]
+            Objective = resultsFirstRun._data['Objective Function']
+            self._meta_data["Objective Function"] = Objective
+        except:
+            self._meta_data["Objective Function"] = "No objective function found"
 
     def _collect_results(self):
         results = dict()
@@ -240,8 +243,14 @@ class MultiModelOutput(ModelOutput):
         if self._optimization_mode != "wait and see":
             ValueError("Scenario analysis methode is only available for 'wait and see' analysis.")
 
-        # return the objective function name of the simulations
-        objectiveFunctionName = self._results_data['sc1']._data['ObjectiveFunctionName']
+        # return the objective function name of the simulations, depends on the formmat of the data
+        try:
+            objectiveFunctionName = self._results_data['sc1']._data['ObjectiveFunctionName']
+            flagDataFormat = 'object'
+        except:
+            objectiveFunctionName = self._results_data['sc1']['ObjectiveFunctionName']
+            flagDataFormat = 'dictionary'
+
         # objectiveFunctionName2 = self._objective_function
 
         # retrive uncetainty matrix
@@ -253,8 +262,12 @@ class MultiModelOutput(ModelOutput):
 
         # get the results of the wait and see analysis
         objectiveFunctionList = []
-        for i, j in self._results_data.items():
-            objectiveFunctionList.append(j._data[objectiveFunctionName])
+        if flagDataFormat == 'object':
+            for i, j in self._results_data.items():
+                objectiveFunctionList.append(j._data[objectiveFunctionName])
+        elif flagDataFormat == 'dictionary':
+            for i, j in self._results_data.items():
+                objectiveFunctionList.append(j[objectiveFunctionName])
 
         # turn into numpy array
         results = np.array(objectiveFunctionList)

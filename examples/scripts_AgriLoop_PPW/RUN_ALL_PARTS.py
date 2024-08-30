@@ -1,0 +1,37 @@
+"""
+This script runs all the parts of the AgriLoop_PPW model.
+The parts are run in the following order:
+- Part 1: Superstructure creation
+- Part 2.1: Wait and see optimization run
+- Part 2.2: Wait and see analysis
+- Part 3.1: Stochastic optimization run
+- Part 3.2: Stochastic optimization analysis
+- Part 4.1 and 4.2: Robust optimization run and analysis of PHA production
+
+"""
+
+
+import subprocess
+import sys
+
+# get the working directory
+basePath = sys.path[0]
+
+part1 = "part_1_single_obj_opt_full_superstructure.py"
+part2_1 = "part_2_1_wait_and_see_optimization_run.py"
+part2_2 = "part_2_2_wait_and_see_analysis.py"
+part2_3 = "part_2_3_here_and_now.py"
+part3_1 = "part_3_1_stochastic_optimisation_run.py"
+part3_2 = "part_3_2_stochastic_optm_analysis.py"
+part4_1 = "part_4_1_pha_production_price_sensitivity.py"
+part4_2 = "part_4_2_pha_production_costs.py"
+part4_3 = "part_4_3_pha_parameter_sensitivity.py"
+part4_4 = "part_4_4_pha_parameter_analysis.py"
+
+# List of script filenames to run
+# script_filenames = [part1, part2_1, part2_2, part2_3, part3_1, part3_2, part4_1, part4_2, part4_3, part4_4]
+script_filenames = [part2_3, part3_1, part3_2, part4_1, part4_2, part4_3, part4_4]
+
+# Run each script sequentially
+for script_filename in script_filenames:
+    subprocess.run([sys.executable, script_filename], check=True, cwd=sys.path[0])

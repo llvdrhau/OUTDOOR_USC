@@ -32,8 +32,8 @@ from outdoor import MultiModelOutput
 
 # define the name of the saved data
 saveName = "Part_3_stochastic_optimization.pkl"
-# name the output file from the wait and see analysis
-fileName = 'Part_2_wait_and_see_300_sc.pkl'
+# name the output file from the wait and see analysis, so the same scenarios can be used
+fileName = 'Part_2_wait_and_see_200_sc.pkl'
 # define the path to the Excel file
 Excel_Path = "../Excel_files/potato_peel_case_study.xlsm"
 
@@ -55,7 +55,7 @@ scenarioDataFiles = WaitAndSee_Object._dataFiles
 
 
 # create the superstructure data from the wait and see pickel file
-superstructureObject = outdoor.get_DataFromExcel(PathName=Excel_Path,
+superstructureObject = outdoor.get_DataFromExcel(path=Excel_Path,
                                                  optimization_mode=optimization_mode,
                                                  stochastic_mode=stochastic_mode,
                                                  scenarioDataFiles=scenarioDataFiles,
