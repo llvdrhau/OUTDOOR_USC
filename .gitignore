@@ -73,3 +73,4 @@ docs/_build
 # Mypy Cache
 .mypy_cache/
 /src/outdoor/user_interface/data/frames/
+/src/outdoor/user_interface/data/configs
