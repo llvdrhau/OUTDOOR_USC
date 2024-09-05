@@ -7,6 +7,7 @@ import glob
 import os.path
 import pickle
 
+from outdoor.user_interface.data.UtilityDTO import UtilityDTO
 #from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
@@ -25,6 +26,7 @@ class CentralDataManager:
         self.configs = {}
         self.loadConfigs()
         self.generalData = {}
+        self.utilityData = UtilityDTO()
         self.componentData: list[ComponentDTO] = []
         self.struct = SuperstructureFrame()
 

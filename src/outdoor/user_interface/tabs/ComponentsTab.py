@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.dialogs.LCADialog import LCADialog
+from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 
 
@@ -85,7 +86,7 @@ class ComponentsTab(QWidget):
                 index = self.columnsShortnames.index(key)
                 if key == "LCA":
                     if "Results" in value:
-                        btn = LcaButton(self.componentsTable, rowPosition)
+                        btn = LcaButton(self.componentsTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)
                         self.componentsTable.setCellWidget(rowPosition, index, btn)
@@ -167,17 +168,3 @@ class ComponentsTab(QWidget):
             # it only gets here if there aren't any saved rows, like in a new project
 
 
-class LcaButton(QPushButton):
-    def __init__(self, parent, data: ComponentDTO):
-        super().__init__(parent)
-        self.data = data
-
-    def lcaAction(self):
-        dialog = LCADialog(self.data)
-        result = dialog.exec_()
-
-        if result == QDialog.Rejected:
-            if self.data.calculated:
-                self.setText("Defined")
-            else:
-                self.setText("Not Defined")
