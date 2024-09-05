@@ -496,6 +496,6 @@ def dataframe_to_latex_table_splitting(df, caption="Caption input", label="label
     return latex_code
 
 if __name__ == '__main__':
-    makeTabels('potato_peel_case_study.xlsm',
+    makeTabels('Excel_files\potato_peel_case_study.xlsm',
                format='latex',
                path= r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\Excel_files\excel_4_latex')
