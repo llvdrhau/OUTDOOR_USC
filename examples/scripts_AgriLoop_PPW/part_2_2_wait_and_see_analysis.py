@@ -33,7 +33,8 @@ from outdoor import MultiModelOutput
 from outdoor import AdvancedMultiModelAnalyzer
 
 # file name that contains the results
-fileName = "Part_2_wait_and_see_300_sc.pkl"
+fileName = 'Part_2_wait_and_see_200_sc.pkl'
+# 'stochastic_mpi_sppy_100sc.pkl' #"Part_2_wait_and_see_300_sc.pkl"
 
 # check the size of the pickle file
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -46,9 +47,10 @@ savePathPLots = results_dir
 
 # load the results from the pickle file
 pickleFilePath = os.path.join(saved_data_dir, fileName)
-ModelOutput = MultiModelOutput.load_chunks_from_pickle(path=saved_data_dir,
-                                                       saveName=fileName,
-                                                       nChunks=5)
+#ModelOutput = MultiModelOutput.load_chunks_from_pickle(path=saved_data_dir,
+#                                                       saveName=fileName,
+#                                                       nChunks=5)
+ModelOutput = MultiModelOutput.load_from_pickle(path=pickleFilePath)
 
 # Calculate the SRC
 ModelOutput.calculate_SRC()
@@ -57,7 +59,7 @@ ModelOutput.calculate_SRC()
 # Initialise the analyser object and plot the scenario analysis
 analyzer = AdvancedMultiModelAnalyzer(ModelOutput)
 analyzer.plot_scenario_analysis(path=savePathPLots,
-                                saveName='Part_2_box_plot_flowsheet_designs',
+                                saveName='Part_2_2_box_plot_flowsheet_designs',
                                 showPlot=False,
                                 flowThreshold=0.01)
 

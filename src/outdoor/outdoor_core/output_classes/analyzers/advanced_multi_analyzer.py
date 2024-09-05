@@ -786,7 +786,7 @@ class AdvancedMultiModelAnalyzer:
 
     # METHODES FOR WAIT AND SEE ANALYSIS
     # ---------------------------------
-    def plot_scenario_analysis(self, variableName=None, path=None, saveName=None, showPlot=False, flowThreshold=1e-5):
+    def plot_scenario_analysis(self, variableName=None, path=None, saveName=None, showPlot=False, flowThreshold=1e-5, savePlot=True):
         """
         This method creates a figure of the different possible design spaces for the wait and see analysis.
         the graph are box plots where each box represents the distribution of the objective function for a given flow
@@ -794,11 +794,13 @@ class AdvancedMultiModelAnalyzer:
 
         :return:
         """
+        permittedModes = ["wait and see",
+                          "here and now"]
 
-        if self.model_output._optimization_mode != "wait and see":
+        if self.model_output._optimization_mode not in permittedModes:
             ValueError("Scenario analysis methode is only available for 'wait and see' analysis.")
 
-        flowsheetDict = self._get_flow_sheet_designs(threshold=flowThreshold)
+        flowsheetDict, flowsheetDictExtra = self._get_flow_sheet_designs(threshold=flowThreshold)
 
         if variableName is None:
             if isinstance(self.model_output._results_data['sc1'], classmethod):
@@ -809,7 +811,7 @@ class AdvancedMultiModelAnalyzer:
             # print in orange
             print('')
             self._print_warning()
-            print(f"No variable name was provided for the methode plot_scenario_analysis.\n "
+            print(f"No variable name was provided for the method plot_scenario_analysis.\n "
                   f"Using the objective function {variableName}.\n")
 
         boxPlotData = self._get_distribution_variable(variableName, flowsheetDict)
@@ -834,7 +836,11 @@ class AdvancedMultiModelAnalyzer:
                 save_path = f"{path}/{saveName}.png"
             else:
                 save_path = f"{path}/scenario_analysis.png"
-            fig.savefig(save_path)
+
+            if savePlot:
+                fig.savefig(save_path)
+
+        return plt, flowsheetDictExtra, boxPlotData
 
     def _get_distribution_variable(self, variable, flowsheetDict):
         """
@@ -866,13 +872,16 @@ class AdvancedMultiModelAnalyzer:
         Returns a dictionary with the flow sheet design as key and the data of the different scenarios as value with
         that flow sheet as a design.
 
-        :return: dict
+        :return: flowsheetDict: dict
             A dictionary with the flow sheet design as key and the data of the different scenarios as value.
+        flowSheetDictExtra: dict
+            A dictionary with the flow sheet design as key and the {scenario:data} as value.
         """
         # Get the data from the model output
         dataAllScenarios = self.model_output._results_data
 
         flowsheetDict = {}
+        flowsheetDictExtra = {}
         for scenario in dataAllScenarios:
             # depending on the structure of the data, get the data (depends on how it was loaded from the pickle file)
             if hasattr(dataAllScenarios[scenario], '_data'):
@@ -886,10 +895,13 @@ class AdvancedMultiModelAnalyzer:
             # Check if the flowsheet is already in the dictionary
             if keyFlowSheet not in flowsheetDict:
                 flowsheetDict[keyFlowSheet] = []
+                flowsheetDictExtra[keyFlowSheet] = {}
+
             # Append the data to the dictionary with the flow sheet as key
             flowsheetDict[keyFlowSheet].append(dataScenario)
+            flowsheetDictExtra[keyFlowSheet].update({scenario: dataScenario})
 
-        return flowsheetDict
+        return flowsheetDict, flowsheetDictExtra
 
     def _identify_products(self, flowsheetDict):
         """

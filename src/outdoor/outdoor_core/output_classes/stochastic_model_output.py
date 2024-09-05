@@ -494,7 +494,8 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         variable_values = {}
 
         # Iterate over the items in the input dictionary
-        for (scenario, variable), value in data_dict.items():
+        for (scenario, variable), valueOriginal in data_dict.items():
+            value = round(valueOriginal, 4) # round the value to 4 decimal places because they don't have to be exactly 1 or 0
             # If the variable is not already in the variable_values dictionary, add it
             if variable not in variable_values:
                 variable_values[variable] = value
@@ -601,8 +602,14 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         for scenario, probability in scenarioProbabilities.items():
             # average EV solution
             recourseSolution += EVDict[scenario] * probability
+
             # average wait and see solution
-            scenarioWaitAndSee = WaitAndSeeOutputObject._results_data[scenario]._data[objectiveFunctionName]
+            # extract data depending on the data format
+            try:
+                scenarioWaitAndSee = WaitAndSeeOutputObject._results_data[scenario]._data[objectiveFunctionName]
+            except:
+                scenarioWaitAndSee = WaitAndSeeOutputObject._results_data[scenario][objectiveFunctionName]
+
             waitAndSeeSolution += scenarioWaitAndSee * probability
 
         EVPI = abs(recourseSolution - waitAndSeeSolution)
