@@ -245,7 +245,7 @@ class AdvancedMultiModelAnalyzer:
 
     import matplotlib.pyplot as plt
 
-    def create_sensitivity_graph(self, savePath=None, saveName=None, figureMode='subplot'):
+    def create_sensitivity_graph(self, savePath=None, saveName=None, figureMode='subplot', xlable=None):
         """
         Returns
         -------
@@ -272,7 +272,7 @@ class AdvancedMultiModelAnalyzer:
         ylabDict = {"NPC": "Net production costs in €/t",
                     "NPE": "Net production emmisions in t-CO2/t",
                     "NPFWD": "Fresh Water usage in t-H2O/t",
-                    "EBIT": "Net profits in M€"}
+                    "EBIT": " EBIT (M€/y)"}
 
         objectiveName = self.model_output._meta_data["Objective Function"]
 
@@ -302,14 +302,20 @@ class AdvancedMultiModelAnalyzer:
                     if len(data) > 1:
                         x_discreet = list(range(len(x_vals)))
                         ax.plot(x_discreet, y_vals, linestyle="--", marker="o", label=title)
+                        # plt.figure(figsize=(8, 6))
+                        # plt.plot(product_price, ebit, marker='o', linestyle='-', color='b')
+                        ax.axhline(0, color='gray', linestyle='--')
                     else:
                         ax.plot(x_vals, y_vals, linestyle="--", marker="o", label=title)
+                    if xlable:
+                        ax.set_xlabel(xlable)
+                    else:
+                        ax.set_xlabel("Discritised Parameter Values")
 
-                    ax.set_xlabel("Discritised Parameter Values")
                     ax.set_ylabel(ylab)
 
             # Place the legend outside the plot on the right side
-            ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+            # ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
             plt.tight_layout()  # Adjust the layout to make room for the legend
         else:
@@ -694,11 +700,37 @@ class AdvancedMultiModelAnalyzer:
 
         plt.show()
 
-    def create_cross_parameter_plot(self, processList, objective, savePath=None, saveName=None):
-
+    def create_cross_parameter_plot(self, processList, objective, savePath=None, saveName=None,
+                                    simpleContour=False, levels=10):
+        """
+        This method creates a contour plot with contour lines and background colors corresponding to labels using a custom colormap.
+        :param processList:
+        :param objective:
+        :param savePath:
+        :param saveName:
+        :return:
+        """
         x, y, z, c, label_dict = self._get_graph_data(processList, objective)
-        c , label_dict = self._reorder_labels(c, label_dict)
-        self.plot_contour_with_labels(x, y, z, c, label_dict, savePath, saveName)
+        c, label_dict = self._reorder_labels(c, label_dict)
+
+        if simpleContour:
+            # Create a filled contour plot
+            contour_filled = plt.contourf(x, y, z, levels=levels, cmap='viridis')
+            # Add contour lines on top of the filled contours
+            contour_lines = plt.contour(x, y, z, levels=levels, colors='black')
+            # Label the contour lines
+            plt.clabel(contour_lines, inline=False, fontsize=8)
+            # save the plot to the specified file path
+            if savePath:
+                if saveName:
+                    save_path = f"{savePath}/{saveName}.png"
+                else:
+                    save_path = f"{savePath}/contour_plot.png"
+                plt.savefig(save_path)
+                plt.clf()
+
+        else:
+            self.plot_contour_with_labels(x, y, z, c, label_dict, savePath, saveName)
 
     def _reorder_labels(self, labels, labelDict):
         """
@@ -820,7 +852,7 @@ class AdvancedMultiModelAnalyzer:
         xTickLabels = self._identify_products(flowsheetDict)
 
         # Create the box plot
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(16, 12))  # Width, Height in inches
         ax.boxplot(boxPlotData.values())
         ax.set_xticklabels(xTickLabels)
         ax.set_ylabel(variableName)

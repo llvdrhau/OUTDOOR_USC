@@ -18,19 +18,28 @@ import sys
 basePath = sys.path[0]
 
 part1 = "part_1_single_obj_opt_full_superstructure.py"
+part1_1 = "part_1_single_obj_opt_reduced_superstructure.py"
 part2_1 = "part_2_1_wait_and_see_optimization_run.py"
 part2_2 = "part_2_2_wait_and_see_analysis.py"
 part2_3 = "part_2_3_here_and_now.py"
+part2_3_1 = "part_2_3_here_and_now_plots.py"
 part3_1 = "part_3_1_stochastic_optimisation_run.py"
 part3_2 = "part_3_2_stochastic_optm_analysis.py"
 part4_1 = "part_4_1_pha_production_price_sensitivity.py"
 part4_2 = "part_4_2_pha_production_costs.py"
 part4_3 = "part_4_3_pha_parameter_sensitivity.py"
 part4_4 = "part_4_4_pha_parameter_analysis.py"
+part4_5 = "part_4_5_cross_sensitivity.py"
 
 # List of script filenames to run
-# script_filenames = [part1, part2_1, part2_2, part2_3, part3_1, part3_2, part4_1, part4_2, part4_3, part4_4]
-script_filenames = [part2_3, part3_1, part3_2, part4_1, part4_2, part4_3, part4_4]
+script_filenames = [part1, part1_1, # single optimization
+                    part2_1, part2_2, # wait and see optimization
+                    part2_3, part2_3_1,  # here and now optimization
+                    part3_1, part3_2, # stochastic optimization
+                    part4_1, part4_2, part4_3, part4_4 # sensitivity analysis PHA
+                     ]
+
+
 
 # Run each script sequentially
 for script_filename in script_filenames:

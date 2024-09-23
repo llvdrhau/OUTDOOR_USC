@@ -37,7 +37,7 @@ import outdoor
 
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "../Excel_files/potato_peel_case_PHA_production.xlsm"
+Excel_Path = "../Excel_files/potato_peel_case_PHA_route.xlsm"
 
 # define save locations
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,7 +56,7 @@ superstructure_Data = outdoor.get_DataFromExcel(Excel_Path, optimization_mode=op
 # create the superstructure flowsheet
 outdoor.create_superstructure_flowsheet(superstructure_Data,
                                         path=savePathPLots,
-                                        saveName='PHA_production_superstructure')
+                                        saveName='Part_4_2_PHA_production_superstructure')
 
 
 # solve the optimization problem
@@ -83,4 +83,5 @@ model_output.get_results(pprint=True)
 analyzer = outdoor.BasicModelAnalyzer(model_output)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePathPLots,
-                          saveName='PHA_production_optimized_flowsheet')
+                          saveName='Part_4_2_PHA_production_optimized_flowsheet')
+print('\033[92m' + '------sucess---------'+ '\033[0m')

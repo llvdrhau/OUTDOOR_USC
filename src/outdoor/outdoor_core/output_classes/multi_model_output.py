@@ -262,17 +262,35 @@ class MultiModelOutput(ModelOutput):
 
         # get the results of the wait and see analysis
         objectiveFunctionList = []
+        scenarioControl = []
         if flagDataFormat == 'object':
             for i, j in self._results_data.items():
                 objectiveFunctionList.append(j._data[objectiveFunctionName])
+                # todo really bad what I'm doing now but it's a patch
+                # Need to find wich scenarios were not run and delleet from the parameterArray
+                scenarioControl.append(i)
         elif flagDataFormat == 'dictionary':
             for i, j in self._results_data.items():
                 objectiveFunctionList.append(j[objectiveFunctionName])
+                # todo really bad what I'm doing now but it's a patch
+                # Need to find wich scenarios were not run and delleet from the parameterArray
+                scenarioControl.append(i)
 
         # turn into numpy array
         results = np.array(objectiveFunctionList)
         results = results.reshape(-1, 1)
 
+        if len(parameterArray[:, 1]) != len(results):
+            allScenarioNames = ['sc{}'.format(i) for i in range(1, len(parameterArray[:, 1]))]
+            # find the scenarios that were not run
+            notRunScenarios = list(set(allScenarioNames) - set(scenarioControl))
+
+            indicesRows = []
+            for sc in notRunScenarios:
+                indicesRows.append(int(sc[2:]) - 1)
+
+            # delete the rows that were not run in the parameterArray
+            parameterArray = np.delete(parameterArray, indicesRows, axis=0)
 
         # Standardize data using sklearn (so-called mean-centred sigma-scaling)
         scaler = StandardScaler()
@@ -314,6 +332,40 @@ class MultiModelOutput(ModelOutput):
         for key, value in sorted_src.items():
             print(f"SCR, {key}: {value}")
 
+
+    def calculate_parameter_ranges(self, objectiveValue, listKeys, objectiveFunctionName='EBIT'):
+        """
+        Calculate the ranges of the parameters where the objective value is larger then the given value
+        :return: dict with the ranges
+        """
+
+        data = self._results_data
+        uncertaintyMatrix = self.uncertaintyMatrix
+        columnNames = uncertaintyMatrix.columns
+
+        rangDict = {}
+        for parName in columnNames:
+            rangDict.update({parName: []})
+
+        for sc in data:
+            scData = data[sc]._data
+            if scData[objectiveFunctionName] > objectiveValue:
+                for i, parameter in enumerate(columnNames):
+                    # splitParameter = parameter.split(' ')
+                    # print(f"Parameter {parameter}")
+
+
+                    if isinstance(listKeys[i], tuple) and len(listKeys[i]) > 1:
+                        parameterName = listKeys[i][0]
+                        index = listKeys[i][1]
+                        parVal = scData[parameterName][index]
+                    else:
+                        parameterName = listKeys[i]
+                        parVal = scData[parameterName]
+
+                    rangDict[parameter].append(parVal)
+
+        return rangDict
 
 
 

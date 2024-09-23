@@ -616,7 +616,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
         self.EVPI = EVPI
 
-        return EVPI
+        return EVPI, recourseSolution, waitAndSeeSolution
 
     # Calculate VSS  ------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------

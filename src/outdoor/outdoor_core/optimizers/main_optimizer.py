@@ -119,7 +119,9 @@ class SingleOptimizer:
 
             if not VSS_EVPI_mode:
                 raise Exception("The model is infeasible, please check the input data is correct. \n"
-                                " TIP check the min max sourse fluxes and pool fluxes .")
+                                " TIP check: 1) the minimum and maximum pool/source fluxes \n"
+                                "2) Split fractions of unit processes \n"
+                                "3) The Product load if active")
             else:
                 return 'infeasible' # so we can save the conditions where the solution is infeasible in the VSS_EVPI mode
         else:

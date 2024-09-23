@@ -11,7 +11,6 @@ Optimization mode: wait and see
 Used output file: Part_4_3_pha_WAS.pkl
 
 Generated files:
-- TODO compleet
 """
 
 import sys
@@ -46,14 +45,53 @@ ModelOutput = MultiModelOutput.load_from_pickle(path=pickleFilePath)
 # Calculate the SRC
 ModelOutput.calculate_SRC()
 
-# Check if there are scenarios that are have EBIT > 0.759
-print()
-outputPerScenario = ModelOutput._results_data
+print('\033[92m' + '------sucess---------'+ '\033[0m')
 
-scenarioList = []
-for scenario, outputObject in outputPerScenario.items():
-    EBIT = outputObject._data['EBIT']
-    if EBIT >= 0.759:
-        scenarioList.append(scenario)
 
-print('there are {} scenarios that have an EBIT > 0.759'.format(len(scenarioList)))
+
+
+# --------------------------------------------------------------------------------
+# END CODE HERE
+# More sensible to perform cross sensitivity analysis in a separate script (part_4_5_cross_sensitivity.py)
+# -----------------------------------------------------------------------------
+
+# Calculate the parameter ranges where the objective value is larger then 0.759
+# listKeys = [('gamma',	(400,'VFA', 13)),
+#             ('gamma', (400,'VFA', 22)),
+#             ('xi', (420, 'Biomass_pha')),
+#             ('gamma',(435,'PHA',11)),
+#             ('phi',(11, 'Starch')),
+#             ('myu', (438, 440, 'PHA')),
+#             ('tau_h', ('Heat', 490)),
+#             ('delta_ut'),
+#             ('materialcosts', 44)
+#             ]
+
+# ranges = ModelOutput.calculate_parameter_ranges(objectiveValue=0.759, listKeys=listKeys, objectiveFunctionName='EBIT')
+
+# print('\n --------------')
+# for key, list in ranges.items():
+#     try:
+#         print('The parameter {} has min and max of [{}, {}]'.format(key, round(min(list),2), round(max(list),2)))
+#         print(len(list))
+#     except:
+#         print('failed for parameter {}'.format(key))
+
+
+# # Check if there are scenarios that are have EBIT > 0.759
+# print()
+# outputPerScenario = ModelOutput._results_data
+#
+# scenarioList = []
+# for scenario, outputObject in outputPerScenario.items():
+#     EBIT = outputObject._data['EBIT']
+#     if EBIT >= 0.759:
+#         scenarioList.append(scenario)
+#
+# print('there are {} scenarios that have an EBIT > 0.759'.format(len(scenarioList)))
+#
+
+
+
+
+

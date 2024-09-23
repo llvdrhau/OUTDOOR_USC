@@ -20,7 +20,59 @@ import sys
 import os
 import tracemalloc
 import time
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import pickle
 
+
+def plot_percent_occurance(flowSheetDict, showPlot=False):
+    """
+    This function plots the percentage of occurance of each flow sheet design as a bar plot
+    each bar has a different color for each flow sheet design
+    :param flowSheetDict:
+    :return:
+
+    flowsheetDictExtra[keyFlowSheet].update({scenario: dataScenario})
+
+
+    """
+    designKeys = flowSheetDict.keys()
+    percentagesDict = {}
+    sumN = 0
+    for key in designKeys:
+        nDesigns = len(flowSheetDict[key].keys())
+        sumN += nDesigns
+        percentagesDict.update({key: nDesigns})
+
+    percentagesDict = {key: value/sumN for key, value in percentagesDict.items()}
+
+    # Get a color map
+    # colormap = cm.get_cmap('viridis', len(percentagesDict))
+    # colors = [colormap(i) for i in range(len(designKeys))]
+
+    # colormap = cm.get_cmap('viridis', len(percentagesDict))
+    # colors = [colormap(i / len(percentagesDict)) for i in range(len(percentagesDict))]
+
+    fig, ax = plt.subplots()
+    xTicks = ["Design " + str(i) for i in range(1, len(percentagesDict)+1)]
+    ax.bar(xTicks, list(percentagesDict.values()))
+
+    for i, design in enumerate(designKeys):
+        print('Design ', i)
+        print(f'{design}: {percentagesDict[design]*100:.2f}%')
+
+    ax.set_ylabel('Percentage of occurance')
+    # ax.set_title('Percentage of occurance of each flow sheet design')
+    # save the plot
+    plt.savefig('results/Part_2_2_percent_occurance.png')
+
+    if showPlot:
+        plt.show()
+
+    return percentagesDict
+
+# start the timer
 startTime = time.time()
 
 # start the memory profiler
@@ -33,8 +85,8 @@ from outdoor import MultiModelOutput
 from outdoor import AdvancedMultiModelAnalyzer
 
 # file name that contains the results
-fileName = 'Part_2_wait_and_see_200_sc.pkl'
-# 'stochastic_mpi_sppy_100sc.pkl' #"Part_2_wait_and_see_300_sc.pkl"
+fileName =  'Part_2_1_wait_and_see_data.pkl'
+
 
 # check the size of the pickle file
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -58,14 +110,28 @@ ModelOutput.calculate_SRC()
 
 # Initialise the analyser object and plot the scenario analysis
 analyzer = AdvancedMultiModelAnalyzer(ModelOutput)
-analyzer.plot_scenario_analysis(path=savePathPLots,
-                                saveName='Part_2_2_box_plot_flowsheet_designs',
-                                showPlot=False,
-                                flowThreshold=0.01)
+_, flowSheetDict, boxplotData = analyzer.plot_scenario_analysis(path=savePathPLots,
+                                                                saveName='Part_2_2_box_plot_flowsheet_designs',
+                                                                showPlot=False,
+                                                                flowThreshold=0.01)
+
+plot_percent_occurance(flowSheetDict, showPlot=False)
+
+
+# Save some specific results so we don't have to open the model output object (less memory usage)
+# save flowSheetDict, boxplotData, ModelOutput._dataFiles with pickle
+waitAndSeeData = {'flowSheetDict': flowSheetDict,
+                  'boxplotData': boxplotData,
+                  'ModelOutput': ModelOutput._dataFiles}
+
+with open(os.path.join(saved_data_dir, 'Part_2_2_waitAndSeeData.pkl'), 'wb') as f:
+    pickle.dump(waitAndSeeData, f)
+
+
 
 
 endTime = time.time()
 print("Time elapsed: ", endTime - startTime)
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
-print('\033[92m' + '------sucess---------')
+print('\033[92m' + '------sucess---------'+ '\033[0m')

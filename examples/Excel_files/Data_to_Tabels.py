@@ -110,22 +110,22 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
             efficientcy = DF.iloc[19,4]
 
             # create a dictionary with the data
-            dictionaryUnitProcesses[name]['type'] = type
-            dictionaryUnitProcesses[name]['LifeTime (years)'] = lifeTime
+            dictionaryUnitProcesses[name]['Type'] = type
+            dictionaryUnitProcesses[name]['Lifetime (y)'] = lifeTime
             dictionaryUnitProcesses[name]['Temperature In (°C)'] = TemperatureIn
             dictionaryUnitProcesses[name]['Temperature Out (°C)'] = TemperatureOut
 
             if type == 'Heat.Generator':
                 dictionaryUnitProcesses[name]['Efficiency Electricity Production'] = '(-)'
-                dictionaryUnitProcesses[name]['Efficiency Heat Production'] = efficientcy
+                dictionaryUnitProcesses[name]['Efficiency Heat Production (-)'] = efficientcy
 
             elif type == 'Elect.Generator':
-                dictionaryUnitProcesses[name]['Efficiency Electricity Production'] = efficientcy
-                dictionaryUnitProcesses[name]['Efficiency Heat Production'] = '(-)'
+                dictionaryUnitProcesses[name]['Efficiency Electricity Production (-)'] = efficientcy
+                dictionaryUnitProcesses[name]['Efficiency Heat Production (-)'] = '(-)'
 
             elif type == 'CHP.Generator':
-                dictionaryUnitProcesses[name]['Efficiency Electricity Production'] = 0.35
-                dictionaryUnitProcesses[name]['Efficiency Heat Production'] = 0.50
+                dictionaryUnitProcesses[name]['Efficiency Electricity Production (-)'] = 0.35
+                dictionaryUnitProcesses[name]['Efficiency Heat Production (-)'] = 0.50
 
 
 
@@ -140,7 +140,7 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
             dictionaryUnitProcesses[name]['Scale Parameter (-)'] = round(scaleparameter, roundTo)
 
             referenceYear = DF.iloc[12, 8] # The reference year for the equipment cost for CPIEX
-            dictionaryUnitProcesses[name]['Reference Year'] = referenceYear
+            dictionaryUnitProcesses[name]['Reference Year '] = referenceYear
 
 
             # energy related data
@@ -217,11 +217,11 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
             if type == 'Yield.Reactor':
                 component = DF.iloc[8, 33]
                 yieldFactor = DF.iloc[8, 34]
-                dictionaryUnitProcesses[name]['Yield Component'] = component
-                dictionaryUnitProcesses[name]['Yield Factor'] = round(yieldFactor, roundTo)
+                dictionaryUnitProcesses[name]['Yield Component (-)'] = component
+                dictionaryUnitProcesses[name]['Yield Factor ($g_{product}/g_{feed}$)'] = round(yieldFactor, roundTo)
             else:
-                dictionaryUnitProcesses[name]['Yield Component'] = '(-)'
-                dictionaryUnitProcesses[name]['Yield Factor'] = '(-)'
+                dictionaryUnitProcesses[name]['Yield Component (-)'] = '(-)'
+                dictionaryUnitProcesses[name]['Yield Factor ($g_{product}/g_{feed}$)'] = '(-)'
 
     # create the tables
     # 1) Unit Process Data
@@ -313,8 +313,6 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
                 df.to_excel(writer, sheet_name=name)
 
 
-
-
 def reactions_as_string(reactionDict):
 
     reactionList = {}
@@ -397,7 +395,7 @@ def split_dataframe_to_latex(df, caption_base, label_base, columns_per_table):
 
         # Wrap in table environment with resizebox without indenting
         latex_table = (
-            "\\begin{table}[]\n"
+            "\\begin{table}[h]\n"
             "\\centering\n"
             f"\\caption{{{caption}}}\n"
             f"\\label{{{label}}}\n"
@@ -408,6 +406,7 @@ def split_dataframe_to_latex(df, caption_base, label_base, columns_per_table):
         )
 
         latex_code = latex_table.replace("_", "\_")  # Replace '_' with '\_' so it doesn't mess up the LaTeX formatting
+        latex_table = latex_table.replace("llll", "lccc")  # Remove trailing zeros
         print('% -------------------')
         print('')
         print(latex_table)
@@ -421,23 +420,23 @@ def dataframe_to_latex_table_reacations(df, caption="A caption I want", label="u
 
     # Customize the LaTeX string
 
-    latex_table = latex_table.replace("\\begin{tabular}", "\\small % Set font size to small\n\\resizebox{\\columnwidth}{!}{%\n\\begin{tabular}")
-    latex_table = latex_table.replace("\\begin{tabular}{ll}", "\\begin{tabular}{@{}lcl@{}}")
-    latex_table = latex_table.replace("\\end{tabular}", "\\end{tabular}%\n}")
+    latex_table = latex_table.replace("\\begin{tabular}", "\\small % Set font size to small\n\\begin{tabular}")
+    latex_table = latex_table.replace("\\begin{tabular}{ll}", "\\begin{tabular}{@{}lc@{}}")
+    #latex_table = latex_table.replace("\\end{tabular}", "\\end{tabular}%\n}")
 
     latex_table = latex_table.replace("->", " $\\rightarrow$ ")  # Replace '->' with LaTeX arrow
     latex_table = latex_table.replace("_", "\_")  # Replace '_' with '\_' so it doesn't mess up the LaTeX formatting
     latex_table = latex_table.replace("000", "") # Remove trailing zeros
     # latex_table = latex_table.replace("\\toprule",
     #                                   "\\toprule\nReaction & \\multicolumn{1}{l}{Conversion Efficiency} & Reference \\\\ ") # \\midrule
-    latex_table = latex_table.replace("Reaction & Conversion Efficiency \\", "Reaction & \multicolumn{1}{l}{Conversion Efficiency} & Reference \\")
+    latex_table = latex_table.replace("Reaction & Conversion Efficiency \\", "Reaction & \multicolumn{1}{l}{Conversion Efficiency}  \\")
     latex_table = latex_table.replace("\\bottomrule", "\\bottomrule\n")
 
     # Add resizebox and centering
     #latex_table = "\\resizebox{\\columnwidth}{!}{%\n" + latex_table
 
     # Add the table environment, caption, and label
-    latex_code = "\\begin{table}[]\n\\centering\n"
+    latex_code = "\\begin{table}[h]\n\\centering\n"
     latex_code += "\\caption{" + caption + "}\n"
     latex_code += "\\label{" + label + "}\n"
     latex_code += latex_table
@@ -486,7 +485,7 @@ def dataframe_to_latex_table_splitting(df, caption="Caption input", label="label
 
 
     # Add the table environment, caption, and label
-    latex_code = "\\begin{table}[]\n\\centering\n"
+    latex_code = "\\begin{table}[h]\n\\centering\n"
     latex_code += "\\caption{" + caption + "}\n"
     latex_code += "\\label{" + label + "}\n"
     latex_code += "\\small\n"  # Set font size to small
