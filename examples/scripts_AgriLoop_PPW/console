@@ -1,0 +1,1029 @@
+C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\venv\Scripts\python.exe C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\RUN_ALL_PARTS.py
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../Excel_files/potato_peel_case_study.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 97.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 2.84 sec ----
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: DataFile, Model- and ModelInstance setup ----
+--INFO:-- Finished: DataFile, Model- and ModelInstance setup ----
+--INFO:-- Time: 1.81 sec ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.27 sec ----
+--INFO:-- Start: Superstructure optimization run ----
+Set parameter LogFile to value "C:\Users\Lucas\AppData\Local\Temp\tmpg5pk_k0g.log"
+Solver log file: C:\Users\Lucas\AppData\Local\Temp\tmpg5pk_k0g.log
+Set parameter IntFeasTol to value 1e-08
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (win64)
+
+CPU model: 12th Gen Intel(R) Core(TM) i7-1255U, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 12 logical processors, using up to 12 threads
+
+Optimize a model with 29736 rows, 18175 columns and 208458 nonzeros
+Model fingerprint: 0x20794be9
+Variable types: 17617 continuous, 558 integer (558 binary)
+Coefficient statistics:
+  Matrix range     [5e-05, 6e+05]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+05]
+Presolve removed 27857 rows and 16847 columns
+Presolve time: 0.24s
+Presolved: 1879 rows, 1328 columns, 5941 nonzeros
+Variable types: 994 continuous, 334 integer (328 binary)
+Found heuristic solution: objective -1.2430825
+Found heuristic solution: objective 0.4758221
+
+Root relaxation: objective 5.194389e+01, 490 iterations, 0.01 seconds (0.01 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0   51.94389    0   18    0.47582   51.94389      -     -    0s
+     0     0   51.94387    0   17    0.47582   51.94387      -     -    0s
+H    0     0                      51.8515462   51.94387  0.18%     -    0s
+H    0     0                      51.8515463   51.94387  0.18%     -    0s
+H    0     0                      51.8515465   51.88629  0.07%     -    0s
+     0     0   51.87894    0    8   51.85155   51.87894  0.05%     -    0s
+H    0     1                      51.8515470   51.87894  0.05%     -    0s
+
+Cutting planes:
+  Gomory: 1
+  Implied bound: 2
+  MIR: 3
+  Flow cover: 2
+  RLT: 1
+
+Explored 1 nodes (558 simplex iterations) in 0.33 seconds (0.29 work units)
+Thread count was 12 (of 12 available processors)
+
+Solution count 5: 51.8515 51.8515 51.8515 ... -1.24308
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.185154697412e+01, best bound 5.185154697412e+01, gap 0.0000%
+Set parameter LogFile to value ""
+--INFO:-- Finished: Single optimization run ----
+--INFO:-- Time: 4.05 sec ----
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 6.17 sec ----
+The optimality gap is: 5.4813619050921893e-14
+
+ Single optimization problem run
+
+
+Basic results
+--------------
+----------------------------  ----------------
+Objective Function            EBIT
+Yearly product load           0
+Solver run time               4.05 seconds
+Solver name                   gurobi
+Earnings Before Tax income    51.852 Mil. Euro
+Net production costs          -506.34 euro/ton
+Net production GHG emissions  0.45 CO2-eq/ton
+Net production FWD            -3.78 H2O-eq/ton
+----------------------------  ----------------
+
+
+
+units
+--------------
+------------------  --
+Objective Function  aa
+------------------  --
+
+
+
+Chosen technologies
+--------------
+----  -----------------------
+ 100  Grinding
+ 101  Sedimenter & Centrifuge
+ 110  Coagulation Tank
+ 115  Belt Filtration Protein
+ 119  Rotry Drying Protein
+ 120  Centrifugal Sieving
+ 130  Belt Filtration Fiber
+ 135  Rotary Drying Fiber
+ 140  Starch Washing
+ 145  Vacuum Filltration
+ 149  Starch Drying
+5000  Starch
+9000  Potato.Prot
+9500  Potato.Fiber
+  11  PotatoPeels
+  22  Water
+  66  Acid_H2SO4
+ 888  PPW splitter
+----  -----------------------
+
+
+
+Economic results
+--------------
+-------------------------------  ------
+CAPEX share                       -5.91
+Raw material consumption share    -0
+Operating and Maintanence share   -3.33
+Electricity share                 -2.72
+Chilling share                    -0
+Heat integration share            -9.59
+Waste treatment share             -0
+Profits share                    121.57
+-------------------------------  ------
+
+
+
+Capital costs shares
+--------------
+-----------------------  -----
+Heat pump                 0
+Grinding                  1.5
+Sedimenter & Centrifuge  10.28
+Coagulation Tank          6.5
+Belt Filtration Protein   5.28
+Rotry Drying Protein      5.59
+Centrifugal Sieving       3.22
+Belt Filtration Fiber    12.33
+Rotary Drying Fiber      14.15
+Starch Washing            0.44
+Vacuum Filltration        1.38
+Starch Drying            39.33
+-----------------------  -----
+
+
+
+Electricity demand shares
+--------------
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    76.1
+Sedimenter & Centrifuge      5.18
+Belt Filtration Protein      2.45
+Centrifugal Sieving          3.79
+Belt Filtration Fiber        9.4
+Vacuum Filltration           3.08
+--------------------------  -----
+
+
+
+Heating and cooling
+--------------
+--------------------------------------  -----
+Total heating demand                    21.43
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      21.43
+Net cooling demand                      -0
+--------------------------------------  -----
+
+
+
+Green house gas emission shares
+--------------
+------------------------------  -----
+Direct emissions                    0
+Electricity                      3885
+Heat                            42526
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+
+
+Fresh water demand shares
+--------------
+------------------------------------  -------
+Indirect demand from raw materials    -387401
+Utilities (Electricity and chilling)        0
+Utilities (Heating)                         0
+Avoided burden from byproducds             -0
+------------------------------------  -------
+
+
+
+Energy data
+--------------
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {100: 0.0, 101: 0.0, 110: 7.184941462464732, 115: 0.0, 119: 0.0, 120: 0.0, 130: 0.0, 135: 3.2235781863085435, 140: 2.030706677016876, 145: 0.0, 149: 8.995201127560449, 200: 0.0, 210: 0.0, 230: 0.0, 300: 0.0, 320: 0.0, 400: 1.3182238944864366e-15, 420: 0.0, 430: 0.0, 435: 0.0, 438: 0.0, 440: 0.0, 450: 0.0, 490: 0.0, 500: 0.0, 510: 0.0, 520: 0.0, 550: 0.0, 600: 0.0, 610: 0.0, 700: 0.0, 800: 0.0, 900: 0.0, 2000: 0.0, 3000: 0.0, 1100: 0.0, 5000: 0.0, 9000: 0.0, 9500: 0.0, 6000: 0.0, 7000: 0.0, 8000: 0.0, 9700: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 55: 0.0, 66: 0.0, 77: 0.0, 88: 0.0, 888: 0.0, 777: 0.0, 333: 0.0, 222: 0.0, 111: 0.0}
+cooling      {100: 0.0, 101: 0.0, 110: 0.0, 115: 0.0, 119: 0.0, 120: 0.0, 130: 0.0, 135: 0.0, 140: 0.0, 145: 0.0, 149: 0.0, 200: 0.0, 210: 0.0, 230: 0.0, 300: 0.0, 320: 0.0, 400: 0.0, 420: 0.0, 430: 0.0, 435: 0.0, 438: 0.0, 440: 0.0, 450: 0.0, 490: 0.0, 500: 0.0, 510: 0.0, 520: 0.0, 550: 0.0, 600: 0.0, 610: 0.0, 700: 0.0, 800: 0.0, 900: 0.0, 2000: 0.0, 3000: 0.0, 1100: 0.0, 5000: 0.0, 9000: 0.0, 9500: 0.0, 6000: 0.0, 7000: 0.0, 8000: 0.0, 9700: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 55: 0.0, 66: 0.0, 77: 0.0, 88: 0.0, 888: 0.0, 777: 0.0, 333: 0.0, 222: 0.0, 111: 0.0}
+electricity  11773.63673595374
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Mass flows
+--------------
+-----------  -----
+(100, 888)   67.2
+(888, 101)   67.2
+(101, 110)   63.08
+(101, 120)   87.23
+(110, 115)    3.65
+(115, 119)    1.77
+(119, 9000)   1.3
+(120, 130)   11.75
+(120, 140)   75.48
+(130, 135)    6.58
+(135, 9500)   3.69
+(140, 145)   40.79
+(140, 101)   83.12
+(145, 149)   21.33
+(149, 5000)   7.81
+(11, 100)    70
+(66, 110)     0
+(22, 140)    48.43
+-----------  -----
+
+
+------success---------
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 2.62 sec ----
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: DataFile, Model- and ModelInstance setup ----
+--INFO:-- Finished: DataFile, Model- and ModelInstance setup ----
+--INFO:-- Time: 1.22 sec ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.01 sec ----
+--INFO:-- Start: Superstructure optimization run ----
+Set parameter LogFile to value "C:\Users\Lucas\AppData\Local\Temp\tmp0840__ya.log"
+Solver log file: C:\Users\Lucas\AppData\Local\Temp\tmp0840__ya.log
+Set parameter IntFeasTol to value 1e-08
+Gurobi Optimizer version 10.0.3 build v10.0.3rc0 (win64)
+
+CPU model: 12th Gen Intel(R) Core(TM) i7-1255U, instruction set [SSE2|AVX|AVX2]
+Thread count: 10 physical cores, 12 logical processors, using up to 12 threads
+
+Optimize a model with 29632 rows, 16080 columns and 141969 nonzeros
+Model fingerprint: 0x0fdade8c
+Variable types: 15601 continuous, 479 integer (479 binary)
+Coefficient statistics:
+  Matrix range     [5e-05, 3e+05]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+05]
+Presolve removed 27767 rows and 14905 columns
+Presolve time: 0.21s
+Presolved: 1865 rows, 1175 columns, 6038 nonzeros
+Variable types: 890 continuous, 285 integer (275 binary)
+Found heuristic solution: objective -0.7030969
+Found heuristic solution: objective -0.6206579
+
+Root relaxation: objective 8.847284e+00, 745 iterations, 0.01 seconds (0.01 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    8.84728    0   51   -0.62066    8.84728  1525%     -    0s
+     0     0    8.66739    0   48   -0.62066    8.66739  1496%     -    0s
+     0     0    8.66034    0   47   -0.62066    8.66034  1495%     -    0s
+H    0     0                      -0.6206579    8.66034  1495%     -    0s
+     0     0    4.45844    0   57   -0.62066    4.45844   818%     -    0s
+     0     0    4.45844    0   57   -0.62066    4.45844   818%     -    0s
+     0     0    4.45844    0   57   -0.62066    4.45844   818%     -    0s
+     0     0    3.66561    0   56   -0.62066    3.66561   691%     -    0s
+     0     0    3.66363    0   56   -0.62066    3.66363   690%     -    0s
+     0     0    3.27752    0   65   -0.62066    3.27752   628%     -    0s
+     0     0    3.23493    0   67   -0.62066    3.23493   621%     -    0s
+     0     0    3.22591    0   68   -0.62066    3.22591   620%     -    0s
+     0     0    3.05605    0   71   -0.62066    3.05605   592%     -    0s
+H    0     0                      -0.6206574    2.95467   576%     -    0s
+     0     0    2.95467    0   63   -0.62066    2.95467   576%     -    0s
+     0     2    2.95467    0   60   -0.62066    2.95467   576%     -    0s
+*   35    19               6      -0.6206574    2.20891   456%  51.0    0s
+H   84    35                      -0.6206571    2.20891   456%  26.2    0s
+H  748   166                      -0.6206571    1.24297   300%  18.3    1s
+
+Cutting planes:
+  Gomory: 10
+  Cover: 7
+  Implied bound: 104
+  Clique: 1
+  MIR: 56
+  Flow cover: 42
+  Inf proof: 6
+  RLT: 59
+  Relax-and-lift: 16
+  PSD: 2
+
+Explored 1562 nodes (26652 simplex iterations) in 1.68 seconds (1.04 work units)
+Thread count was 12 (of 12 available processors)
+
+Solution count 7: -0.620657 -0.620657 -0.620657 ... -0.703097
+No other solutions better than -0.620657
+
+Optimal solution found (tolerance 1.00e-04)
+Warning: max bound violation (2.3185e-06) exceeds tolerance
+Best objective -6.206571307715e-01, best bound -6.206571307715e-01, gap 0.0000%
+Set parameter LogFile to value ""
+--INFO:-- Finished: Single optimization run ----
+--INFO:-- Time: 4.96 sec ----
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 6.23 sec ----
+The optimality gap is: -3.935330044688471e-13
+
+ Single optimization problem run
+
+
+Basic results
+--------------
+----------------------------  ----------------
+Objective Function            EBIT
+Yearly product load           0
+Solver run time               4.96 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -0.621 Mil. Euro
+Net production costs          5.66 euro/ton
+Net production GHG emissions  0.72 CO2-eq/ton
+Net production FWD            -0.0 H2O-eq/ton
+----------------------------  ----------------
+
+
+
+units
+--------------
+------------------  --
+Objective Function  aa
+------------------  --
+
+
+
+Chosen technologies
+--------------
+----  ----------------
+ 100  Grinding
+ 900  Extruder & dryer
+7000  Animal.Feed
+  11  PotatoPeels
+ 888  PPW splitter
+----  ----------------
+
+
+
+Economic results
+--------------
+-------------------------------  --------
+CAPEX share                        146.41
+Raw material consumption share       0
+Operating and Maintanence share     47.11
+Electricity share                  263.1
+Chilling share                       0
+Heat integration share            1410.03
+Waste treatment share                0
+Profits share                    -1766.64
+-------------------------------  --------
+
+
+
+Capital costs shares
+--------------
+----------------  -----
+Heat pump          0
+Grinding           5.07
+Extruder & dryer  94.93
+----------------  -----
+
+
+
+Electricity demand shares
+--------------
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    65.85
+Extruder & dryer            34.15
+--------------------------  -----
+
+
+
+Heating and cooling
+--------------
+--------------------------------------  -----
+Total heating demand                    37.72
+Total cooling demand                     0
+Total heat recovery                      0
+HP Steam produced                        0
+Internally used HP Steam                 0
+High temperature heat pump heat supply   0
+Net heating demand                      37.72
+Net cooling demand                       0
+--------------------------------------  -----
+
+
+
+Green house gas emission shares
+--------------
+------------------------------  -----
+Direct emissions                    0
+Electricity                      4491
+Heat                            74840
+Chilling                            0
+Plant building emissions            0
+Raw Materials / Carbon Capture     -0
+Avoided burden for byproducts       0
+------------------------------  -----
+
+
+
+Fresh water demand shares
+--------------
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+
+
+Energy data
+--------------
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {100: 0.0, 200: 0.0, 210: 0.0, 230: 0.0, 300: 0.0, 320: 0.0, 400: 1.5834013585446295e-11, 420: 0.0, 430: 0.0, 435: 0.0, 438: 0.0, 440: 0.0, 450: 0.0, 490: 6.12273962164859e-11, 500: 5.224789469312096e-11, 510: 0.0, 520: 0.0, 550: 2.1476926003918834e-10, 600: 7.247541941545937e-12, 610: 0.0, 700: 0.0, 800: 0.0, 900: 37.72175555557413, 2000: 0.0, 3000: 0.0, 1100: 0.0, 6000: 0.0, 7000: 0.0, 8000: 0.0, 9700: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 55: 0.0, 66: 0.0, 77: 0.0, 88: 0.0, 888: 0.0, 777: 0.0, 333: 0.0, 222: 0.0, 111: 0.0}
+cooling      {100: 0.0, 200: 0.0, 210: 0.0, 230: 0.0, 300: 0.0, 320: 0.0, 400: 0.0, 420: 0.0, 430: 0.0, 435: 0.0, 438: 0.0, 440: 0.0, 450: 0.0, 490: 0.0, 500: 0.0, 510: 0.0, 520: 0.0, 550: 0.0, 600: 0.0, 610: 0.0, 700: 0.0, 800: 0.0, 900: 0.0, 2000: 0.0, 3000: 0.0, 1100: 0.0, 6000: 0.0, 7000: 0.0, 8000: 0.0, 9700: 0.0, 11: 0.0, 22: 0.0, 33: 0.0, 44: 0.0, 55: 0.0, 66: 0.0, 77: 0.0, 88: 0.0, 888: 0.0, 777: 0.0, 333: 0.0, 222: 0.0, 111: 0.0}
+electricity  13607.6849790238
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Mass flows
+--------------
+-----------  -----
+(100, 888)   67.2
+(888, 900)   67.2
+(900, 7000)  13.71
+(11, 100)    70
+-----------  -----
+
+
+------success---------
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 11.55 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+
+Uncertainty Data
+Printing the min, max, and mean of each uncertain parameter
+
+phi PotatoPeels Starch
+min: 0.06674696865794279
+mean: 0.09519839742132262
+max: 0.12371212302692716
+---------------------------------
+phi PotatoPeels Phenolics
+min: 0.009943645359181377
+mean: 0.01970076994890351
+max: 0.029530856407328283
+---------------------------------
+myu Supercritical CO2 (320, 'Phenolics')
+min: 0.08139527672857816
+mean: 0.1349921763510322
+max: 0.1885811320217809
+---------------------------------
+theta Enzymatic Hydrolysis (15, 'Cellulose ')
+min: 0.5608381218778759
+mean: 0.6999690272357839
+max: 0.8389165106994148
+---------------------------------
+theta Enzymatic Hydrolysis (16, 'Hemi-cellulose')
+min: 0.5602184260966194
+mean: 0.7000176564751582
+max: 0.8397442274370984
+---------------------------------
+gamma Ethanol Fermentation ('EthOH', 17)
+min: 0.4500779972601681
+mean: 0.5000139480040846
+max: 0.5499651992100847
+---------------------------------
+gamma MP Fermentation ('Microbial.Prot', 11)
+min: 0.29753049389638825
+mean: 0.3499924074975459
+max: 0.40202506448366826
+---------------------------------
+theta Anaerobic Digester (5, 'Cellulose ')
+min: 0.3830846688983981
+mean: 0.44999527940839884
+max: 0.5171287895816127
+---------------------------------
+xi PHA Accumulation Biomass_pha
+min: 0.4532162124615898
+mean: 0.587535653951032
+max: 0.7217758490638514
+---------------------------------
+gamma Digestion Tank ('PHA', 11)
+min: 0.48084968709335524
+mean: 0.5999810452510597
+max: 0.7198448261465489
+---------------------------------
+gamma Mixed Culture Fermentation ('VFA', 13)
+min: 0.3520407572987057
+mean: 0.5499289286830948
+max: 0.7461853793310664
+---------------------------------
+gamma Mixed Culture Fermentation ('VFA', 22)
+min: 0.35392042150728076
+mean: 0.5500809921307342
+max: 0.7464380293662649
+---------------------------------
+myu Micro Filtration (440, 'PHA')
+min: 0.5299551549354817
+mean: 0.6374311622297071
+max: 0.745505446060036
+---------------------------------
+tau_h Spray Dryer PHA
+min: 0.6383005602260882
+mean: 0.7090569399454947
+max: 0.7792884257441416
+---------------------------------
+ElectricityPrice
+min: 96.0436379921297
+mean: 119.99930624643095
+max: 143.87820849137145
+---------------------------------
+materialcosts_Lysol
+min: 57.26461732066372
+mean: 71.55070992106846
+max: 85.77772710809167
+---------------------------------
+ProductPrice_Ethanol
+min: 689.0298457158043
+mean: 765.3286083637547
+max: 841.3535972543157
+---------------------------------
+ProductPrice_Animal.Feed
+min: 90.05247564316322
+mean: 99.99670541704198
+max: 109.93945723153189
+---------------------------------
+ProductPrice_Micro.Prot.
+min: 1350.647917527963
+mean: 1499.9863230939973
+max: 1649.2949108803955
+---------------------------------
+ProductPrice_PHA-Plastic
+min: 3153.931593392673
+mean: 4499.825242892814
+max: 5838.678459338243
+---------------------------------
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.03 sec ----
+Calculating the objective values for each scenario to calculate the EVPI
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 5425.68 sec ----
+Data saved at: C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\saved_files/Part_2_1_wait_and_see_data.pkl
+------success---------
+[    0.00] Initializing mpi-sppy
+
+-----------------------------------
+Sum of SRC squared:  0.3663468047134914
+R squared:  0.33328473300932004
+-----------------------------------
+
+SCR, ProductPrice_PHA-Plastic: 0.3176800948548372
+SCR, gamma Digestion Tank ('PHA', 11): 0.28014395301388717
+SCR, xi PHA Accumulation Biomass_pha: 0.21175572899439277
+SCR, myu Micro Filtration (440, 'PHA'): 0.20471268272499296
+SCR, theta Enzymatic Hydrolysis (15, 'Cellulose '): 0.1831114831099395
+SCR, phi PotatoPeels Phenolics: 0.11647593580149054
+SCR, ProductPrice_Animal.Feed: 0.09248092702094869
+SCR, ProductPrice_Micro.Prot.: 0.07961531375515032
+SCR, ProductPrice_Ethanol: 0.06481165742681497
+SCR, theta Anaerobic Digester (5, 'Cellulose '): 0.05061362678927013
+SCR, gamma Mixed Culture Fermentation ('VFA', 22): 0.0258963940963138
+SCR, gamma Mixed Culture Fermentation ('VFA', 13): 0.021069776289609765
+SCR, theta Enzymatic Hydrolysis (16, 'Hemi-cellulose'): 0.017220325151300318
+SCR, myu Supercritical CO2 (320, 'Phenolics'): 0.009377837262199687
+SCR, gamma Ethanol Fermentation ('EthOH', 17): -0.011172977226589895
+SCR, gamma MP Fermentation ('Microbial.Prot', 11): -0.032572930892747175
+SCR, phi PotatoPeels Starch: -0.044883712453317
+SCR, ElectricityPrice: -0.05381382443156553
+SCR, materialcosts_Lysol: -0.094995698531854
+SCR, tau_h Spray Dryer PHA: -0.12177091555817078
+
+-------WARNING-------
+No variable name was provided for the method plot_scenario_analysis.
+ Using the objective function EBIT.
+
+Design  0
+((100, 'Grinding'), (900, 'Extruder & dryer'), (7000, 'Animal.Feed'), (11, 'PotatoPeels'), (888, 'PPW splitter')): 48.00%
+Design  1
+((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (500, 'Pasturisation & Decanter'), (510, 'MP Fermentation'), (520, 'Micro Filtration MP'), (550, 'Spray Dryer MP'), (600, 'Anaerobic Digester'), (610, 'Gas Membrane'), (800, 'Composting'), (1100, 'BioMethane'), (8000, 'Compost'), (9700, 'Micro.Prot.'), (11, 'PotatoPeels'), (22, 'Water'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter')): 8.00%
+Design  2
+((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (420, 'PHA Accumulation'), (430, 'Basket Centrifuge'), (435, 'Digestion Tank'), (438, 'Micro Filtration'), (440, 'PHA Washing'), (450, 'Micro Filtration 2'), (490, 'Spray Dryer PHA'), (600, 'Anaerobic Digester'), (610, 'Gas Membrane'), (800, 'Composting'), (1100, 'BioMethane'), (6000, 'PHA-Plastic'), (8000, 'Compost'), (11, 'PotatoPeels'), (22, 'Water'), (44, 'Lysol'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter')): 8.50%
+Design  3
+((100, 'Grinding'), (600, 'Anaerobic Digester'), (700, 'Combined Heat & Power '), (800, 'Composting'), (8000, 'Compost'), (11, 'PotatoPeels'), (33, 'Air'), (888, 'PPW splitter'), (777, 'Gas splitter')): 2.00%
+Design  4
+((100, 'Grinding'), (800, 'Composting'), (8000, 'Compost'), (11, 'PotatoPeels'), (888, 'PPW splitter')): 33.50%
+Time elapsed:  671.3592483997345
+Current memory usage is 7269.735729MB; Peak was 10491.039811MB
+------sucess---------
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../../examples/Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 8.54 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.04 sec ----
+Calculating the objective values for each scenario and each passed on design
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 2191.33 sec ----
+scenarios of MP: 184
+Number of successful runs for Microbial Protein: 184
+PATH NAME IS:::
+../../examples/Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 8.58 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.0 sec ----
+Calculating the objective values for each scenario and each passed on design
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 1248.91 sec ----
+scenarios of Animal Feed: 104
+Number of successful runs for Animal Feed: 104
+PATH NAME IS:::
+../../examples/Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 8.05 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.0 sec ----
+Calculating the objective values for each scenario and each passed on design
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 2217.01 sec ----
+scenarios of PHA: 183
+Number of successful runs for PHA: 183
+PATH NAME IS:::
+../../examples/Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 9.57 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.0 sec ----
+Calculating the objective values for each scenario and each passed on design
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 1617.08 sec ----
+scenarios of Compost: 133
+Number of successful runs for Microbial Protein: 133
+------sucess---------
+The size of the data is: 184.25
+For Compost (%): 41.92139737991266
+For Animal Feed (%): 13.333333333333334
+For Microbial Protein (%): 8.45771144278607
+For PHA (%): 2.13903743315508
+------sucess---------
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 2.8 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.03 sec ----
+[   13.08] Initializing SPBase
+[  489.58] Initializing PHBase
+[  490.74] Creating solvers
+[  490.75] Entering solve loop in PHBase.Iter0
+[43212.13] Reached user-specified limit=100 on number of PH iterations
+Traceback (most recent call last):
+  File "C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\part_3_1_stochastic_optimisation_run.py", line 87, in <module>
+    model_output = abstractStochaticModel.solve_optimization_problem(input_data=superstructureObject,
+  File "C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\src\outdoor\outdoor_core\main\superstructure_problem.py", line 197, in solve_optimization_problem
+    model_output = optimizer.run_optimization(model_instance)
+  File "C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\src\outdoor\outdoor_core\optimizers\customs\custom_optimizer.py", line 1046, in run_optimization
+    modelOutput = StochasticModelOutput_mpi_sppy(optimization_mode = '2-stage-recourse', #todo again shady, find where this variable is set and pass it on
+  File "C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\src\outdoor\outdoor_core\output_classes\stochastic_model_output.py", line 488, in __init__
+    raise Warning(warningMessage)
+Warning: First stage decision Variable Y[900] : 1.0 is not consistent across scenarios sc3 Please check the data and rerun the optimization
+Traceback (most recent call last):
+  File "C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\RUN_ALL_PARTS.py", line 71, in <module>
+    subprocess.run([sys.executable, script_filename], check=True, cwd=basePath)
+  File "C:\Users\Lucas\AppData\Local\Programs\Python\Python310\lib\subprocess.py", line 524, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['C:\\Users\\Lucas\\PycharmProjects\\OUTDOOR_V2\\venv\\Scripts\\python.exe', 'part_3_1_stochastic_optimisation_run.py']' returned non-zero exit status 1.
+
+Process finished with exit code 1
+
+
+
+C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\venv\Scripts\python.exe C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\part_3_2_stochastic_optm_analysis.py
+[    0.00] Initializing mpi-sppy
+
+ Calculating the EVPI for the stochastic optimization
+--------------------------------
+--------------------------------
+
+The Expected Value of the Deterministic Solution (EVDS) is:  -4.166740627270917
+The Expected value of with Perfect Information (EVwPI) is:  0.2139379561159468
+The Expected Value of the Stochastic Solution (EVSS) is:  -0.6242769349251196
+The Expected value of Perfect Information (EVPI) is:  0.8382148910410664
+The Value of the Stochastic Solution (VSS) is:  3.5424636923457973
+
+--------------------------------
+--------------------------------
+
+ Creating optimized flowsheet
+Time elapsed:  41.51784682273865
+File saved at:  C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\results
+File name:  Part_3_stochastic_flow_sheet_design.png
+------sucess---------
+
+Process finished with exit code 0
+
+
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../../examples/Excel_files/potato_peel_case_PHA_uncertainty.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [######################################--] 94.44%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 7.34 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+
+Uncertainty Data
+Printing the min, max, and mean of each uncertain parameter
+
+gamma Mixed.culture.Ferm. ('VFA', 13)
+min: 0.2758239882614642
+mean: 0.5500341761562434
+max: 0.8228762745867984
+---------------------------------
+gamma Mixed.culture.Ferm. ('VFA', 22)
+min: 0.27709157147410185
+mean: 0.5499744253572724
+max: 0.8240821750371837
+---------------------------------
+xi PHA.Accum. Biomass_pha
+min: 0.29548906444102585
+mean: 0.5874997951115017
+max: 0.8812955837842983
+---------------------------------
+gamma CSTR.Diges. ('PHA', 11)
+min: 0.3014367803620729
+mean: 0.6000255917291001
+max: 0.89965367062521
+---------------------------------
+phi PotatoPeels Starch
+min: 0.05716752951862437
+mean: 0.09519834221350859
+max: 0.1331342132147102
+---------------------------------
+myu Micro.Filtr (440, 'PHA')
+min: 0.31910442944676953
+mean: 0.6374083002457426
+max: 0.9537327010712531
+---------------------------------
+tau_h Spray.Dry.PHA
+min: 0.3546925158093561
+mean: 0.7090460620102457
+max: 1.0631050711475787
+---------------------------------
+ElectricityPrice
+min: 96.16630581998879
+mean: 119.99966148943983
+max: 143.92300387357002
+---------------------------------
+materialcosts_Lysol
+min: 57.26876755734342
+mean: 71.50174782577233
+max: 85.69874833486361
+---------------------------------
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.02 sec ----
+Calculating the objective values for each scenario to calculate the EVPI
+Please be patient, this might take a while
+EVPI Progress : [########################################] 100.00%
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 2887.31 sec ----
+Data saved at: C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\saved_files/Part_4_3_pha_WAS.pkl
+------sucess---------
+[    0.00] Initializing mpi-sppy
+
+-----------------------------------
+Sum of SRC squared:  0.8895689166855282
+R squared:  0.8648283797818623
+-----------------------------------
+
+SCR, myu Micro.Filtr (440, 'PHA'): 0.6143614908021662
+SCR, gamma CSTR.Diges. ('PHA', 11): 0.5955824196928402
+SCR, xi PHA.Accum. Biomass_pha: 0.32426927793929305
+SCR, tau_h Spray.Dry.PHA: 0.012035313856998547
+SCR, ElectricityPrice: 0.01059511995192542
+SCR, gamma Mixed.culture.Ferm. ('VFA', 13): -0.018233352746534984
+SCR, phi PotatoPeels Starch: -0.06381830266742404
+SCR, gamma Mixed.culture.Ferm. ('VFA', 22): -0.15300563068589845
+SCR, materialcosts_Lysol: -0.15552116501192642
+
+
+
+
+C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\venv\Scripts\python.exe C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\part_3_1_stochastic_optimisation_run.py
+[    0.00] Initializing mpi-sppy
+PATH NAME IS:::
+../Excel_files/potato_peel_case_study_no_starch.xlsm
+--INFO:-- Start: Extract data from excel ----
+Notification: The process flows are now dependent on the source flows, make sure the bounds
+of the sources are set correctly on the Excel sheet 'Sources'
+Data Extraction Progress : [#######################################-] 96.30%
+--INFO:-- Finished: Extracting data from excel ----
+--INFO:-- Time: 2.96 sec ----
+ make_scenario_dataframe_LHS, this might take a while
+ LHS, DONE
+--INFO:-- Start: Superstructure optimization procedure ----
+--INFO:-- Start: Optimizer setup ----
+--INFO:-- Finished: Optimizer setup ----
+--INFO:-- Time: 0.04 sec ----
+[   15.17] Initializing SPBase
+[  586.28] Initializing PHBase
+[  586.75] Creating solvers
+[  586.76] Entering solve loop in PHBase.Iter0
+
+After PH Iteration 0
+Trivial bound = 0.2002627004753148
+PHBase Convergence Metric = None
+Elapsed time: 1252.92
+[ 1268.09]
+Initiating PH Iteration 1
+
+
+After PH Iteration 1
+Scaled PHBase Convergence Metric= 0.2182925762711765
+Iteration time: 452.68
+Elapsed time:   1705.60
+[ 1720.77]
+Initiating PH Iteration 2
+
+
+After PH Iteration 2
+Scaled PHBase Convergence Metric= 0.18947304237328655
+Iteration time: 529.58
+Elapsed time:   2235.19
+[ 2250.35]
+Initiating PH Iteration 3
+
+
+After PH Iteration 3
+Scaled PHBase Convergence Metric= 0.08546446610181875
+Iteration time: 440.34
+Elapsed time:   2675.52
+[ 2690.69]
+Initiating PH Iteration 4
+
+
+After PH Iteration 4
+Scaled PHBase Convergence Metric= 0.03839986440685185
+Iteration time: 444.72
+Elapsed time:   3120.25
+[ 3135.42]
+Initiating PH Iteration 5
+
+
+After PH Iteration 5
+Scaled PHBase Convergence Metric= 0.02730406779666473
+Iteration time: 472.06
+Elapsed time:   3592.31
+[ 3607.48]
+Initiating PH Iteration 6
+
+
+After PH Iteration 6
+Scaled PHBase Convergence Metric= 0.028713474576277345
+Iteration time: 475.21
+Elapsed time:   4067.52
+[ 4082.69]
+Initiating PH Iteration 7
+
+
+After PH Iteration 7
+Scaled PHBase Convergence Metric= 0.02577663559323317
+Iteration time: 486.53
+Elapsed time:   4554.05
+[ 4569.21]
+Initiating PH Iteration 8
+
+
+After PH Iteration 8
+Scaled PHBase Convergence Metric= 0.023485000000175848
+Iteration time: 891.28
+Elapsed time:   5445.33
+[ 5460.50]
+Initiating PH Iteration 9
+
+
+After PH Iteration 9
+Scaled PHBase Convergence Metric= 0.02056748305087288
+Iteration time: 513.76
+Elapsed time:   5959.09
+[ 5974.26]
+Initiating PH Iteration 10
+
+
+After PH Iteration 10
+Scaled PHBase Convergence Metric= 0.015594330508453469
+Iteration time: 484.02
+Elapsed time:   6443.11
+[ 6458.27] Reached user-specified limit=10 on number of PH iterations
+
+Invoking scenario reporting functions, if applicable
+
+
+Invoking PH extension finalization, if applicable
+
+
+Current ***weighted*** E[objective] = -0.7360422249703622
+
+C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\src\outdoor\outdoor_core\output_classes\stochastic_model_output.py:491: UserWarning: First stage decision Variable DistFraction[111,210] : 0.4 is not consistent across scenarios: 0.95 Scenario sc2 is inconsistent. Please check the data and rerun the optimization
+  warnings.warn(warningMessage, UserWarning)
+--INFO:-- Finished: Superstructure optimization procedure ----
+--INFO:-- Time: 6490.71 sec ----
+Data saved at: C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\saved_files/Part_3_stochastic_optimization.pkl
+
+ Calculating the EVPI for the stochastic optimization
+--------------------------------
+--------------------------------
+
+The EVPI is:  0.917041012524385
+The Expected EBIT is:  -0.7177320062394593
+
+--------------------------------
+--------------------------------
+------sucess---------
+
+Process finished with exit code 0

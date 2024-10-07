@@ -16,6 +16,8 @@ import sys
 
 # get the working directory
 basePath = sys.path[0]
+# saveConsoleOutput
+saveConsoleOutput = False
 
 part1 = "part_1_single_obj_opt_full_superstructure.py"
 part1_1 = "part_1_single_obj_opt_reduced_superstructure.py"
@@ -32,15 +34,39 @@ part4_4 = "part_4_4_pha_parameter_analysis.py"
 part4_5 = "part_4_5_cross_sensitivity.py"
 
 # List of script filenames to run
-script_filenames = [part1, part1_1, # single optimization
-                    part2_1, part2_2, # wait and see optimization
+
+script_filenames = [
+                    part1, part1_1,      # single optimization
+                    part2_1, part2_2,    # wait and see optimization
                     part2_3, part2_3_1,  # here and now optimization
-                    part3_1, part3_2, # stochastic optimization
-                    part4_1, part4_2, part4_3, part4_4 # sensitivity analysis PHA
-                     ]
+                    part3_1, part3_2,    # stochastic optimization
+                    part4_1,             # sensitivity analysis PHA
+                    part4_2,             # production cost analysis PHA
+                    part4_3, part4_4,    # SCR analysis PHA
+                    part4_5              # cross sensitivity analysis
+                    ]
 
 
-
-# Run each script sequentially
-for script_filename in script_filenames:
-    subprocess.run([sys.executable, script_filename], check=True, cwd=sys.path[0])
+# stores console output in one txt file
+if saveConsoleOutput:
+    # Open a single output file for all scripts
+    with open('console_output.txt', 'w') as f:
+        # Run each script sequentially and capture console output
+        for script_filename in script_filenames:
+            # Write a header to the output file
+            f.write(f"\nRunning script: {script_filename}\n")
+            f.write("=" * 80 + "\n")
+            # Run the script and capture output
+            subprocess.run(
+                [sys.executable, script_filename],
+                check=True,
+                cwd=basePath,
+                stdout=f,
+                stderr=subprocess.STDOUT
+            )
+            # Write a separator after the script output
+            f.write("\n" + "=" * 80 + "\n")
+else:
+    # Run each script sequentially
+    for script_filename in script_filenames:
+        subprocess.run([sys.executable, script_filename], check=True, cwd=basePath)

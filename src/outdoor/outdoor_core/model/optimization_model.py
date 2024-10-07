@@ -254,6 +254,11 @@ class SuperstructureModel(AbstractModel):
         self.FLOW_DIST = Var(self.U_DIST_SUB2, self.I, within=NonNegativeReals)
         self.FLOW_FT = Var(self.U_CONNECTORS, within=NonNegativeReals)
 
+        # to get the fractions that the stream is split into for each U_DIST to U (that is connected)
+        # this is used as a variable for the second stage of the stochastic model to get the distribution factor
+        # equal over all scenarios
+        self.DistFraction = Var(self.U_DIST_SUB, within=NonNegativeReals)
+
         # Binary Variables for flow choice also 1ste Stage Variables of the stochastic models!
         if self._fixedDesign:
             # Binary but can be any value to avoid errors (for values which aren't exactly 0 or 1)
@@ -375,7 +380,7 @@ class SuperstructureModel(AbstractModel):
         # min max production constraints for product pools
         def MassBalance_14a_rule(self, up):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SUM[up]  >= self.MinProduction[up]
+            return self.FLOW_SUM[up] >= self.MinProduction[up]
 
         def MassBalance_14b_rule(self, up):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
@@ -445,6 +450,12 @@ class SuperstructureModel(AbstractModel):
         def MassBalance_17_rule(self, u, uu):
             return self.FLOW_FT[u, uu] == sum(self.FLOW[u, uu, i] for i in self.I)
 
+
+        def MassBalance_Distribution_Factor(self, u, uu):
+            return self.DistFraction[u, uu] == sum(self.Decimal_numbers[u, k] * self.Y_DIST[u, uu, u, k]
+                                                   for u1, k in self.DC_SET if u == u1)
+
+
         self.MassBalance_1 = Constraint(self.U, self.I, rule=MassBalance_1_rule)
         self.MassBalance_2 = Constraint(self.U, self.I, rule=MassBalance_2_rule)
         self.MassBalance_3 = Constraint(self.U_SU, rule=MassBalance_3_rule)
@@ -473,6 +484,11 @@ class SuperstructureModel(AbstractModel):
         )
         self.MassBalance_16 = Constraint(self.U_DIST, self.I, rule=MassBalance_16_rule)
         self.MassBalance_17 = Constraint(self.U_CONNECTORS, rule=MassBalance_17_rule)
+
+        # Calculates the fractions that go to each stream
+        self.Distribution_Equations = Constraint(self.U_DIST_SUB, rule=MassBalance_Distribution_Factor)
+
+
 
     # **** ENERGY BALANCES *****
     # -------------------------

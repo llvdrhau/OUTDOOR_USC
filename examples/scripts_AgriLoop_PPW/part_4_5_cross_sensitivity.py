@@ -16,7 +16,7 @@ cross_sensitivity_parameters_1 = {
     "Component": ["PHA", "PHA"],
     "Target_Unit": ["n.a.", 440],
     "Reaction_Number": [11, "n.a."],
-    "Lower_Bound": [0.4, 0.4],
+    "Lower_Bound": [0.6, 0.6],
     "Upper_Bound": [0.9, 0.9],
     "Number_of_steps": [levels, levels]
 }
@@ -55,17 +55,18 @@ savePathPLots = results_dir
 
 
 # make a list of all the dicts
-saveNames = ['Part_4_4 cross sensitivity myu_gamma',
-             'Part_4_4 cross sensitivity price_gamma',
-             'Part_4_4 cross sensitivity price_myu']
+saveNames = ['Part_4_5 cross sensitivity myu_gamma',]
+             #'Part_4_5 cross sensitivity price_gamma',
+             #'Part_4_5 cross sensitivity price_myu']
 
-cross_sensitivity_parameters = [cross_sensitivity_parameters_1,
-                                cross_sensitivity_parameters_2,
-                                cross_sensitivity_parameters_3]
+cross_sensitivity_parameters = [cross_sensitivity_parameters_1,]
+                                #cross_sensitivity_parameters_2,
+                                #cross_sensitivity_parameters_3]
 
 optimization_mode = 'cross-parameter sensitivity'
 
-
+xlables = ['Yield PHA Recovery (gPHA/gX)', 'Price (€/ton)', 'Price (€/ton)']
+ylables = ['Separation efficiency (-)', 'Yield PHA Recovery (gPHA/gX)', 'Yield PHA Recovery (gPHA/gX)']
 
 for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
     # create the superstructure data from the Excel file and
@@ -84,7 +85,10 @@ for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
                                                              options=solverOptions,
                                                              cross_sensitivity_parameters=cross_sensitivity_parameter)
 
-    model_output.get_results(savePath=results_dir, saveName=saveNames[i], pprint=True)
+    model_output.get_results(savePath=results_dir,
+                             saveName=saveNames[i],
+                             pprint=False)
+
     # save and analyze the new results
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
     # create figure cross-parameter sensitivity
@@ -92,7 +96,11 @@ for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
                                          savePath=results_dir,
                                          saveName=saveNames[i],
                                          simpleContour=True,
-                                         levels=levels,)
+                                         levels=levels,
+                                         xlabel=xlables[i],
+                                         ylabel=ylables[i],
+                                         ecludianDistancePoint=(0.63, 0.65, 0)
+                                         )
 
 
 

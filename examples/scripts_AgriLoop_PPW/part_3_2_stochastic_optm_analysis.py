@@ -51,6 +51,29 @@ outputObject = outdoor.StochasticModelOutput_mpi_sppy.load_from_pickle(path=file
 pickleFilePath_WaitAndSee = os.path.join(saved_data_dir, fileName_WaitAndSee)
 WaitAndSee_Object = MultiModelOutput.load_from_pickle(path=pickleFilePath_WaitAndSee)
 
+########################################################################################
+# Microbial Protein is no longer the route chosen from the deterministic optimization problem
+# (see scripts part 1)
+#########################################################################################
+# Microbial Protein is the route chosen from the deterministic optimization problem (see scripts part 1)
+# to calculate the VSS we need the results of the here and now optimization, with the design of the microbial protein production
+# the results are saved in the pickle file 'Part_1_HAN_optimization.pkl'
+# fileName_HAN = 'Part_2_3_HAN_data.pkl'
+# pickleFilePath_HAN = os.path.join(saved_data_dir, fileName_HAN)
+# with open(pickleFilePath_HAN, 'rb') as file:
+#     HAN_Dict = pickle.load(file)
+# boxplotData = HAN_Dict['boxplotData']
+# MP_HereAndNowData = HAN_Dict['MP_HereAndNowData']
+# MP_key = list(boxplotData.keys())[1]
+# MP_WaitAndSee = boxplotData[MP_key]
+# # EVDS = Expected Value of the Deterministic Solution
+# mircobialProteinData = MP_WaitAndSee + MP_HereAndNowData
+# EVDS = np.mean(mircobialProteinData) # mean of the microbial protein data
+########################################################################################
+#########################################################################################
+
+
+
 # Microbial Protein is the route chosen from the deterministic optimization problem (see scripts part 1)
 # to calculate the VSS we need the results of the here and now optimization, with the design of the microbial protein production
 # the results are saved in the pickle file 'Part_1_HAN_optimization.pkl'
@@ -59,12 +82,15 @@ pickleFilePath_HAN = os.path.join(saved_data_dir, fileName_HAN)
 with open(pickleFilePath_HAN, 'rb') as file:
     HAN_Dict = pickle.load(file)
 boxplotData = HAN_Dict['boxplotData']
-MP_HereAndNowData = HAN_Dict['MP_HereAndNowData']
-MP_key = list(boxplotData.keys())[1]
-MP_WaitAndSee = boxplotData[MP_key]
+AF_HereAndNowData = HAN_Dict['AF_HereAndNowData']
+AF_key = list(boxplotData.keys())[0]
+AF_WaitAndSee = boxplotData[AF_key]
 # EVDS = Expected Value of the Deterministic Solution
-mircobialProteinData = MP_WaitAndSee + MP_HereAndNowData
+mircobialProteinData = AF_WaitAndSee + AF_HereAndNowData
 EVDS = np.mean(mircobialProteinData) # mean of the microbial protein data
+
+
+
 
 # Now lets caluclate the EVPI for the stochastic optimization
 # print in purple

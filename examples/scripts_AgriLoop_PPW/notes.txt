@@ -37,4 +37,29 @@ problem Here and now
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
+STOCHASTIC OPT WITHOUT YDIST[] AS A FIRST STAGE VARIABLE!!
+THE DESIGN BECOMES SPLIT
 
+C:\Users\Lucas\PycharmProjects\OUTDOOR_V2\venv\Scripts\python.exe C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\part_3_2_stochastic_optm_analysis.py
+[    0.00] Initializing mpi-sppy
+
+ Calculating the EVPI for the stochastic optimization
+--------------------------------
+--------------------------------
+
+The Expected Value of the Deterministic Solution (EVDS) is:  -0.6204337364687376
+The Expected value of with Perfect Information (EVwPI) is:  0.2139379561159468
+The Expected Value of the Stochastic Solution (EVSS) is:  -0.4021525384052317
+The Expected value of Perfect Information (EVPI) is:  0.6160904945211785
+The Value of the Stochastic Solution (VSS) is:  0.21828119806350588
+
+--------------------------------
+--------------------------------
+
+ Creating optimized flowsheet
+Time elapsed:  38.68505620956421
+File saved at:  C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\scripts_AgriLoop_PPW\results
+File name:  Part_3_stochastic_flow_sheet_design.png
+------sucess---------
+
+Process finished with exit code 0

@@ -19,6 +19,7 @@ import datetime
 from matplotlib.colors import ListedColormap
 import matplotlib.cm as cm
 from matplotlib.patches import Patch
+from scipy.spatial import cKDTree
 
 
 
@@ -269,10 +270,10 @@ class AdvancedMultiModelAnalyzer:
             print("Sensitivity graph presentation only available for Sensitivity analysis mode")
             return
 
-        ylabDict = {"NPC": "Net production costs in €/t",
-                    "NPE": "Net production emmisions in t-CO2/t",
-                    "NPFWD": "Fresh Water usage in t-H2O/t",
-                    "EBIT": " EBIT (M€/y)"}
+        ylabDict = {"NPC": "Net production costs in (€/t)",
+                    "NPE": "Net production emmisions in (t-CO2/t)",
+                    "NPFWD": "Fresh Water usage in (t-H2O/t)",
+                    "EBIT": " Earnings Before Income Tax (M€/y)"}
 
         objectiveName = self.model_output._meta_data["Objective Function"]
 
@@ -701,14 +702,23 @@ class AdvancedMultiModelAnalyzer:
         plt.show()
 
     def create_cross_parameter_plot(self, processList, objective, savePath=None, saveName=None,
-                                    simpleContour=False, levels=10):
+                                    simpleContour=False, levels=10, xlabel=None, ylabel=None, ecludianDistancePoint=None ):
         """
         This method creates a contour plot with contour lines and background colors corresponding to labels using a custom colormap.
-        :param processList:
-        :param objective:
-        :param savePath:
-        :param saveName:
-        :return:
+        :param processList: List of process numbers to be checked in the algorithm (e.g., [6000, 410])
+        :param objective: The objective function to be plotted on the contour lines (e.g., 'EBIT')
+        :param savePath: where to save the plot
+        :param saveName: specify the name of the plot
+        :param simpleContour: If True, only the contour lines are plotted. If False, the contour lines are plotted on
+        top of a filled contour plot representing which products where produced (from process list).
+        :param levels: Number of levels for the contour plot
+        :param xlabel: Label for the x-axis
+        :param ylabel: Label for the y-axis
+        :param ecludianDistancePoint: A tuple (x, y, Z) where x and y the coordinates of the point for which the
+        distance to the contour line Z should be calculated
+
+        :return: Contour plot with labels and contour lines saved to the specified file path
+
         """
         x, y, z, c, label_dict = self._get_graph_data(processList, objective)
         c, label_dict = self._reorder_labels(c, label_dict)
@@ -720,6 +730,12 @@ class AdvancedMultiModelAnalyzer:
             contour_lines = plt.contour(x, y, z, levels=levels, colors='black')
             # Label the contour lines
             plt.clabel(contour_lines, inline=False, fontsize=8)
+
+            if xlabel:
+                plt.xlabel(xlabel)
+            if ylabel:
+                plt.ylabel(ylabel)
+
             # save the plot to the specified file path
             if savePath:
                 if saveName:
@@ -729,8 +745,61 @@ class AdvancedMultiModelAnalyzer:
                 plt.savefig(save_path)
                 plt.clf()
 
+            if ecludianDistancePoint:
+                point = (ecludianDistancePoint[0], ecludianDistancePoint[1])
+                contour_level = ecludianDistancePoint[2]
+                distance, closest_point = self.calculate_min_distance_to_contour(x, y, z, contour_level, point)
+                # print in purple color
+                print("\033[95m")
+                print(f"Distance from point {ecludianDistancePoint} to the 0-level contour: {distance}")
+                print(f"Closest point on the contour line: {closest_point}")
+                print("\033[0m")
         else:
             self.plot_contour_with_labels(x, y, z, c, label_dict, savePath, saveName)
+
+    def calculate_min_distance_to_contour(self, x, y, z, contour_level, point):
+        """
+        Calculate the minimum distance from a point to a specific contour level.
+
+        Parameters:
+        - x: 2D array of x-coordinates (meshgrid).
+        - y: 2D array of y-coordinates (meshgrid).
+        - z: 2D array of z-values (function values over the grid).
+        - contour_level: The contour level you are interested in (e.g., 0 for the 0-level contour).
+        - point: A tuple representing the (x, y) coordinates of the point.
+
+        Returns:
+        - min_distance: The minimum Euclidean distance from the point to the contour line.
+        - closest_point: The closest point on the contour line.
+        """
+
+        # Create a contour plot but don't display it
+        fig, ax = plt.subplots()
+        CS = ax.contour(x, y, z, levels=[contour_level])
+
+        # Extract the contour line coordinates from the plot
+        contour_paths = CS.collections[0].get_paths()
+
+        contour_points = []
+
+        # Iterate over all paths of the contour line
+        for path in contour_paths:
+            contour_points.extend(path.vertices)
+
+        # Convert contour points to a numpy array
+        contour_points = np.array(contour_points)
+
+        # Create a KDTree for fast nearest-neighbor search
+        tree = cKDTree(contour_points)
+
+        # Find the nearest point on the contour line to the given point
+        distance, idx = tree.query(point)
+        closest_point = contour_points[idx]
+
+        # Close the figure as we don't need to show the plot
+        plt.close(fig)
+
+        return distance, closest_point
 
     def _reorder_labels(self, labels, labelDict):
         """

@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 
-def plot_boxplots_with_dots(box_plot_data_sets, dots_data_sets:list=None, xTicks=None):
+def plot_boxplots_with_dots(box_plot_data_sets, dots_data_sets:list=None, xTicks=None, saveName=None):
     """
-    Plots box plots for multiple sets of data and optionally overlays red dots.
+    Plots box plots for multiple sets of data and optionally overlays blue dots.
 
     Parameters:
     box_plot_data_sets (list of lists): A list where each element is a list of data for a box plot.
@@ -41,7 +41,12 @@ def plot_boxplots_with_dots(box_plot_data_sets, dots_data_sets:list=None, xTicks
     #plt.show()
 
     # Save the plot
-    plt.savefig('results/Part_2_3_box_plots_HAN.png')
+    if saveName is not None:
+        plt.savefig(saveName)
+    else:
+        saveName = 'results/Part_2_3_box_plots_HAN.png'
+
+    plt.savefig(saveName, dpi=300, bbox_inches='tight')
 
 # file paths
 # check the size of the pickle file
@@ -70,10 +75,10 @@ boxplotData = dataDict['boxplotData']
 keysDict = list(boxplotData.keys())
 
 # extract the wait and see results
-compost_WaitAndSee = boxplotData[keysDict[0]]
-AF_WaitAndSee = boxplotData[keysDict[1]]
-MP_WaitAndSee = boxplotData[keysDict[2]]
-pha_WaitAndSee = boxplotData[keysDict[3]]
+compost_WaitAndSee = boxplotData[keysDict[4]]
+AF_WaitAndSee = boxplotData[keysDict[0]]
+MP_WaitAndSee = boxplotData[keysDict[1]]
+pha_WaitAndSee = boxplotData[keysDict[2]]
 
 # extract the here and now results
 compost_HereAndNow = dataDict['compost_HereAndNowData']
@@ -112,9 +117,20 @@ dots_data_sets = [
 ]
 
 # make the box plot figure
+plot_boxplots_with_dots(box_plot_data_sets=box_plot_data_sets[0:2+1],
+                        dots_data_sets=dots_data_sets[0:2+1],
+                        xTicks=['Compost', 'Animal Feed', 'Microbial Protein'],
+                        saveName='results/Part_2_3_box_plots_HAN.png')
+
+
+plot_boxplots_with_dots(box_plot_data_sets= [box_plot_data_sets[-1]],
+                        dots_data_sets= [dots_data_sets[-1]],
+                        xTicks=['PHA'],
+                        saveName='results/Part_2_3_box_plots_HAN_2.png')
+
 plot_boxplots_with_dots(box_plot_data_sets=box_plot_data_sets,
                         dots_data_sets=dots_data_sets,
-                        xTicks=['Compost', 'Animal Feed', 'Microbial Protein', 'PHA'])
-
+                        xTicks=['Compost', 'Animal Feed', 'Microbial Protein', 'PHA'],
+                        saveName='results/Part_2_3_box_plots_HAN_3.png')
 
 print('\033[92m' + '------sucess---------'+ '\033[0m')

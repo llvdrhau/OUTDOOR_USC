@@ -66,7 +66,7 @@ keysDict = list(flowSheetDict.keys())
 # --------------------------
 # FOR MICROBIAL PROTEIN
 # --------------------------
-mpDesignKey = keysDict[1] # microbial protein design key is the 1st key in the keysDict!!
+mpDesignKey = keysDict[1] # microbial protein design key is the 2nd key in the keysDict!!
 scKeys = list(flowSheetDict[mpDesignKey].keys())
 microbialProteinDesign = flowSheetDict[mpDesignKey][scKeys[0]]  # take the first design
 microbialProteinScenarioDataFiles = {}
@@ -78,7 +78,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR Animal Feed
 # --------------------------
-afDesignKey = keysDict[2] # animal feed design key is the 3rd key in the keysDict!!
+afDesignKey = keysDict[0] # animal feed design key is the 1st key in the keysDict!!
 scKeys = list(flowSheetDict[afDesignKey].keys())
 animalFeedDesign = flowSheetDict[afDesignKey][scKeys[0]]  # take the first design
 annimalFeedScenarioDataFiles = {}
@@ -90,7 +90,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR PHA PRODUCTION
 # --------------------------
-phaDesignKey = keysDict[3] # PHA design key is the 2nd key in the keysDict!!
+phaDesignKey = keysDict[2] # PHA design key is the 2nd key in the keysDict!!
 scKeys = list(flowSheetDict[phaDesignKey].keys())
 phaDesign = flowSheetDict[phaDesignKey][scKeys[0]]  # take the first design
 phaScenarioDataFiles = {}
@@ -102,7 +102,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR COMPOST PRODUCTION
 # --------------------------
-compostDesignKey = keysDict[0]  # PHA design key: 0
+compostDesignKey = keysDict[4]  # Compost design key: 4
 scKeys = list(flowSheetDict[compostDesignKey].keys())
 compostDesign = flowSheetDict[compostDesignKey][scKeys[0]]  # take the first design
 compostScenarioDataFiles = {}
