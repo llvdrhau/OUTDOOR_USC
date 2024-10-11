@@ -124,7 +124,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         # Create the tabs
         createWelcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
         componentsTab = ComponentsTab(centralDataManager=self.centralDataManager)
-
         generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager)

@@ -31,11 +31,11 @@ class CentralDataManager:
     def addData(self, field, data):
         # self.data[field] = data
         match field:
-        #     case "chemicalComponentsData":
-        #         for species in data:
-        #             if species[0] not in self.namesChemicalComponents:
-        #                 self.namesChemicalComponents.append(
-        #                     species[0])  # Add the species name to the list of chemical components
+            case "chemicalComponentsData":
+                for species in data:
+                    if species[0] not in self.namesChemicalComponents:
+                        self.namesChemicalComponents.append(
+                            species[0])  # Add the species name to the list of chemical components
             case "generalData":
                 self.saveGeneral(data)
 

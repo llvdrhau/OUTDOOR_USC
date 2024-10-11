@@ -74,8 +74,8 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
 # mpi-sppy options, integrates the solver options as well
 options = {
     "solver_name": "gurobi",
-    "PHIterLimit": 50,
-    "defaultPHrho": 25, # set high for binary variables as first stage
+    "PHIterLimit": 250,
+    "defaultPHrho": 15, # set high for binary variables as first stage
     "convthresh": 1e-4,
     "verbose": False,
     "display_progress": True,

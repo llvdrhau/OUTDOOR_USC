@@ -134,9 +134,10 @@ class ComponentsTab(QWidget):
     def saveData(self):
         self.collectData()
         # Save the data to the central data manager
-        # self.centralDataManager.addData("chemicalComponentsData")
+        self.centralDataManager.addData("chemicalComponentsData", self.componentList)
 
         # Change the border of OK button to green
+        # print('debugging')
         # self.okButton.setStyleSheet("border: 2px solid green;")
 
     def collectData(self):
@@ -147,7 +148,7 @@ class ComponentsTab(QWidget):
             for column in self.columnsList:
                 sindex = self.columnsList.index(column)
                 item = self.componentsTable.item(row, sindex)
-                if column in ["Component", "Lower heating Value (MWh/t)", "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)"]:
+                if column in ["Component", "Lower heating Value (kWh/kg)", "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)"]:
                     edit.upadateField(self.columnsShortnames[sindex], item.text())
                 if column == "LCA":
                     # this is handled inside the DTO
