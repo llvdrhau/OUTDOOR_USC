@@ -32,63 +32,77 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         # Create a title for the tab
         self._createSectionTitle(text="Reaction Tab", layout=layout)
 
-        # create subtitel
-        self._createSectionTitle(text="Reactants", layout=layout)
+        # todo a drop down menu for the reaction name, extract from the central data manager
+
+        # create a table for the reactions
+        self.reactionTable = QTableWidget(0, 2, self)  # Initial rows, columns
+
+        self.reactionName = QComboBox()
+        self.reactionName.addItem("Reaction 1")
+        self.reactionName.addItem("Reaction 2")
+
+        # add the combo box to the layout
+        layout.addRow("Reaction:", self.reactionName)
+        layout.addRow("Reaction Name:", self.reactionTable)
 
 
-        # create table for the components
-        self.reactantsTable = QTableWidget(0, 4, self)  # Initial rows, columns
-        self.reactantsTable.setHorizontalHeaderLabels(["Reactant Name", "Stoichiometric",
-                                                                      "Conversion Factor","Reaction Number"])
-        self.reactantsTable.setColumnWidth(0, 200)  # make column 1 wider
-        self.reactantsTable.setColumnWidth(1, 200)  # make column 2 wider
-        self.reactantsTable.setColumnWidth(2, 200)  # make column 3 wider
-        self.reactantsTable.setColumnWidth(3, 200)  # make column 4 wider
-
-        #  add the tabel to the widget
-        tooltipText = """define the stoichiometric factors for the reactants (on a mass bassis! g/g), their conversion factors and to what
-                               reaction number them belong to. Numbers needed to distinguish between reactions"""
-        self._addRowWithTooltip(layout, labelText="Components:", widget=self.reactantsTable,
-                                tooltipText=tooltipText)
-        self.reactantsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
-        self.reactantsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
-        self.reactantsTable.setObjectName("reactantsTable")
-
-        # Add a row to tabel button
-        self.addRowButtonReactantsTable = QPushButton("Add Component", self)
-        self.addRowButtonReactantsTable.clicked.connect(self._addRowToTable)
-        # set object name
-        self.addRowButtonReactantsTable.setObjectName("addRowButtonReactantsTable")
-        layout.addWidget(self.addRowButtonReactantsTable)
-        # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="reactantsTable")
-
-        # creat subtitel for Products of the reaction
-        self._createSectionTitle(text="Products", layout=layout)
-
-        # create table for the components
-        self.productsTable = QTableWidget(0, 3, self)  # Initial rows, columns
-        self.productsTable.setHorizontalHeaderLabels(["Component Name", "Stoichiometric", "Reaction Number"])
-        self.productsTable.setColumnWidth(0, 200)  # make column 1 wider
-        self.productsTable.setColumnWidth(1, 200)  # make column 2 wider
-        self.productsTable.setColumnWidth(2, 200) # make column 3 wider
-        #  add the tabel to the widget
-        tooltipText = """The chemicals that are produced. define stoichiometric factors (mass! g/g) for the products and
-         to what reaction number them belong to. Numbers needed to distinguish between reactions."""
-        # add same table to the layout
-        self._addRowWithTooltip(layout, labelText="Components:", widget=self.productsTable, tooltipText=tooltipText)
-        self.productsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
-        self.productsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
-        self.productsTable.setObjectName("productsTable")
-
-        # add row button
-        self.addRowButtonProductsTable = QPushButton("Add Component", self)
-        self.addRowButtonProductsTable.clicked.connect(self._addRowToTable)
-        # set object name
-        self.addRowButtonProductsTable.setObjectName("addRowButtonProductsTable")
-        layout.addWidget(self.addRowButtonProductsTable)
-        # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="productsTable")
+        # # create subtitel
+        # self._createSectionTitle(text="Reactants", layout=layout)
+        #
+        #
+        # # create table for the components
+        # self.reactantsTable = QTableWidget(0, 4, self)  # Initial rows, columns
+        # self.reactantsTable.setHorizontalHeaderLabels(["Reactant Name", "Stoichiometric",
+        #                                                               "Conversion Factor","Reaction Number"])
+        # self.reactantsTable.setColumnWidth(0, 200)  # make column 1 wider
+        # self.reactantsTable.setColumnWidth(1, 200)  # make column 2 wider
+        # self.reactantsTable.setColumnWidth(2, 200)  # make column 3 wider
+        # self.reactantsTable.setColumnWidth(3, 200)  # make column 4 wider
+        #
+        # #  add the tabel to the widget
+        # tooltipText = """define the stoichiometric factors for the reactants (on a mass bassis! g/g), their conversion factors and to what
+        #                        reaction number them belong to. Numbers needed to distinguish between reactions"""
+        # self._addRowWithTooltip(layout, labelText="Components:", widget=self.reactantsTable,
+        #                         tooltipText=tooltipText)
+        # self.reactantsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        # self.reactantsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        # self.reactantsTable.setObjectName("reactantsTable")
+        #
+        # # Add a row to tabel button
+        # self.addRowButtonReactantsTable = QPushButton("Add Component", self)
+        # self.addRowButtonReactantsTable.clicked.connect(self._addRowToTable)
+        # # set object name
+        # self.addRowButtonReactantsTable.setObjectName("addRowButtonReactantsTable")
+        # layout.addWidget(self.addRowButtonReactantsTable)
+        # # Initialize the table with an example row (optional)
+        # self._addRowToTable(tabName="reactantsTable")
+        #
+        # # creat subtitel for Products of the reaction
+        # self._createSectionTitle(text="Products", layout=layout)
+        #
+        # # create table for the components
+        # self.productsTable = QTableWidget(0, 3, self)  # Initial rows, columns
+        # self.productsTable.setHorizontalHeaderLabels(["Component Name", "Stoichiometric", "Reaction Number"])
+        # self.productsTable.setColumnWidth(0, 200)  # make column 1 wider
+        # self.productsTable.setColumnWidth(1, 200)  # make column 2 wider
+        # self.productsTable.setColumnWidth(2, 200) # make column 3 wider
+        # #  add the tabel to the widget
+        # tooltipText = """The chemicals that are produced. define stoichiometric factors (mass! g/g) for the products and
+        #  to what reaction number them belong to. Numbers needed to distinguish between reactions."""
+        # # add same table to the layout
+        # self._addRowWithTooltip(layout, labelText="Components:", widget=self.productsTable, tooltipText=tooltipText)
+        # self.productsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
+        # self.productsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
+        # self.productsTable.setObjectName("productsTable")
+        #
+        # # add row button
+        # self.addRowButtonProductsTable = QPushButton("Add Component", self)
+        # self.addRowButtonProductsTable.clicked.connect(self._addRowToTable)
+        # # set object name
+        # self.addRowButtonProductsTable.setObjectName("addRowButtonProductsTable")
+        # layout.addWidget(self.addRowButtonProductsTable)
+        # # Initialize the table with an example row (optional)
+        # self._addRowToTable(tabName="productsTable")
 
         # return the widget
         widget.setLayout(layout)

@@ -10,6 +10,7 @@ import pickle
 #from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 
 class CentralDataManager:
     """
@@ -26,6 +27,7 @@ class CentralDataManager:
         self.loadConfigs()
         self.generalData = {}
         self.componentData: list[ComponentDTO] = []
+        self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
 
     def addData(self, field, data):
@@ -47,6 +49,14 @@ class CentralDataManager:
         Handels the data form the components tab (see class XXX todo give name of class)
         """
         self.data['componentData'] = data
+
+    def addReactionData(self, data):
+        """
+        Adds Reactions to the ReactionsData
+        :param data:
+        :return:
+        """
+        self.reactionData.append(data)
 
     def updateIconData(self, iconId, newData):
         if iconId in self.data:

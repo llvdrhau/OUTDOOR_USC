@@ -728,23 +728,31 @@ class AdvancedMultiModelAnalyzer:
             contour_filled = plt.contourf(x, y, z, levels=levels, cmap='viridis')
             # Add contour lines on top of the filled contours
             contour_lines = plt.contour(x, y, z, levels=levels, colors='black')
-            # Label the contour lines
-            plt.clabel(contour_lines, inline=False, fontsize=8)
 
+
+            # Highlight the zero contour line with extra boldness
+            zero_contour = plt.contour(x, y, z, levels=[0], colors='cyan',
+                                       linewidths=3)  # Change color and width as needed
+
+            # Label the contour lines with larger fonts
+            # Increase font size here
+            labels = plt.clabel(contour_lines, inline=False, fontsize=12, fmt='%1.2f M€/y')
+            # Adjust label positions
+            for label in labels:
+                label.set_y(label.get_position()[1] + 0.01)  # Adjust the distance as needed
+
+            # Label for the zero contour, if needed
+            zeroLable = plt.clabel(zero_contour, inline=False, fontsize=12, fmt='%1.2f M€/y')
+            for lable in zeroLable:
+                lable.set_y(lable.get_position()[1] + 0.01)  # Adjust the distance as needed
+
+            # add labels to the axes
             if xlabel:
                 plt.xlabel(xlabel)
             if ylabel:
                 plt.ylabel(ylabel)
 
-            # save the plot to the specified file path
-            if savePath:
-                if saveName:
-                    save_path = f"{savePath}/{saveName}.png"
-                else:
-                    save_path = f"{savePath}/contour_plot.png"
-                plt.savefig(save_path)
-                plt.clf()
-
+            # find the minimum distance from a point to the 0-level contour
             if ecludianDistancePoint:
                 point = (ecludianDistancePoint[0], ecludianDistancePoint[1])
                 contour_level = ecludianDistancePoint[2]
@@ -754,6 +762,19 @@ class AdvancedMultiModelAnalyzer:
                 print(f"Distance from point {ecludianDistancePoint} to the 0-level contour: {distance}")
                 print(f"Closest point on the contour line: {closest_point}")
                 print("\033[0m")
+
+                # add the point and the closest point on the contour line to the plot as a red dot
+                plt.plot(point[0], point[1], 'wo', label='Current state of the technology', markersize=10)
+                plt.plot(closest_point[0], closest_point[1], 'yo', label='Break Even Point', markersize=10)
+
+            # save the plot to the specified file path
+            if savePath:
+                if saveName:
+                    save_path = f"{savePath}/{saveName}.png"
+                else:
+                    save_path = f"{savePath}/contour_plot.png"
+                plt.savefig(save_path)
+                plt.clf()
         else:
             self.plot_contour_with_labels(x, y, z, c, label_dict, savePath, saveName)
 

@@ -53,7 +53,7 @@ class ComponentsTab(QWidget):
         # Add the table to the layout
         self.layout.addWidget(self.componentsTable)
         # Add Row Button
-        self.addRowButton = QPushButton("Add Row")
+        self.addRowButton = QPushButton("Add Chemical Component")
         self.addRowButton.clicked.connect(self.addComponentRow)
         self.layout.addWidget(self.addRowButton)
 
@@ -70,6 +70,7 @@ class ComponentsTab(QWidget):
             self.addComponentRow()
 
     def addComponentRow(self, data: ComponentDTO | None = None):
+
         rowPosition: int
         if data is None or not isinstance(data, ComponentDTO):
             rowPosition = self.componentsTable.rowCount()
@@ -103,6 +104,10 @@ class ComponentsTab(QWidget):
                 #It isn't a problem.
                 continue
 
+        # save the data every time a new row is added
+        self.saveData()
+
+        # delete?
         # for i in range(self.componentsTable.columnCount()):
         #     item = QTableWidgetItem(str(data[i]))
         #     self.componentsTable.setItem(rowPosition, i, item)

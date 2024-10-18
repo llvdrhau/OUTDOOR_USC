@@ -96,7 +96,7 @@ for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
                                          savePath=results_dir,
                                          saveName=saveNames[i],
                                          simpleContour=True,
-                                         levels=levels,
+                                         levels=10,
                                          xlabel=xlables[i],
                                          ylabel=ylables[i],
                                          ecludianDistancePoint=(0.63, 0.65, 0)
