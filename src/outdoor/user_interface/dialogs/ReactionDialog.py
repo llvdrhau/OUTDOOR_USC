@@ -95,10 +95,6 @@ class ReactionDialog(QDialog):
         self.reactantsTable.setColumnWidth(1, 150)
         tables_layout.addWidget(self.reactantsTable)
 
-        # Set the selection behavior for the tables
-        # self.reactantsTable.setSelectionBehavior(QTableWidget.SelectRows)
-        # self.reactantsTable.setSelectionMode(QTableWidget.SingleSelection)
-
 
         # Add Row Button for Reactants Table
         addReactantButton = QPushButton("Add Reactant", self)
@@ -113,15 +109,6 @@ class ReactionDialog(QDialog):
         self.productsTable.setColumnWidth(1, 150)
         tables_layout.addWidget(self.productsTable)
 
-        # Set the selection behavior for the tables
-        # self.productsTable.setSelectionBehavior(QTableWidget.SelectRows)
-        # self.productsTable.setSelectionMode(QTableWidget.SingleSelection)
-
-        # Enable context menu policy for both tables
-        # self.reactantsTable.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.reactantsTable.customContextMenuRequested.connect(self.contestMenuEvent)
-        # self.productsTable.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.productsTable.customContextMenuRequested.connect(self.showContextMenu)
 
         # Add Row Button for Products Table
         addProductButton = QPushButton("Add Product", self)
@@ -188,28 +175,30 @@ class ReactionDialog(QDialog):
         # Add the QLineEdit widget to the table
         self.productsTable.setCellWidget(rowPosition, 1, stoichiometryEdit)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
-            # Get the widget that currently has focus
-            focused_widget = self.focusWidget()
+    # keyPressEvent not used any more to delete table rows not very usefull
+    #def keyPressEvent(self, event):
+        #pass
+        #if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
+         #   # Get the widget that currently has focus
+          #  focused_widget = self.focusWidget()
 
-            # Check if the reactants table has focus
-            if focused_widget is self.reactantsTable:
-                selected_items = self.reactantsTable.selectedItems()
-                if selected_items:
-                    selected_row = selected_items[0].row()  # Get the row of the first selected item
-                    self.reactantsTable.removeRow(selected_row)
+           # # Check if the reactants table has focus
+            #if focused_widget is self.reactantsTable:
+             #   selected_items = self.reactantsTable.selectedItems()
+              #  if selected_items:
+               #     selected_row = selected_items[0].row()  # Get the row of the first selected item
+                 #   self.reactantsTable.removeRow(selected_row)
 
             # Check if the products table has focus
-            elif focused_widget is self.productsTable:
-                selected_items = self.productsTable.selectedItems()
-                if selected_items:
-                    selected_row = selected_items[0].row()  # Get the row of the first selected item
-                    self.productsTable.removeRow(selected_row)
+            #elif focused_widget is self.productsTable:
+             #   selected_items = self.productsTable.selectedItems()
+              #  if selected_items:
+               #     selected_row = selected_items[0].row()  # Get the row of the first selected item
+                    #self.productsTable.removeRow(selected_row)
 
         # If the key press is not handled by the above logic, pass it to the parent
-        else:
-            super().keyPressEvent(event)
+        #else:
+         #   super().keyPressEvent(event)
 
     def loadInitialData(self, data: ReactionDTO):
         """
@@ -277,19 +266,11 @@ class ReactionDialog(QDialog):
 
             # check if the sum of the stoichiometry is zero print a warning dialog
             if sum(reactants.values()) + sum(products.values()) != 0:
+                self.warningDialog(errorType="Stoich")
+                return
 
-                wannaringDialog = QDialog()
-                layout = QVBoxLayout()
-                label = QLabel(
-                    "<b>The sum of the stoichiometry is not zero, please check that the mass is balanced correctly</b>")
-                layout.addWidget(label)
-                # Add a button to close the dialog
-                close_button = QPushButton("Close")
-                close_button.clicked.connect(wannaringDialog.close)
-                layout.addWidget(close_button)
-
-                wannaringDialog.setLayout(layout)
-                wannaringDialog.exec_()
+            if name=="":
+                self.warningDialog(errorType="Name")
                 return
 
 
@@ -381,22 +362,9 @@ class ReactionDialog(QDialog):
         products_str = " + ".join([f"{v} {k}" for k, v in products.items()])
         return f"{reactants_str} -> {products_str}"
 
-    from PyQt5 import QtWidgets  # Add this import to your existing imports
-
     def contextMenuEvent(self, event):
         # Create a context menu
         context_menu = QMenu(self)
-
-        # Todo compleet this function
-        # focused_widget = self.focusWidget()
-        # # Check if the reactants table has focus
-        # if focused_widget is self.reactantsTable:
-        #     table = self.reactantsTable
-        #     print("Reactants Table")
-        # elif focused_widget is self.productsTable:
-        #     table = self.productsTable
-        #     print("Products Table")
-
 
         # Add actions for deleting rows from both tables
         deleteAction = context_menu.addAction("Delete Row")
@@ -420,4 +388,31 @@ class ReactionDialog(QDialog):
             if row != -1:
                 self.productsTable.removeRow(row)
 
+    def warningDialog(self, errorType:str):
+        """
+        Makes a warning Dialog if the stoichiometry is not balanced or no reaction name is given
+        :param errorType: "Name" or "Stoich"
+        :return:
+        """
+        warningDialog = QDialog()
+        layout = QVBoxLayout()
 
+        match errorType:
+            case "Stoich":
+                label = QLabel("<b>The sum of the stoichiometry is not zero, "
+                               "please check that the mass is balanced correctly</b>")
+
+            case "Name":
+                label = QLabel("<b>No Reaction name given! Please introduce one </b>")
+
+            case _:
+                raise ValueError('Unknown error occurred')
+
+        layout.addWidget(label)
+        # Add a button to close the dialog
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(warningDialog.close)
+        layout.addWidget(close_button)
+
+        warningDialog.setLayout(layout)
+        warningDialog.exec_()

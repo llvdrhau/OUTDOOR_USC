@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QPoint
 import bw2data as bw
 import bw2calc as bc
 import pandas as pd
-#from bw2data.backends import Activity
+from bw2data.backends import Activity
 import difflib
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 

@@ -1,7 +1,7 @@
 import uuid
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
 from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
@@ -19,6 +19,43 @@ class ComponentsTab(QWidget):
         super().__init__(parent)
         self.centralDataManager = centralDataManager
         self.componentList: list[ComponentDTO] = centralDataManager.componentData
+
+        self.setStyleSheet("""
+                                                    QDialog {
+                                                        background-color: #f2f2f2;
+                                                    }
+                                                    QLabel {
+                                                        color: #333333;
+                                                    }
+                                                    QLineEdit {
+                                                        border: 1px solid #cccccc;
+                                                        border-radius: 2px;
+                                                        padding: 5px;
+                                                        background-color: #ffffff;
+                                                        selection-background-color: #b0daff;
+                                                    }
+                                                    QPushButton {
+                                                        color: #ffffff;
+                                                        background-color: #5a9;
+                                                        border-style: outset;
+                                                        border-width: 2px;
+                                                        border-radius: 10px;
+                                                        border-color: beige;
+                                                        font: bold 14px;
+                                                        padding: 6px;
+                                                    }
+                                                    QPushButton:hover {
+                                                        background-color: #78d;
+                                                    }
+                                                    QPushButton:pressed {
+                                                        background-color: #569;
+                                                        border-style: inset;
+                                                    }
+                                                    QTableWidget {
+                                                        border: 1px solid #cccccc;
+                                                        selection-background-color: #b0daff;
+                                                    }
+                                                """)
         self.layout = QVBoxLayout(self)
 
         # Title for the component tab
@@ -106,6 +143,8 @@ class ComponentsTab(QWidget):
 
         # save the data every time a new row is added
         self.saveData()
+        # set the border of the OK button to red
+        self.okButton.setStyleSheet("border: 2px solid red;")
 
         # delete?
         # for i in range(self.componentsTable.columnCount()):
@@ -143,7 +182,7 @@ class ComponentsTab(QWidget):
 
         # Change the border of OK button to green
         # print('debugging')
-        # self.okButton.setStyleSheet("border: 2px solid green;")
+        self.okButton.setStyleSheet("border: 2px solid green;")
 
     def collectData(self):
         # Collect data from the table
@@ -172,6 +211,29 @@ class ComponentsTab(QWidget):
             pass
             # it only gets here if there aren't any saved rows, like in a new project
 
+    def contextMenuEvent(self, event):
+        # Create a context menu
+        context_menu = QMenu(self)
+
+        # Add actions for deleting rows from both tables
+        deleteAction = context_menu.addAction("Delete Row")
+
+        # Execute the context menu and get the selected action
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+
+        # Determine which table was clicked
+        component_pos = self.componentsTable.viewport().mapFrom(self, event.pos())
+
+        if self.componentsTable.geometry().contains(event.pos()) and action == deleteAction:
+            # Determine the row that was clicked in the reactants table
+            row = self.componentsTable.rowAt(component_pos.y())
+            if row != -1:
+                self.componentsTable.removeRow(row)
+
+            # update the dto list containing the chemical components
+            self.centralDataManager.updateData('componentData', row)
+            # todo make a consistency check to see if the chemical component is used in any reaction or unit operation
+            # open a dialog if the component is used in a reaction or unit operation
 
 class LcaButton(QPushButton):
     def __init__(self, parent, data: ComponentDTO):
@@ -187,3 +249,5 @@ class LcaButton(QPushButton):
                 self.setText("Defined")
             else:
                 self.setText("Not Defined")
+
+

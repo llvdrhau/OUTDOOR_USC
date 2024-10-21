@@ -36,10 +36,20 @@ class CentralDataManager:
             case "chemicalComponentsData":
                 for species in data:
                     if species[0] not in self.namesChemicalComponents:
-                        self.namesChemicalComponents.append(
-                            species[0])  # Add the species name to the list of chemical components
+                        # Add the species name to the list of chemical components
+                        self.namesChemicalComponents.append(species[0])
+
             case "generalData":
                 self.saveGeneral(data)
+
+            case "reactionData":
+                self.reactionData.append(data)
+
+            case _:
+                # print in red
+                print("\033[91m" + "Error: Field not recognized" + "\033[0m")
+                print("\033[91m" + "Adding data to the Central data manager for field: {}".format(field) + "\033[0m")
+
 
     def getChemicalComponentNames(self):
         return self.namesChemicalComponents
@@ -56,7 +66,39 @@ class CentralDataManager:
         :param data:
         :return:
         """
-        self.reactionData.append(data)
+        self.componentData.append(data)
+
+
+
+    def updateData(self, dataType: str, row: int):
+        """
+        Updates the reactionData list when a reaction is deleted
+        :param row: int, this is the row i.e., the indices in the list that corresponds to the reaction that is to be
+        deleted
+        :return: updated reactionData component
+        """
+
+        match dataType:
+            case "reactionData":
+                # delete the row with the data for that reaction
+                self.reactionData.pop(row)
+                sizeReactionList = len(self.reactionData)
+
+                if row != sizeReactionList:  # if it's the last element in the list don't adjust the indices
+                    for i in range(row, sizeReactionList):
+                        data = self.reactionData[i]
+                        data.upadateField("rowPosition", i)
+
+            case "componentData":
+                # delete the row with the data for that component
+                self.componentData.pop(row)
+                sizeComponentList = len(self.componentData)
+
+                if row != sizeComponentList: # if it's the last element in the list don't adjust the indices
+                    for i in range(row, sizeComponentList):
+                        data = self.componentData[i]
+                        data.updateRow()
+
 
     def updateIconData(self, iconId, newData):
         if iconId in self.data:
@@ -221,3 +263,4 @@ class CentralDataManager:
             self.struct = pickle.load(file)
 
         print(self.struct)
+

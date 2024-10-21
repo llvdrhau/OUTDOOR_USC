@@ -1,7 +1,7 @@
 import uuid
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
 from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
@@ -19,6 +19,42 @@ class ReactionsTab(QWidget):
         super().__init__(parent)
         self.centralDataManager = centralDataManager
         self.reactionList: list[ReactionDTO] = centralDataManager.reactionData
+        self.setStyleSheet("""
+                                            QDialog {
+                                                background-color: #f2f2f2;
+                                            }
+                                            QLabel {
+                                                color: #333333;
+                                            }
+                                            QLineEdit {
+                                                border: 1px solid #cccccc;
+                                                border-radius: 2px;
+                                                padding: 5px;
+                                                background-color: #ffffff;
+                                                selection-background-color: #b0daff;
+                                            }
+                                            QPushButton {
+                                                color: #ffffff;
+                                                background-color: #5a9;
+                                                border-style: outset;
+                                                border-width: 2px;
+                                                border-radius: 10px;
+                                                border-color: beige;
+                                                font: bold 14px;
+                                                padding: 6px;
+                                            }
+                                            QPushButton:hover {
+                                                background-color: #78d;
+                                            }
+                                            QPushButton:pressed {
+                                                background-color: #569;
+                                                border-style: inset;
+                                            }
+                                            QTableWidget {
+                                                border: 1px solid #cccccc;
+                                                selection-background-color: #b0daff;
+                                            }
+                                        """)
         self.layout = QVBoxLayout(self)
 
         # Title for the component tab
@@ -52,10 +88,11 @@ class ReactionsTab(QWidget):
         self.addRowButton.clicked.connect(self.addReactionRow)
         self.layout.addWidget(self.addRowButton)
 
+        # save button not needed, reaction is saved automatically when edited
         # Save button setup
-        self.okButton = QPushButton("Save")
-        self.okButton.clicked.connect(self.saveData)
-        self.layout.addWidget(self.okButton)
+        # self.okButton = QPushButton("Save")
+        # self.okButton.clicked.connect(self.saveData)
+        # self.layout.addWidget(self.okButton)
 
         # Ensure the widget can receive focus to detect key presses
         self.setFocusPolicy(Qt.StrongFocus)
@@ -71,7 +108,7 @@ class ReactionsTab(QWidget):
             rowPosition = self.reactionTable.rowCount()
             uid = uuid.uuid4().__str__()
             data = ReactionDTO(rowPosition, uid)
-            self.centralDataManager.addReactionData(data)
+            self.centralDataManager.addData('reactionData', data)
             # self.reactionList.append(data)
 
         else:
@@ -137,32 +174,48 @@ class ReactionsTab(QWidget):
         pass
 
     def saveData(self):
-        self.collectData()
+        pass
+        # a bit redundant, every time you add/edit a reaction it is automatically saved.
+        # self.collectData()
         # Save the data to the central data manager
-        self.centralDataManager.addData("reactionData", self.reactionList)
+        # self.centralDataManager.addData("reactionData", self.reactionList)
 
         # Change the border of OK button to green
         # print('debugging')
         # self.okButton.setStyleSheet("border: 2px solid green;")
 
     def collectData(self):
-        # Collect data from the table
-        for row in range(self.reactionTable.rowCount()):
-            edit = [u for u in self.reactionList if u.rowPosition == row][0]
-            rowData = []
-            for column in self.columnsList:
-                sindex = self.columnsList.index(column)
-                item = self.reactionTable.item(row, sindex)
-                if column in ["name", "reactants", "products"]:
-                    edit.upadateField(self.columnsShortnames[sindex], item.text())
-                if column == "LCA":
-                    # this is handled inside the DTO
-                    pass
+        pass
 
     def sortComponentDTO(self, dto: ReactionDTO):
         return dto.rowPosition
 
     def importData(self):
        pass
+
+
+    def contextMenuEvent(self, event):
+        # Create a context menu
+        context_menu = QMenu(self)
+
+        # Add actions for deleting rows from both tables
+        deleteAction = context_menu.addAction("Delete Row")
+
+        # Execute the context menu and get the selected action
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+
+        # Determine which table was clicked
+        reaction_pos = self.reactionTable.viewport().mapFrom(self, event.pos())
+
+        if self.reactionTable.geometry().contains(event.pos()) and action == deleteAction:
+            # Determine the row that was clicked in the reactants table
+            row = self.reactionTable.rowAt(reaction_pos.y())
+            if row != -1:
+                self.reactionTable.removeRow(row)
+
+            # update the dto list containing the reactions (remove the deleted row, and update the rowPositions)
+            self.centralDataManager.updateData('reactionData', row)
+
+
 
 

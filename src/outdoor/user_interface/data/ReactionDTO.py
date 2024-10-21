@@ -24,6 +24,8 @@ class ReactionDTO:
                 return self.reactants
             case 2:
                 return self.products
+            case 3:
+                return self.reactionEquation
             case _:
                 return self
 
@@ -34,6 +36,7 @@ class ReactionDTO:
             "name": self.name,
             "reactants": self.reactants,
             "products": self.products,
+            "reactionEquation": self.reactionEquation
         }
         return d
 
