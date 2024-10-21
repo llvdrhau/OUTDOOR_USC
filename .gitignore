@@ -74,4 +74,4 @@ docs/_build
 .mypy_cache/
 /src/outdoor/user_interface/data/frames/
 /src/outdoor/user_interface/data/configs
-/examples/Excel_files
+/examples/Excel_files/*.xlsx
