@@ -8,7 +8,7 @@ problem. and find the best possible flow sheet design.
 
 Objective: EBIT (maximize the profit)
 Optimization mode: single
-Excel file: potato_peel_case_study.xlsm
+Excel file: potato_peel_case_study.xlsm and potato_peel_case_study_no_starch.xlsm
 
 Generated files:
 - results/Part_1_single_optimization_overview.txt: the results of the optimization run
@@ -70,7 +70,10 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 # current, peak = tracemalloc.get_traced_memory()
 # print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
 
-print('Single optimization problem run')
+# print the optimality gap:
+print("The optimality gap is:", model_output._optimality_gap)
+
+print('\n Single optimization problem run')
 # save the results as a txt file, you have to specify the path
 model_output.get_results(path=results_dir,
                          saveName='Part_1_single_optimization_overview')
@@ -82,7 +85,7 @@ analyzer.create_flowsheet(path=savePathPLots,
 
 # save the results in a pickle file
 fileName = 'Part_1_single_optimization.pkl'
-model_output.save_with_pickel(path=saveDirOutput, saveName=fileName)
+#model_output.save_with_pickel(path=saveDirOutput, saveName=fileName)
 
 
-print('\033[92m' + '------sucess---------')
+print('\033[92m' + '------success---------' + '\033[0m')

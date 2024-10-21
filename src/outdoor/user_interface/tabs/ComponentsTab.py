@@ -1,7 +1,7 @@
 import uuid
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
 from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
@@ -20,6 +20,43 @@ class ComponentsTab(QWidget):
         super().__init__(parent)
         self.centralDataManager = centralDataManager
         self.componentList: list[ComponentDTO] = centralDataManager.componentData
+
+        self.setStyleSheet("""
+                                                    QDialog {
+                                                        background-color: #f2f2f2;
+                                                    }
+                                                    QLabel {
+                                                        color: #333333;
+                                                    }
+                                                    QLineEdit {
+                                                        border: 1px solid #cccccc;
+                                                        border-radius: 2px;
+                                                        padding: 5px;
+                                                        background-color: #ffffff;
+                                                        selection-background-color: #b0daff;
+                                                    }
+                                                    QPushButton {
+                                                        color: #ffffff;
+                                                        background-color: #5a9;
+                                                        border-style: outset;
+                                                        border-width: 2px;
+                                                        border-radius: 10px;
+                                                        border-color: beige;
+                                                        font: bold 14px;
+                                                        padding: 6px;
+                                                    }
+                                                    QPushButton:hover {
+                                                        background-color: #78d;
+                                                    }
+                                                    QPushButton:pressed {
+                                                        background-color: #569;
+                                                        border-style: inset;
+                                                    }
+                                                    QTableWidget {
+                                                        border: 1px solid #cccccc;
+                                                        selection-background-color: #b0daff;
+                                                    }
+                                                """)
         self.layout = QVBoxLayout(self)
 
         # Title for the component tab
@@ -54,7 +91,7 @@ class ComponentsTab(QWidget):
         # Add the table to the layout
         self.layout.addWidget(self.componentsTable)
         # Add Row Button
-        self.addRowButton = QPushButton("Add Row")
+        self.addRowButton = QPushButton("Add Chemical Component")
         self.addRowButton.clicked.connect(self.addComponentRow)
         self.layout.addWidget(self.addRowButton)
 
@@ -71,6 +108,7 @@ class ComponentsTab(QWidget):
             self.addComponentRow()
 
     def addComponentRow(self, data: ComponentDTO | None = None):
+
         rowPosition: int
         if data is None or not isinstance(data, ComponentDTO):
             rowPosition = self.componentsTable.rowCount()
@@ -104,6 +142,12 @@ class ComponentsTab(QWidget):
                 #It isn't a problem.
                 continue
 
+        # save the data every time a new row is added
+        self.saveData()
+        # set the border of the OK button to red
+        self.okButton.setStyleSheet("border: 2px solid red;")
+
+        # delete?
         # for i in range(self.componentsTable.columnCount()):
         #     item = QTableWidgetItem(str(data[i]))
         #     self.componentsTable.setItem(rowPosition, i, item)
@@ -135,10 +179,11 @@ class ComponentsTab(QWidget):
     def saveData(self):
         self.collectData()
         # Save the data to the central data manager
-        # self.centralDataManager.addData("chemicalComponentsData")
+        self.centralDataManager.addData("chemicalComponentsData", self.componentList)
 
         # Change the border of OK button to green
-        # self.okButton.setStyleSheet("border: 2px solid green;")
+        # print('debugging')
+        self.okButton.setStyleSheet("border: 2px solid green;")
 
     def collectData(self):
         # Collect data from the table
@@ -148,7 +193,7 @@ class ComponentsTab(QWidget):
             for column in self.columnsList:
                 sindex = self.columnsList.index(column)
                 item = self.componentsTable.item(row, sindex)
-                if column in ["Component", "Lower heating Value (MWh/t)", "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)"]:
+                if column in ["Component", "Lower heating Value (kWh/kg)", "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)"]:
                     edit.upadateField(self.columnsShortnames[sindex], item.text())
                 if column == "LCA":
                     # this is handled inside the DTO
@@ -167,4 +212,27 @@ class ComponentsTab(QWidget):
             pass
             # it only gets here if there aren't any saved rows, like in a new project
 
+    def contextMenuEvent(self, event):
+        # Create a context menu
+        context_menu = QMenu(self)
+
+        # Add actions for deleting rows from both tables
+        deleteAction = context_menu.addAction("Delete Row")
+
+        # Execute the context menu and get the selected action
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+
+        # Determine which table was clicked
+        component_pos = self.componentsTable.viewport().mapFrom(self, event.pos())
+
+        if self.componentsTable.geometry().contains(event.pos()) and action == deleteAction:
+            # Determine the row that was clicked in the reactants table
+            row = self.componentsTable.rowAt(component_pos.y())
+            if row != -1:
+                self.componentsTable.removeRow(row)
+
+            # update the dto list containing the chemical components
+            self.centralDataManager.updateData('componentData', row)
+            # todo make a consistency check to see if the chemical component is used in any reaction or unit operation
+            # open a dialog if the component is used in a reaction or unit operation
 

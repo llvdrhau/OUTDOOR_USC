@@ -21,6 +21,7 @@ from tabs.ComponentsTab import ComponentsTab
 from tabs.GeneralSystemDataTab import GeneralSystemDataTab
 from tabs.UtilityTab import UtilityTab
 from tabs.SuperstructureMappingTab import SuperstructureMappingTab
+from tabs.ReactionTab import ReactionsTab
 
 
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
@@ -124,16 +125,18 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         # Create the tabs
         createWelcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
         componentsTab = ComponentsTab(centralDataManager=self.centralDataManager)
-
         generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager)
+        reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
+
         # todo add a tab, so users can type a description of the project
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
-        tabWidget.addTab(componentsTab, "Chemical Components")
         tabWidget.addTab(generalSystemDataTab, "General System Data")
+        tabWidget.addTab(componentsTab, "Chemical Components")
+        tabWidget.addTab(reactionsTab, "Reactions")
         tabWidget.addTab(utilityTab, "Utilities")
         tabWidget.addTab(superstructureMappingTab, "Superstructure Mapping")
         if self.ProjectName != '':

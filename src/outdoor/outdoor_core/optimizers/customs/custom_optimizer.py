@@ -1082,7 +1082,7 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
                                  # the first stage variables, which are non-anticipative constraints.
                                  # i.e., do not change across scenarios. In this case, the binary variables responsible
                                  # for the selection of the technology
-                                 [modelInstance.Y, modelInstance.Y_DIST])  # todo add?  ,modelInstance.Y_DIST
+                                 [modelInstance.Y, modelInstance.DistFraction])  # todo add?  ,modelInstance.Y_DIST OR modelInstance.DistFraction
 
         modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
 

@@ -36,7 +36,7 @@ import outdoor
 from outdoor import ModelOutput, MultiModelOutput
 
 # define the paths to the Excel file and the results directories
-ExcelPath = '../../examples/Excel_files/potato_peel_case_study.xlsm'
+ExcelPath = '../../examples/Excel_files/potato_peel_case_study_no_starch.xlsm'
 currentScriptDir = os.path.dirname(__file__)
 resultsPath = os.path.join(currentScriptDir, 'results')
 saveOutputObjectDir = os.path.join(currentScriptDir, 'saved_files')
@@ -72,7 +72,10 @@ model_output.get_results(savePath=resultsPath,
 analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
 fig = analyzer.create_sensitivity_graph(savePath=resultsPath,
                                         saveName="Part_4_1_sensitivity_pha_price",
-                                        figureMode="single")
+                                        figureMode="single",
+                                        xlable="PHA selling price (€/t)]",)
+
+print('\033[92m' + '------sucess---------'+ '\033[0m')
 
 
 

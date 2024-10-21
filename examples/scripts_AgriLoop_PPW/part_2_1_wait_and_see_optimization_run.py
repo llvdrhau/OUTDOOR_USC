@@ -18,6 +18,8 @@ Generated files:
 import sys
 import os
 import tracemalloc
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # start the memory profiler
 tracemalloc.start()
@@ -28,11 +30,14 @@ import outdoor
 
 # number of scenarios to be generated
 n_scenarios = 200
+seed = 42  # seed 42 for reproducibility
 # name of the pickle file to save the results
-saveName = 'Part_2_wait_and_see_{}_sc.pkl'.format(n_scenarios)
+saveName = 'Part_2_1_wait_and_see_data.pkl'
+#saveName = 'Part_2_1_test.pkl'
+
 
 # define the paths to the Excel file and the results directories
-Excel_Path = "../Excel_files/potato_peel_case_study.xlsm"
+Excel_Path = "../Excel_files/potato_peel_case_study_no_starch.xlsm"
 
 # define save locations
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,7 +53,7 @@ optimization_mode = 'wait and see'
 superstructure_Object = outdoor.get_DataFromExcel(Excel_Path,
                                                   optimization_mode=optimization_mode,
                                                   scenario_size=n_scenarios,
-                                                  seed=29)
+                                                  seed=seed)
 
 # check if the uncertainty data is correct
 superstructure_Object.check_uncertainty_data()
@@ -73,13 +78,31 @@ model_output.save_with_pickel(path=saveDirOutput,
                               saveName=saveName,
                               option='small')
 
-# # save the results in a pickle file for further analysis
+# # save the results in chunks as a pickle file for further analysis
 # model_output.save_chunks_with_pickel(path=saveDirOutput,
 #                                     saveName=saveName,
 #                                     nChunks=5)
 
 
-# print in green
-print('\033[92m' + '------sucess---------')
+# ---------------------------------------------------------------
+# uncomment the following lines to plot the pairplot of the uncertainty matrix
+# ---------------------------------------------------------------
+
+
+# to check the sampling of the scenarios and the uncertainty data we can plot the pairplot of the uncertainty matrix
+# uncertaintyMatrix = model_output.uncertaintyMatrix
+
+# Split DataFrame into 4 halves
+# n = len(uncertaintyMatrix.columns) // 4  # Find the midpoints
+# DFList = [uncertaintyMatrix.iloc[:, i:i+n] for i in range(0, len(uncertaintyMatrix.columns), n)]
+#
+# for i, df in enumerate(DFList):
+#     sns.pairplot(df, diag_kind='hist', corner=True)
+#     # save the plot
+#     plt.savefig('results/pair_plot_seed{}_part{}.png'.format(seed, i))
+
+
+# print in green if the script ran successfully until the end
+print('\033[92m' + '------success---------' + '\033[0m')
 
 

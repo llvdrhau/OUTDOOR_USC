@@ -54,7 +54,7 @@ class PhysicalProcessesDialog(QDialog):
                                                """)
         self.centralDataManager = centralDataManager
 
-        self.setWindowTitle("Physical Processes Parameters")
+        self.setWindowTitle("Unit Process Parameters")
         self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
 
         self.subtitleFont = QFont("Arial", 9, QFont.Bold)

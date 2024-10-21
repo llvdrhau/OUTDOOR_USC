@@ -1,6 +1,7 @@
 class ComponentDTO:
     def __init__(self, rowposition: int, uid: str, name: str = "", lowerHeat: float = 0.0, heatCapacity: float = 0.0,
                  molecularWeight: float = 0.0, LCA: dict = {}):
+
         self.rowPosition = rowposition
         self.uid = uid
         self.name = name

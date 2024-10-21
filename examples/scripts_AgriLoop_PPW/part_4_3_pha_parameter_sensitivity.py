@@ -27,7 +27,7 @@ sys.path.insert(0, scrPath)
 import outdoor
 
 
-n_scenarios = 100
+n_scenarios = 250
 
 saveName = 'Part_4_3_pha_WAS.pkl'
 
@@ -45,7 +45,7 @@ optimization_mode = 'wait and see'
 superstructure_Object = outdoor.get_DataFromExcel(ExcelPath,
                                                   optimization_mode=optimization_mode,
                                                   scenario_size=n_scenarios,
-                                                  seed=66)
+                                                  seed=42)
 
 # check if the uncertainty data is correct
 superstructure_Object.check_uncertainty_data()
@@ -66,10 +66,11 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 
 # save the results in a pickle file for further analysis
 model_output.save_with_pickel(path=saveOutputObjectDir,
-                              saveName=saveName)
+                              saveName=saveName,
+                              option='small')
 
 
 # print in green
-print('\033[92m' + '------sucess---------')
+print('\033[92m' + '------sucess---------'+ '\033[0m')
 
 

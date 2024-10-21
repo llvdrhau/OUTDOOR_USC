@@ -37,10 +37,14 @@ class BasicModelAnalyzer:
     as bar graphs or the resulting flow sheets based on mass balances.
 
     """
-    def __init__(self, model_output=None):
-
-        self.model_output = copy.deepcopy(model_output)
-        #self.model_output = model_output
+    def __init__(self, model_output=None, deepcopy=True):
+        # todo: DO I need a deepcopy here?
+        if deepcopy:
+            self.model_output = copy.deepcopy(model_output)
+        elif deepcopy is False:
+            self.model_output = model_output
+        else:
+            raise ValueError("deepcopy must be either True or False")
 
 # -----------------------------------------------------------------------------
 # -------------------------Private methods ------------------------------------

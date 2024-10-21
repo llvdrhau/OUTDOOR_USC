@@ -10,6 +10,7 @@ import random as rnd
 import datetime
 import pickle as pic
 import os
+import warnings
 
 class StochasticModelOutput(ModelOutput):
     """
@@ -480,31 +481,35 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
             self.get_data()
             # consistency checks
             self.check_warning_variables()
-            consistent, value, variable, scenario = self.check_first_stage_variable_consistency()
+            consistent, value, variable, scenario, previousVal = self.check_first_stage_variable_consistency()
+
             if not consistent:
-                warningMessage = (f"First stage decision Variable {variable} : {value} is not consistent across scenarios"
-                                  f" {scenario} Please check the data and rerun the optimization")
+                warningMessage = (
+                    f"First stage decision Variable {variable} : {value} is not consistent across scenarios: {previousVal}"
+                    f" Scenario {scenario} is inconsistent. Please check the data and rerun the optimization")
                 self.warningMessage = warningMessage
-                raise Warning(warningMessage)
+                warnings.warn(warningMessage, UserWarning)
+
 
 
     def check_first_stage_variable_consistency(self):
         data_dict = self.fistStageVars
         # Create a dictionary to store the variable values for each variable
         variable_values = {}
-
+        previousValue = None
         # Iterate over the items in the input dictionary
         for (scenario, variable), valueOriginal in data_dict.items():
             value = round(valueOriginal, 4) # round the value to 4 decimal places because they don't have to be exactly 1 or 0
             # If the variable is not already in the variable_values dictionary, add it
             if variable not in variable_values:
                 variable_values[variable] = value
+                previousValue = value
             # If the variable is already in the variable_values dictionary, check if the value is the same
             elif variable_values[variable] != value:
-                return False, value, variable, scenario
+                return False, value, variable, scenario, previousValue
 
         # If all values are consistent, return True
-        return True, None, None, None
+        return True, None, None, None, None
 
     def check_warning_variables(self):
         wanringVariables = self.warningVariables
@@ -616,7 +621,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
         self.EVPI = EVPI
 
-        return EVPI
+        return EVPI, recourseSolution, waitAndSeeSolution
 
     # Calculate VSS  ------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------

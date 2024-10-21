@@ -33,9 +33,10 @@ from outdoor import MultiModelOutput
 # define the name of the saved data
 saveName = "Part_3_stochastic_optimization.pkl"
 # name the output file from the wait and see analysis, so the same scenarios can be used
-fileName = 'Part_2_wait_and_see_200_sc.pkl'
+fileName = 'Part_2_1_wait_and_see_data.pkl'
+#fileName = 'Part_2_1_test.pkl'
 # define the path to the Excel file
-Excel_Path = "../Excel_files/potato_peel_case_study.xlsm"
+Excel_Path = "../Excel_files/potato_peel_case_study_no_starch.xlsm"
 
 # define save locations
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,11 +74,11 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
 # mpi-sppy options, integrates the solver options as well
 options = {
     "solver_name": "gurobi",
-    "PHIterLimit": 100,
-    "defaultPHrho": 15,
-    "convthresh": 1e-7,
+    "PHIterLimit": 250,
+    "defaultPHrho": 15, # set high for binary variables as first stage
+    "convthresh": 1e-4,
     "verbose": False,
-    "display_progress": False,
+    "display_progress": True,
     "display_timing": False,
     "iter0_solver_options": solverOptions,
     "iterk_solver_options": solverOptions,
@@ -95,9 +96,14 @@ model_output.save_with_pickel(path=saved_data_dir,
 # print in purple
 print('')
 print("\033[95m Calculating the EVPI for the stochastic optimization \033[00m")
-EVPI = model_output.calculate_EVPI(WaitAndSeeOutputObject=WaitAndSee_Object)
+EVPI, ExpectedEBIT, WaitAndSee = model_output.calculate_EVPI(WaitAndSeeOutputObject=WaitAndSee_Object)
 print('--------------------------------')
-print('--------------------------------')
+print('--------------------------------\n')
 print('The EVPI is: ', EVPI)
+print('The Expected EBIT is: ', ExpectedEBIT)
+print('')
+print('--------------------------------')
+print('--------------------------------')
 
 # print(model_output.uncertaintyMatrix) # print the uncertainty matrix
+print('\033[92m' + '------sucess---------'+ '\033[0m')

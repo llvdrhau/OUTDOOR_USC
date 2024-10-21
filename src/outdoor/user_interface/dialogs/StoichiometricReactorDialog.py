@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip
+    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip, QMenu
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
+from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QColor
 
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
 
@@ -11,7 +11,7 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         # Additional initialization for StoichiometricReactorDialog
 
         tabWidget = self.tabWidget
-        tabWidget.addTab(self._createStoichiometricDialogTab(), "Stoichiometric")
+        tabWidget.addTab(self._createStoichiometricDialogTab(), "Reactions")
 
         # populate the dialog with existing data (initialData) if it is not empty
         if initialData:
@@ -32,64 +32,96 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         # Create a title for the tab
         self._createSectionTitle(text="Reaction Tab", layout=layout)
 
-        # create subtitel
-        self._createSectionTitle(text="Reactants", layout=layout)
+        # create a table for the reactions
+        self.reactionTableUnitProcess = QTableWidget()
+        self.reactionTableUnitProcess.setColumnCount(2)
+        self.reactionTableUnitProcess.setHorizontalHeaderLabels(["Reaction Name", "Reaction"])
+        self.reactionTableUnitProcess.setColumnWidth(0, 150)
+        self.reactionTableUnitProcess.setColumnWidth(1, 300)
+
+        layout.addWidget(self.reactionTableUnitProcess)
 
 
-        # create table for the components
-        self.reactantsTable = QTableWidget(0, 4, self)  # Initial rows, columns
-        self.reactantsTable.setHorizontalHeaderLabels(["Reactant Name", "Stoichiometric",
-                                                                      "Conversion Factor","Reaction Number"])
-        self.reactantsTable.setColumnWidth(0, 200)  # make column 1 wider
-        self.reactantsTable.setColumnWidth(1, 200)  # make column 2 wider
-        self.reactantsTable.setColumnWidth(2, 200)  # make column 3 wider
-        self.reactantsTable.setColumnWidth(3, 200)  # make column 4 wider
-
-        #  add the tabel to the widget
-        tooltipText = """define the stoichiometric factors for the reactants (on a mass bassis! g/g), their conversion factors and to what
-                               reaction number them belong to. Numbers needed to distinguish between reactions"""
-        self._addRowWithTooltip(layout, labelText="Components:", widget=self.reactantsTable,
-                                tooltipText=tooltipText)
-        self.reactantsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
-        self.reactantsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
-        self.reactantsTable.setObjectName("reactantsTable")
-
-        # Add a row to tabel button
-        self.addRowButtonReactantsTable = QPushButton("Add Component", self)
-        self.addRowButtonReactantsTable.clicked.connect(self._addRowToTable)
-        # set object name
-        self.addRowButtonReactantsTable.setObjectName("addRowButtonReactantsTable")
-        layout.addWidget(self.addRowButtonReactantsTable)
-        # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="reactantsTable")
-
-        # creat subtitel for Products of the reaction
-        self._createSectionTitle(text="Products", layout=layout)
-
-        # create table for the components
-        self.productsTable = QTableWidget(0, 3, self)  # Initial rows, columns
-        self.productsTable.setHorizontalHeaderLabels(["Component Name", "Stoichiometric", "Reaction Number"])
-        self.productsTable.setColumnWidth(0, 200)  # make column 1 wider
-        self.productsTable.setColumnWidth(1, 200)  # make column 2 wider
-        self.productsTable.setColumnWidth(2, 200) # make column 3 wider
-        #  add the tabel to the widget
-        tooltipText = """The chemicals that are produced. define stoichiometric factors (mass! g/g) for the products and
-         to what reaction number them belong to. Numbers needed to distinguish between reactions."""
-        # add same table to the layout
-        self._addRowWithTooltip(layout, labelText="Components:", widget=self.productsTable, tooltipText=tooltipText)
-        self.productsTable.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
-        self.productsTable.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
-        self.productsTable.setObjectName("productsTable")
-
-        # add row button
-        self.addRowButtonProductsTable = QPushButton("Add Component", self)
-        self.addRowButtonProductsTable.clicked.connect(self._addRowToTable)
-        # set object name
-        self.addRowButtonProductsTable.setObjectName("addRowButtonProductsTable")
-        layout.addWidget(self.addRowButtonProductsTable)
-        # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="productsTable")
+        # Add Row Button for Products Table
+        addButton = QPushButton("Add Reaction", self)
+        addButton.clicked.connect(self.addReactionRow)
+        layout.addWidget(addButton)
 
         # return the widget
         widget.setLayout(layout)
         return widget
+
+
+    def addReactionRow(self):
+        # Add a new row to the reaction Table
+        rowPosition = self.reactionTableUnitProcess.rowCount()
+        self.reactionTableUnitProcess.insertRow(rowPosition)
+
+        # Create a drop-down for reactions
+        reactantCombo = QComboBox()
+        reactantCombo.addItems(self.getReactionList())  # Populate the combo box with allowed chemicals
+        self.reactionTableUnitProcess.setCellWidget(rowPosition, 0, reactantCombo)
+
+        # Connect the signal to the update function
+        reactantCombo.currentIndexChanged.connect(lambda: self.updateReactionString(rowPosition))
+
+        # the second column is for the reaction string should not be editable
+        insert = QTableWidgetItem("No reaction given")
+        insert.setBackground(QColor(218, 222, 227))
+        insert.setFlags(Qt.NoItemFlags)
+        self.reactionTableUnitProcess.setItem(rowPosition, 1, insert)
+
+
+    def getReactionList(self):
+        # Get the list of reactions from the central data manager
+        reactionDTOs = self.centralDataManager.reactionData
+        return [reaction.name for reaction in reactionDTOs]
+
+    def updateReactionString(self, row):
+        """
+        Updates the reaction string based on the selected item from the drop-down in the given row.
+        """
+        # Get the combo box from the specified row and column 0
+        comboBox = self.reactionTableUnitProcess.cellWidget(row, 0)
+        if comboBox and isinstance(comboBox, QComboBox):
+            # Get the selected reaction name
+            reactionName = comboBox.currentText()
+
+            reactionEq = "No reaction found"
+            # Generate a sample reaction string. You can modify this logic based on your actual requirements.
+            for reactionDTO in self.centralDataManager.reactionData:
+                if reactionDTO.name == reactionName:
+                    reactionEq = reactionDTO[3]
+
+            # Update the corresponding reaction cell (column 1)
+            reaction_item = self.reactionTableUnitProcess.item(row, 1)
+            if reaction_item:
+                reaction_item.setText(reactionEq)
+
+
+    def contextMenuEvent(self, event):
+        # Create a context menu
+        context_menu = QMenu(self)
+
+        # Add actions for deleting rows from both tables
+        deleteAction = context_menu.addAction("Delete Row")
+
+        # Execute the context menu and get the selected action
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+
+        # Determine which table was clicked
+        component_pos = self.reactionTableUnitProcess.viewport().mapFrom(self, event.pos())
+
+        if self.reactionTableUnitProcess.geometry().contains(event.pos()) and action == deleteAction:
+            # Determine the row that was clicked in the reactants table
+            row = self.reactionTableUnitProcess.rowAt(component_pos.y())
+            if row != -1:
+                self.reactionTableUnitProcess.removeRow(row)
+
+            # todo handel the data when deleeting a row
+            # update the dto list containing the chemical components
+            #self.centralDataManager.updateData('UnitProcess', row)
+
+
+
+
