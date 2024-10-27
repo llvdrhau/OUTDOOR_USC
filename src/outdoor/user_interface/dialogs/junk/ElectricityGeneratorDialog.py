@@ -5,12 +5,13 @@ from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
 
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 
-class HeatGeneratorDialog(StoichiometricReactorDialog):
-    def __init__(self, initialData, centralDataManager):
-        super().__init__(initialData, centralDataManager)  # Initialize the parent class
-        # Additional initialization for HeatGeneratorDialog
+class ElectricityGeneratorDialog(StoichiometricReactorDialog):
+    def __init__(self, initialData, centralDataManager, iconID):
+        super().__init__(initialData, centralDataManager, iconID)  # Initialize the parent class
+        # Additional initialization for ElectricityGeneratorDialog
+
         tabWidget = self.tabWidget
-        # delete the tab "General Parameters" from the parent class
+        # delete the tab "General tab" from the parent class
         tabWidget.removeTab(0)
         # remake the tab "General Parameters"
         # position the tab "General Parameters" at the first position
@@ -122,7 +123,7 @@ class HeatGeneratorDialog(StoichiometricReactorDialog):
         # only double values are allowed
         self.efficiency.setValidator(QDoubleValidator(0.00, 1.00, 2))
         # give a default value
-        self.efficiency.setText('0.83')
+        self.efficiency.setText('0.58')
 
         # ---------------------------------------------------------------
         #  parameters Annualized Capital Costs
@@ -197,5 +198,4 @@ class HeatGeneratorDialog(StoichiometricReactorDialog):
         widget.setLayout(layout)
 
         return widget
-
 

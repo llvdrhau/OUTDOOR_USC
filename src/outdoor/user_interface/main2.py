@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             print("Editing configs concluded.")
         self.initTabs()
 
-
     def initTabs(self):
         # Create a QTabWidget and set it as the central widget
         tabWidget = QTabWidget()

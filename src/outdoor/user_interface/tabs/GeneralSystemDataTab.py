@@ -10,6 +10,8 @@ class GeneralSystemDataTab(QWidget):
     """
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
+
+        # add the central data manager
         self.centralDataManager = centralDataManager
 
         # Create a new QWidget for the General System Data tab
@@ -43,6 +45,7 @@ class GeneralSystemDataTab(QWidget):
         self.layout.addRow(QLabel("Product driven:"), self.productDrivenDropdown)
 
         self.productSelection = QComboBox()
+        # todo find product names from central data manager
         self.productSelection.addItems(["Product 1", "Product 2"])  # Add options to the dropdown
         self.layout.addRow(QLabel("Main product:"), self.productSelection)
 

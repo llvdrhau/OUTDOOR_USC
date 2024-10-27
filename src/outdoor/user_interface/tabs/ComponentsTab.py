@@ -146,6 +146,8 @@ class ComponentsTab(QWidget):
         self.saveData()
         # set the border of the OK button to red
         self.okButton.setStyleSheet("border: 2px solid red;")
+        # set the background of the OK to light yellow
+        self.okButton.setStyleSheet("background-color: #ffff99;")
 
         # delete?
         # for i in range(self.componentsTable.columnCount()):

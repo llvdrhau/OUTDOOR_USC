@@ -3,15 +3,19 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
 
-from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
+from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog, ProcessType
 
 class YieldReactorDialog(PhysicalProcessesDialog):
-    def __init__(self, initialData, centralDataManager):
-        super().__init__(initialData, centralDataManager)  # Initialize the parent class
+    def __init__(self, initialData, centralDataManager, iconID):
+        super().__init__(initialData, centralDataManager, iconID)  # Initialize the parent class
         # Additional initialization for YieldReactorDialog
+        self.UnitType = ProcessType.YIELD
 
-        tabWidget = self.tabWidget
-        tabWidget.addTab(self._createYieldTab(), "Yeild Reaction")
+        # Add Yield Reaction Tab to the tab widget of the parent class
+        self.tabWidget.addTab(self._createYieldTab(), "Yield Reaction")
+
+        if initialData:
+            self._populateYieldTab(initialData.dialogData)
 
 
     def _createYieldTab(self):
@@ -20,6 +24,14 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         layout = QFormLayout()
 
         self._createSectionTitle(text="Yield Reaction Tab", layout=layout)
+
+        # add a description
+        description = QLabel("The Yield Reaction tab is used to define the yield of the reactor. The yield is the "
+                             "\nfraction of the input mass that is converted to the targeted product. You can also "
+                             "select chemicals that do to get converted, i.e. that are Inert \n"
+                             "---------   Product = Yield Factor * (Input Mass - Inert Mass)   ---------")
+        description.setWordWrap(True)
+        layout.addRow(description)
 
         # Reference Flow type
         self.product = QComboBox(self)
@@ -36,7 +48,7 @@ class YieldReactorDialog(PhysicalProcessesDialog):
 
         # Reference Flow input
         self.yieldFactor = QLineEdit(self)
-        self.yieldFactor.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.yieldFactor.setValidator(QDoubleValidator(0.00, 1.00, 3))
         # set object name
         self.yieldFactor.setObjectName("yieldFactor")
 
@@ -70,3 +82,57 @@ class YieldReactorDialog(PhysicalProcessesDialog):
 
         widget.setLayout(layout)
         return widget
+
+
+    def collectData(self):
+        # First, call the parent's collectData to collect the common data
+        dialogData = super().collectData()
+        dialogDataYield = self._collectDataYield()
+        # add dialogDataYield to dialogData
+        dialogData.update(dialogDataYield)
+
+        return dialogData
+
+    def _collectDataYield(self):
+        """
+        Collects the data from the dialog and saves it to the central data manager. Use existing methods to collect data
+        and add elements not yet implemented in the parent class (PhysicalProcessesDialog).
+        :return:
+        """
+
+
+        # collect the data from the dialog
+        product = self.product.currentText()
+        yieldFactor = self.yieldFactor.text()
+
+        # handeling empty strings
+        if yieldFactor == "":
+            yieldFactor = 0
+        else:
+            yieldFactor = float(yieldFactor)
+
+        inertComponents = []
+        for row in range(self.inertComponentsTable.rowCount()):
+            cellText = self.inertComponentsTable.cellWidget(row, 0).currentText()
+            inertComponents.append(cellText)
+
+        # add the data to the dictionary
+
+        dialogDataYield ={'Product': product,
+                           'Yield Factor': yieldFactor,
+                           'Inert Components': inertComponents}
+
+
+        return dialogDataYield
+
+
+    def _populateYieldTab(self, dialogData):
+        """
+        Populates the reaction table with the given reactions.
+        :param reactions: A list of tuples containing the reaction name, conversion efficiency, and reactant.
+        """
+        # Populate the Yield tab
+        self.product.setCurrentText(dialogData['Product'])
+        self.yieldFactor.setText(str(dialogData['Yield Factor']))
+        for component in dialogData['Inert Components']:
+            self._addRowToTable(tabName="yield", componentName=component)

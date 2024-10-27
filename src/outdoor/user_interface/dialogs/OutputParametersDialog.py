@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox
 from PyQt5.QtGui import QDoubleValidator
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
 
 class OutputParametersDialog(QDialog):
     """
@@ -7,8 +8,15 @@ class OutputParametersDialog(QDialog):
     price output, CO2 credits, minimum production, and maximum production. The user can set the price output and CO2
     credits as floating-point numbers, and the minimum and maximum production as floating-point numbers.
     """
-    def __init__(self, initialData):
+    def __init__(self, initialData, centralDataManager, iconID):
         super().__init__()
+
+        # set the process type
+        self.processType = ProcessType.OUTPUT
+        # set the iconID
+        self.iconID = iconID
+        # set the centralDataManager
+        self.centralDataManager = centralDataManager
 
         # set style
         self.setStyleSheet("""
@@ -83,7 +91,7 @@ class OutputParametersDialog(QDialog):
         # OK and Cancel buttons
         buttonsLayout = QHBoxLayout()
         self.okButton = QPushButton("OK", self)
-        self.okButton.clicked.connect(self.accept)
+        self.okButton.clicked.connect(self.saveData)
         buttonsLayout.addWidget(self.okButton)
 
         self.cancelButton = QPushButton("Cancel", self)
@@ -131,3 +139,42 @@ class OutputParametersDialog(QDialog):
             self.minProduction.setText(data['minProduction'])
         if 'maxProduction' in data:
             self.maxProduction.setText(data['maxProduction'])
+
+
+    def saveData(self):
+        """
+        Save the data entered in the dialog to the processDTO. If the data is not valid, show an error dialog.
+        """
+        # collect the data from the dialog
+        dialogData = self.collectData()
+
+        if self._errorCheck(dialogData):
+            return
+
+        # create a new processDTO and add the data to it
+        dtoOutput = ProcessDTO(uid=self.iconID, name=dialogData['Name'], type=self.processType)
+        # add the dialog data to the processDTO
+        dtoOutput.addDialogData(dialogData)
+        # add the processDTO to the centralDataManager
+        self.centralDataManager.unitProcessData[self.iconID] = dtoOutput
+        self.accept()
+
+    def _errorCheck(self, dialogData):
+
+        # check if the product name is empty
+        if dialogData['Name'] == "":
+            self._showErrorDialog("Product Name cannot be empty.")
+            return True
+        # if no error, return False
+        return False
+
+    def _showErrorDialog(self, message):
+        """
+        Show an error dialog with the message provided.
+        :param message: Message to show in the dialog
+        """
+        errorDialog = QMessageBox()
+        errorDialog.setIcon(QMessageBox.Critical)
+        errorDialog.setText(message)
+        errorDialog.setWindowTitle("Error")
+        errorDialog.exec_()

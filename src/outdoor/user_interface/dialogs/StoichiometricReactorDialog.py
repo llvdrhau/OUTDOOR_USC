@@ -3,19 +3,23 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QColor
 
-from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
+from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog, ProcessType
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 
 class StoichiometricReactorDialog(PhysicalProcessesDialog):
-    def __init__(self, initialData, centralDataManager):
-        super().__init__(initialData, centralDataManager)  # Initialize the parent class
+    def __init__(self, initialData, centralDataManager, iconID):
+        super().__init__(initialData, centralDataManager, iconID)  # Initialize the parent class
         # Additional initialization for StoichiometricReactorDialog
+        self.UnitType = ProcessType.STOICHIOMETRIC
 
-        tabWidget = self.tabWidget
-        tabWidget.addTab(self._createStoichiometricDialogTab(), "Reactions")
+        #self.tabWidget = self.tabWidget # in the parent class
+        self.tabWidget.addTab(self._createStoichiometricDialogTab(), "Reactions")
 
         # populate the dialog with existing data (initialData) if it is not empty
         if initialData:
-            self.populateDialog(initialData)
+            # Populate the reaction table with the initial data if it exists
+            # the other data is populated in the parent class
+            self._populateReactionTable(initialData.dialogData)
 
         self.setFocusPolicy(Qt.StrongFocus)
 
@@ -32,19 +36,32 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         # Create a title for the tab
         self._createSectionTitle(text="Reaction Tab", layout=layout)
 
+        # create text to explain the tab using a QLabel
+        self.reactionDescription = QLabel(self)
+        textExplanation = ("This tab allows you to define the reactions that take place in the unit operation.\n"
+                           "You can also define the conversion efficiency of the main reactant in %.")
+
+        self.reactionDescription.setText(textExplanation)
+        layout.addRow(self.reactionDescription)
+
+
+
         # create a table for the reactions
         self.reactionTableUnitProcess = QTableWidget()
-        self.reactionTableUnitProcess.setColumnCount(2)
-        self.reactionTableUnitProcess.setHorizontalHeaderLabels(["Reaction Name", "Reaction"])
+        self.reactionTableUnitProcess.setColumnCount(4)
+        self.reactionTableUnitProcess.setHorizontalHeaderLabels(["Reaction Name", "Reaction", "Conversion (%)", "Reactant"])
         self.reactionTableUnitProcess.setColumnWidth(0, 150)
         self.reactionTableUnitProcess.setColumnWidth(1, 300)
+        self.reactionTableUnitProcess.setColumnWidth(2, 100)
+        self.reactionTableUnitProcess.setColumnWidth(3, 100)
+
 
         layout.addWidget(self.reactionTableUnitProcess)
 
 
         # Add Row Button for Products Table
         addButton = QPushButton("Add Reaction", self)
-        addButton.clicked.connect(self.addReactionRow)
+        addButton.clicked.connect(self._addReactionRow)
         layout.addWidget(addButton)
 
         # return the widget
@@ -52,18 +69,23 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         return widget
 
 
-    def addReactionRow(self):
+    def _addReactionRow(self, data=None):
         # Add a new row to the reaction Table
         rowPosition = self.reactionTableUnitProcess.rowCount()
         self.reactionTableUnitProcess.insertRow(rowPosition)
 
         # Create a drop-down for reactions
-        reactantCombo = QComboBox()
-        reactantCombo.addItems(self.getReactionList())  # Populate the combo box with allowed chemicals
-        self.reactionTableUnitProcess.setCellWidget(rowPosition, 0, reactantCombo)
+        reactionComboList = QComboBox()
+        reactionComboList.addItems(self.getReactionList())  # Populate the combo box with allowed chemicals
+        # initialising the combo box with the first item ""
+        reactionComboList.setCurrentIndex(-1)
+        self.updateReactionString(rowPosition)
+        self.reactionTableUnitProcess.setCellWidget(rowPosition, 0, reactionComboList)
 
         # Connect the signal to the update function
-        reactantCombo.currentIndexChanged.connect(lambda: self.updateReactionString(rowPosition))
+        reactionComboList.currentIndexChanged.connect(lambda: self.updateReactionString(rowPosition))
+        reactionComboList.currentIndexChanged.connect(lambda: self.updateReactantList(rowPosition))
+
 
         # the second column is for the reaction string should not be editable
         insert = QTableWidgetItem("No reaction given")
@@ -71,11 +93,42 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         insert.setFlags(Qt.NoItemFlags)
         self.reactionTableUnitProcess.setItem(rowPosition, 1, insert)
 
+        # the third column is for the conversion efficiency should be editable
+        lineEdit = QLineEdit()
+        validator = QDoubleValidator(0.0, 100, 2)  # Values between 0 and 100, up to 2 decimal places
+        validator.setNotation(QDoubleValidator.StandardNotation)
+        lineEdit.setValidator(validator)
+        lineEdit.setText("100")
+        self.reactionTableUnitProcess.setCellWidget(rowPosition, 2, lineEdit)
+
+        # the fourth column is for the reactant that is the main reactant which has a specific conversion efficiency
+        # is a drop down list of the chemical reactants of the reaction
+        reactantsComboList = QComboBox()
+        # updateReactantList(rowPosition)
+        # reactantsComboList.addItems()  # Populate the combo box with allowed chemicals
+        self.reactionTableUnitProcess.setCellWidget(rowPosition, 3, reactantsComboList)
+
+        if data:
+            # Populate columns for stoichiometric table if data given
+            self.reactionTableUnitProcess.cellWidget(rowPosition, 0).setCurrentText(data[0])
+            self.reactionTableUnitProcess.cellWidget(rowPosition, 2).setText(data[1])
+            self.reactionTableUnitProcess.cellWidget(rowPosition, 3).setCurrentText(data[2])
+            # update the reaction table so reactions are displayed correctly in colum 1
+            self.updateReactionString(rowPosition)  # method is in the stoichiometricReactorDialog.py file
+
 
     def getReactionList(self):
         # Get the list of reactions from the central data manager
         reactionDTOs = self.centralDataManager.reactionData
         return [reaction.name for reaction in reactionDTOs]
+
+    def getReactantList(self, reactionName):
+        # Get the list of reactions from the central data manager
+        reactionDTOs = self.centralDataManager.reactionData
+        for reaction in reactionDTOs:
+            if reaction.name == reactionName:
+                return reaction.reactants
+
 
     def updateReactionString(self, row):
         """
@@ -98,6 +151,15 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
             if reaction_item:
                 reaction_item.setText(reactionEq)
 
+    def updateReactantList(self, row):
+        # get the name of the reaction selected
+        comboBox = self.reactionTableUnitProcess.cellWidget(row, 0)
+        if comboBox and isinstance(comboBox, QComboBox):
+            # Get the selected reaction name
+            reactionName = comboBox.currentText()
+            reactantsComboList = self.reactionTableUnitProcess.cellWidget(row, 3)
+            reactantsComboList.clear()
+            reactantsComboList.addItems(self.getReactantList(reactionName))
 
     def contextMenuEvent(self, event):
         # Create a context menu
@@ -121,6 +183,50 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
             # todo handel the data when deleeting a row
             # update the dto list containing the chemical components
             #self.centralDataManager.updateData('UnitProcess', row)
+
+
+    def collectData(self):
+        # First, call the parent's collectData to collect the common data
+        dialogData = super().collectData()
+        dialogData['Reactions'] = self._collectDataStoich()['Reactions']
+
+        return dialogData
+
+    def _collectDataStoich(self):
+        """
+        Collects the data from the dialog and saves it to the central data manager. Use existing methods to collect data
+        and add elements not yet implemented in the parent class (PhysicalProcessesDialog).
+        :return:
+        """
+
+        # collect the data from the dialog
+        dialogDataReactions = {}
+        # collect the data from the reaction table
+        reactions = []
+        for row in range(self.reactionTableUnitProcess.rowCount()):
+            reactionName = self.reactionTableUnitProcess.cellWidget(row, 0).currentText()
+            conversion = self.reactionTableUnitProcess.cellWidget(row, 2).text()
+            reactant = self.reactionTableUnitProcess.cellWidget(row, 3).currentText()
+            reactions.append((reactionName, conversion, reactant))
+
+        dialogDataReactions['Reactions'] = reactions
+
+        return dialogDataReactions
+
+
+    def _populateReactionTable(self, dialogData):
+        """
+        Populates the reaction table with the given reactions.
+        :param reactions: A list of tuples containing the reaction name, conversion efficiency, and reactant.
+        """
+        reactionData = dialogData['Reactions']
+        for rowData in reactionData:
+            self._addReactionRow(rowData)
+
+
+
+
+
 
 
 

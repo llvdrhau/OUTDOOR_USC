@@ -1,9 +1,9 @@
 import uuid
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
-    QApplication, QMessageBox, QPushButton, QGraphicsPathItem
-from PyQt5.QtCore import QRectF, Qt, QPointF, QMimeData
-from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QDrag, QPainterPathStroker
+    QApplication, QMessageBox, QGraphicsPathItem
+from PyQt5.QtCore import QRectF, Qt, QPointF
+from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QPainterPathStroker
 
 from outdoor.user_interface.dialogs.InputParametersDialog import InputParametersDialog
 from outdoor.user_interface.dialogs.OutputParametersDialog import OutputParametersDialog
@@ -11,10 +11,8 @@ from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcess
 from outdoor.user_interface.dialogs.SplittingDialog import SplittingDialog
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
-from outdoor.user_interface.dialogs.ElectricityGeneratorDialog import ElectricityGeneratorDialog
-from outdoor.user_interface.dialogs.HeatGeneratorDialog import HeatGeneratorDialog
+from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
 from outdoor.user_interface.dialogs.LCADialog import LCADialog
-from outdoor.user_interface.interactives.DraggableIcon import DraggableIcon
 
 
 class Canvas(QGraphicsView):
@@ -118,9 +116,8 @@ class Canvas(QGraphicsView):
 
         # Mapping of text to icon_type and index
         icon_map = {
-            "Boolean split": ("bool_split", self.index_split),
-            "Defined split 2": ("defined_split", self.index_split),
-            "Undefined split": ("undefined_split", self.index_split),
+            "Boolean Distributor": ("bool_split", self.index_split),
+            "Distributor": ("distributor_split", self.index_split),
 
             "Input": ("input", self.index_input),
             "Output": ("output", self.index_output),
@@ -130,8 +127,7 @@ class Canvas(QGraphicsView):
             "Stoichiometric Reactor": ("stoichiometric_reactor", self.index_process),
             "Yield Reactor": ("yield_reactor", self.index_process),
 
-            "Generator (Elec)": ("generator_elec", self.index_process),
-            "Generator (Heat)": ("generator_heat", self.index_process),
+            "Generator": ("generator", self.index_process),
         }
 
         # Check if the text is in the icon_map
@@ -392,7 +388,23 @@ class MovableIcon(QGraphicsObject):
 
     def __init__(self, text, centralDataManager, icon_type, iconID=None):
         super().__init__()
+
+
         self.text = text
+        # make a map of abbreviations to full names of the icons
+        self.iconAbbreviation = {'Input': 'Input',
+                                 'Output': 'Output',
+                                 'Physical Process': 'Phy. Process',
+                                 'Stoichiometric Reactor': 'Stoi. Reactor',
+                                 'Yield Reactor': 'Yield Reactor',
+                                 'Generator (Elec)': 'Gen. (Elec)',
+                                 'Generator (Heat)': 'Gen. (Heat)',
+                                 'Generator': 'Generator',
+                                 'Boolean Distributor': 'Bool Distr.',
+                                 'Distributor': 'Distr.',
+                                 'LCA': 'LCA'}
+
+
         self.icon_type = icon_type
         self.iconID = iconID
         self.centralDataManager = centralDataManager  # to Store and handel dialog data for each icon
@@ -403,7 +415,9 @@ class MovableIcon(QGraphicsObject):
         self.setFlag(QGraphicsItem.ItemIsSelectable)  # Enable the selectable flag
 
         self.dragStartPosition = None
-        self.nExitPorts = 2  # initial Number of exit ports for split icons
+
+        # initiation of port logic
+        self.activeStreams = [True, False, False] # stream 1 is always active
 
         self.pen = QPen(Qt.black, 1)  # Default pen for drawing the border
         #self.penBoarder = QPen(Qt.NoPen)
@@ -416,10 +430,9 @@ class MovableIcon(QGraphicsObject):
                 self.ports.append(IconPort(self, portType='entry', iconID=iconID))
             case 'bool_split':
                 self.addSplitPorts()
-            case 'defined_split':
+            case 'distributor_split':
                 self.addSplitPorts()
-            case 'undefined_split':
-                self.addSplitPorts()
+
             # otherwise give port for entry and exit
             case _:
                 self.ports.append(IconPort(self, portType='exit', iconID=iconID))
@@ -436,14 +449,6 @@ class MovableIcon(QGraphicsObject):
                             portType='exit', iconID=self.iconID)
         self.ports.append(exitPort)
 
-        # code for multiple exit ports, deleet if you're not going to use it
-        # hightTriangle = self.boundingRect().height()
-        # step = hightTriangle / (self.nExitPorts + 1)  # +1 to distribute evenly
-        # for n in range(self.nExitPorts):
-        #     hightPosition = step * (n + 1)  # +1 because n starts at 0
-        #     exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), hightPosition),
-        #                                  portType='exit', iconID=self.iconID)
-        #     self.ports.append(exitPort)
 
     def updateExitPorts(self, nExitPortsNew):
         # Calculate the new step size
@@ -520,25 +525,43 @@ class MovableIcon(QGraphicsObject):
             painter.setPen(Qt.black)
             font = QFont("Arial", 10)
             painter.setFont(font)
-            painter.drawText(self.boundingRect(), Qt.AlignCenter, self.text)
+
+            # get the start name of the icon from the map
+            iconText = self.iconAbbreviation.get(self.text, self.text)
+            painter.drawText(self.boundingRect(), Qt.AlignCenter, iconText)
 
     def getBackgroundColor(self, icon_type):
         if icon_type == 'input':
-            return "#c6e2e9"
+            return "#a8d5e2"  # pastel blue (a bit darker than the original)
+
         elif icon_type == 'output':
-            return "#ffcaaf"
+            return "#ffdab9"  # pastel peach (more distinct from orange)
+
         elif icon_type == 'physical_process':
-            return "#a7bed3"
+            return "#f7c6d9"  # pastel pink (distinct from the other colors)
+
+        elif icon_type == 'stoichiometric_reactor':
+            return "#c8e6c9"  # pastel green (slightly different)
+
+        elif icon_type == 'yield_reactor':
+            return "#d4b3ff"  # pastel lavender (more distinguishable from pink)
+
+        elif icon_type == 'generator_elec':
+            return "#fff4a3"  # pastel yellow (brighter but still soft)
+
+        elif icon_type == 'generator_heat':
+            return "#ffb3b3"  # pastel soft red (more vibrant but still light)
+
+        elif icon_type == 'generator':
+            return "#fff4a3"  # pastel yellow (brighter but still soft)
+
         elif icon_type == 'bool_split':
-            # the color dark red
-            return '#8B0000'
-        elif icon_type == 'defined_split':
-            # the color dark green
-            return '#006400'
-        elif icon_type == 'undefined_split':
-            # the color dark blue
-            return '#00008B'
-        # if none of the above return a gray color
+            return "#ffd1dc"  # pastel rose (different from light red)
+
+        elif icon_type == 'distributor_split':
+            return "#b2f2bb"  # pastel mint green (to distinguish from green)
+
+        # if none of the above, return a gray color
         return "#D3D3D3"
 
     def mousePressEvent(self, event):
@@ -569,7 +592,8 @@ class MovableIcon(QGraphicsObject):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
             if 'split' in self.icon_type:
-                self.openSplittingDialog()
+                # self.openSplittingDialog()
+                pass
             else:
                 self.openParametersDialog()
 
@@ -581,45 +605,6 @@ class MovableIcon(QGraphicsObject):
                     port.updateConnectedLines(self.centralDataManager)
         return super().itemChange(change, value)
 
-    def openSplittingDialog(self):
-        # Retrieve existing data for this icon, if the iconID is not in the dict, return an empty dict
-        existingData = self.centralDataManager.data.get(self.iconID, {})
-
-        # open the dialog and handle the data entered by the user after pressing OK
-        dialog = SplittingDialog(initialData=existingData)
-        nonesentialParameters = ["Splitting Ratio:"]  # 1 nonesentialParameters for this dialog
-
-        # open the dialog and handle the data entered by the user after pressing OK
-        if dialog.exec_():
-            dataDialog = dialog.collectData()
-            dataDialogCopy = dataDialog.copy()
-
-            # delete the elements in dataInputDialog that are not relevant. i.e., minProduction and maxProduction
-            for parm in nonesentialParameters:
-                dataDialogCopy.pop(parm, None)
-
-            # Validate data before saving
-            missing_fields = [key for key, value in dataDialogCopy.items() if not value]
-            if missing_fields:
-                # save what is already in filled in the widgets so you don't lose it when the dialog is reopened
-                self.centralDataManager.data[self.iconID] = dataDialogCopy
-                QMessageBox.critical(QApplication.activeWindow(), "Missing Input(s)",
-                                     f"Error: {', '.join(missing_fields)} field(s) are missing a value. Please fill them in.")
-
-                self.openSplittingDialog()  # Reopen the dialog for correction
-                return
-
-            # I now want to update the exit ports based on the number of exit ports from the dialog
-            nExitPorts = int(dataDialog.get('nExitPorts', 2))
-            if nExitPorts != self.nExitPorts:
-                self.updateExitPorts(nExitPorts)
-
-            # Save the data if all fields are filled
-            self.centralDataManager.data[self.iconID] = dataDialog
-
-            print("{} Dialog accepted".format(self.icon_type))
-        else:
-            print("{} Dialog canceled".format(self.icon_type))
 
     def openParametersDialog(self):
         """
@@ -628,80 +613,116 @@ class MovableIcon(QGraphicsObject):
         """
 
         # Retrieve existing data for this icon
-        existingData = self.centralDataManager.data.get(self.iconID,
+        existingData = self.centralDataManager.unitProcessData.get(self.iconID,
                                                         {})  # if the iconID is not in the dict, return an empty dict
 
         # choose the dialog to open based on the type of icon that was double clicked
         if self.icon_type == 'input':
-            dialog = InputParametersDialog(initialData=existingData)
-            nonesentialParameters = []
+            dialog = InputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
         elif self.icon_type == 'output':
-            dialog = OutputParametersDialog(initialData=existingData)
-            nonesentialParameters = ['minProduction', 'maxProduction']
+            dialog = OutputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
         elif self.icon_type == 'physical_process':
-            dialog = PhysicalProcessesDialog(initialData=existingData, centralDataManager=self.centralDataManager)
-            nonesentialParameters = []
+            dialog = PhysicalProcessesDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
         elif self.icon_type == 'stoichiometric_reactor':
-            dialog = StoichiometricReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
-            nonesentialParameters = []
+            dialog = StoichiometricReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
         elif self.icon_type == 'yield_reactor':
-            dialog = YieldReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
-            nonesentialParameters = []
+            dialog = YieldReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
+                                        iconID=self.iconID)
 
-        elif self.icon_type == 'generator_elec':
-             dialog = ElectricityGeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
-             nonesentialParameters = []
+        elif self.icon_type == 'generator':
+             dialog = GeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
+                                      iconID=self.iconID)
 
-        elif self.icon_type == 'generator_heat':
-            dialog = HeatGeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager)
-            nonesentialParameters = []
 
         elif self.icon_type == 'lca':
             dialog = LCADialog(initialData=existingData)
-            nonesentialParameters = []
 
         else:
             raise Exception("Icon type {} not recognized".format(self.icon_type))  # You can handle this error in a more user-friendly way
 
 
-
         # open the dialog and handle the data entered by the user after pressing OK
         if dialog.exec_():
-            dataDialog = dialog.collectData()
-            dataDialogCopy = dataDialog.copy()
+            unitDTO = self.centralDataManager.unitProcessData[self.iconID]
 
-            # delete the elements in dataInputDialog that are not relevant. i.e., minProduction and maxProduction
-            for parm in nonesentialParameters:
-                dataDialogCopy.pop(parm, None)
+            try:
+                newSourceName = unitDTO.name
+            except:
+                newSourceName = ''
 
-            # Validate data before saving
-            missing_fields = [key for key, value in dataDialogCopy.items() if not value]
-            if missing_fields:
-                # save what is already in filled in the widgets so you don't lose it when the dialog is reopened
-                self.centralDataManager.data[self.iconID] = dataDialogCopy
-                QMessageBox.critical(QApplication.activeWindow(), "Missing Input(s)",
-                                     f"Error: {', '.join(missing_fields)} field(s) are missing a value. Please fill them in.")
-
-                self.openParametersDialog()  # Reopen the dialog for correction
-                return
-
-            # rename the box to the source name
-            # Check if sourceName was updated and update the MovableIcon's label accordingly
-            newSourceName = dataDialog.get('Name', '').strip()
             if newSourceName:
                 self.text = newSourceName  # Update the text attribute to reflect the new source name
                 self.update()  # Update the icon's appearance i.e., repaint the icon name
 
-            # Save the data if all fields are filled
-            self.centralDataManager.data[self.iconID] = dataDialog
+            # update the outlet port of the icon based on the dialog data
+            if unitDTO.type != 0 or unitDTO.type == 7: # not input or output
+                stream2 = unitDTO.dialogData['Check box stream 2']
+                stream3 = unitDTO.dialogData['Check box stream 3']
+                activeStreamsList = [True, stream2, stream3] # stream 1 is always active
+                self.updateIconExitPorts(activeStreamsList)
+
+
+
 
             print("{} Dialog accepted".format(self.icon_type))
         else:
             print("{} Dialog canceled".format(self.icon_type))
+
+    def updateIconExitPorts(self, ports2Active: list):
+        """
+        Updates the exit ports of the icon based on the provided list of active ports.
+        Adds or removes exit ports as needed.
+        :param ports2Active: A list with boolean values indicating if each stream (port) should be active.
+        """
+        # Calculate the new step size
+        heightIcon = self.boundingRect().height()
+        widthIcon = self.boundingRect().width()
+
+        # Loop through the ports2Active list and compare it with self.activeStreams
+        for index, shouldBeActive in enumerate(ports2Active):
+            # If the port should be active but is not currently active, add it
+            if shouldBeActive and not self.activeStreams[index]:
+                # Calculate the position for the new port
+                if index == 1:
+                    # Port 2 (upper port)
+                    x = widthIcon / 2
+                    y = 0
+
+                elif index == 2:
+                    # Port 3 (lower port)
+                    x = widthIcon / 2
+                    y = heightIcon
+                else:
+                    continue  # Stream 1 is always active and has already been added
+
+                # Create and add the new port
+                newPort = IconPort(self, pos=QPointF(x, y), portType='exit', iconID=self.iconID)
+                self.ports.append(newPort)
+                self.activeStreams[index] = True
+
+            # If the port should not be active but is currently active, remove it
+            elif not shouldBeActive and self.activeStreams[index]:
+                # Find and remove the corresponding port
+                for port in self.ports:
+                    if isinstance(port, IconPort) and port.portType == 'exit':
+                        portPos = port.pos()
+                        if ((index == 1 and portPos == QPointF(widthIcon / 2, 0)) or
+                            (index == 2 and portPos == QPointF(widthIcon / 2, heightIcon))):
+                            # Remove the port from the scene
+                            self.scene().removeItem(port)
+                            self.ports.remove(port)
+                            del port
+                            break
+
+                # Update activeStreams list
+                self.activeStreams[index] = False
+
+        # Update the icon after modifications
+        self.update()
 
 
 class ControlPoint(QGraphicsEllipseItem):
@@ -830,7 +851,7 @@ class InteractiveLine(QGraphicsPathItem):
     #     # Show the control point when hovering, but only if the line is curved
     #     if self.isCurved and self.controlPoint:
     #         self.controlPoint.setVisible(True)
-    #
+
     # def hoverLeaveEvent(self, event):
     #     # Hide the control point when not hovering
     #     if self.controlPoint:

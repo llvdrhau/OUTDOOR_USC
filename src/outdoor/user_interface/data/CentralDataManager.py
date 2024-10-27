@@ -8,10 +8,10 @@ import os.path
 import pickle
 
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
-#from .outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 
 class CentralDataManager:
     """
@@ -20,7 +20,8 @@ class CentralDataManager:
     """
 
     def __init__(self):
-        self.data = {}  # Dictionary to store data indexed by icon ID #TODO Make this more structured
+        self.unitProcessData: Dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
+
         self.namesChemicalComponents = []  # list to store chemical components data
         self.enabledTabs: list[str] = []
         self.enabledSuperstructureTabs: list[str] = []
@@ -32,8 +33,15 @@ class CentralDataManager:
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
 
+        self.data = {}  # dictionary to store all data I think? @ Mias TODO: What is this for?
+
     def addData(self, field, data):
-        # self.data[field] = data
+        """
+        Adds data to the central data manager
+        :param field: str, the field that the data belongs to
+        :param data: the data to be added gererally a DTO
+        :return:
+        """
         match field:
             case "chemicalComponentsData":
                 for species in data:
@@ -71,13 +79,14 @@ class CentralDataManager:
         self.componentData.append(data)
 
 
-
     def updateData(self, dataType: str, row: int):
         """
-        Updates the reactionData list when a reaction is deleted
-        :param row: int, this is the row i.e., the indices in the list that corresponds to the reaction that is to be
+        Updates the specified data lists when a reaction, chemical component... is deleted
+
+        :param dataType: str, the type of data that is to be altered
+        :param row: int, this is the row i.e., the indices in the list that corresponds to the element that is to be
         deleted
-        :return: updated reactionData component
+        :return: updated data component
         """
 
         match dataType:
@@ -101,17 +110,16 @@ class CentralDataManager:
                         data = self.componentData[i]
                         data.updateRow()
 
-
     def updateIconData(self, iconId, newData):
-        if iconId in self.data:
-            self.data[iconId].update(newData)
+        if iconId in self.unitProcessData:
+            self.unitProcessData[iconId].update(newData)
 
     def getIconData(self, iconId):
-        return self.data.get(iconId, None)
+        return self.unitProcessData.get(iconId, None)
 
     def removeIconData(self, iconId):
-        if iconId in self.data:
-            del self.data[iconId]
+        if iconId in self.unitProcessData:
+            del self.unitProcessData[iconId]
 
     def addConnection(self, startPort, endPort, startPosition, endPosition, currentLine):
         #portType, startIconID, endIconID, starPosition, endPosition):
@@ -121,8 +129,8 @@ class CentralDataManager:
         endIconID = endPort.iconID
 
         # check if data[startIconID]['connection'] exists, if not create it
-        if startIconID not in self.data or 'connectionsTo' not in self.data[startIconID]:
-            self.data.update({startIconID:
+        if startIconID not in self.unitProcessData or 'connectionsTo' not in self.unitProcessData[startIconID]:
+            self.unitProcessData.update({startIconID:
                                   {'connectionsTo': [],
                                    'entryPorts': [],
                                    'exitPorts': [],
@@ -131,13 +139,13 @@ class CentralDataManager:
                               })
 
         # add the connection to the data dict
-        self.data[startIconID]['connectionsTo'].append(endIconID)
-        self.data[startIconID]['entryPorts'].append(endPort)
-        self.data[startIconID]['exitPorts'].append(startPort)
-        self.data[startIconID]['connectionLines'].append(currentLine)
-        print(self.data)
+        self.unitProcessData[startIconID]['connectionsTo'].append(endIconID)
+        self.unitProcessData[startIconID]['entryPorts'].append(endPort)
+        self.unitProcessData[startIconID]['exitPorts'].append(startPort)
+        self.unitProcessData[startIconID]['connectionLines'].append(currentLine)
+        print(self.unitProcessData)
 
-        # self.data.update({startIconID:
+        # self.unitProcessData.update({startIconID:
         #                       {'connectionsTo': [],
         #                        'connectionLineEntry2Exit': {},
         #                        'connectionLineExit2Entry': {},
@@ -146,8 +154,8 @@ class CentralDataManager:
         #                        }
         #                   })
 
-        # if endIconID not in self.data or 'connectionsTo' not in self.data[startIconID]:
-        #     self.data.update({endIconID:
+        # if endIconID not in self.unitProcessData or 'connectionsTo' not in self.unitProcessData[startIconID]:
+        #     self.unitProcessData.update({endIconID:
         #                           {'connectionsTo': [],
         #                            'connectionLineEntry2Exit': {}, # what is leaving the entry port and entering the exit port
         #                            'connectionLineExit2Entry': {}, # what is leaving the exit port and entering the entry port
@@ -160,16 +168,16 @@ class CentralDataManager:
         # # +-------+                    line                    +--------+
         # # | icon' | (startPos) EXIT ----------> (endPos) Entry | icon'' |
         # # +-------+                                            +--------+
-        # #self.data[startIconID]['connectionsTo'].append(endIconID)
-        # self.data[startIconID]['connectionLineExit2Entry'].update({endIconID: (startPosition, endPosition, currentLine)})
-        # self.data[startIconID]['positionExitPortIcon'] = startPosition
+        # #self.unitProcessData[startIconID]['connectionsTo'].append(endIconID)
+        # self.unitProcessData[startIconID]['connectionLineExit2Entry'].update({endIconID: (startPosition, endPosition, currentLine)})
+        # self.unitProcessData[startIconID]['positionExitPortIcon'] = startPosition
         #
         # # info you can fill in of the icon where lines are leaving that is from startIconID
         # # +-------+                     line                   +--------+
         # # | icon' | (startPos) EXIT <---------- (endPos) Entry | icon'' |
         # # +-------+                                            +--------+
-        # self.data[endIconID]['connectionLineEntry2Exit'].update({startIconID: (startPosition, endPosition, currentLine)})
-        # self.data[endIconID]['positionEntryPortIcon'] = endPosition
+        # self.unitProcessData[endIconID]['connectionLineEntry2Exit'].update({startIconID: (startPosition, endPosition, currentLine)})
+        # self.unitProcessData[endIconID]['positionEntryPortIcon'] = endPosition
 
     def updateConnectionDictPositions(self, portMethode, line):
         # Update the position of the connected ports when Icons are moved around on the canvas
@@ -183,17 +191,17 @@ class CentralDataManager:
         iconID = portMethode.iconID
         portType = portMethode.portType
         if portType == 'exit':
-            self.data[iconID]['connectionLineExit2Entry'].update(
+            self.unitProcessData[iconID]['connectionLineExit2Entry'].update(
                 {'endIconID': (line.line().p1(), line.line().p2,
                                line)})  # todo I need to find a way to pass on endIconID... place holder for now
-            self.data[iconID]['positionExitPortIcon'] = line.line().p1()
+            self.unitProcessData[iconID]['positionExitPortIcon'] = line.line().p1()
         else:
-            self.data[iconID]['connectionLineEntry2Exit'].update(
+            self.unitProcessData[iconID]['connectionLineEntry2Exit'].update(
                 {'endIconID': (
                     line.line().p1(), line.line().p2, line)})  # todo I need to find a way to pass on endIconID...
-            self.data[iconID]['positionExitPortIcon'] = line.line().p1()
+            self.unitProcessData[iconID]['positionExitPortIcon'] = line.line().p1()
 
-        print(self.data[iconID]['connectionLineExit2Entry'])
+        print(self.unitProcessData[iconID]['connectionLineExit2Entry'])
 
     def loadConfigs(self):
         print("Loading configs...")

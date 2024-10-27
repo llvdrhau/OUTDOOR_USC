@@ -59,7 +59,7 @@ class SuperstructureMappingTab(QWidget):
         # Section 3: Distributors
         self.distributorsGroup = QGroupBox("Distributors")
         self.distributorsLayout = QVBoxLayout()
-        self.distributorLabels = ['Boolean split', 'Defined split 2', 'Undefined split']
+        self.distributorLabels = ['Boolean Distributor', 'Distributor']
         for i in self.distributorLabels:  # Adding 3 icons for Distributors
             button = DraggableIcon(i)
             self.distributorsLayout.addWidget(button)
@@ -72,7 +72,7 @@ class SuperstructureMappingTab(QWidget):
         # store all the labels of the Icons
         self.iconLabels = self.unitProcessLabels + self.distributorLabels + self.iconInOutLabels
 
-        # Right panel as canvas (placeholder for now)
+        # Right panel as canvas
         self.rightPanel = Canvas(centralDataManager=self.centralDataManager, iconLabels=self.iconLabels)
         self.rightPanel.setStyleSheet("background-color: white;")
 
