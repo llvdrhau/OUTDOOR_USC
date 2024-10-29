@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
     QApplication, QMessageBox, QGraphicsPathItem
@@ -13,6 +14,8 @@ from outdoor.user_interface.dialogs.StoichiometricReactorDialog import Stoichiom
 from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
 from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
 from outdoor.user_interface.dialogs.LCADialog import LCADialog
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
 
 
 class Canvas(QGraphicsView):
@@ -24,6 +27,8 @@ class Canvas(QGraphicsView):
 
     def __init__(self, centralDataManager, iconLabels):
         super().__init__()
+        # set up the logger
+        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
         # Store the icon data manager for use in the widget
         self.centralDataManager = centralDataManager
         # store the icon labels
@@ -178,10 +183,11 @@ class Canvas(QGraphicsView):
                 return
 
             # Start drawing a new line from this port
-            print('iniciating start line')
+            self.logger.info("Start drawing a new line from the port")
+
             self.startPort = port
             self.startPoint = pos  # Always corresponds to the exit port
-            self.currentLine = InteractiveLine(startPoint=pos, endPoint=pos,
+            self.currentLine = InteractiveLine(startPoint=pos, endPoint=pos, centralDataManager=self.centralDataManager,
                                                startPort=port)  # QGraphicsLineItem(QLineF(pos, pos))
             port.connectionLines.append(self.currentLine)
             self.scene.addItem(self.currentLine)
@@ -206,8 +212,8 @@ class Canvas(QGraphicsView):
             # stop the line drawing process with return statement
             return
 
-        print('initiating end line')
-        #port.connectionLines.append(self.currentLine)
+        self.logger.info("End drawing a new line from the port")
+
         self.endPort = port
         self.endPoint = pos  # allways corresponds to the entry port
         # Here you might want to validate if the startPort and endPort can be connected
@@ -218,7 +224,25 @@ class Canvas(QGraphicsView):
             self.currentLine.endPort = port  # Update the end port
             self.currentLine.updateAppearance()  # Update the line appearance based on its current state
             port.connectionLines.append(self.currentLine)
-            self.centralDataManager.addConnection(self.startPort, port, self.startPoint, pos, self.currentLine)
+
+            # retrieve the unit process DTO from the centralDataManager that is sending the connection
+            # and update the material flow of the process based on the current dialog data and how the ports are connected
+            # streamType = self.startPort.exitStream  # get the stream that is being sent (3 possible streams)
+            unitDTOSending = self.centralDataManager.unitProcessData[self.startPort.iconID]
+            unitDTOSending.updateProcessDTO(field='Connection', value=(self.startPort, self.endPort))  # pass on the receiving port
+            self.logger.info("Connection between {} and {} established".format(self.startPort.iconID, port.iconID))
+            print(unitDTOSending.materialFlow)
+
+            # dialogData = unitDTOSending.dialogData
+            # splitDict = self.getSeperationDict(unitDTOSending.type, streamType, dialogData)
+            # unitDTOSending.addMaterialFlow(self.endPort.iconID, splitDict) # used to figure out what chemicals are being added to the process
+
+            # # retrieve the unit process DTO from the centralDataManager that is receiving the connection
+            # # unitDTOReceiving = self.centralDataManager.unitProcessData[self.startPort.iconID]
+            # # unitDTOReceiving.addEnteringConnection() # used to figure out what chemicals are being added to the proces
+            # # should probably delete this at one point
+            # # add the connection to the centralDataManager
+            # self.centralDataManager.addConnection(self.startPort, port, self.startPoint, pos, self.currentLine)
 
         # rest the positions and switches to None
         self.startPoint = None
@@ -226,10 +250,44 @@ class Canvas(QGraphicsView):
         self.currentLine = None
         self.drawingLine = False
 
+    def getSeperationDict(self, processType:ProcessType, streamType, dialogData):
+        """
+        Get the separation dictionary for the stream that is being sent from the startPort
+        :param startPort:
+        :return: splitDict: dictionary with the separation fractions for each chemical of the specified the stream
+        """
+        # if the process is an input process, all the chemicals are sent to the stream
+        if processType.value == 0: # input
+            return {'all': 1}
+
+        if dialogData == {}: # if the dialog data is empty, return an empty dictionary with the default values
+            return {} # to be updated with the dialog data!
+
+        # retrieve the unit process DTO from the centralDataManager that is sending the connection
+        separationList = dialogData['Separation Fractions']
+
+        if streamType == 1:
+            streamKey = 'Stream 1'
+        elif streamType == 2:
+            streamKey = 'Stream 2'
+        elif streamType == 3:
+            streamKey = 'Stream 3'
+        else:
+            streamKey = ''
+            self.logger.error("Stream type not recognized when connecting to the port")
+
+        # get the specific separation dictionary for the stream
+        splitDict = {splitDict['Component']: splitDict[streamKey] for splitDict in separationList}
+
+        return splitDict
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace:
             for item in self.scene.selectedItems():
                 if isinstance(item, MovableIcon):
+                    # get the ID of the icon (to remove it from the centralDataManager)
+                    iconID = item.iconID
+
                     for port in item.ports:
                         #port.occupied = False
                         for line in port.connectionLines:
@@ -244,10 +302,12 @@ class Canvas(QGraphicsView):
 
                             # remove the line from the scene
                             self.scene.removeItem(line)
-                    self.scene.removeItem(item)
 
-                    # TODO, update any necessary data in the centralDataManager here
-                    #self.centralDataManager.removeIconData(item.iconID)
+                    # remove the icon from the scene
+                    self.scene.removeItem(item)
+                    # remove the icon from the centralDataManager
+                    self.centralDataManager.removeIconData(iconID)
+
 
         super().keyPressEvent(event)
 
@@ -316,9 +376,18 @@ class IconPort(QGraphicsEllipseItem):
     of lines between the ports.
     """
 
-    def __init__(self, parent, portType, iconID, pos=None):
+    def __init__(self, parent, portType, iconID, pos=None, exitStream=1):
         super().__init__(-5, -5, 10, 10, parent)  # A small circle
+
+        # is it a port that receives or sends a stream
         self.portType = portType  # 'entry' or 'exit'
+
+        # to identify the exiting stream that is connected to the port
+        if portType == 'entry':
+            self.exitStream = None # entry ports do not have an exit stream
+        else:
+            self.exitStream = exitStream
+
         self.iconID = iconID
         self.setBrush(Qt.black)
         self.connectionLines = []  # List to store the lines connected to this iconPort
@@ -374,9 +443,7 @@ class IconPort(QGraphicsEllipseItem):
                 # Redraw the line with its new position
                 line.updateAppearance()
 
-                # Optionally, TODO update any necessary data in the centralDataManager here
-                # For example, you might update the stored positions of the line's endpoints
-                # if you are tracking those for any reason (not shown in this example).
+
 
 
 class MovableIcon(QGraphicsObject):
@@ -389,6 +456,8 @@ class MovableIcon(QGraphicsObject):
     def __init__(self, text, centralDataManager, icon_type, iconID=None):
         super().__init__()
 
+        # set up the logger
+        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
 
         self.text = text
         # make a map of abbreviations to full names of the icons
@@ -409,6 +478,9 @@ class MovableIcon(QGraphicsObject):
         self.iconID = iconID
         self.centralDataManager = centralDataManager  # to Store and handel dialog data for each icon
 
+        # save the initial icon to the centralDataManager
+        dto = self.saveInitialIcon(icon_type)
+
         # set the flags for the icon to be movable and selectable
         self.setFlags(QGraphicsObject.ItemIsMovable)  # Enable the movable flag
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges)  # Enable item change notifications
@@ -425,18 +497,64 @@ class MovableIcon(QGraphicsObject):
         self.ports = []
         match icon_type:
             case 'input':
-                self.ports.append(IconPort(self, portType='exit', iconID=iconID))
+                exitPort = IconPort(self, portType='exit', iconID=iconID)
+                self.ports.append(exitPort)
+                dto.exitPorts.append(exitPort)
+
             case 'output':
-                self.ports.append(IconPort(self, portType='entry', iconID=iconID))
+                entryPort = IconPort(self, portType='entry', iconID=iconID)
+                self.ports.append(entryPort)
+                dto.entryPorts.append(entryPort)
+
             case 'bool_split':
                 self.addSplitPorts()
+                # todo entry and exit ports how to handel them
             case 'distributor_split':
                 self.addSplitPorts()
 
             # otherwise give port for entry and exit
             case _:
-                self.ports.append(IconPort(self, portType='exit', iconID=iconID))
-                self.ports.append(IconPort(self, portType='entry', iconID=iconID))
+                exitPort = IconPort(self, portType='exit', iconID=iconID)
+                self.ports.append(exitPort)
+                dto.exitPorts.append(exitPort)
+
+                entryPort = IconPort(self, portType='entry', iconID=iconID)
+                self.ports.append(entryPort)
+                dto.entryPorts.append(entryPort)
+
+
+    def saveInitialIcon(self, unitType:str):
+        """
+        Creates an instance of the ProcessDTO and saves the data to the central data manager.
+        The DTO is essentialy empty but will be filled with data from the dialogs.
+        :return:
+        """
+
+        if unitType == 'input':
+            type = ProcessType.INPUT
+        elif unitType == 'output':
+            type = ProcessType.OUTPUT
+        elif unitType == 'physical_process':
+            type = ProcessType.PHYSICAL
+        elif unitType == 'stoichiometric_reactor':
+            type = ProcessType.STOICHIOMETRIC
+        elif unitType == 'yield_reactor':
+            type = ProcessType.YIELD
+        elif unitType == 'generator':
+            type = ProcessType.GEN_HEAT
+
+        else:
+            self.logger.error("Icon type {} not recognized when saving the initial icon".format(unitType))
+            self.logger.warning("Defaulting to physical process")
+            type = ProcessType.PHYSICAL # default to physical process if the type is not recognized
+
+
+        # create a new processDTO and add the data to it
+        dtoProcess = ProcessDTO(uid=self.iconID, type=type)
+        # add the processDTO to the centralDataManager
+        self.centralDataManager.unitProcessData[self.iconID] = dtoProcess
+
+        return dtoProcess
 
     def addSplitPorts(self):
         # Add an entry port
@@ -448,49 +566,6 @@ class MovableIcon(QGraphicsObject):
         exitPort = IconPort(self, pos=QPointF(self.boundingRect().width(), self.boundingRect().height() / 2),
                             portType='exit', iconID=self.iconID)
         self.ports.append(exitPort)
-
-
-    def updateExitPorts(self, nExitPortsNew):
-        # Calculate the new step size
-        hightTriangle = self.boundingRect().height()
-        step = hightTriangle / (nExitPortsNew + 1)
-
-        if nExitPortsNew > self.nExitPorts:
-            # Add new ports if the new count is greater than the existing number of ports
-            # Update positions of existing ports
-            existingPorts = [port for port in self.childItems() if
-                             isinstance(port, IconPort) and port.portType == 'exit']
-            minPorts = min(len(existingPorts), nExitPortsNew)
-            for i in range(minPorts):
-                hightPosition = step * (i + 1)
-                existingPorts[i].setPos(QPointF(self.boundingRect().width(), hightPosition))
-
-            # Add new ports if the new count is greater than the existing number of ports
-            for i in range(len(existingPorts), nExitPortsNew):
-                hightPosition = step * (i + 1)
-                newPorts = IconPort(self, QPointF(self.boundingRect().width(), hightPosition), 'exit')
-                self.ports.append(newPorts)
-            # update the number of exit ports
-            self.nExitPorts = nExitPortsNew
-        else:
-            # Remove ports if the new count is less than the existing number of ports
-            # Remove existing exit ports
-            for port in self.childItems():
-                if isinstance(port, IconPort) and port.portType == 'exit':
-                    self.scene().removeItem(port)
-                    del port
-
-            # Recalculate positions and add new exit ports
-            hightTriangle = self.boundingRect().height()
-            step = hightTriangle / (nExitPortsNew + 1)
-            for n in range(nExitPortsNew):
-                hightPosition = step * (n + 1)
-                exitPort = IconPort(self, portType='exit', pos=QPointF(self.boundingRect().width(), hightPosition),
-                                    iconID=self.iconID)
-                self.ports.append(exitPort)
-
-            # update the number of exit ports
-            self.nExitPorts = nExitPortsNew
 
     def boundingRect(self):
         if 'split' in self.icon_type:
@@ -637,7 +712,6 @@ class MovableIcon(QGraphicsObject):
              dialog = GeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
                                       iconID=self.iconID)
 
-
         elif self.icon_type == 'lca':
             dialog = LCADialog(initialData=existingData)
 
@@ -645,7 +719,10 @@ class MovableIcon(QGraphicsObject):
             raise Exception("Icon type {} not recognized".format(self.icon_type))  # You can handle this error in a more user-friendly way
 
 
-        # open the dialog and handle the data entered by the user after pressing OK
+        #  open the dialog and handle the data entered by the user after pressing OK
+        # Basically updates the centralDataManager and the appearance of the icon
+        # -------------------------------------------------------------------------------------------------------------
+
         if dialog.exec_():
             unitDTO = self.centralDataManager.unitProcessData[self.iconID]
 
@@ -659,20 +736,21 @@ class MovableIcon(QGraphicsObject):
                 self.update()  # Update the icon's appearance i.e., repaint the icon name
 
             # update the outlet port of the icon based on the dialog data
-            if unitDTO.type != 0 or unitDTO.type == 7: # not input or output
+            if unitDTO.type.value != 0 and unitDTO.type.value != 7:  # not input and output are selected
                 stream2 = unitDTO.dialogData['Check box stream 2']
                 stream3 = unitDTO.dialogData['Check box stream 3']
-                activeStreamsList = [True, stream2, stream3] # stream 1 is always active
-                self.updateIconExitPorts(activeStreamsList)
+                activeStreamsList = [True, stream2, stream3]  # stream 1 is always active
+                self.updateIconExitPorts(activeStreamsList, unitDTO)
+
+            # update the material flow of the leaving streams that are changed
+            unitDTO.updateProcessDTO(field='materialFlow', value=None)
 
 
-
-
-            print("{} Dialog accepted".format(self.icon_type))
+            self.logger.info("{} Dialog accepted".format(self.icon_type))
         else:
-            print("{} Dialog canceled".format(self.icon_type))
+            self.logger.info("{} Dialog canceled".format(self.icon_type))
 
-    def updateIconExitPorts(self, ports2Active: list):
+    def updateIconExitPorts(self, ports2Active: list, processDTO: ProcessDTO):
         """
         Updates the exit ports of the icon based on the provided list of active ports.
         Adds or removes exit ports as needed.
@@ -700,8 +778,9 @@ class MovableIcon(QGraphicsObject):
                     continue  # Stream 1 is always active and has already been added
 
                 # Create and add the new port
-                newPort = IconPort(self, pos=QPointF(x, y), portType='exit', iconID=self.iconID)
+                newPort = IconPort(self, pos=QPointF(x, y), portType='exit', iconID=self.iconID, exitStream=index+1) # beacuse the index starts at 0
                 self.ports.append(newPort)
+                processDTO.exitPorts.append(newPort)
                 self.activeStreams[index] = True
 
             # If the port should not be active but is currently active, remove it
@@ -715,6 +794,7 @@ class MovableIcon(QGraphicsObject):
                             # Remove the port from the scene
                             self.scene().removeItem(port)
                             self.ports.remove(port)
+                            processDTO.exitPorts.remove(port)
                             del port
                             break
 
@@ -753,8 +833,15 @@ class InteractiveLine(QGraphicsPathItem):
     the line is curved and selected.
     """
 
-    def __init__(self, startPoint, endPoint, startPort=None, endPort=None, parent=None):
+    def __init__(self, startPoint, endPoint, centralDataManager, startPort=None, endPort=None, parent=None):
         super().__init__(parent)
+
+        # initiate the logger
+        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
+
+        # add the centralDataManager
+        self.centralDataManager = centralDataManager
+
         self.startPoint = startPoint
         self.endPoint = endPoint
         self.isCurved = False  # Line starts as straight
@@ -812,22 +899,57 @@ class InteractiveLine(QGraphicsPathItem):
             self.controlPoint.setVisible(False)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Backspace and self.selected:
-            # Delete the line if the Backspace key is pressed while the line is selected
-            self.scene().removeItem(self)
-            self.setSelectedLine(False)
+        # todo find out why icons are unmovable after deleting a line with no end port...
+        # WTFFFFFFF is happening here
+        if (event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete) and self.selected:
 
             # reset the occupied flag of the start and end port
             self.startPort.occupied = False
-            self.endPort.occupied = False
-
-            # deleet the line from the connectionLines list of the ports
+            # delete the line from the connectionLines list of the ports
             self.startPort.connectionLines.remove(self)
-            self.endPort.connectionLines.remove(self)
 
-            # todo remove the line from the data dict as well, from the centralDataManager
+            # there is no end port if you have not connected the line, so no need to remove it or update the material flow
+            if self.endPort:
+                self.endPort.occupied = False
+                self.endPort.connectionLines.remove(self)
+
+                # get the sending unit dto
+                unitDTOSending = self.centralDataManager.unitProcessData[self.startPort.iconID]
+                # remove the connection from the sending unitDTO
+                # remove the connection from the receiving unitDTO
+                unitDTOSending.removeFromMaterialFlow(self.endPort.iconID)
+                self.logger.info("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
+                self.logger.info("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
+                print(unitDTOSending.materialFlow)
+
+            # Delete the line if the Backspace key is pressed while the line is selected
+            self.setSelectedLine(False)
+            #self.logger.info("The scene is: {}".format(self.scene()))
+            self._findFoucs("The focus BEFORE deleting the line")
+            # self.deleteLater()
+            self.scene().removeItem(self)
+            #self.logger.info("The scene after deleting is: {}".format(self.scene()))
+            #self._findFoucs("The focus AFTER deleting the line")
+
+
+            # Clear any focus that might be stuck on the deleted line
+            # if self.scene():
+            #     self.scene().clearSelection()  # Clear the selection of all items in the scene
+            #     self.scene().setFocusItem(None)  # Remove focus from any item
+            #     self.clearFocus()  # Clear focus from this item
+            #
+
+
+
 
         super().keyPressEvent(event)
+
+    def _findFoucs(self, text):
+        focused_widget = QApplication.focusWidget()
+        if focused_widget:
+            self.logger.info("{}: {}".format(text, focused_widget))
+        else:
+            self.logger.info("No widget currently has focus.")
 
     def updateAppearance(self):
         path = QPainterPath(self.startPoint)

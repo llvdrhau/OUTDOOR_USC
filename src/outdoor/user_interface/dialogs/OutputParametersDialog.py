@@ -102,7 +102,7 @@ class OutputParametersDialog(QDialog):
 
         # populate the dialog with existing data (initialData) if it is not empty
         if initialData:
-            self.populateOutputDialog(initialData)
+            self.populateOutputDialog(initialData.dialogData)
 
     def _formRow(self, label, widget):
         """Helper function to create a row in the form."""
@@ -151,12 +151,14 @@ class OutputParametersDialog(QDialog):
         if self._errorCheck(dialogData):
             return
 
-        # create a new processDTO and add the data to it
-        dtoOutput = ProcessDTO(uid=self.iconID, name=dialogData['Name'], type=self.processType)
+        # retrive the processDTO from the centralDataManager
+        dtoOutput = self.centralDataManager.unitProcessData[self.iconID]
+        # update the name
+        dtoOutput.updateProcessDTO('Name', dialogData['Name'])
+
         # add the dialog data to the processDTO
         dtoOutput.addDialogData(dialogData)
-        # add the processDTO to the centralDataManager
-        self.centralDataManager.unitProcessData[self.iconID] = dtoOutput
+
         self.accept()
 
     def _errorCheck(self, dialogData):

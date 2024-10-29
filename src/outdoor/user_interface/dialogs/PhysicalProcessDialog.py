@@ -111,7 +111,7 @@ class PhysicalProcessesDialog(QDialog):
         layout.addLayout(buttonsLayout)
 
         # populate the dialog with existing data (initialData) if it is not empty
-        if initialData:
+        if self.dialogData:
             self.populateDialog(dialogData=self.dialogData)
 
         self.setFocusPolicy(Qt.StrongFocus)
@@ -1678,13 +1678,13 @@ class PhysicalProcessesDialog(QDialog):
         if self._errorCheck(dialogData):
             return
 
-        # print(ProcessType.INPUT)
-        # create a new processDTO and add the data to it
-        dtoProcess = ProcessDTO(uid=self.iconID, name=dialogData['Name'], type=type)
+        # retrieve the DTO from the centralDataManager
+        dtoProcess = self.centralDataManager.unitProcessData[self.iconID]
+        dtoProcess.updateProcessDTO(field='Name', value=dialogData['Name'])
+
         # add the dialog data to the processDTO
         dtoProcess.addDialogData(dialogData)
         # add the processDTO to the centralDataManager
-        self.centralDataManager.unitProcessData[self.iconID] = dtoProcess
         self.accept()
 
 

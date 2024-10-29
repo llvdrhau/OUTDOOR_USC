@@ -23,7 +23,7 @@ class GeneratorDialog(StoichiometricReactorDialog):
         self._energyTypeChanged()
 
         # initilise the energy tab
-        if initialData:
+        if initialData.dialogData:
             self._populateEnergyTab(initialData.dialogData)
 
     def _createEnergyTab(self):

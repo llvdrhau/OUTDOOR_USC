@@ -323,13 +323,25 @@ class InputParametersDialog(QDialog):
         if self._errorCheck(dialogData):
             return
 
-        # print(ProcessType.INPUT)
-        # create a new processDTO and add the data to it
-        dtoInput = ProcessDTO(uid=self.iconID, name=dialogData['Name'], type=self.processType)
+
+        # get the dto
+        dto = self.centralDataManager.unitProcessData[self.iconID]
+        # update the dto with the new data
+        dto.updateProcessDTO('Name', dialogData['Name'])
+
+        # get all the chemical from the dialogData in the table and update the dto
+        chemicals = [chemical[0] for chemical in dialogData['components']]
+        dto.updateProcessDTO('outgoingChemicals', chemicals)
+
         # add the dialog data to the processDTO
-        dtoInput.addDialogData(dialogData)
+        dto.addDialogData(dialogData)
+
+        # # create a new processDTO and add the data to it
+        # dtoInput = ProcessDTO(uid=self.iconID, name=dialogData['Name'],
+        #                       type=self.processType, outGoingChemicals=chemicals)
         # add the processDTO to the centralDataManager
-        self.centralDataManager.unitProcessData[self.iconID] = dtoInput
+        # self.centralDataManager.unitProcessData[self.iconID] = dtoInput
+
         self.accept()
 
     def _errorCheck(self, dialogData):
