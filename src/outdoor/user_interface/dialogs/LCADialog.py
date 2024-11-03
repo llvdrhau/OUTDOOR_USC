@@ -59,9 +59,9 @@ class LCADialog(QDialog):
         self.setWindowTitle("LCA Lookup")
         self.setGeometry(100, 100, 400, 500)  # Adjust size as needed
         # TODO: Better initialization and handling of BW integration.
-        bw.projects.set_current("test")
-        self.eidb = bw.Database('ei_391_c')
-        self.bios = bw.Database('biosphere3')
+        bw.projects.set_current("outdoor")
+        self.eidb = bw.Database('ecoinvent-3.10-consequential')
+        self.bios = bw.Database('ecoinvent-3.10-biosphere')
         self.outd = bw.Database('outdoor')
 
         layout = QVBoxLayout(self)

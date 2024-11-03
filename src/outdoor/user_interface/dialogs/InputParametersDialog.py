@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDoubleValidator, QFont, QCursor
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 
 class InputParametersDialog(QDialog):
@@ -327,11 +327,11 @@ class InputParametersDialog(QDialog):
         # get the dto
         dto = self.centralDataManager.unitProcessData[self.iconID]
         # update the dto with the new data
-        dto.updateProcessDTO('Name', dialogData['Name'])
+        dto.updateProcessDTO(field=UpdateField.NAME, value=dialogData['Name'])
 
         # get all the chemical from the dialogData in the table and update the dto
         chemicals = [chemical[0] for chemical in dialogData['components']]
-        dto.updateProcessDTO('outgoingChemicals', chemicals)
+        dto.updateProcessDTO(field='outgoingChemicals', value=chemicals)
 
         # add the dialog data to the processDTO
         dto.addDialogData(dialogData)

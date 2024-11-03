@@ -119,6 +119,7 @@ class CentralDataManager:
 
     def removeIconData(self, iconId):
         if iconId in self.unitProcessData:
+
             del self.unitProcessData[iconId]
 
     def addConnection(self, startPort, endPort, startPosition, endPosition, currentLine):

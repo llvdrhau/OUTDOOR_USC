@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QPixmap, QColor
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 class PhysicalProcessesDialog(QDialog):
     """
@@ -1680,7 +1680,7 @@ class PhysicalProcessesDialog(QDialog):
 
         # retrieve the DTO from the centralDataManager
         dtoProcess = self.centralDataManager.unitProcessData[self.iconID]
-        dtoProcess.updateProcessDTO(field='Name', value=dialogData['Name'])
+        dtoProcess.updateProcessDTO(field= UpdateField.NAME, value=dialogData['Name'])
 
         # add the dialog data to the processDTO
         dtoProcess.addDialogData(dialogData)

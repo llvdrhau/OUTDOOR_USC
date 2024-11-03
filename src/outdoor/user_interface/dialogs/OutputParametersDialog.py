@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox
 from PyQt5.QtGui import QDoubleValidator
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 class OutputParametersDialog(QDialog):
     """
@@ -154,7 +154,7 @@ class OutputParametersDialog(QDialog):
         # retrive the processDTO from the centralDataManager
         dtoOutput = self.centralDataManager.unitProcessData[self.iconID]
         # update the name
-        dtoOutput.updateProcessDTO('Name', dialogData['Name'])
+        dtoOutput.updateProcessDTO(field= UpdateField.NAME, value= dialogData['Name'])
 
         # add the dialog data to the processDTO
         dtoOutput.addDialogData(dialogData)
