@@ -20,12 +20,14 @@ class ProcessType(Enum):
 
 class UpdateField(Enum):  # to much of a hassle to use the Enum class use Literal instead for the update fields
     NAME = 'Name'
+    INPUT_FLOW = 'InputFlow'
     OUTGOINGCHEMICALS = 'OutgoingChemicals'
     CONNECTION = 'Connection'
     MATERIALFLOW = 'MaterialFlow'
     DISTRIBUTION_OWNER = 'BooleanOwner'
     DISTRIBUTION_CONNECTION = 'BooleanConnection'
     DISTRIBUTION_CONTAINER = 'BooleanContainer'
+    STREAM_CLASSIFICATION = 'StreamClassification'
 
 class ProcessDTO(object):
     def __init__(self, uid="", name="", type:ProcessType=ProcessType.PHYSICAL, outGoingChemicals:list=[]):
@@ -42,6 +44,11 @@ class ProcessDTO(object):
         self.entryPorts = []
         self.exitPorts = []
 
+        # input flow variables
+        self.inputFlows = [] # list of the ID of the input process type that flow into the current process
+
+        # the material flow is a dictionary with the stream number as the key and the value is a dictionary with the
+        # process id as the keys and the split dictionary as the value
         self.materialFlow = {1: {},
                              2: {},
                              3: {}} # dictionary with the material flow to other processes
@@ -105,13 +112,19 @@ class ProcessDTO(object):
 
         #self.materialFlow.pop(reciveingID)
 
-    def updateProcessDTO(self, field: UpdateField, value: Union[str, list, tuple, None, tuple]):
+    def updateProcessDTO(self, field: UpdateField, value: Union[str, str, list, tuple, None, tuple, tuple, tuple, str]):
 
         if field == UpdateField.NAME:
+            # value is a string with the name of the process
             self.name = value
 
+        elif field == UpdateField.INPUT_FLOW:
+            # update the incoming chemicals
+            # self.incomingChemicals = value
+            self.inputFlows.append(value) # the value is the ID of the Iput process type
+
         elif field == UpdateField.OUTGOINGCHEMICALS:
-            self.outgoingChemicals = value
+            self.outgoingChemicals = value # the value is a list of the outgoing chemicals
 
         elif field == UpdateField.CONNECTION:
             # value is a tuple with the sending port and the receiving port
@@ -119,13 +132,18 @@ class ProcessDTO(object):
 
         elif field == UpdateField.MATERIALFLOW:
             self._updateMaterialFlow()
+            self.logger.info(f"Material flow updated for process {self.name}")
+            self.logger.debug(f"Material flow: {self.materialFlow}")
+            self.logger.debug(f"stream classification: {self.classificationStreams}")
 
         elif field == UpdateField.DISTRIBUTION_OWNER:
             # the value is a tuple containing the ID to which the boolean distributor belongs to and the stream number
             # it is distributing
             self.distributionOwner = value
-            streamNumber = value[1]
-            distributorType = value[2]  # the type of distributor either 'Boolean' or 'Distributor'
+
+        elif field == UpdateField.STREAM_CLASSIFICATION:
+            streamNumber = value[0]
+            distributorType = value[1]  # the type of distributor either 'Boolean' or 'Distributor'
             self.classificationStreams[streamNumber] = distributorType
 
         elif field == UpdateField.DISTRIBUTION_CONNECTION:
@@ -134,7 +152,7 @@ class ProcessDTO(object):
             self.updateDistributionConnection(unitID2Add, streamNumber)
 
         elif field == UpdateField.DISTRIBUTION_CONTAINER:
-            # the value is a tuple with the id of the process and the stream number
+            # the value is the id of the process that is connected to the distributor
             self.distributionContainer.append(value)
 
         else:
@@ -199,9 +217,6 @@ class ProcessDTO(object):
             for id, splitDict in separationDict.items():
                 splitDict = self._getSeparationDict(streamType)
                 self.addMaterialFlow(streamType, id, splitDict)
-
-        self.logger.info(f"Material flow updated for process {self.name}")
-        #print(self.materialFlow)
 
 
     def updateDistributionConnection(self, unitID2Add, streamNumber):
