@@ -30,7 +30,8 @@ class UpdateField(Enum):  # to much of a hassle to use the Enum class use Litera
     STREAM_CLASSIFICATION = 'StreamClassification'
 
 class ProcessDTO(object):
-    def __init__(self, uid="", name="", type:ProcessType=ProcessType.PHYSICAL, outGoingChemicals:list=[]):
+    def __init__(self, uid="", name="", type:ProcessType=ProcessType.PHYSICAL, outGoingChemicals:list=[],
+                 positionOnCanvas= None):
 
         # add the logger
         self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
@@ -39,6 +40,9 @@ class ProcessDTO(object):
         self.uid = uid
         self.name = name
         self.type = type
+
+        # position variables
+        self.positionOnCanvas = positionOnCanvas
 
         # port variables
         self.entryPorts = []
@@ -121,7 +125,7 @@ class ProcessDTO(object):
         elif field == UpdateField.INPUT_FLOW:
             # update the incoming chemicals
             # self.incomingChemicals = value
-            self.inputFlows.append(value) # the value is the ID of the Iput process type
+            self.inputFlows.append(value) # the value is the ID of the input process type
 
         elif field == UpdateField.OUTGOINGCHEMICALS:
             self.outgoingChemicals = value # the value is a list of the outgoing chemicals

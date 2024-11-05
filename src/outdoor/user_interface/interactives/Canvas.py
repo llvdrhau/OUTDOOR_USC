@@ -142,7 +142,9 @@ class Canvas(QGraphicsView):
             UUID = uuid.uuid4().__str__()
             index_list.append(UUID)
             # Create MovableIcon
-            iconWidget = MovableIcon(text, centralDataManager=self.centralDataManager, iconID=UUID, icon_type=icon_type)
+            iconWidget = MovableIcon(text=text, centralDataManager=self.centralDataManager, iconID=UUID,
+                                     icon_type=icon_type, position=position)
+
             iconWidget.setPos(self.mapToScene(position))
             return iconWidget
         else:
@@ -171,10 +173,17 @@ class Canvas(QGraphicsView):
         :return:
         """
         if port.occupied:
+            # todo add a word to the canvas that disappears to indicate that the port is already occupied
             # do not start a new line if the port is already connected
             return
+
         else:
-            if 'split' not in port.iconType and port.portType == 'exit' and len(port.connectionLines) > 0:
+            if 'input' in port.iconType and port.portType == 'exit':
+                # the input is not restricted to one stream, so the port is not occupied, multiple streams can leave the
+                # port
+                port.occupied = False
+
+            elif 'split' not in port.iconType and port.portType == 'exit' and len(port.connectionLines) > 0:
                 # the port of an icon that is not a split icon and is an exit port is now occupied only one
                 # stream can leave. The extra if statement is to avoid the case where the line was deleted
                 # and no longer exists
@@ -255,6 +264,8 @@ class Canvas(QGraphicsView):
         if sendingIconType == ProcessType.INPUT:
             unitDTOReceiving.updateProcessDTO(field=UpdateField.INPUT_FLOW,
                                               value=unitDTOSending.uid)
+            self.logger.info("Input {} given to unit {}:".format(unitDTOSending.uid, unitDTOReceiving.uid))
+            self.logger.debug("The inputs going into Unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
 
         elif (sendingIconType.value in [1, 2, 3, 4, 5, 6] and
               (receivingIconType == ProcessType.BOOLDISTRIBUTOR or receivingIconType == ProcessType.DISTRIBUTOR)):
@@ -368,18 +379,26 @@ class Canvas(QGraphicsView):
                     # connected that do not belong to the icon! (these need to be reset in the second for loop)
                     outerPorts = []
                     deletedLines = []
-                    unitFlowsToUpdate = [] # the ID's of sending units that need to be updated
+                    outputFlowsToUpdate = []  # the ID's of sending units that need to be updated
+                    inputFlowsToUpdate = []  # the ID's of the receiving units that need to be updated
 
+                    # loop over all the ports associated with the icon to find which input and output flows need to be
+                    # updated
                     for port in item.ports:
                         #port.occupied = False
                         self.logger.info("Before Port {} # connectionLines: {}".format(port, len(port.connectionLines)))
                         connectionLines = port.connectionLines
                         for line in connectionLines:
-                            if line.startPort != item.ports:
+                            # if the start port is not the port that is being deleted it is an outer port
+                            # not belonging to the icon
+                            if line.startPort != port:
                                 outerPorts.append(line.startPort)
-                                unitFlowsToUpdate.append(line.startPort.iconID)
-                            if line.endPort != item.ports:
+                                outputFlowsToUpdate.append(line.startPort.iconID)
+
+                            if line.endPort != port:
                                 outerPorts.append(line.endPort)
+                                inputFlowsToUpdate.append(line.endPort.iconID)
+
                             deletedLines.append(line)
                             # remove the line from the scene
                             self.scene.removeItem(line)
@@ -387,6 +406,8 @@ class Canvas(QGraphicsView):
                         port.occupied = False
                         port.connectionLines = []
 
+                    # update the occupancy of the port to False for the ports that are not connected to the icon and are
+                    # now free to connect to other icons
                     for port in outerPorts:
                         # update the occupancy of the port to False
                         port.occupied = False
@@ -396,7 +417,7 @@ class Canvas(QGraphicsView):
 
                     # get the sending unit dto, extra if statement to avoid error if the icon is an input there is no
                     # sending unit, hence no need to remove the connection
-                    self._removalLogic(unitFlowsToUpdate, item)
+                    self._removalLogic(outputFlowsToUpdate, inputFlowsToUpdate, item)
 
                     # remove the icon from the scene
                     self.scene.removeItem(item)
@@ -423,12 +444,15 @@ class Canvas(QGraphicsView):
 
         super().keyPressEvent(event)
 
-    def _removalLogic(self, unitFlowsToUpdate, icon2Delete):
+    def _removalLogic(self, outputFlowsToUpdate, inputFlowsToUpdate, icon2Delete):
 
         if icon2Delete.icon_type == 'input':
-            for id in unitFlowsToUpdate:
+            for id in inputFlowsToUpdate:
                 unitDTOReceivingInput = self.centralDataManager.unitProcessData[id]
-                unitDTOReceivingInput.InputFlow.remove(icon2Delete.iconID)
+                unitDTOReceivingInput.inputFlows.remove(icon2Delete.iconID)
+                self.logger.info("Input {} removed from the receiving unitDTO {}".format(icon2Delete.iconID,
+                                                                                         unitDTOReceivingInput.uid))
+                self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceivingInput.uid, unitDTOReceivingInput.inputFlows))
 
         elif 'split' in icon2Delete.icon_type:
             # if you delete a split icon, you need to remove the connections to where the distribution goes from the
@@ -454,7 +478,7 @@ class Canvas(QGraphicsView):
 
 
         else:
-            for id in unitFlowsToUpdate:
+            for id in outputFlowsToUpdate:
                 unitDTOSending = self.centralDataManager.unitProcessData[id]
                 if unitDTOSending.type == ProcessType.DISTRIBUTOR or unitDTOSending.type == ProcessType.BOOLDISTRIBUTOR:
                     # if the sending unit is a distributor, the connection to the receiving unit needs to be removed
@@ -615,13 +639,16 @@ class MovableIcon(QGraphicsObject):
     is used to create the icons in the canvas and makes them draggable, handels their appearance and opens dialogos.
     """
 
-    def __init__(self, text, centralDataManager, icon_type, iconID=None):
+    def __init__(self, text, centralDataManager, icon_type, position, iconID=None):
         super().__init__()
 
         # set up the logger
         self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
-
+        # Set the text of the icon (the initial label)
         self.text = text
+        # save the positon
+        self.positionOnCanvas = position
+
         # make a map of abbreviations to full names of the icons
         self.iconAbbreviation = {'Input': 'Input',
                                  'Output': 'Output',
@@ -716,7 +743,7 @@ class MovableIcon(QGraphicsObject):
 
 
         # create a new processDTO and add the data to it
-        dtoProcess = ProcessDTO(uid=self.iconID, type=type)
+        dtoProcess = ProcessDTO(uid=self.iconID, type=type, positionOnCanvas=self.positionOnCanvas)
         # add the processDTO to the centralDataManager
         self.centralDataManager.unitProcessData[self.iconID] = dtoProcess
 
@@ -841,6 +868,8 @@ class MovableIcon(QGraphicsObject):
 
     def mouseReleaseEvent(self, event):
         self.logger.info("Icon {} released. Current position: {}".format(self.iconID, self.pos()))
+        # update the position of the icon in the centralDataManager
+        self.centralDataManager.unitProcessData[self.iconID].positionOnCanvas = self.pos()
         # get the scene items
         sceneItems = self.scene().items()
         self.logger.info("Scene items: {}".format(len(sceneItems)))
@@ -863,7 +892,6 @@ class MovableIcon(QGraphicsObject):
                 if hasattr(port, 'updateConnectedLines'):
                     port.updateConnectedLines(self.centralDataManager)
         return super().itemChange(change, value)
-
 
     def openParametersDialog(self):
         """
@@ -934,7 +962,7 @@ class MovableIcon(QGraphicsObject):
         else:
             self.logger.info("{} Dialog canceled".format(self.icon_type))
 
-    def updateIconExitPorts(self, ports2Active: list, processDTO: ProcessDTO):
+    def updateIconExitPorts(self, ports2Active:list, processDTO:ProcessDTO):
         """
         Updates the exit ports of the icon based on the provided list of active ports.
         Adds or removes exit ports as needed.
@@ -1101,7 +1129,7 @@ class InteractiveLine(QGraphicsPathItem):
                 self.endPort.connectionLines.remove(self)
 
                 # update the material flow of the affected units
-                self._lineDeteltionLogic()
+                self._lineDeletingLogic()
 
             # Delete the line if the Backspace key is pressed while the line is selected
             self.setSelectedLine(False)
@@ -1126,7 +1154,7 @@ class InteractiveLine(QGraphicsPathItem):
 
         super().keyPressEvent(event)
 
-    def _lineDeteltionLogic(self):
+    def _lineDeletingLogic(self):
         """
         Handles the removal of the line from the material flow of the affected units
         :param startPort: The port where the line starts
@@ -1141,6 +1169,10 @@ class InteractiveLine(QGraphicsPathItem):
         if unitDTOSending.type == ProcessType.INPUT:
             # update the input flow of the receiving unit
             unitDTOReceiving.inputFlows.remove(self.startPort.iconID)
+            self.logger.info("Input {} removed from the receiving unitDTO {}".format(unitDTOSending.uid,
+                                                                                     unitDTOReceiving.uid))
+            self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceiving.uid,
+                                                                       unitDTOReceiving.inputFlows))
 
         elif (unitDTOSending.type.value in [1, 2, 3, 4, 5, 6] and
               (unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR)):

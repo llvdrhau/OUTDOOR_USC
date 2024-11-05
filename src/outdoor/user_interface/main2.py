@@ -99,12 +99,20 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.ProjectPath = QFileDialog.getSaveFileName(self, 'Save As', filter='*.outdr', directory='data/frames')[
                 0]
             self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
+
+            # Todo temporary fix for a bug during saving: can not pickle QT objects!!
+            # I'm not using the DTO to acess the ports so this is relatively safe for now
+            for unitDTO in self.centralDataManager.unitProcessData.values():
+                unitDTO.exitPorts = []
+                unitDTO.entryPorts = []
+
             with open(self.ProjectPath, 'wb') as file:
                 pickle.dump(self.centralDataManager, file)
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
             print("Saved File: ", self.ProjectPath)
             self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+
         except Exception as e:
             print("Save cancelled.", e)
 
@@ -130,6 +138,8 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
 
         # todo add a tab, so users can type a description of the project
+        # todo go over each tab and make a methode to import data from the central data manager,
+        # check generalSystemDataTab on how to do it !!!   
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")

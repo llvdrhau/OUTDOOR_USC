@@ -15,6 +15,8 @@ class ComponentsTab(QWidget):
     This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
+    # TODO get rid of the Save button and save the data every time a new row is added instead, see reactions tab on how
+    # to do this
 
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
@@ -104,6 +106,7 @@ class ComponentsTab(QWidget):
         self.setFocusPolicy(Qt.StrongFocus)
         self.setLayout(self.layout)
         self.importData()
+
         if self.componentsTable.rowCount() == 0:
             self.addComponentRow()
 
