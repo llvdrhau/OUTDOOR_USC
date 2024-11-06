@@ -90,7 +90,7 @@ class GeneratorDialog(StoichiometricReactorDialog):
             # gray the background of the line edit to show that it is disabled
             self.electricalEfficiency.setEnabled(False)
             self.electricalEfficiency.setStyleSheet("background-color: lightgray;")
-            self.electricalEfficiency.setText('')
+            self.electricalEfficiency.setText('0.58')
 
             # enable the heat efficiency line edit and set the background to white
             self.heatEfficiency.setEnabled(True)
@@ -107,7 +107,7 @@ class GeneratorDialog(StoichiometricReactorDialog):
             # gray the background of the line edit to show that it is disabled
             self.heatEfficiency.setEnabled(False)
             self.heatEfficiency.setStyleSheet("background-color: lightgray;")
-            self.heatEfficiency.setText('')
+            self.heatEfficiency.setText('0.83')
 
         elif energyType == "Combined Heat and Power":
             self.UnitType = ProcessType.GEN_CHP
@@ -126,8 +126,18 @@ class GeneratorDialog(StoichiometricReactorDialog):
         dialogData = super().collectData()
         # Add the data from the energy tab
         dialogData['energyType'] = self.energyType.currentText()
-        dialogData['electricalEfficiency'] = float(self.electricalEfficiency.text())
-        dialogData['heatEfficiency'] = float(self.heatEfficiency.text())
+
+        if self.electricalEfficiency.text() == '':
+            elecEff = 0.0
+        else:
+            elecEff = float(self.electricalEfficiency.text())
+        dialogData['electricalEfficiency'] = elecEff
+
+        if self.heatEfficiency.text() == '':
+            heatEff = 0.0
+        else:
+            heatEff = float(self.heatEfficiency.text())
+        dialogData['heatEfficiency'] = heatEff
 
         return dialogData
     def _populateEnergyTab(self, dialogData):

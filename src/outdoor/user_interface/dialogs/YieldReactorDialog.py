@@ -93,6 +93,26 @@ class YieldReactorDialog(PhysicalProcessesDialog):
 
         return dialogData
 
+    def _addFoundComponents(self):
+        super()._addFoundComponents()
+
+        # Retrive the reactions from the current dialog
+        referenceFlowType = self._getReferenceFlowType()
+
+        if "Exiting" in referenceFlowType:
+            # get the products of the reactions if the exiting flow is selected because these chemicals are in the
+            # exiting flow now and should be added to the table
+            product = self.product.currentText()
+
+            # if its already in the table don't add it again
+            table, _ = self._findTable()
+            chemicalsFromTable = self._collectTableData(table)
+            # Remove the potential duplicates from the already in the filledInChemicals
+            chemicalsFromTable = list(set(chemicalsFromTable))  # Convert table data to set
+
+            if product not in chemicalsFromTable:
+                self._addRowToTable(componentName=product)
+
     def _collectDataYield(self):
         """
         Collects the data from the dialog and saves it to the central data manager. Use existing methods to collect data
@@ -136,3 +156,5 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         self.yieldFactor.setText(str(dialogData['Yield Factor']))
         for component in dialogData['Inert Components']:
             self._addRowToTable(tabName="yield", componentName=component)
+
+

@@ -287,6 +287,11 @@ class Canvas(QGraphicsView):
                 for receivingID in distributionDTO.distributionContainer:
                     updateValue = (receivingID, self.startPort.exitStream)
                     ownerDTO.updateProcessDTO(field=UpdateField.DISTRIBUTION_CONNECTION, value=updateValue)
+                    receivingDTO = self.centralDataManager.unitProcessData[receivingID]
+                    receivingDTO.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+                                                  value={ownerDTO.uid: self.startPort.exitStream})
+                    self.logger.debug("Incoming flow ids for the receiving unitDTO {} "
+                                      "are: {}".format(receivingID, receivingDTO.incomingUnitFlows))
 
 
             self.logger.info("Distribution Connection between {} and {} established".format(ownerDTO.uid,
@@ -317,19 +322,39 @@ class Canvas(QGraphicsView):
                 self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
                 self.logger.debug("The stream classification is: {}".format(ownerDTO.classificationStreams))
 
+                # update what is id is entering the receiving unit
+                unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+                                                  value={ownerID: ownerStream})
+                self.logger.info("Incoming unit Flow id {} given to the receiving "
+                                 "UnitDTO {}".format(ownerID, unitDTOReceiving.uid))
+                self.logger.debug("Incoming flow ids for the receiving unitDTO "
+                                  "are: ".format(unitDTOReceiving.incomingUnitFlows))
+
 
         else: # the sending and receiving unit are 2 normal unit processes that are connected
             # Update the material flow of the process based on the current dialog data and how the ports are connected
             unitDTOSending.updateProcessDTO(field=UpdateField.CONNECTION,
                                             value=(self.startPort, self.endPort))
+
             self.logger.info("Connection between {} and {} established".format(self.startPort.iconID, self.endPort.iconID))
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The stream classification is: {}".format(unitDTOSending.classificationStreams))
 
-        # Todo,find out how incoming chemicals can be identified to automatically fill in the tables in the dialogs
-        # normaly the input and output ports are available in the process DTO. these contain the lines and to which lines
-        # they are connected. The lines contain the start and end port which contain the iconID of the connected ports
-        # this way you can find the chemicals entering the process and leaving the process
+            unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+                                              value={unitDTOSending.uid: self.startPort.exitStream})
+            self.logger.info("Incoming unit Flow id {} given to the receiving "
+                             "unitDTO {}".format(unitDTOSending.uid, unitDTOReceiving.uid))
+            self.logger.debug("Incoming flow ids for the receiving unitDTO are: "
+                              "{}".format(unitDTOReceiving.incomingUnitFlows))
+
+            # update how incoming chemicals can be identified to automatically fill in the tables in the dialogs
+            #
+            # normaly the input and output ports are available in the process DTO. these contain the lines and to which lines
+            # they are connected. The lines contain the start and end port which contain the iconID of the connected ports
+            # this way you can find the chemicals entering the process and leaving the process
+            #
+            # the problem with this is that we'd have to save to the central data manager with PortWidgets and we can't
+            # pickle those
 
     def getSeperationDict(self, processType:ProcessType, streamType, dialogData):
         """
@@ -445,6 +470,15 @@ class Canvas(QGraphicsView):
         super().keyPressEvent(event)
 
     def _removalLogic(self, outputFlowsToUpdate, inputFlowsToUpdate, icon2Delete):
+        """
+        This method is called when an icon is deleted. It updates the connections of the icons that are connected to the
+        icon that is being deleted. The method removes the connection from the sending unitDTO to the receiving unitDTO
+
+        :param outputFlowsToUpdate: list of ID's that surround (i.e. are connected to) the icon that is being deleted
+        :param inputFlowsToUpdate: list of receiving Uint ID that need to be updated when an INPUT icon is deleted
+        :param icon2Delete: the UID of the icon that is being deleted
+        :return:
+        """
 
         if icon2Delete.icon_type == 'input':
             for id in inputFlowsToUpdate:
@@ -469,12 +503,18 @@ class Canvas(QGraphicsView):
                 ownerDTO.classificationStreams[streamAffected] = None
                 for id in id2Delete:
                     ownerDTO.removeFromMaterialFlow(id)
+                    receivingDTO = self.centralDataManager.unitProcessData[id]
+                    receivingDTO.incomingUnitFlows.pop(ownerID)
+                    self.logger.debug(
+                        "Incoming flow ids for the receiving unitDTO are: {}".format(receivingDTO.incomingUnitFlows))
 
                 self.logger.debug("Connections to the split icon removed\n"
                                  "The material flow of the owner of the split icon is updated to: "
                                  "{}".format(ownerDTO.materialFlow))
                 self.logger.debug("The classification streams of the owner of the split icon is updated to: {}".format(
                     ownerDTO.classificationStreams))
+
+
 
 
         else:
@@ -497,6 +537,15 @@ class Canvas(QGraphicsView):
                     self.logger.info("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
                     self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
                     self.logger.debug("The classification streams are: {}".format(unitDTOSending.classificationStreams))
+
+            for id in inputFlowsToUpdate:
+                unitDTOReceiving = self.centralDataManager.unitProcessData[id]
+                if unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR:
+                    pass
+                else:
+                    unitDTOReceiving.incomingUnitFlows.pop(icon2Delete.iconID)
+                    self.logger.info("Incoming Flow id {} removed from the receiving unitDTO".format(icon2Delete.iconID))
+                    self.logger.debug("Incoming flow UIDs for unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
 
     def mousePressEvent(self, event):
         """
@@ -739,7 +788,7 @@ class MovableIcon(QGraphicsObject):
         else:
             self.logger.error("Icon type {} not recognized when saving the initial icon".format(unitType))
             self.logger.warning("Defaulting to physical process")
-            type = ProcessType.PHYSICAL # default to physical process if the type is not recognized
+            type = ProcessType.PHYSICAL  # default to physical process if the type is not recognized
 
 
         # create a new processDTO and add the data to it
@@ -1189,6 +1238,9 @@ class InteractiveLine(QGraphicsPathItem):
             # delete the connection from the unit that owned the distribution unit
             for id in ids2Delete:
                 ownerDTO.removeFromMaterialFlow(id)
+                receivingDTO = self.centralDataManager.unitProcessData[id]
+                receivingDTO.incomingUnitFlows.pop(ownerID)  # remove the incoming flow from the receiving units
+                self.logger.debug("Incoming flow ids for the receiving unitDTO are: {}".format(receivingDTO.incomingUnitFlows))
 
             # reset the ownership of the distribution unit
             unitDTOReceiving.distributionOwner = None
@@ -1211,14 +1263,23 @@ class InteractiveLine(QGraphicsPathItem):
                 self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
                 self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
+                # update the incoming flow of the receiving unit
+                unitDTOReceiving.incomingUnitFlows.pop(ownerID)
+                self.logger.debug("Incoming flow ids for the receiving unitDTO {} are:"
+                                  " {}".format(ownerID, unitDTOReceiving.incomingUnitFlows))
 
-        else: # just a normal connection between two units that are not distributors
+        # just a normal connection between two units that are not distributors
+        else:
             # remove the connection from the sending unitDTO
             # remove the connection from the receiving unitDTO
             unitDTOSending.removeFromMaterialFlow(self.endPort.iconID)
             self.logger.info("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The classification of streams are: {}".format(unitDTOSending.classificationStreams))
+
+            unitDTOReceiving.incomingUnitFlows.pop(self.startPort.iconID)
+            self.logger.debug("Incoming flow id {} removed from the receiving "
+                              "unitDTO {}".format(self.startPort.iconID, unitDTOReceiving.uid))
 
 
     def _findFoucs(self, text):

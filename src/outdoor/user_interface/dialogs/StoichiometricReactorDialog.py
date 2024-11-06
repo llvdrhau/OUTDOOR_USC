@@ -12,6 +12,9 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         # Additional initialization for StoichiometricReactorDialog
         self.UnitType = ProcessType.STOICHIOMETRIC
 
+        # List of reactions that are in the dialog
+        self.reactionIDs = []
+
         #self.tabWidget = self.tabWidget # in the parent class
         self.tabWidget.addTab(self._createStoichiometricDialogTab(), "Reactions")
 
@@ -129,6 +132,14 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
             if reaction.name == reactionName:
                 return reaction.reactants
 
+    def getProductList(self, reactionName):
+        # Get the list of reactions from the central data manager
+        # horrendously inefficient but it works for now
+        reactionDTOs = self.centralDataManager.reactionData
+        for reaction in reactionDTOs:
+            if reaction.name == reactionName:
+                return reaction.products
+
 
     def updateReactionString(self, row):
         """
@@ -222,6 +233,47 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         reactionData = dialogData['Reactions']
         for rowData in reactionData:
             self._addReactionRow(rowData)
+
+    def _addFoundComponents(self):
+        """
+        Adds incoming components to the specified table. In this case the products of reactions need to be added
+        to the components table.
+        :param tableName: The name of the table to which the components will be added.
+        """
+        super()._addFoundComponents()
+        # Add incoming components to the reaction table, these will also be leaving the process
+
+        # Retive the reactions from the current dialog
+        referenceFlowType = self._getReferenceFlowType()
+
+        if "Exiting" in referenceFlowType:
+            # get the products of the reactions if the exiting flow is selected because these chemicals are in the
+            # exiting flow now and should be added to the table
+
+            # loop over the reactions table and get the reaction names
+            products = []
+            for row in range(self.reactionTableUnitProcess.rowCount()):
+                reactionName = self.reactionTableUnitProcess.cellWidget(row, 0).currentText()
+                # get the reactants of the reaction
+                products += self.getProductList(reactionName)
+
+
+            # if its already in the table don't add it again
+            table, _ = self._findTable()
+            chemicalsFromTable = self._collectTableData(table)
+
+            # Remove the chemicals that are already in the filledInChemicals using set difference
+            chemicalsSet = set(products)  # Convert to set for efficient lookup, also removes duplicates
+            chemicalsFromTableSet = set(chemicalsFromTable)  # Convert table data to set
+
+            # Perform set difference to find chemicals that are not in chemicalsFromTable
+            products = list(chemicalsSet - chemicalsFromTableSet)
+
+            # add the chemicals to the components table
+            if products:
+                for component in products:
+                    self._addRowToTable(componentName=component)
+
 
 
 

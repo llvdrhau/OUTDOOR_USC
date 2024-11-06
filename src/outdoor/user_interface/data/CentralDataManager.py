@@ -20,6 +20,8 @@ class CentralDataManager:
     """
 
     def __init__(self):
+        self.projectDescription = ""
+
         self.unitProcessData: Dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
 
         self.namesChemicalComponents = []  # list to store chemical components data

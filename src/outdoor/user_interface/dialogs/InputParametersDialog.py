@@ -331,7 +331,7 @@ class InputParametersDialog(QDialog):
 
         # get all the chemical from the dialogData in the table and update the dto
         chemicals = [chemical[0] for chemical in dialogData['components']]
-        dto.updateProcessDTO(field='outgoingChemicals', value=chemicals)
+        dto.updateProcessDTO(field=UpdateField.OUTGOINGCHEMICALS, value=chemicals)
 
         # add the dialog data to the processDTO
         dto.addDialogData(dialogData)

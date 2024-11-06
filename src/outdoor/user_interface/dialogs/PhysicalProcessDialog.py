@@ -59,6 +59,8 @@ class PhysicalProcessesDialog(QDialog):
         self.UnitType = ProcessType.PHYSICAL
         self.dialogData = initialData.dialogData if initialData else {}
 
+        # add the tool tip text for the incoming chemicals buttons they are the same in each tab
+        self.tooltipFindChemicalsButton = "These buttons will add the incoming chemicals to the table."
         self.setWindowTitle("Unit Process Parameters")
         self.setGeometry(100, 100, 600, 400)  # Adjust size as needed
 
@@ -297,7 +299,6 @@ class PhysicalProcessesDialog(QDialog):
         widget.setLayout(layout)
         return widget
 
-
     def _createCostRelatedFactorsTab(self):
         # Cost Related Factors Tab
         widget = QWidget()
@@ -358,13 +359,25 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTable.setObjectName("componentsTable")
 
         # Add a row to tabel button
+        hlayout = QHBoxLayout()
         self.addRowButton = QPushButton("Add Component", self)
         self.addRowButton.clicked.connect(self._addRowToTable)
-        # set object name
-        self.addRowButton.setObjectName("addRowButton")
-        layout.addWidget(self.addRowButton)
+        self.addRowButton.setObjectName("addRowButton")    # set object name
+
+        self.addFindChemicalsButton = QPushButton("Find Components", self)
+        self.addFindChemicalsButton.clicked.connect(self._addFoundComponents)
+        # IMPORTANT Object name needs to be the same name as button next to it, or otherwise the addRow methode won't
+        # connect properly
+        self.addFindChemicalsButton.setObjectName("addRowButton")
+
+        hlayout.addWidget(self.addRowButton)
+        hlayout.addWidget(self.addFindChemicalsButton)
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=self.tooltipFindChemicalsButton)
+
+
+        #layout.addWidget(self.addRowButton)
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="cost")
+        # self._addRowToTable(tabName="cost")
 
         # reference cost
         self.referenceCost = QLineEdit(self)
@@ -467,14 +480,30 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableEnergy.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTableEnergy.setObjectName("componentsTableEnergy")
 
+        # start a hLayout
+        hlayout = QHBoxLayout()
+
         # Add a row to tabel button
         self.addRowButtonEnergy = QPushButton("Add Component", self)
         self.addRowButtonEnergy.clicked.connect(self._addRowToTable)
         # set object name
         self.addRowButtonEnergy.setObjectName("addRowButtonEnergy")
-        layout.addWidget(self.addRowButtonEnergy)
+
+        self.addFindChemicalButtonEnergy = QPushButton("Find Components", self)
+        self.addFindChemicalButtonEnergy.clicked.connect(self._addFoundComponents)
+        # IMPORTANT Object name needs to be the same name as button next to it, or otherwise the addRow methode won't
+        # connect properly
+        self.addFindChemicalButtonEnergy.setObjectName("addRowButtonEnergy")
+
+        hlayout.addWidget(self.addRowButtonEnergy)
+        hlayout.addWidget(self.addFindChemicalButtonEnergy)
+        # add the hlayout to the layout
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=self.tooltipFindChemicalsButton)
+
+
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="energy")
+        # self._addRowToTable(tabName="energy")
+
 
         # ----------------------------------------------------------------------------------------------------------
         # Chilling Requirements
@@ -523,14 +552,30 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableChilling.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTableChilling.setObjectName("componentsTableChilling")
 
+        # start a hLayout
+        hlayout = QHBoxLayout()
+
         # Add a row to tabel button
         self.addRowButtonChilling = QPushButton("Add Component", self)
         self.addRowButtonChilling.clicked.connect(self._addRowToTable)
         # set object name
         self.addRowButtonChilling.setObjectName("addRowButtonChilling")
-        layout.addWidget(self.addRowButtonChilling)
+
+        # add incoming chemicals button
+        self.addFindChemicalsButtonChilling = QPushButton("Find Components", self)
+        self.addFindChemicalsButtonChilling.clicked.connect(self._addFoundComponents)
+        # IMPORTANT Object name needs to be the same name as button next to it, or otherwise the addRow methode won't
+        # connect properly
+        self.addFindChemicalsButtonChilling.setObjectName("addRowButtonChilling")
+
+        hlayout.addWidget(self.addRowButtonChilling)
+        hlayout.addWidget(self.addFindChemicalsButtonChilling)
+        # add the hlayout to the layout
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=self.tooltipFindChemicalsButton)
+
+
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="chilling")
+        #self._addRowToTable(tabName="chilling")
 
         # internal method to create the layout of
 
@@ -606,14 +651,23 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableHeat1.setSelectionMode(QTableWidget.SingleSelection)
         self.componentsTableHeat1.setObjectName("componentsTableHeat1")
 
+        hlayout = QHBoxLayout()
+
         # Add row button Heat1
         self.addRowButtonHeat1 = QPushButton("Add Component", self)
         self.addRowButtonHeat1.clicked.connect(self._addRowToTable)
         self.addRowButtonHeat1.setObjectName("addRowButtonHeat1")
         layout.addWidget(self.addRowButtonHeat1)
 
+        self.addFindChemicalsButtonHeat1 = QPushButton("Find Components", self)
+        self.addFindChemicalsButtonHeat1.clicked.connect(self._addFoundComponents)
+        self.addFindChemicalsButtonHeat1.setObjectName("addRowButtonHeat1")
+        hlayout.addWidget(self.addRowButtonHeat1)
+        hlayout.addWidget(self.addFindChemicalsButtonHeat1)
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=self.tooltipFindChemicalsButton)
+
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="heat1")
+        # self._addRowToTable(tabName="heat1")
 
         # -------------------------------------------------------------------------------------------------
         # Heat Consumption 2
@@ -659,10 +713,18 @@ class PhysicalProcessesDialog(QDialog):
         self.addRowButtonHeat2 = QPushButton("Add Component", self)
         self.addRowButtonHeat2.clicked.connect(self._addRowToTable)
         self.addRowButtonHeat2.setObjectName("addRowButtonHeat2")
-        layout.addWidget(self.addRowButtonHeat2)
+
+        self.addFindChemicalsButtonHeat2 = QPushButton("Find Components", self)
+        self.addFindChemicalsButtonHeat2.clicked.connect(self._addFoundComponents)
+        self.addFindChemicalsButtonHeat2.setObjectName("addRowButtonHeat2")
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.addRowButtonHeat2)
+        hlayout.addWidget(self.addFindChemicalsButtonHeat2)
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=self.tooltipFindChemicalsButton)
+
 
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="heat2")
+        # self._addRowToTable(tabName="heat2")
 
         # Set layout in the widget
         widget.setLayout(layout)
@@ -744,7 +806,7 @@ class PhysicalProcessesDialog(QDialog):
         layout.addWidget(self.addRowButtonConcentration1)
 
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="concentration1")
+        # self._addRowToTable(tabName="concentration1")
 
         # create subtitel flow2
         self._createSectionTitle(text="Reference Flow 2", layout=layout)
@@ -774,7 +836,7 @@ class PhysicalProcessesDialog(QDialog):
         self.addRowButtonConcentration2.setObjectName("addRowButtonConcentration2")
         layout.addWidget(self.addRowButtonConcentration2)
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="concentration2")
+        # self._addRowToTable(tabName="concentration2")
 
         # return the widget
         widget.setLayout(layout)
@@ -883,9 +945,21 @@ class PhysicalProcessesDialog(QDialog):
         self.addRowButtonSeparation.clicked.connect(self._addRowToTable)
         # set object name
         self.addRowButtonSeparation.setObjectName("addRowButtonSeparation")
-        main_layout.addWidget(self.addRowButtonSeparation)
+
+        self.addFindChemicalsButttonSeparation = QPushButton("Find Components", self)
+        self.addFindChemicalsButttonSeparation.clicked.connect(self._addFoundComponents)
+        # IMPORTANT Object name needs to be the same name as button next to it, or otherwise the addRow methode won't
+        # connect properly
+        self.addFindChemicalsButttonSeparation.setObjectName("addRowButtonSeparation")
+
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.addRowButtonSeparation)
+        hlayout.addWidget(self.addFindChemicalsButttonSeparation)
+        main_layout.addRow(hlayout)
+        # main_layout.addWidget(self.addRowButtonSeparation)
+
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="separationEfficiency")
+        # self._addRowToTable(tabName="separationEfficiency")
 
 
         # --- Waste Management Section ---
@@ -1073,51 +1147,7 @@ class PhysicalProcessesDialog(QDialog):
 
     def _addRowToTable(self, tabName: str = '', componentName= None):
 
-        try:
-            senderName = self.sender().objectName()
-        except AttributeError:
-            senderName = None  # or any default value indicating the objectName is not accessible
-
-        # check what button is clicked
-        if tabName == "cost" or senderName == "addRowButton":
-            #print('the add row button is clicked')
-            table = self.componentsTable
-        elif tabName == "energy" or senderName == "addRowButtonEnergy":
-            #print('the add row button energy is clicked')
-            table = self.componentsTableEnergy
-        elif tabName == "heat1" or senderName == "addRowButtonHeat1":
-            #print('the add row button heat1 is clicked')
-            table = self.componentsTableHeat1
-        elif tabName == "heat2" or senderName == "addRowButtonHeat2":
-            #print('the add row button heat2 is clicked')
-            table = self.componentsTableHeat2
-        elif tabName == "chilling" or senderName == "addRowButtonChilling":
-            #print('the add row button chilling is clicked')
-            table = self.componentsTableChilling
-        elif tabName == "concentration1" or senderName == "addRowButtonConcentration1":
-            #print('the add row button concentration1 is clicked')
-            table = self.componentsTableConcentration1
-
-        elif tabName == "concentration2" or senderName == "addRowButtonConcentration2":
-            #print('the add row button concentration2 is clicked')
-            table = self.componentsTableConcentration2
-
-        elif tabName == "reactantsTable" or senderName == "addRowButtonReactantsTable":
-            table = self.reactantsTable
-
-        elif tabName == "productsTable" or senderName == "addRowButtonProductsTable":
-            table = self.productsTable
-
-        elif tabName == "yield" or senderName == "addRowButtonYieldTable":
-            table = self.inertComponentsTable
-
-        elif tabName == "separationEfficiency" or senderName == "addRowButtonSeparation":
-            table = self.separationEfficiencyTable
-
-
-        else:
-            raise ValueError("The add row button is not connected to any table please check the "
-                             "object name of the button")
+        table, senderName = self._findTable(tabName)
 
         # Get the current row count and insert a new row at the end
         rowPosition = table.rowCount()
@@ -1158,12 +1188,148 @@ class PhysicalProcessesDialog(QDialog):
         table.setItem(rowPosition, 0, item)
         table.setCellWidget(rowPosition, 0, self.comboBoxComponents)
 
+        # get the current items in the table
         if componentName and componentName in chemicalNames:
             self.comboBoxComponents.setCurrentText(componentName)
 
         table.setSelectionBehavior(QTableWidget.SelectRows)
         table.setSelectionMode(QTableWidget.SingleSelection)  # or MultiSelection if needed
 
+    def _addFoundComponents(self):
+        """
+        Add incoming components to the components table
+        :return:
+        """
+        # get the DTO of the current unit
+        unitDTO = self.centralDataManager.unitProcessData[self.iconID]
+        chemicals = []
+        # first check if there is any inputs flows entering the current unit
+        inputFlows = unitDTO.inputFlows
+        for id in inputFlows:
+            inputDTO = self.centralDataManager.unitProcessData[id]
+            chemicals += inputDTO.outgoingChemicals  # get the chemicals from the input flow
+
+            # small error wanring if your connected to an input block but no chemicals are defined in that input block
+            if not chemicals:
+                self._showErrorDialog("No chemicals found from the input block(s) \n. "
+                                      "Please make sure that the Input composition is characterised.")
+                return
+
+        # get chemicals coming from the sending unit, if it is connected
+        idsInflowingUnits = unitDTO.incomingUnitFlows
+        if idsInflowingUnits:
+            for id, streamNumber in idsInflowingUnits.items(): # THIS IS A DICT idsInflowingUnits
+                #  figure out where we can find the streams number
+                InflowingUnitDTO = self.centralDataManager.unitProcessData[id]
+                inFlowingChemicals = InflowingUnitDTO.getOutgoingChemicals(streamNumber)
+                chemicals += inFlowingChemicals
+                # the chemicals are not found in the incoming stream because their is no fraction of the chemicals
+                # going trough the stream
+                if not inFlowingChemicals:
+                    self._showErrorDialog("No chemicals found in stream {} of unit {} \n. "
+                                          "Please make sure that the flow of the stream is defined in the tab "
+                                          "'separation'".format(streamNumber, InflowingUnitDTO.name))
+                    return
+
+        # if there are no chemicals add at this point raise a warning box to the user stating that the unit is not
+        # connected yet and no chemicals can be found
+        if not chemicals:
+            self._showErrorDialog( "No chemicals found in the incoming streams \n. "
+                                                       "Please make sure that the unit is connected to other units.")
+            return
+
+        table, _ = self._findTable()
+        chemicalsFromTable = self._collectTableData(table)
+
+        # Remove the chemicals that are already in the filledInChemicals using set difference
+        chemicalsSet = set(chemicals)  # Convert to set for efficient lookup, also removes duplicates
+        chemicalsFromTableSet = set(chemicalsFromTable)  # Convert table data to set
+
+        # Perform set difference to find chemicals that are not in chemicalsFromTable
+        chemicals = list(chemicalsSet - chemicalsFromTableSet)
+
+        # add the chemicals to the table
+        if chemicals:
+            for component in chemicals:
+                self._addRowToTable(componentName=component)
+
+    def _findTable(self, tabName:str = ""):
+
+        try:
+            senderName = self.sender().objectName()
+        except AttributeError:
+            senderName = None  # or any default value indicating the objectName is not accessible
+
+        # check what button is clicked
+        if tabName == "cost" or senderName == "addRowButton":
+            # print('the add row button is clicked')
+            table = self.componentsTable
+        elif tabName == "energy" or senderName == "addRowButtonEnergy":
+            # print('the add row button energy is clicked')
+            table = self.componentsTableEnergy
+        elif tabName == "heat1" or senderName == "addRowButtonHeat1":
+            # print('the add row button heat1 is clicked')
+            table = self.componentsTableHeat1
+        elif tabName == "heat2" or senderName == "addRowButtonHeat2":
+            # print('the add row button heat2 is clicked')
+            table = self.componentsTableHeat2
+        elif tabName == "chilling" or senderName == "addRowButtonChilling":
+            # print('the add row button chilling is clicked')
+            table = self.componentsTableChilling
+        elif tabName == "concentration1" or senderName == "addRowButtonConcentration1":
+            # print('the add row button concentration1 is clicked')
+            table = self.componentsTableConcentration1
+        elif tabName == "concentration2" or senderName == "addRowButtonConcentration2":
+            # print('the add row button concentration2 is clicked')
+            table = self.componentsTableConcentration2
+        elif tabName == "reactantsTable" or senderName == "addRowButtonReactantsTable":
+            table = self.reactantsTable
+        elif tabName == "productsTable" or senderName == "addRowButtonProductsTable":
+            table = self.productsTable
+        elif tabName == "yield" or senderName == "addRowButtonYieldTable":
+            table = self.inertComponentsTable
+        elif tabName == "separationEfficiency" or senderName == "addRowButtonSeparation":
+            table = self.separationEfficiencyTable
+        else:
+            table = None
+            self.logger.error("No table found in function _findTable, class PhysicalProcessDialog")
+        return table, senderName
+
+    def _getReferenceFlowType(self):
+        """
+        Used this methode to find if the reference flow is exiting or entering flow for the specified tab
+        """
+
+        try:
+            senderName = self.sender().objectName()
+        except AttributeError:
+            senderName = None  # or any default value indicating the objectName is not accessible
+
+
+        if senderName == "addRowButton":
+            # get the value of the dropdown menu
+            referenceFlow = self.referenceFlowType.currentText()
+
+        elif senderName == "addRowButtonEnergy":
+            referenceFlow = self.referenceFlowTypeEnergy.currentText()
+
+        elif senderName == "addRowButtonChilling":
+            referenceFlow = self.referenceFlowTypeChilling.currentText()
+
+        elif senderName == "addRowButtonHeat1":
+            referenceFlow = self.referenceFlowTypeHeat1.currentText()
+
+        elif senderName == "addRowButtonHeat2":
+            referenceFlow = self.referenceFlowTypeHeat2.currentText()
+
+        elif senderName == "addRowButtonSeparation":
+            referenceFlow = "Exiting"  # always exiting flow for separation processes
+
+        else:
+            self.logger.error("The sender name is not valid, defaulting to Exiting flow")
+            referenceFlow = "Exiting"
+
+        return referenceFlow
     def _componentSelectionSwitch(self, type):
         """ Only fill in the component and product load if the reference flow type is mass flow"""
         if type == "Cost":
@@ -1180,12 +1346,31 @@ class PhysicalProcessesDialog(QDialog):
                                     background-color: #78d;
                                 }
                             """)
+                # same for the find chemicals button
+                self.addFindChemicalsButton.setDisabled(False)
+                self.addFindChemicalsButton.setStyleSheet("""
+                                               QPushButton {
+                                                   background-color: #5a9;
+                                               }
+                                               QPushButton:hover {
+                                                   background-color: #78d;
+                                               }
+                                           """)
+
+
 
             else:
                 # If a mass flow is not selected, make the button to add components unclickable
                 self.componentsTable.setDisabled(True)
                 self.addRowButton.setDisabled(True)
                 self.addRowButton.setStyleSheet("""
+                    QPushButton {
+                        background-color: grey;
+                    }
+                """)
+                # same for the find chemicals button
+                self.addFindChemicalsButton.setDisabled(True)
+                self.addFindChemicalsButton.setStyleSheet("""
                     QPushButton {
                         background-color: grey;
                     }
@@ -1599,7 +1784,7 @@ class PhysicalProcessesDialog(QDialog):
         self.addRowButtonChilling.setObjectName("addRowButtonChilling")
         layout.addWidget(self.addRowButtonChilling)
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="chilling")
+        # self._addRowToTable(tabName="chilling")
 
         # internal method to create the layout of
 

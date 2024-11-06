@@ -21,6 +21,7 @@ class ProcessType(Enum):
 class UpdateField(Enum):  # to much of a hassle to use the Enum class use Literal instead for the update fields
     NAME = 'Name'
     INPUT_FLOW = 'InputFlow'
+    INCOMING_UNIT_FLOWS = 'IncomingUnitFlows'
     OUTGOINGCHEMICALS = 'OutgoingChemicals'
     CONNECTION = 'Connection'
     MATERIALFLOW = 'MaterialFlow'
@@ -49,7 +50,10 @@ class ProcessDTO(object):
         self.exitPorts = []
 
         # input flow variables
-        self.inputFlows = [] # list of the ID of the input process type that flow into the current process
+        self.inputFlows = []  # list of the ID of the input process type that flow into the current process
+        # Dictionary of the ID's units that flow into the current process unit and the stream number
+        # they are connected to
+        self.incomingUnitFlows = {}
 
         # the material flow is a dictionary with the stream number as the key and the value is a dictionary with the
         # process id as the keys and the split dictionary as the value
@@ -59,11 +63,10 @@ class ProcessDTO(object):
 
         self.outgoingChemicals = outGoingChemicals
 
-        self.incomingStreams: list[str] = [] # list of uid's of processes where the stream enter the current process
-        self.incomingChemicals: list[str] = [] # list of chemicals that enter the process
-
-        self.outgoingStreams: list[str] = [] # list of uid's of processes where the stream exit the current process
-        self.outgoingChemicals: list[str] = []
+        # self.incomingStreams: list[str] = [] # list of uid's of processes where the stream enter the current process
+        # self.incomingChemicals: list[str] = [] # list of chemicals that enter the process
+        # self.outgoingStreams: list[str] = [] # list of uid's of processes where the stream exit the current process
+        # self.outgoingChemicals: list[str] = []
 
         self.output_components: list[tuple[ComponentDTO, int, str]] = []
         self.reactions: list[ReactionDTO] = []
@@ -116,7 +119,7 @@ class ProcessDTO(object):
 
         #self.materialFlow.pop(reciveingID)
 
-    def updateProcessDTO(self, field: UpdateField, value: Union[str, str, list, tuple, None, tuple, tuple, tuple, str]):
+    def updateProcessDTO(self, field: UpdateField, value: Union[str, str, dict, list, tuple, None, tuple, tuple, tuple, str]):
 
         if field == UpdateField.NAME:
             # value is a string with the name of the process
@@ -126,6 +129,10 @@ class ProcessDTO(object):
             # update the incoming chemicals
             # self.incomingChemicals = value
             self.inputFlows.append(value) # the value is the ID of the input process type
+
+        elif field == UpdateField.INCOMING_UNIT_FLOWS:
+            # update the incoming unit flows
+            self.incomingUnitFlows.update(value)
 
         elif field == UpdateField.OUTGOINGCHEMICALS:
             self.outgoingChemicals = value # the value is a list of the outgoing chemicals
@@ -162,8 +169,6 @@ class ProcessDTO(object):
         else:
             self.logger.error(f"Field {field} does not exist in ProcessDTO")
 
-
-
     def _updateConnection(self, sendingPort, reciveingPort):
         """
         Update the material flow of the process based on the current dialog data and how the ports are connected
@@ -175,7 +180,6 @@ class ProcessDTO(object):
         streamNumber = sendingPort.exitStream  # get the stream number of the port either 1, 2, or 3
         splitDict = self._getSeparationDict(streamNumber)
         self.addMaterialFlow(streamNumber, reciveingPort.iconID, splitDict)
-
 
     def _getSeparationDict(self, streamType):
         """
@@ -210,7 +214,6 @@ class ProcessDTO(object):
 
         return splitDict
 
-
     def _updateMaterialFlow(self):
         """
         Update the material flow of the process based on the current dialog data and how the ports are connected
@@ -221,7 +224,6 @@ class ProcessDTO(object):
             for id, splitDict in separationDict.items():
                 splitDict = self._getSeparationDict(streamType)
                 self.addMaterialFlow(streamType, id, splitDict)
-
 
     def updateDistributionConnection(self, unitID2Add, streamNumber):
         """
@@ -235,3 +237,22 @@ class ProcessDTO(object):
         self.addMaterialFlow(streamNumber, unitID2Add, splitDict)
         self.logger.info(f"Boolean connection updated for process {self.name}")
         #print(self.materialFlow)
+
+
+    def getOutgoingChemicals(self, streamNumber):
+        """
+        Get the outgoing chemicals from the process unit of a specific stream
+
+        :return: the outgoing chemicals
+        """
+        outgoingChemicals = []
+        if streamNumber in self.materialFlow:
+            streamDict = self.materialFlow[streamNumber]
+            #get the keys of the dictionary (all the dictionaries in the stream are the same for each ID)
+            firstKey = list(streamDict.keys())[0]
+            outGoingComponentsDict = streamDict[firstKey]
+            for chemical, fraction in outGoingComponentsDict.items():
+                if fraction > 0:
+                    outgoingChemicals.append(chemical)
+
+        return outgoingChemicals
