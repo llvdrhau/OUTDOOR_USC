@@ -2,12 +2,15 @@ import uuid
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
+# retrive the logger
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+import logging
 
 
 class ComponentsTab(QWidget):
@@ -15,13 +18,18 @@ class ComponentsTab(QWidget):
     This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
-    # TODO get rid of the Save button and save the data every time a new row is added instead, see reactions tab on how
-    # to do this
 
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
+        # add the logger
+        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+
+        # add the central data manager
         self.centralDataManager = centralDataManager
         self.componentList: list[ComponentDTO] = centralDataManager.componentData
+
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
 
         self.setStyleSheet("""
                                                     QDialog {
@@ -70,7 +78,7 @@ class ComponentsTab(QWidget):
         self.componentsTable = QTableWidget()
         self.componentsTable.setColumnCount(5)
         self.columnsList = [
-            "Component", "Lower heating Value (MWh/t)",
+            "Component", "Lower heating Value (kWh/kg)",
             "Heat capacity (kJ/kg/K)", "Molecular weight (g/mol)",
             "LCA Data"
         ]
@@ -87,8 +95,10 @@ class ComponentsTab(QWidget):
 
         # Set validators for the numeric columns using a custom delegate class
         self.doubleDelegate = DoubleDelegate(self.componentsTable)
-        #self.doubleValidator = QDoubleValidator(0.0, 9999.99, 4)
+        # self.doubleValidator = QDoubleValidator(0.00, 9999.99, 2)
 
+        # save if something is changed in the table
+        self.componentsTable.itemChanged.connect(self.saveData)
 
         # Add the table to the layout
         self.layout.addWidget(self.componentsTable)
@@ -97,20 +107,25 @@ class ComponentsTab(QWidget):
         self.addRowButton.clicked.connect(self.addComponentRow)
         self.layout.addWidget(self.addRowButton)
 
-        # Save button setup
-        self.okButton = QPushButton("Save")
-        self.okButton.clicked.connect(self.saveData)
-        self.layout.addWidget(self.okButton)
 
         # Ensure the widget can receive focus to detect key presses
         self.setFocusPolicy(Qt.StrongFocus)
         self.setLayout(self.layout)
+
+        # if the central data manager has data, import it
         self.importData()
 
-        if self.componentsTable.rowCount() == 0:
-            self.addComponentRow()
+        # if self.componentsTable.rowCount() == 0:
+        #     self.addComponentRow()
 
     def addComponentRow(self, data: ComponentDTO | None = None):
+        """
+        This method adds a row to the table for the chemical components
+        :param data: of type ComponentDTO, the data to be added to the table, can be None
+        :return:
+        """
+        # set the flag of adding a row to true
+        self.addingRowFlag = True
 
         rowPosition: int
         if data is None or not isinstance(data, ComponentDTO):
@@ -123,7 +138,7 @@ class ComponentsTab(QWidget):
         self.componentsTable.insertRow(rowPosition)
 
         for key, value in data.as_dict().items():
-            try:
+            if key in self.columnsShortnames:
                 index = self.columnsShortnames.index(key)
                 if key == "LCA":
                     if "Results" in value:
@@ -140,30 +155,10 @@ class ComponentsTab(QWidget):
                     insert = QTableWidgetItem(value)
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
                     self.componentsTable.setItem(rowPosition, index, insert)
-            except ValueError:
-                #This happens because there are more keys in the componentdto dictionary than there are columns.
-                #It isn't a problem.
-                continue
 
-        # save the data every time a new row is added
-        self.saveData()
-        # set the border of the OK button to red
-        self.okButton.setStyleSheet("border: 2px solid red;")
-        # set the background of the OK to light yellow
-        self.okButton.setStyleSheet("background-color: #ffff99;")
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
 
-        # delete?
-        # for i in range(self.componentsTable.columnCount()):
-        #     item = QTableWidgetItem(str(data[i]))
-        #     self.componentsTable.setItem(rowPosition, i, item)
-        #     if i in [1, 2, 3]:  # Set the validator for numeric columns
-        #         # Set the delegate for the column where only double values are allowed
-        #         self.componentsTable.setItemDelegateForColumn(i, self.doubleDelegate)
-        #     if i == 4:
-        #         btn = LcaButton(self.componentsTable, rowPosition)
-        #         btn.setText("Not Defined")
-        #         btn.clicked.connect(btn.lcaAction)
-        #         self.componentsTable.setCellWidget(rowPosition, i, btn)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
@@ -181,14 +176,14 @@ class ComponentsTab(QWidget):
     def doubleClickEvent(self, item):
         print(item.row(), item.column())
 
+    @pyqtSlot()
     def saveData(self):
-        self.collectData()
-        # Save the data to the central data manager
-        self.centralDataManager.addData("chemicalComponentsData", self.componentList)
+        if not self.addingRowFlag:
+            self.collectData()
+            # Save the data to the central data manager
+            self.centralDataManager.addData("chemicalComponentsData", self.componentList)
+            self.logger.debug("Data saved components tab to central data manager")
 
-        # Change the border of OK button to green
-        # print('debugging')
-        self.okButton.setStyleSheet("border: 2px solid green;")
 
     def collectData(self):
         # Collect data from the table

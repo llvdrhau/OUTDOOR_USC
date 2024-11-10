@@ -73,6 +73,9 @@ class ProjectDescriptionTab(QWidget):
         self.layout.addWidget(self.saveButton)
         self.saveButton.clicked.connect(self.saveDescription)
 
+        # import is there is any description saved
+        self.importData()
+
     def saveDescription(self):
         description_text = self.description.toPlainText()
         self.centralDataManager.projectDescription = description_text
@@ -80,4 +83,9 @@ class ProjectDescriptionTab(QWidget):
         self.logger.info("Project Description saved")
 
     def importData(self):
-        pass
+        if self.centralDataManager.projectDescription:
+            self.description.setText(self.centralDataManager.projectDescription)
+        else:
+            descriptionText = "Enter a description of the project here."
+            self.description.setText(descriptionText)
+            self.logger.info("Default Project Description added")

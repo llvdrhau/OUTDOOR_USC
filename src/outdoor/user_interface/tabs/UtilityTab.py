@@ -147,14 +147,14 @@ class UtilityTab(QWidget):
             #temperatureData.append([temp, cost])
         # print(temperatureData)
 
-    def _loadUtilityData(self):
-        utilityLoad = self.centralDataManager.data["utilitiesData"]
-        utilityCleaned = []
-        for row in utilityLoad:
-            utilityCleaned.append([row[1], row[2], row[3]])
-            self._populateUtilitiesTable(utilityCleaned)
-
-    def _loadTemperatureData(self):
-        tempLoad = self.centralDataManager.data["temperatureData"]
-        self._populateTemperatureTable(tempLoad)
+    # def _loadUtilityData(self):
+    #     utilityLoad = self.centralDataManager.data["utilitiesData"]
+    #     utilityCleaned = []
+    #     for row in utilityLoad:
+    #         utilityCleaned.append([row[1], row[2], row[3]])
+    #         self._populateUtilitiesTable(utilityCleaned)
+    #
+    # def _loadTemperatureData(self):
+    #     tempLoad = self.centralDataManager.data["temperatureData"]
+    #     self._populateTemperatureTable(tempLoad)
 

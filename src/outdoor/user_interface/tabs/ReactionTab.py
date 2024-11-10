@@ -7,6 +7,8 @@ from PyQt5.QtCore import Qt
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 from outdoor.user_interface.dialogs.ReactionDialog import ReactionDialog
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+import logging
 
 
 class ReactionsTab(QWidget):
@@ -17,6 +19,10 @@ class ReactionsTab(QWidget):
 
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
+
+        # add the logger
+        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+
         self.centralDataManager = centralDataManager
         self.reactionList: list[ReactionDTO] = centralDataManager.reactionData
         self.setStyleSheet("""
@@ -75,7 +81,7 @@ class ReactionsTab(QWidget):
         self.reactionTable.setColumnWidth(1, 430)
         self.reactionTable.setColumnWidth(2, 150)
 
-        self.reactionTable.itemDoubleClicked.connect(self.doubleClickEvent)
+        # self.reactionTable.itemDoubleClicked.connect(self.doubleClickEvent)
 
         # Set validators for the numeric columns using a custom delegate class
         self.doubleDelegate = DoubleDelegate(self.reactionTable)
@@ -88,20 +94,23 @@ class ReactionsTab(QWidget):
         self.addRowButton.clicked.connect(self.addReactionRow)
         self.layout.addWidget(self.addRowButton)
 
-        # save button not needed, reaction is saved automatically when edited
-        # Save button setup
-        # self.okButton = QPushButton("Save")
-        # self.okButton.clicked.connect(self.saveData)
-        # self.layout.addWidget(self.okButton)
-
         # Ensure the widget can receive focus to detect key presses
         self.setFocusPolicy(Qt.StrongFocus)
         self.setLayout(self.layout)
+
+        # if self.reactionTable.rowCount() == 0: # optinal
+        #     self.addReactionRow()
+
+        # import the data from the central data manager to load the saved into the table
         self.importData()
-        if self.reactionTable.rowCount() == 0:
-            self.addReactionRow()
 
     def addReactionRow(self, data: ReactionDTO | None = None):
+        """
+        Add a new row to the reaction table
+        :param data:
+        :return:
+        """
+
         rowPosition: int
 
         if data is None or not isinstance(data, ReactionDTO):
@@ -109,7 +118,6 @@ class ReactionsTab(QWidget):
             uid = uuid.uuid4().__str__()
             data = ReactionDTO(rowPosition, uid)
             self.centralDataManager.addData('reactionData', data)
-            # self.reactionList.append(data)
 
         else:
             rowPosition = data.rowPosition
@@ -117,14 +125,24 @@ class ReactionsTab(QWidget):
         self.reactionTable.insertRow(rowPosition)
 
         # the first column should not be editable
-        insert = QTableWidgetItem('None')
+        if data.name != "":
+            insert = QTableWidgetItem(data.name)
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+        else:
+            insert = QTableWidgetItem('None')
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+            insert.setBackground(QColor(218, 222, 227))  # make the background color of the cell grey
         insert.setFlags(Qt.NoItemFlags)
         self.reactionTable.setItem(rowPosition, 0, insert)
 
 
         # the second column should not be editable
-        insert = QTableWidgetItem("No reaction defined")
-        insert.setBackground(QColor(218, 222, 227))
+        if data.reactionEquation != "":
+            insert = QTableWidgetItem(data.reactionEquation)
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+        else:
+            insert = QTableWidgetItem("No reaction defined")
+            insert.setBackground(QColor(218, 222, 227))
         insert.setFlags(Qt.NoItemFlags)
         self.reactionTable.setItem(rowPosition, 1, insert)
 
@@ -140,22 +158,28 @@ class ReactionsTab(QWidget):
 
         # Create an instance of the ReactionDialog with the current data
         dialog = ReactionDialog(data, centralDataManager=self.centralDataManager, rowPosition=row)
+        dialog.exec_()  # Open the dialog
 
-        # Open the dialog and check if the user accepts (e.g., presses Save)
-        if dialog.exec_() == QDialog.Accepted:
-            updated_data = dialog.dto  # Get the updated data from the dialog
-
-            # Update the data in the reaction list and update the table if needed
-            self.reactionList[row] = updated_data
-
-            # Optionally update the table UI with new values
-            self.reactionTable.setItem(row, 0, QTableWidgetItem(updated_data.reaction_name))
-            self.reactionTable.setItem(row, 1, QTableWidgetItem(updated_data.reaction_equation))
+        # redundant code?
+        # # Open the dialog and check if the user accepts (e.g., presses Save)
+        #         # if dialog.exc_() == QDialog.Accepted:
+        #     self.logger.info("Editing reaction button accepted")
 
         if data.name != "" and data.reactionEquation != "":
+            # properties of the first column the name of the reaction
+            insertName = QTableWidgetItem(data.name)
+            insertName.setForeground(QColor(0, 0, 0))
+            insertName.setFlags(Qt.NoItemFlags)
+
+            # properties of the second column the reaction equation
+            insertEquation = QTableWidgetItem(data.reactionEquation)
+            insertEquation.setForeground(QColor(0, 0, 0))
+            insertEquation.setFlags(Qt.NoItemFlags)
+
             # update the data in the dialog with the current data
-            self.reactionTable.setItem(row, 0, QTableWidgetItem(data.name))
-            self.reactionTable.setItem(row, 1, QTableWidgetItem(data.reactionEquation))
+            self.reactionTable.setItem(row, 0, insertName)
+            self.reactionTable.setItem(row, 1, insertEquation)
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
@@ -174,27 +198,24 @@ class ReactionsTab(QWidget):
         pass
 
     def saveData(self):
-        pass
         # a bit redundant, every time you add/edit a reaction it is automatically saved.
-        # self.collectData()
-        # Save the data to the central data manager
-        # self.centralDataManager.addData("reactionData", self.reactionList)
-
-        # Change the border of OK button to green
-        # print('debugging')
-        # self.okButton.setStyleSheet("border: 2px solid green;")
-
-    def collectData(self):
         pass
-
-    def sortComponentDTO(self, dto: ReactionDTO):
-        return dto.rowPosition
 
     def importData(self):
-       pass
+        """
+        Import the data from the central data manager to load the saved data into the table
+        """
+        if self.reactionList:
+            for data in self.reactionList:
+                self.addReactionRow(data)
 
 
     def contextMenuEvent(self, event):
+        """
+        Handle the context menu event for the reaction table to delete rows
+        :param event: that is a right click event
+        :return:
+        """
         # Create a context menu
         context_menu = QMenu(self)
 

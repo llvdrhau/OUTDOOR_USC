@@ -7,6 +7,7 @@ from typing import Union
 
 
 class ProcessType(Enum):
+    LCA = -3
     DISTRIBUTOR = -2
     BOOLDISTRIBUTOR = -1
     INPUT = 0

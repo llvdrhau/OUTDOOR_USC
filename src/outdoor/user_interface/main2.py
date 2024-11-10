@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFil
 import sys
 
 from data.CentralDataManager import CentralDataManager
+from data.CentralDataManager import OutputManager
 
 import os
 
@@ -23,6 +24,8 @@ from tabs.UtilityTab import UtilityTab
 from tabs.SuperstructureMappingTab import SuperstructureMappingTab
 from tabs.ReactionTab import ReactionsTab
 from tabs.ProjectDescriptionTab import ProjectDescriptionTab
+from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+import logging
 
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
@@ -32,11 +35,17 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
     def __init__(self):
         super().__init__()
+
+        # add the logger
+        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+
         self.setWindowTitle("OUTDOOR 2.0 - Open Source Process Simulator")
         self.setGeometry(100, 100, 1200, 800)
         self.ProjectName = ""
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
+        self.outputManager = OutputManager() # Initialize the output manager
+
         menu_bar = self.menuBar()
         fileMenu = menu_bar.addMenu('File')
 
@@ -74,21 +83,39 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         #There has to be a way to handle "i cancelled the load" that's not this trash
         filepath = QFileDialog(self, caption='Open Saved Project', filter='*.outdr', directory='data/frames')
         filepath.exec()
-        try:
-            #if filepath.accept():
-            self.ProjectPath = filepath.selectedFiles()[0]
-            self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
-            with open(self.ProjectPath, 'rb') as file:
-                self.centralDataManager = pickle.load(file)
-            self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
-            self.centralDataManager.loadConfigs()
-            self.initTabs()
-            self.enableSave()
-            print("Opened File: ", self.ProjectPath)
-        except Exception as e:
-            print("File opening likely cancelled: ", e)
+
+        self.ProjectPath = filepath.selectedFiles()[0]
+        self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
+        with open(self.ProjectPath, 'rb') as file:
+            self.centralDataManager = pickle.load(file)
+        self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+        self.centralDataManager.loadConfigs()
+        self.initTabs()
+        self.enableSave()
+        self.logger.info("Opened File: {}".format(self.ProjectPath))
+
+        # comment for now to make bebugging easier
+        # try:
+        #     #if filepath.accept():
+        #     self.ProjectPath = filepath.selectedFiles()[0]
+        #     self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
+        #     with open(self.ProjectPath, 'rb') as file:
+        #         self.centralDataManager = pickle.load(file)
+        #     self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+        #     self.centralDataManager.loadConfigs()
+        #     self.initTabs()
+        #     self.enableSave()
+        #     self.logger.info("Opened File: {}".format(self.ProjectPath))
+        # except Exception as e:
+        #     self.logger.error("File opening cancelled: {}".format(e))
 
     def saveFile(self):
+        # temporary fix for a bug during saving: can not pickle QT objects!!
+        # I'm not using the DTO to acess the ports so this is relatively safe for now
+        for unitDTO in self.centralDataManager.unitProcessData.values():
+            unitDTO.exitPorts = []
+            unitDTO.entryPorts = []
+
         with open(self.ProjectPath, 'wb') as file:
             pickle.dump(self.centralDataManager, file)
         print("Saved File: ", self.ProjectPath)
@@ -100,7 +127,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 0]
             self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
 
-            # Todo temporary fix for a bug during saving: can not pickle QT objects!!
+            # temporary fix for a bug during saving: can not pickle QT objects!!
             # I'm not using the DTO to acess the ports so this is relatively safe for now
             for unitDTO in self.centralDataManager.unitProcessData.values():
                 unitDTO.exitPorts = []
@@ -114,7 +141,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
 
         except Exception as e:
-            print("Save cancelled.", e)
+            self.logger.error("Save cancelled.", e)
 
     def editConfigs(self):
         dialog = ConfigEditor(self.centralDataManager)
@@ -132,13 +159,14 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         # Create the tabs
         createWelcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
         projectDescriptionTab = ProjectDescriptionTab(centralDataManager=self.centralDataManager)
-        generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager)
+        generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager,
+                                                    outputManager=self.outputManager)
         componentsTab = ComponentsTab(centralDataManager=self.centralDataManager)
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
-        superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager)
+        superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
+                                                             outputManager=self.outputManager)
 
-        # todo add a tab, so users can type a description of the project
         # todo go over each tab and make a methode to import data from the central data manager,
         # check generalSystemDataTab on how to do it !!!
 

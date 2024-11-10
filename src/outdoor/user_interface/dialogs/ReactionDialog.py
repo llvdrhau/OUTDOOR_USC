@@ -24,8 +24,6 @@ class ReactionDialog(QDialog):
         self.rowPosition = rowPosition
         self.dataDTO = initialData
 
-
-
         self.setStyleSheet("""
                                     QDialog {
                                         background-color: #f2f2f2;
@@ -83,10 +81,7 @@ class ReactionDialog(QDialog):
         description_label.setWordWrap(True)
         main_layout.addWidget(description_label)
 
-
         tables_layout = QHBoxLayout()
-
-
         # Reactants Table
         self.reactantsTable = QTableWidget()
         self.reactantsTable.setColumnCount(2)
@@ -94,7 +89,6 @@ class ReactionDialog(QDialog):
         self.reactantsTable.setColumnWidth(0, 150)
         self.reactantsTable.setColumnWidth(1, 150)
         tables_layout.addWidget(self.reactantsTable)
-
 
         # Add Row Button for Reactants Table
         addReactantButton = QPushButton("Add Reactant", self)
@@ -175,30 +169,6 @@ class ReactionDialog(QDialog):
         # Add the QLineEdit widget to the table
         self.productsTable.setCellWidget(rowPosition, 1, stoichiometryEdit)
 
-    # keyPressEvent not used any more to delete table rows not very usefull
-    #def keyPressEvent(self, event):
-        #pass
-        #if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
-         #   # Get the widget that currently has focus
-          #  focused_widget = self.focusWidget()
-
-           # # Check if the reactants table has focus
-            #if focused_widget is self.reactantsTable:
-             #   selected_items = self.reactantsTable.selectedItems()
-              #  if selected_items:
-               #     selected_row = selected_items[0].row()  # Get the row of the first selected item
-                 #   self.reactantsTable.removeRow(selected_row)
-
-            # Check if the products table has focus
-            #elif focused_widget is self.productsTable:
-             #   selected_items = self.productsTable.selectedItems()
-              #  if selected_items:
-               #     selected_row = selected_items[0].row()  # Get the row of the first selected item
-                    #self.productsTable.removeRow(selected_row)
-
-        # If the key press is not handled by the above logic, pass it to the parent
-        #else:
-         #   super().keyPressEvent(event)
 
     def loadInitialData(self, data: ReactionDTO):
         """
@@ -278,9 +248,6 @@ class ReactionDialog(QDialog):
             self.dataDTO.upadateField("reactants", reactants)
             self.dataDTO.upadateField("products", products)
             self.dataDTO.upadateField("reactionEquation", reactionEq)
-
-            # do I update the centralDataManager here?
-            # self.centralDataManager.addReactionData(data)
 
         self.close()
 

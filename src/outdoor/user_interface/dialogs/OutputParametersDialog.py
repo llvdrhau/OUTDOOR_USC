@@ -8,7 +8,7 @@ class OutputParametersDialog(QDialog):
     price output, CO2 credits, minimum production, and maximum production. The user can set the price output and CO2
     credits as floating-point numbers, and the minimum and maximum production as floating-point numbers.
     """
-    def __init__(self, initialData, centralDataManager, iconID):
+    def __init__(self, initialData, centralDataManager, outputManager, iconID):
         super().__init__()
 
         # set the process type
@@ -17,6 +17,7 @@ class OutputParametersDialog(QDialog):
         self.iconID = iconID
         # set the centralDataManager
         self.centralDataManager = centralDataManager
+        self.outputManager = outputManager
 
         # set style
         self.setStyleSheet("""
@@ -153,11 +154,21 @@ class OutputParametersDialog(QDialog):
 
         # retrive the processDTO from the centralDataManager
         dtoOutput = self.centralDataManager.unitProcessData[self.iconID]
+
         # update the name
-        dtoOutput.updateProcessDTO(field= UpdateField.NAME, value= dialogData['Name'])
+        dtoOutput.updateProcessDTO(field=UpdateField.NAME, value= dialogData['Name'])
 
         # add the dialog data to the processDTO
         dtoOutput.addDialogData(dialogData)
+
+        # add the output name to the list of self.centralDataManager.outputList
+        # Get the current list, append the new item, and reassign it to trigger the signal
+        newName = dialogData['Name']
+        current_list = self.outputManager.outputList
+        current_list.append(newName)
+        # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
+        self.outputManager.outputList = current_list
+
 
         self.accept()
 

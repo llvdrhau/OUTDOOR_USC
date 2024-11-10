@@ -13,13 +13,16 @@ from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 
-class CentralDataManager:
+from PyQt5.QtCore import QObject, pyqtSignal # needed to emmit signals
+
+class CentralDataManager():
     """
     A class to manage all data related to the icons and data from other tabs and their associated dialogs.
     This class stores the data
     """
-
     def __init__(self):
+        super().__init__()
+
         self.projectDescription = ""
 
         self.unitProcessData: Dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
@@ -34,8 +37,10 @@ class CentralDataManager:
         self.componentData: list[ComponentDTO] = []
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
+        self._outputList: list[str] = []
 
         self.data = {}  # dictionary to store all data I think? @ Mias TODO: What is this for?
+
 
     def addData(self, field, data):
         """
@@ -195,4 +200,25 @@ class CentralDataManager:
             self.struct = pickle.load(file)
 
         print(self.struct)
+
+
+class OutputManager(QObject):
+    # Signal that is emitted when outputList changes
+    outputListUpdated = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        self._outputList: list[str] = []
+
+    @property
+    def outputList(self):
+        return self._outputList
+
+    @outputList.setter
+    def outputList(self, new_list):
+        self._outputList = new_list
+        # Emit the signal to indicate that the list has been updated
+        self.outputListUpdated.emit()
+
 

@@ -25,12 +25,14 @@ class Canvas(QGraphicsView):
     the icons.
     """
 
-    def __init__(self, centralDataManager, iconLabels):
+    def __init__(self, centralDataManager, outputManager, iconLabels):
         super().__init__()
         # set up the logger
         self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
-        # Store the icon data manager for use in the widget
+        # Store the icon data managers for use in the widget
         self.centralDataManager = centralDataManager
+        self.outputManager = outputManager
+
         # store the icon labels
         self.iconLabels = iconLabels
         # Set up the scene for scalable graphics
@@ -66,6 +68,9 @@ class Canvas(QGraphicsView):
         self.zoomInFactor = 1.25  # Zoom in factor (25% larger)
         self.zoomOutFactor = 1 / self.zoomInFactor  # Zoom out factor (inverse of zoom in)
         self.scaleFactor = 1.0  # Initial scale factor
+
+        # import the icons to the canvas if data is loaded from a file
+        self.importData()
 
     def wheelEvent(self, event):
         # Get the angle delta of the wheel event
@@ -121,18 +126,18 @@ class Canvas(QGraphicsView):
 
         # Mapping of text to icon_type and index
         icon_map = {
-            "Boolean Distributor": ("bool_split", self.index_split),
-            "Distributor": ("distributor_split", self.index_split),
+            "Boolean Distributor": (ProcessType.BOOLDISTRIBUTOR, self.index_split),
+            "Distributor": (ProcessType.DISTRIBUTOR, self.index_split),
 
-            "Input": ("input", self.index_input),
-            "Output": ("output", self.index_output),
-            "LCA": ("lca", self.index_process),
+            "Input": (ProcessType.INPUT, self.index_input),
+            "Output": (ProcessType.OUTPUT, self.index_output),
+            "LCA": (ProcessType.LCA, self.index_process),
 
-            "Physical Process": ("physical_process", self.index_process),
-            "Stoichiometric Reactor": ("stoichiometric_reactor", self.index_process),
-            "Yield Reactor": ("yield_reactor", self.index_process),
+            "Physical Process": (ProcessType.PHYSICAL, self.index_process),
+            "Stoichiometric Reactor": (ProcessType.STOICHIOMETRIC, self.index_process),
+            "Yield Reactor": (ProcessType.YIELD, self.index_process),
 
-            "Generator": ("generator", self.index_process),
+            "Generator": (ProcessType.GEN_ELEC, self.index_process),
         }
 
         # Check if the text is in the icon_map
@@ -142,7 +147,8 @@ class Canvas(QGraphicsView):
             UUID = uuid.uuid4().__str__()
             index_list.append(UUID)
             # Create MovableIcon
-            iconWidget = MovableIcon(text=text, centralDataManager=self.centralDataManager, iconID=UUID,
+            iconWidget = MovableIcon(text=text, centralDataManager=self.centralDataManager,
+                                     outputManager=self.outputManager, iconID=UUID,
                                      icon_type=icon_type, position=position)
 
             iconWidget.setPos(self.mapToScene(position))
@@ -178,12 +184,13 @@ class Canvas(QGraphicsView):
             return
 
         else:
-            if 'input' in port.iconType and port.portType == 'exit':
+            if port.icon_type == ProcessType.INPUT and port.portType == 'exit':
                 # the input is not restricted to one stream, so the port is not occupied, multiple streams can leave the
                 # port
                 port.occupied = False
 
-            elif 'split' not in port.iconType and port.portType == 'exit' and len(port.connectionLines) > 0:
+            elif (port.icon_type not in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
+                  port.portType == 'exit' and len(port.connectionLines) > 0):
                 # the port of an icon that is not a split icon and is an exit port is now occupied only one
                 # stream can leave. The extra if statement is to avoid the case where the line was deleted
                 # and no longer exists
@@ -216,12 +223,15 @@ class Canvas(QGraphicsView):
         if port.occupied:
             return
 
-        if 'split' in port.iconType and port.portType == 'entry' and len(port.connectionLines) > 0:
+        if (port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
+            port.portType == 'entry' and len(port.connectionLines) > 0):
+
             port.occupied = True
             # stop the line drawing process with return statement
             return
 
-        if 'split' in self.startPort.iconType and 'split' in port.iconType:
+        if (self.startPort.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
+            port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]):
             # do not connect two split icons with each other
             return
 
@@ -480,7 +490,7 @@ class Canvas(QGraphicsView):
         :return:
         """
 
-        if icon2Delete.icon_type == 'input':
+        if icon2Delete.icon_type == ProcessType.INPUT:
             for id in inputFlowsToUpdate:
                 unitDTOReceivingInput = self.centralDataManager.unitProcessData[id]
                 unitDTOReceivingInput.inputFlows.remove(icon2Delete.iconID)
@@ -488,7 +498,24 @@ class Canvas(QGraphicsView):
                                                                                          unitDTOReceivingInput.uid))
                 self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceivingInput.uid, unitDTOReceivingInput.inputFlows))
 
-        elif 'split' in icon2Delete.icon_type:
+        elif icon2Delete.icon_type == ProcessType.OUTPUT:
+            outputID = icon2Delete.iconID
+            # get the name of the output
+            outputName = self.centralDataManager.unitProcessData[outputID].name
+
+            # Get the current list, remove the item, and reassign it to trigger the signal
+            current_list = self.outputManager.outputList
+            # Safely remove the item if it exists
+            if outputName in current_list:
+                current_list.remove(item_to_remove)
+
+            # Update the outputList to the centralDataManager
+            self.centralDataManager.outputList = current_list
+            # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
+            self.outputManager.outputList = current_list
+
+
+        elif icon2Delete.icon_type == ProcessType.DISTRIBUTOR or icon2Delete.icon_type == ProcessType.BOOLDISTRIBUTOR:
             # if you delete a split icon, you need to remove the connections to where the distribution goes from the
             # owner of the distribution ICON
             distrID = icon2Delete.iconID
@@ -605,6 +632,26 @@ class Canvas(QGraphicsView):
 
         super().mousePressEvent(event)
 
+    def importData(self):
+        """
+        Import the data from the centralDataManager to the canvas. This method is called when the data is loaded from a
+        file and an established central data Manager exists.
+        The method creates the icons and connections between the icons based on the data in the centralDataManager.
+        :return:
+        """
+        if self.centralDataManager.unitProcessData:
+            unitDTOs = self.centralDataManager.unitProcessData
+            for uid, unitDTO in unitDTOs.items():
+                iconWidget = MovableIcon(text=unitDTO.name, centralDataManager=self.centralDataManager,
+                                   outputManager=self.outputManager, icon_type=unitDTO.type, position=unitDTO.positionOnCanvas,
+                                   iconID=uid, initiatorFlag=False)
+
+                position = unitDTO.positionOnCanvas
+                # iconWidget.setPos(self.mapToScene(position))
+                # Set the icon's position to the mouse cursor's position
+                iconWidget.setPos(position)
+                self.scene.addItem(iconWidget)  # Add the created icon to the scene
+
 
 class IconPort(QGraphicsEllipseItem):
     """
@@ -629,7 +676,7 @@ class IconPort(QGraphicsEllipseItem):
         self.setBrush(Qt.black)
         self.connectionLines = []  # List to store the lines connected to this iconPort
         self.occupied = False  # Flag to indicate if the port is already connected to a line
-        self.iconType = parent.icon_type
+        self.icon_type = parent.icon_type
 
         if pos:
             self.setPos(pos)  # Set the position if it was passed (for split icons)
@@ -688,7 +735,17 @@ class MovableIcon(QGraphicsObject):
     is used to create the icons in the canvas and makes them draggable, handels their appearance and opens dialogos.
     """
 
-    def __init__(self, text, centralDataManager, icon_type, position, iconID=None):
+    def __init__(self, text, centralDataManager, outputManager, icon_type:ProcessType, position, iconID=None, initiatorFlag=True):
+        """
+        Initiate the moveable icon
+        :param text: the text displayed on the icon
+        :param centralDataManager:
+        :param outputManager:
+        :param icon_type: of the class
+        :param position:
+        :param iconID:
+        :param initiatorFlag: Determines if a new dto object needs to be created
+        """
         super().__init__()
 
         # set up the logger
@@ -699,25 +756,25 @@ class MovableIcon(QGraphicsObject):
         self.positionOnCanvas = position
 
         # make a map of abbreviations to full names of the icons
-        self.iconAbbreviation = {'Input': 'Input',
-                                 'Output': 'Output',
-                                 'Physical Process': 'Phy. Process',
-                                 'Stoichiometric Reactor': 'Stoi. Reactor',
-                                 'Yield Reactor': 'Yield Reactor',
-                                 'Generator (Elec)': 'Gen. (Elec)',
-                                 'Generator (Heat)': 'Gen. (Heat)',
-                                 'Generator': 'Generator',
-                                 'Boolean Distributor': 'Bool Distr.',
-                                 'Distributor': 'Distr.',
+        self.iconAbbreviation = {ProcessType.INPUT: 'Input',
+                                 ProcessType.OUTPUT: 'Output',
+                                 ProcessType.PHYSICAL: 'Phy. Process',
+                                 ProcessType.STOICHIOMETRIC: 'Stoich. Reactor',
+                                 ProcessType.YIELD: 'Yield Reactor',
+                                 ProcessType.GEN_ELEC: 'Generator',
+                                 ProcessType.GEN_HEAT: 'Generator',
+                                 ProcessType.BOOLDISTRIBUTOR: 'Bool Distr.',
+                                 ProcessType.DISTRIBUTOR: 'Distr.',
                                  'LCA': 'LCA'}
-
 
         self.icon_type = icon_type
         self.iconID = iconID
         self.centralDataManager = centralDataManager  # to Store and handel dialog data for each icon
+        self.outputManager = outputManager  # to handel the output data
 
         # save the initial icon to the centralDataManager
-        dto = self.saveInitialIcon(icon_type)
+        if initiatorFlag:
+            self.saveInitialIcon(icon_type)
 
         # set the flags for the icon to be movable and selectable
         self.setFlags(QGraphicsObject.ItemIsMovable)  # Enable the movable flag
@@ -734,65 +791,65 @@ class MovableIcon(QGraphicsObject):
         # define the ports:
         self.ports = []
         match icon_type:
-            case 'input':
+            case ProcessType.INPUT:
                 exitPort = IconPort(self, portType='exit', iconID=iconID)
                 self.ports.append(exitPort)
-                dto.exitPorts.append(exitPort)
+                #dto.exitPorts.append(exitPort)
 
-            case 'output':
+            case ProcessType.OUTPUT:
                 entryPort = IconPort(self, portType='entry', iconID=iconID)
                 self.ports.append(entryPort)
-                dto.entryPorts.append(entryPort)
+                #dto.entryPorts.append(entryPort)
 
-            case 'bool_split':
+            case ProcessType.BOOLDISTRIBUTOR:
                 self.addSplitPorts()
-                # todo entry and exit ports how to handel them
-            case 'distributor_split':
+
+            case ProcessType.DISTRIBUTOR:
                 self.addSplitPorts()
 
             # otherwise give port for entry and exit
             case _:
                 exitPort = IconPort(self, portType='exit', iconID=iconID)
                 self.ports.append(exitPort)
-                dto.exitPorts.append(exitPort)
+                #dto.exitPorts.append(exitPort)
 
                 entryPort = IconPort(self, portType='entry', iconID=iconID)
                 self.ports.append(entryPort)
-                dto.entryPorts.append(entryPort)
+                #dto.entryPorts.append(entryPort)
 
 
-    def saveInitialIcon(self, unitType:str):
+    def saveInitialIcon(self, unitType:ProcessType):
         """
         Creates an instance of the ProcessDTO and saves the data to the central data manager.
         The DTO is essentialy empty but will be filled with data from the dialogs.
         :return:
         """
 
-        if unitType == 'input':
-            type = ProcessType.INPUT
-        elif unitType == 'output':
-            type = ProcessType.OUTPUT
-        elif unitType == 'physical_process':
-            type = ProcessType.PHYSICAL
-        elif unitType == 'stoichiometric_reactor':
-            type = ProcessType.STOICHIOMETRIC
-        elif unitType == 'yield_reactor':
-            type = ProcessType.YIELD
-        elif unitType == 'generator':
-            type = ProcessType.GEN_HEAT
-        elif unitType == 'bool_split':
-            type = ProcessType.BOOLDISTRIBUTOR
-        elif unitType == 'distributor_split':
-            type = ProcessType.DISTRIBUTOR
+        # if unitType == 'input':
+        #     type = ProcessType.INPUT
+        # elif unitType == 'output':
+        #     type = ProcessType.OUTPUT
+        # elif unitType == 'physical_process':
+        #     type = ProcessType.PHYSICAL
+        # elif unitType == 'stoichiometric_reactor':
+        #     type = ProcessType.STOICHIOMETRIC
+        # elif unitType == 'yield_reactor':
+        #     type = ProcessType.YIELD
+        # elif unitType == 'generator':
+        #     type = ProcessType.GEN_HEAT
+        # elif unitType == 'bool_split':
+        #     type = ProcessType.BOOLDISTRIBUTOR
+        # elif unitType == 'distributor_split':
+        #     type = ProcessType.DISTRIBUTOR
+        #
+        # else:
+        #     self.logger.error("Icon type {} not recognized when saving the initial icon".format(unitType))
+        #     self.logger.warning("Defaulting to physical process")
+        #     type = ProcessType.PHYSICAL  # default to physical process if the type is not recognized
 
-        else:
-            self.logger.error("Icon type {} not recognized when saving the initial icon".format(unitType))
-            self.logger.warning("Defaulting to physical process")
-            type = ProcessType.PHYSICAL  # default to physical process if the type is not recognized
 
-
-        # create a new processDTO and add the data to it
-        dtoProcess = ProcessDTO(uid=self.iconID, type=type, positionOnCanvas=self.positionOnCanvas)
+        # create a new processDTO and add the data to it the centralDataManager
+        dtoProcess = ProcessDTO(uid=self.iconID, type=unitType, positionOnCanvas=self.positionOnCanvas)
         # add the processDTO to the centralDataManager
         self.centralDataManager.unitProcessData[self.iconID] = dtoProcess
 
@@ -810,14 +867,15 @@ class MovableIcon(QGraphicsObject):
         self.ports.append(exitPort)
 
     def boundingRect(self):
-        if 'split' in self.icon_type:
+        icon_type = self.icon_type
+        if icon_type == ProcessType.BOOLDISTRIBUTOR or icon_type == ProcessType.DISTRIBUTOR:
             return QRectF(0, 0, 60, 60)
         else:
             return QRectF(0, 0, 120, 40)
 
     def paint(self, painter, option, widget=None):
 
-        if 'split' in self.icon_type:
+        if self.icon_type == ProcessType.BOOLDISTRIBUTOR or self.icon_type == ProcessType.DISTRIBUTOR:
             # Set background color based on the icon type
             backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
             painter.setBrush(backgroundColor)
@@ -840,7 +898,7 @@ class MovableIcon(QGraphicsObject):
 
             # Calculate the position for drawing the letter B in the middle
             text_rect = QRectF(0, 0, 60, 60)  # The bounding rectangle of the triangle
-            if self.icon_type == 'distributor_split':
+            if self.icon_type == ProcessType.DISTRIBUTOR:
                 painter.drawText(text_rect, Qt.AlignCenter, "Distr.")
             else:
                 painter.drawText(text_rect, Qt.AlignCenter, "Bool")
@@ -862,34 +920,34 @@ class MovableIcon(QGraphicsObject):
             painter.drawText(self.boundingRect(), Qt.AlignCenter, iconText)
 
     def getBackgroundColor(self, icon_type):
-        if icon_type == 'input':
+        if icon_type == ProcessType.INPUT:
             return "#a8d5e2"  # pastel blue (a bit darker than the original)
 
-        elif icon_type == 'output':
+        elif icon_type == ProcessType.OUTPUT:
             return "#ffdab9"  # pastel peach (more distinct from orange)
 
-        elif icon_type == 'physical_process':
+        elif icon_type == ProcessType.PHYSICAL:
             return "#f7c6d9"  # pastel pink (distinct from the other colors)
 
-        elif icon_type == 'stoichiometric_reactor':
+        elif icon_type == ProcessType.STOICHIOMETRIC:
             return "#c8e6c9"  # pastel green (slightly different)
 
-        elif icon_type == 'yield_reactor':
+        elif icon_type == ProcessType.YIELD:
             return "#d4b3ff"  # pastel lavender (more distinguishable from pink)
 
-        elif icon_type == 'generator_elec':
+        elif icon_type == ProcessType.GEN_ELEC:
             return "#fff4a3"  # pastel yellow (brighter but still soft)
 
-        elif icon_type == 'generator_heat':
-            return "#ffb3b3"  # pastel soft red (more vibrant but still light)
+        elif icon_type == ProcessType.GEN_HEAT:
+            return "#ffb3b3"  # pastel yellow (more vibrant but still light)
 
-        elif icon_type == 'generator':
-            return "#fff4a3"  # pastel yellow (brighter but still soft)
+        # elif icon_type == 'generator':
+        #     return "#fff4a3"  # pastel yellow (brighter but still soft)
 
-        elif icon_type == 'bool_split':
+        elif icon_type == ProcessType.BOOLDISTRIBUTOR:
             return "#ffd1dc"  # pastel rose (different from light red)
 
-        elif icon_type == 'distributor_split':
+        elif icon_type == ProcessType.DISTRIBUTOR:
             return "#b2f2bb"  # pastel mint green (to distinguish from green)
 
         # if none of the above, return a gray color
@@ -928,7 +986,7 @@ class MovableIcon(QGraphicsObject):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
-            if 'split' in self.icon_type:
+            if self.icon_type == ProcessType.BOOLDISTRIBUTOR or self.icon_type == ProcessType.DISTRIBUTOR:
                 # self.openSplittingDialog()
                 pass
             else:
@@ -953,27 +1011,28 @@ class MovableIcon(QGraphicsObject):
                                                         {})  # if the iconID is not in the dict, return an empty dict
 
         # choose the dialog to open based on the type of icon that was double clicked
-        if self.icon_type == 'input':
+        if self.icon_type == ProcessType.INPUT:
             dialog = InputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
-        elif self.icon_type == 'output':
-            dialog = OutputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
+        elif self.icon_type == ProcessType.OUTPUT:
+            dialog = OutputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager,
+                                            outputManager=self.outputManager, iconID=self.iconID)
 
-        elif self.icon_type == 'physical_process':
+        elif self.icon_type == ProcessType.PHYSICAL:
             dialog = PhysicalProcessesDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
-        elif self.icon_type == 'stoichiometric_reactor':
+        elif self.icon_type == ProcessType.STOICHIOMETRIC:
             dialog = StoichiometricReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
 
-        elif self.icon_type == 'yield_reactor':
+        elif self.icon_type == ProcessType.YIELD:
             dialog = YieldReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
                                         iconID=self.iconID)
 
-        elif self.icon_type == 'generator':
+        elif self.icon_type == ProcessType.GEN_ELEC or self.icon_type == ProcessType.GEN_HEAT:
              dialog = GeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
                                       iconID=self.iconID)
 
-        elif self.icon_type == 'lca':
+        elif self.icon_type == ProcessType.LCA:
             dialog = LCADialog(initialData=existingData)
 
         else:
@@ -1316,3 +1375,4 @@ class InteractiveLine(QGraphicsPathItem):
     #     # Hide the control point when not hovering
     #     if self.controlPoint:
     #         self.controlPoint.setVisible(False)
+
