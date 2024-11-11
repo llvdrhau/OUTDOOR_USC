@@ -147,7 +147,7 @@ class Canvas(QGraphicsView):
             UUID = uuid.uuid4().__str__()
             index_list.append(UUID)
             # Create MovableIcon
-            iconWidget = MovableIcon(text=text, centralDataManager=self.centralDataManager,
+            iconWidget = MovableIcon(text=icon_type, centralDataManager=self.centralDataManager,
                                      outputManager=self.outputManager, iconID=UUID,
                                      icon_type=icon_type, position=position)
 
@@ -208,7 +208,7 @@ class Canvas(QGraphicsView):
             port.connectionLines.append(self.currentLine)
             self.scene.addItem(self.currentLine)
 
-    def endLine(self, port, pos):
+    def endLine(self, port, pos, loadingLinesFlag=False):
         """
         End drawing a new line from the given port (function called in the IconPort class)
         :param port: IconPort object or TriangleIconPorts object
@@ -250,7 +250,11 @@ class Canvas(QGraphicsView):
             # manage logic of the connecting Icons here
             unitDTOSending = self.centralDataManager.unitProcessData[self.startPort.iconID]
             unitDTOReceiving = self.centralDataManager.unitProcessData[self.endPort.iconID]
-            self._establishConnection(unitDTOSending, unitDTOReceiving)
+
+            # if we are drawing lines from loaded data the dialog data is already loaded and established, so no need to
+            # establish the connection again, this we'll only lead to duplication errors
+            if not loadingLinesFlag:
+                self._establishConnection(unitDTOSending, unitDTOReceiving)
 
         # rest the positions and switches to None
         self.startPoint = None
@@ -514,7 +518,6 @@ class Canvas(QGraphicsView):
             # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
             self.outputManager.outputList = current_list
 
-
         elif icon2Delete.icon_type == ProcessType.DISTRIBUTOR or icon2Delete.icon_type == ProcessType.BOOLDISTRIBUTOR:
             # if you delete a split icon, you need to remove the connections to where the distribution goes from the
             # owner of the distribution ICON
@@ -541,10 +544,7 @@ class Canvas(QGraphicsView):
                 self.logger.debug("The classification streams of the owner of the split icon is updated to: {}".format(
                     ownerDTO.classificationStreams))
 
-
-
-
-        else:
+        else: # any other process type
             for id in outputFlowsToUpdate:
                 unitDTOSending = self.centralDataManager.unitProcessData[id]
                 if unitDTOSending.type == ProcessType.DISTRIBUTOR or unitDTOSending.type == ProcessType.BOOLDISTRIBUTOR:
@@ -552,6 +552,10 @@ class Canvas(QGraphicsView):
                     ownerID = unitDTOSending.distributionOwner[0]
                     ownerDTO = self.centralDataManager.unitProcessData[ownerID]
                     ownerDTO.removeFromMaterialFlow(icon2Delete.iconID)
+                    # we also have to remove the id of the icon we're deleting from the container of the distributor
+                    unitDTOSending.distributionContainer.remove(icon2Delete.iconID)
+
+                    # log the changes
                     self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
                     self.logger.info("The amount of connections is: {}".format(len(ownerDTO.materialFlow)))
                     self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
@@ -639,10 +643,20 @@ class Canvas(QGraphicsView):
         The method creates the icons and connections between the icons based on the data in the centralDataManager.
         :return:
         """
-        if self.centralDataManager.unitProcessData:
+        if self.centralDataManager.unitProcessData: # only if there is data in the centralDataManager
             unitDTOs = self.centralDataManager.unitProcessData
+            allMoveableIcons = {}
+
+            # ---------------------------------------------------
+            # Step 1: place all the icons on the canvas
+            # ---------------------------------------------------
             for uid, unitDTO in unitDTOs.items():
-                iconWidget = MovableIcon(text=unitDTO.name, centralDataManager=self.centralDataManager,
+                if not unitDTO.name:
+                    name = "Uncompleted Unit"
+                else:
+                    name = unitDTO.name
+
+                iconWidget = MovableIcon(text=name, centralDataManager=self.centralDataManager,
                                    outputManager=self.outputManager, icon_type=unitDTO.type, position=unitDTO.positionOnCanvas,
                                    iconID=uid, initiatorFlag=False)
 
@@ -651,6 +665,98 @@ class Canvas(QGraphicsView):
                 # Set the icon's position to the mouse cursor's position
                 iconWidget.setPos(position)
                 self.scene.addItem(iconWidget)  # Add the created icon to the scene
+
+                # update the outlet port of the icon based on the dialog data
+                if unitDTO.type.value in list(range(1, 7)) and unitDTO.dialogData:  # not input and output are selected, only process types
+                    stream2 = unitDTO.dialogData['Check box stream 2']
+                    stream3 = unitDTO.dialogData['Check box stream 3']
+                    activeStreamsList = [True, stream2, stream3]  # stream 1 is always active
+                    # update the ports if other check boxes are active
+                    iconWidget.updateIconExitPorts(activeStreamsList, unitDTO)
+                # add the icon to the list for the connections to be made
+                allMoveableIcons.update({uid: iconWidget})
+
+            # ---------------------------------------------------
+            # Step 2: connect the icons with lines, if they are connected
+            # ---------------------------------------------------
+            for iconId, IconWidget in allMoveableIcons.items():
+                unitDTO = self.centralDataManager.unitProcessData[iconId]
+                # get the material flow of the unitDTO
+                materialFlow = unitDTO.materialFlow
+
+                if unitDTO.type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]:
+                    for port in IconWidget.ports:
+                        if port.portType == 'entry' and unitDTO.distributionOwner: # don't bother if it's not connected
+                            # get the owner of the distributor
+                            ownerID = unitDTO.distributionOwner[0]
+                            ownerWidget = allMoveableIcons[ownerID]
+                            streamNumber = unitDTO.distributionOwner[1]
+                            startPort = self._getStartPort(ownerWidget, streamNumber)
+                            endPort = port
+                            self.startLine(startPort, startPort.scenePos())
+                            self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+
+                        elif port.portType == 'exit' and unitDTO.distributionContainer:
+                            # get the owner of the distributor
+                            for receivingID in unitDTO.distributionContainer:
+                                receivingWidget = allMoveableIcons[receivingID]
+                                startPort = port
+                                endPort = self._getEndPort(receivingWidget)
+                                self.startLine(startPort, startPort.scenePos())
+                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+                        else:
+                            continue # if the distributor is not connected, don't bother connecting it
+
+                else:  # for the other icons that are not distributors
+                    # loop through all the ports in the icon
+                    for port in IconWidget.ports:
+                        # connect inputs
+                        if port.portType == 'entry':
+                            inputFlows = unitDTO.inputFlows
+                            for sendingID in inputFlows:
+                                sendingWidget = allMoveableIcons[sendingID]  # this should always be an input icon
+                                startPort = sendingWidget.ports[0]  # the first port is the only (exit) port in the input icon
+                                endPort = port # the current port is the end port of the connection
+                                self.startLine(startPort, startPort.scenePos())
+                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+
+                        # connect processes and outputs
+                        else: # exit ports
+                            streamNumber = port.exitStream
+                            classification = unitDTO.classificationStreams[streamNumber]
+                            if classification is None:
+                                targetIds = list(materialFlow[streamNumber].keys())
+                                if targetIds:  # only connect if there is a target to connect to
+                                    targetId = targetIds[0]
+                                    targetWidget = allMoveableIcons[targetId]
+                                    startPort = port  # the current port is the start port of the connection
+                                    endPort = self._getEndPort(targetWidget)
+                                    self.startLine(startPort, startPort.scenePos())
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+
+
+    def _getEndPort(self, iconWidget):
+        """
+        Get End/stop port of the connection
+        :param icon:
+        :param connection:
+        :return:
+        """
+        for port in iconWidget.ports:
+            if port.portType == 'entry':
+                return port
+
+    def _getStartPort(self, iconWidget, streamNumber):
+        """
+        Get start port of the connection
+        :param icon:
+        :param connection:
+        :return:
+        """
+        for port in iconWidget.ports:
+            if port.portType == 'exit' and port.exitStream == streamNumber:
+                return port
+
 
 
 class IconPort(QGraphicsEllipseItem):
@@ -825,23 +931,6 @@ class MovableIcon(QGraphicsObject):
         :return:
         """
 
-        # if unitType == 'input':
-        #     type = ProcessType.INPUT
-        # elif unitType == 'output':
-        #     type = ProcessType.OUTPUT
-        # elif unitType == 'physical_process':
-        #     type = ProcessType.PHYSICAL
-        # elif unitType == 'stoichiometric_reactor':
-        #     type = ProcessType.STOICHIOMETRIC
-        # elif unitType == 'yield_reactor':
-        #     type = ProcessType.YIELD
-        # elif unitType == 'generator':
-        #     type = ProcessType.GEN_HEAT
-        # elif unitType == 'bool_split':
-        #     type = ProcessType.BOOLDISTRIBUTOR
-        # elif unitType == 'distributor_split':
-        #     type = ProcessType.DISTRIBUTOR
-        #
         # else:
         #     self.logger.error("Icon type {} not recognized when saving the initial icon".format(unitType))
         #     self.logger.warning("Defaulting to physical process")

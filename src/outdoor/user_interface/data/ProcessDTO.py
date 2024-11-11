@@ -60,7 +60,7 @@ class ProcessDTO(object):
         # process id as the keys and the split dictionary as the value
         self.materialFlow = {1: {},
                              2: {},
-                             3: {}} # dictionary with the material flow to other processes
+                             3: {}}  # dictionary with the material flow to other processes
 
         self.outgoingChemicals = outGoingChemicals
 
@@ -73,16 +73,16 @@ class ProcessDTO(object):
         self.reactions: list[ReactionDTO] = []
         self.dialogData: dict = {}
 
-        # variable related to distribution units
-        # todo it might be more logical for distribution units to be a separate class
-        # self.booleanOwner = None  # the id of the process to which the boolean distributor belongs to
-        # self.booleanContainer = []  # list of processes connected to the exit port of the boolean distributor
-
-        self.distributionOwner = None  # the id of the process to which the distributor belongs to
-        self.distributionContainer = []  # list of processes connected to the exit port of the distributor
+        # variables related to the distribution units only applicable to distributors
+        if self.type in [ProcessType.BOOLDISTRIBUTOR, ProcessType.DISTRIBUTOR]:
+            # distributionOwner: a tuple with the id of the process to which the distributor belongs to and the
+            # stream number it is connected to
+            self.distributionOwner = None
+            self.distributionContainer = []  # list of processes connected to the exit port of the distributor
 
         # stream classification
-        # can either be 'Normal', 'Boolean', or 'Distributed' for each stream depending on the distribution unit
+        # can either be 'Normal', 'Boolean', or 'Distributed' for each stream depending if it is conected
+        # to a distribution unit
         self.classificationStreams = {1: None, 2: None, 3: None}
 
 
