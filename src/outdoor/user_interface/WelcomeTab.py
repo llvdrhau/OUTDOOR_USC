@@ -1,8 +1,6 @@
-from PyQt5.QtGui import QFontDatabase, QFont, QPixmap, QIntValidator
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, \
-    QTabWidget, QGroupBox, QCheckBox, QLineEdit, QFormLayout, QComboBox
-from PyQt5.QtCore import Qt, QRect
-from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFontDatabase, QFont, QPixmap
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 
 class WelcomeTab(QWidget):

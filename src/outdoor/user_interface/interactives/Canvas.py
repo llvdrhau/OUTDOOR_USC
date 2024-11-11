@@ -1,21 +1,20 @@
-import uuid
 import logging
+import uuid
 
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
-    QApplication, QMessageBox, QGraphicsPathItem
 from PyQt5.QtCore import QRectF, Qt, QPointF
 from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QPainterPathStroker
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
+    QApplication, QGraphicsPathItem
 
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
+from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
 from outdoor.user_interface.dialogs.InputParametersDialog import InputParametersDialog
+from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.dialogs.OutputParametersDialog import OutputParametersDialog
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
-from outdoor.user_interface.dialogs.SplittingDialog import SplittingDialog
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
-from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
-from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 
 class Canvas(QGraphicsView):

@@ -18,13 +18,14 @@ Function list:
 """
 
 
-from tabulate import tabulate
-import os
 import datetime
-import cloudpickle as pic
+import os
 import random as rnd
-import numpy as np
+
+import cloudpickle as pic
 import matplotlib.pyplot as plt
+import numpy as np
+from tabulate import tabulate
 
 
 class ModelOutput:

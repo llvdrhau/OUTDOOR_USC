@@ -1,5 +1,3 @@
-import math
-
 from .stoich_reactor import StoichReactor
 
 

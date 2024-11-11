@@ -1,10 +1,11 @@
-import uuid
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem,
-                             QDialog, QMenu, QTextEdit)
-from PyQt5.QtCore import Qt
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, QTextEdit)
 import logging
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, QTextEdit)
+
+from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+
 
 class ProjectDescriptionTab(QWidget):
     """

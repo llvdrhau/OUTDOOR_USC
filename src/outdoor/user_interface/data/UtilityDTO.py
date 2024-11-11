@@ -1,10 +1,11 @@
-import sys
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 
-class UtilityDTO(object):
-    def __init__(self, utilityData: dict = {},
-                 temperatureData: dict = {},):
+
+class UtilityDTO(OutdoorDTO):
+    def __init__(self, utilityData: dict = {}, temperatureData: dict = {}):
 
         # set initial values for utilityData and temperatureData if they are not provided
+        super().__init__()
         if not utilityData:
 
             # ["Temperature (°C)", "Costs (€/MWh)"]

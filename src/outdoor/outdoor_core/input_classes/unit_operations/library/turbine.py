@@ -1,5 +1,3 @@
-import math 
-
 from .stoich_reactor import StoichReactor
 
 #------------------------------------------------------------------------------
@@ -15,19 +13,19 @@ class ElectricityGenerator(StoichReactor):
     """
     Class description
     -----------------
-    
+
     This Class models an ElectricityGenerator or Steam turbine.
     It inherits from the StoichReactor Class.
     Therefore, it includes capital costs factors, energy demand factors,
     mass balance factors as well as the stoichiometric reaction facotrs.
     This class adds parameters to calculate the produced amount of electricity
-    based on efficiency. 
-    
+    based on efficiency.
+
     Note: The energy production calculation in the SuperstructureModel is based
     on the inlet mass flow and the lower heating value of the components combined
     with the here defined overall efficiency value.
     """
-    
+
 
 
     def __init__(self, Name, UnitNumber, Efficiency = None,  Parent = None,
@@ -58,6 +56,5 @@ class ElectricityGenerator(StoichReactor):
     def fill_parameterList(self):
         super().fill_parameterList()
         self.ParameterList.append(self.Efficiency_TUR)
-        
-        
-        
+
+

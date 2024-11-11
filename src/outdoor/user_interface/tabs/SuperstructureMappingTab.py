@@ -1,6 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QHBoxLayout, \
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, \
     QGroupBox
-from PyQt5.QtCore import Qt
 
 from outdoor.user_interface.dialogs.CalculationWarning import CalculationWarning
 from outdoor.user_interface.interactives.Canvas import Canvas

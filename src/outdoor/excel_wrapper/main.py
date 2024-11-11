@@ -7,21 +7,17 @@ Created on Thu Apr  2 11:25:35 2020
     Templates werden nicht eingelesen genauso wie "Tabelle1" sondern nur die neu hinzugefügten Tabellen
 """
 
-import pandas as pd
-
+import copy
 import warnings
 
-import copy
-
-from .wrapp_processes import wrapp_processUnits, wrapp_productPoolUnits, wrapp_sourceUnits, wrapp_distributors
-
-from ..outdoor_core.utils.timer import time_printer
-
-from .wrapp_system import wrapp_SystemData
+import pandas as pd
 
 from .wrapp_parameters_optimisation_mode import wrapp_stochastic_data, wrapp_sensitivty_data, wrapp_multi_objective_data
+from .wrapp_processes import wrapp_processUnits, wrapp_productPoolUnits, wrapp_sourceUnits, wrapp_distributors
+from .wrapp_system import wrapp_SystemData
+from ..outdoor_core.utils.progress_bar import print_progress_bar  # , print_progress_bar
+from ..outdoor_core.utils.timer import time_printer
 
-from ..outdoor_core.utils.progress_bar import print_progress_bar #, print_progress_bar
 
 # function for Pandafunction to read an excelfile:
 

@@ -1,8 +1,9 @@
-from enum import Enum
-from src.outdoor.user_interface.data.ComponentDTO import ComponentDTO
-from src.outdoor.user_interface.data.ReactionDTO import ReactionDTO
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 import logging
+from enum import Enum
+
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
+from src.outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class DistributorType(Enum):
@@ -10,10 +11,11 @@ class DistributorType(Enum):
     DISTRIBUTOR = 1
 
 
-class DistributorDTO(object):
-    def __init__(self, uid="", type:DistributorType=DistributorType.DISTRIBUTOR):
+class DistributorDTO(OutdoorDTO):
+    def __init__(self, uid="", type: DistributorType = DistributorType.DISTRIBUTOR):
 
         # add the logger
+        super().__init__()
         self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
 
         # identification variables

@@ -1,14 +1,11 @@
+import os
 import pickle
+import sys
 
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
-import sys
-
 from data.CentralDataManager import CentralDataManager
 from data.CentralDataManager import OutputManager
-
-import os
-
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
 
 # Get the current working directory
@@ -88,7 +85,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
         with open(self.ProjectPath, 'rb') as file:
             self.centralDataManager = pickle.load(file)
-        self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+        self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
         self.centralDataManager.loadConfigs()
         self.initTabs()
         self.enableSave()
@@ -119,7 +116,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         with open(self.ProjectPath, 'wb') as file:
             pickle.dump(self.centralDataManager, file)
         print("Saved File: ", self.ProjectPath)
-        self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+        self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
 
     def saveAsFile(self):
         try:
@@ -138,7 +135,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
             print("Saved File: ", self.ProjectPath)
-            self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
+            self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
 
         except Exception as e:
             self.logger.error("Save cancelled.", e)

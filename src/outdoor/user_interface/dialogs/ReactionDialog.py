@@ -1,10 +1,7 @@
-import uuid
-from PyQt5.QtGui import QColor, QDoubleValidator
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QComboBox, QMenu
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QComboBox, \
+    QMenu
 
-import pandas as pd
-import difflib
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 
 

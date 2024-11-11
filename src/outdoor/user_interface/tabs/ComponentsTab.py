@@ -1,16 +1,14 @@
+import logging
 import uuid
 
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
 from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QMenu
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
-from outdoor.user_interface.dialogs.LCADialog import LCADialog
 from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 # retrive the logger
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
-import logging
 
 
 class ComponentsTab(QWidget):

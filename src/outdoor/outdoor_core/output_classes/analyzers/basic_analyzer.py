@@ -6,18 +6,19 @@ Created on Wed Jan 26 15:12:24 2022
 @author: philippkenkel
 """
 
-import os
-import cloudpickle as pic
-import time
 import copy
-from tabulate import tabulate
+import datetime
+import itertools
+import os
+import sys
+import time
+
+import cloudpickle as pic
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import datetime
 import pydot
-import sys
-import itertools
+from tabulate import tabulate
 
 
 class BasicModelAnalyzer:

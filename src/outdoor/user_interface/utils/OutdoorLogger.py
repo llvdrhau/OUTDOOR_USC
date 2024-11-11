@@ -1,6 +1,8 @@
 # logger_setup.py
 import logging
+
 import colorlog
+
 
 def outdoorLogger(name="my_logger", level=logging.DEBUG):
     """

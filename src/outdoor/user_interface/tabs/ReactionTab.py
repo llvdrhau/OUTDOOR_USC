@@ -1,14 +1,14 @@
+import logging
 import uuid
 
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QDialog, QMenu
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QMenu
 
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
-from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 from outdoor.user_interface.dialogs.ReactionDialog import ReactionDialog
+from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
-import logging
 
 
 class ReactionsTab(QWidget):

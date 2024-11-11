@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem,
-                             QFormLayout, QFrame, QHBoxLayout, QToolTip, QApplication, QMessageBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor
+from PyQt5.QtWidgets import (QDialog, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem,
+                             QFormLayout, QFrame, QToolTip, QApplication, QMessageBox)
+
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
+from outdoor.user_interface.data.ProcessDTO import ProcessType, UpdateField
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
-from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 
 class InputParametersDialog(QDialog):

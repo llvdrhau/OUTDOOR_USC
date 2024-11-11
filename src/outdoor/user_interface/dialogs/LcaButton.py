@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QPushButton, QDialog
 
-from outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 from outdoor.user_interface.dialogs.LCADialog import LCADialog
 
 
 class LcaButton(QPushButton):
-    def __init__(self, parent, data: ComponentDTO):
+    def __init__(self, parent, data: OutdoorDTO):
         super().__init__(parent)
         self.data = data
 

@@ -1,13 +1,13 @@
+import difflib
+
+import bw2calc as bc
+import bw2data as bw
+import pandas as pd
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem
-from PyQt5.QtCore import Qt, QPoint
 
-import bw2data as bw
-import bw2calc as bc
-import pandas as pd
-from bw2data.backends import Activity
-import difflib
-from outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 
 
 class LCADialog(QDialog):
@@ -18,7 +18,7 @@ class LCADialog(QDialog):
     components and their composition in the feedstock.
     """
 
-    def __init__(self, initialData: ComponentDTO):
+    def __init__(self, initialData: OutdoorDTO):
         super().__init__()
         self.setStyleSheet("""
                                     QDialog {

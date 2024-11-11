@@ -1,7 +1,11 @@
-class ComponentDTO:
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
+
+
+class ComponentDTO(OutdoorDTO):
     def __init__(self, rowposition: int, uid: str, name: str = "", lowerHeat: float = 0.0, heatCapacity: float = 0.0,
                  molecularWeight: float = 0.0, LCA: dict = {}):
 
+        super().__init__()
         self.rowPosition = rowposition
         self.uid = uid
         self.name = name

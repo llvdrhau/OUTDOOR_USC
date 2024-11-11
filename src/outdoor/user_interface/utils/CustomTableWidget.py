@@ -1,6 +1,7 @@
 
-from PyQt5.QtWidgets import QTableWidget
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTableWidget
+
 
 class CustomTableWidget(QTableWidget):
     def __init__(self, parent=None):

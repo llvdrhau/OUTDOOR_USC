@@ -1,8 +1,11 @@
-from ..model.optimization_model import SuperstructureModel
+import copy
+
+import numpy as np
+from pyomo.environ import *
+
 from ..model.optimisation_model_2_stage_recourse import SuperstructureModel_2_Stage_recourse
-
-from ..optimizers.main_optimizer import SingleOptimizer
-
+from ..model.optimization_model import SuperstructureModel
+from ..optimizers.customs.change_params import prepare_mutable_parameters
 from ..optimizers.customs.custom_optimizer import (
     MCDAOptimizer,
     SensitivityOptimizer,
@@ -12,24 +15,13 @@ from ..optimizers.customs.custom_optimizer import (
     StochasticRecourseOptimizer_mpi_sppy,
     HereAndNowOptimizer
 )
-
+from ..optimizers.main_optimizer import SingleOptimizer
 from ..utils.timer import time_printer
-from ..optimizers.customs.change_params import prepare_mutable_parameters
 
-import mpisppy.utils.sputils as sputils
-from mpisppy.opt.ef import ExtensiveForm
-from mpisppy.opt.ph import PH
-
-import numpy as np
-
-from pyomo.environ import *
-import pyomo.environ as pyo
 
 # import sys
 #
 # import logging
-
-import copy
 
 
 class SuperstructureProblem:

@@ -1,9 +1,11 @@
+import logging
 from enum import Enum
+from typing import Union
+
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 from src.outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from src.outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
-import logging
-from typing import Union
 
 
 class ProcessType(Enum):
@@ -31,11 +33,13 @@ class UpdateField(Enum):  # to much of a hassle to use the Enum class use Litera
     DISTRIBUTION_CONTAINER = 'BooleanContainer'
     STREAM_CLASSIFICATION = 'StreamClassification'
 
-class ProcessDTO(object):
-    def __init__(self, uid="", name="", type:ProcessType=ProcessType.PHYSICAL, outGoingChemicals:list=[],
-                 positionOnCanvas= None):
+
+class ProcessDTO(OutdoorDTO):
+    def __init__(self, uid="", name="", type: ProcessType = ProcessType.PHYSICAL, outGoingChemicals: list = [],
+                 positionOnCanvas=None):
 
         # add the logger
+        super().__init__()
         self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
 
         # identification variables

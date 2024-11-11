@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox
 from PyQt5.QtGui import QDoubleValidator
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox
+
+from outdoor.user_interface.data.ProcessDTO import ProcessType, UpdateField
+
 
 class OutputParametersDialog(QDialog):
     """

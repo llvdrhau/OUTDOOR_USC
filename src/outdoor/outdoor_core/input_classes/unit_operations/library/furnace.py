@@ -1,5 +1,3 @@
-import math 
-
 from .stoich_reactor import StoichReactor
 
 
@@ -7,14 +5,14 @@ class HeatGenerator(StoichReactor):
     """
     Class description
     -----------------
-    
+
     This Class models an HeatGenerator or Steam generating furnace
     It inherits from the StoichReactor Class.
     Therefore, it includes capital costs factors, energy demand factors,
     mass balance factors as well as the stoichiometric reaction facotrs.
     This class adds parameters to calculate the produced amount of steam
-    based on efficiency. 
-    
+    based on efficiency.
+
     Note: The energy production calculation in the SuperstructureModel is based
     on the inlet mass flow and the lower heating value of the components combined
     with the here defined overall efficiency value.
@@ -44,7 +42,7 @@ class HeatGenerator(StoichReactor):
             Sets efficiency of the furnace process between 0 and 1
         """
         self.Efficiency_FUR['Efficiency_FUR'][self.Number]  = Efficiency
-        
+
     def fill_parameterList(self):
         super().fill_parameterList()
         self.ParameterList.append(self.Efficiency_FUR)

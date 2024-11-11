@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QComboBox, QFormLayout
 
 
 class CalculationSetup(QDialog):

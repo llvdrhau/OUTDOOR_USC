@@ -7,10 +7,12 @@ Created on Tue Jun 15 11:54:16 2021
 """
 
 from pyomo.environ import *
+
 from ...utils.timer import time_printer
 
+
 def change_objective_function(Instance, Obj, results=None, MultiObjectives=None):
-    
+
     Instance.del_component(Instance.Objective)
 
     if Obj == "NPC":
@@ -44,18 +46,18 @@ def change_objective_function(Instance, Obj, results=None, MultiObjectives=None)
         npfwd = [MultiObjectives["FWD"][1]]
 
 
-        # Add values from all preceding single-criterion runs    
+        # Add values from all preceding single-criterion runs
         for k, v in results._results_data.items():
             npc_temp = v._data["NPC"]
             npe_temp = v._data["NPE"]
             npfwd_temp = v._data["NPFWD"]
-            
+
             npc.append(npc_temp)
             npe.append(npe_temp)
             npfwd.append(npfwd_temp)
 
         # Check for best and worst values
-        
+
         best_npc = min(npc)
         worst_npc = max(npc)
 
@@ -66,11 +68,11 @@ def change_objective_function(Instance, Obj, results=None, MultiObjectives=None)
         worst_npfwd = max(npfwd)
 
 
-        # Create new set with objectives 
+        # Create new set with objectives
         # Create new parameter which is the score depending on criterion
-        
+
         Instance.ObjSet = Set(initialize=["NPC", "NPE", "FWD"])
-        
+
         Instance.V_pos = Param(
             Instance.ObjSet,
             initialize={
@@ -235,12 +237,11 @@ def change_objective_function(Instance, Obj, results=None, MultiObjectives=None)
 
         def Objective_rule(Instance):
             return Instance.MCDA_Ob
-        
+
         Instance.Objective = Objective(rule=Objective_rule, sense=maximize)
         timer = time_printer(timer, 'Model reformulation')
     else:
         print("Error in change_Objetive function, no fitting input")
-                
 
 
 
@@ -249,4 +250,4 @@ def change_objective_function(Instance, Obj, results=None, MultiObjectives=None)
 
 
 
-    
+

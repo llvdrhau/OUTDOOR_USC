@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QStyledItemDelegate, QLineEdit
-from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QStyledItemDelegate, QLineEdit
+
 
 class DoubleDelegate(QStyledItemDelegate):
     """

@@ -7,35 +7,28 @@ Created on Tue Jun 15 12:19:19 2021
 """
 
 
-from .change_objective import change_objective_function
-from ...output_classes.multi_model_output import MultiModelOutput
-from ...model.optimization_model import SuperstructureModel
-from ...output_classes.stochastic_model_output import StochasticModelOutput_mpi_sppy
-
-
-from ..main_optimizer import SingleOptimizer
-from ...utils.timer import time_printer
-from ...utils.progress_bar import print_progress_bar
-
-from .change_params import (
-    prepare_mutable_parameters,
-    calculate_sensitive_parameters,
-    change_parameter,
-)
-import numpy as np
-from pyomo.environ import *
-import sys
-import logging
 import copy
+import logging
 from concurrent.futures import ProcessPoolExecutor
 
 import mpisppy.utils.sputils as sputils
+import numpy as np
+import pyomo.environ as pyo
 from mpisppy.opt.ef import ExtensiveForm
 from mpisppy.opt.ph import PH
+from pyomo.environ import *
 
-import pyomo.environ as pyo
-
-
+from .change_objective import change_objective_function
+from .change_params import (
+    calculate_sensitive_parameters,
+    change_parameter,
+)
+from ..main_optimizer import SingleOptimizer
+from ...model.optimization_model import SuperstructureModel
+from ...output_classes.multi_model_output import MultiModelOutput
+from ...output_classes.stochastic_model_output import StochasticModelOutput_mpi_sppy
+from ...utils.progress_bar import print_progress_bar
+from ...utils.timer import time_printer
 
 
 class MCDAOptimizer(SingleOptimizer):

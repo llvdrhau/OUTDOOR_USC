@@ -7,9 +7,10 @@ contains the following functions:
 author: Lucas Van der Hauwaert
 date: october 2020
 """
-from ..outdoor_core.input_classes.stochastic import StochasticObject
-from . import wrapping_functions as WF
 import pandas as pd
+
+from . import wrapping_functions as WF
+from ..outdoor_core.input_classes.stochastic import StochasticObject
 
 
 def wrapp_stochastic_data(dfi, seed=66, scenario_size=None):

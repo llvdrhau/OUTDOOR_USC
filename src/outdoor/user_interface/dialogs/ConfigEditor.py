@@ -1,7 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem, \
-    QGroupBox, QCheckBox
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QGroupBox, QCheckBox
 
 
 class ConfigEditor(QDialog):

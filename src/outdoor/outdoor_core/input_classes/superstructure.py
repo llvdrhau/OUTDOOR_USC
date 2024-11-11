@@ -1,6 +1,8 @@
 import copy
 import math
+
 import pandas as pd
+
 from ..utils.linearizer import capex_calculator
 
 

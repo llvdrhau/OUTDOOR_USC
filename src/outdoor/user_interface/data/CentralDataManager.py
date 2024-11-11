@@ -7,25 +7,27 @@ import glob
 import os.path
 import pickle
 
+from PyQt5.QtCore import QObject, pyqtSignal  # needed to emmit signals
+
+from outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO
+from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
-from outdoor.user_interface.data.ComponentDTO import ComponentDTO
-from outdoor.user_interface.data.ReactionDTO import ReactionDTO
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 
-from PyQt5.QtCore import QObject, pyqtSignal # needed to emmit signals
 
-class CentralDataManager():
+class CentralDataManager:
     """
     A class to manage all data related to the icons and data from other tabs and their associated dialogs.
     This class stores the data
     """
+
     def __init__(self):
         super().__init__()
 
         self.projectDescription = ""
 
-        self.unitProcessData: Dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
+        self.unitProcessData: dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
 
         self.namesChemicalComponents = []  # list to store chemical components data
         self.enabledTabs: list[str] = []
@@ -39,8 +41,7 @@ class CentralDataManager():
         self.struct = SuperstructureFrame()
         self._outputList: list[str] = []
 
-        self.data = {}  # dictionary to store all data I think? @ Mias TODO: What is this for?
-
+        self.metadata = {}  # Stores project metadata like the name. TODO move configs into this
 
     def addData(self, field, data):
         """
@@ -67,15 +68,8 @@ class CentralDataManager():
                 print("\033[91m" + "Error: Field not recognized" + "\033[0m")
                 print("\033[91m" + "Adding data to the Central data manager for field: {}".format(field) + "\033[0m")
 
-
     def getChemicalComponentNames(self):
         return self.namesChemicalComponents
-
-    def addComponentData(self, data):
-        """
-        Handels the data form the components tab (see class XXX todo give name of class)
-        """
-        self.data['componentData'] = data
 
     def addReactionData(self, data):
         """
@@ -84,7 +78,6 @@ class CentralDataManager():
         :return:
         """
         self.componentData.append(data)
-
 
     def updateData(self, dataType: str, row: int):
         """
@@ -112,7 +105,7 @@ class CentralDataManager():
                 self.componentData.pop(row)
                 sizeComponentList = len(self.componentData)
 
-                if row != sizeComponentList: # if it's the last element in the list don't adjust the indices
+                if row != sizeComponentList:  # if it's the last element in the list don't adjust the indices
                     for i in range(row, sizeComponentList):
                         data = self.componentData[i]
                         data.updateRow()
@@ -126,18 +119,16 @@ class CentralDataManager():
 
     def removeIconData(self, iconId):
         if iconId in self.unitProcessData:
-
             del self.unitProcessData[iconId]
-
 
     def loadConfigs(self):
         print("Loading configs...")
         self.configs["calcConfigs"] = {}
         self.configs["componentConfigs"] = {}
         try:
-            if not os.path.isdir(f'data/configs/{self.data["PROJECT_NAME"]}/'):
+            if not os.path.isdir(f'data/configs/{self.metadata["PROJECT_NAME"]}/'):
                 raise Exception("Project folder doesn't exist.")
-            for file in glob.glob(f'data/configs/{self.data["PROJECT_NAME"]}/*.csv'):
+            for file in glob.glob(f'data/configs/{self.metadata["PROJECT_NAME"]}/*.csv'):
                 with open(file) as csvfile:
                     reader = csv.reader(csvfile, delimiter=',')
                     if file.split('\\')[-1].split('.')[0] == 'calcConfigs':
@@ -171,17 +162,17 @@ class CentralDataManager():
 
     def updateConfigs(self, update: dict[str, dict]):
         self.configs = update
-        if not os.path.isdir(f'data/configs/{self.data["PROJECT_NAME"]}/'):
-            os.mkdir(f'data/configs/{self.data["PROJECT_NAME"]}/')
+        if not os.path.isdir(f'data/configs/{self.metadata["PROJECT_NAME"]}/'):
+            os.mkdir(f'data/configs/{self.metadata["PROJECT_NAME"]}/')
         for name, dic in update.items():
-            filename = f'data/configs/{self.data["PROJECT_NAME"]}/{name}.csv'
+            filename = f'data/configs/{self.metadata["PROJECT_NAME"]}/{name}.csv'
             with open(filename, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',')
                 for key, value in dic.items():
                     writer.writerow([key, value])
 
     def dataDump(self):
-        print(self.data)
+        print(self.metadata)
 
     def saveAll(self):
         self.struct.save_frame()
@@ -220,5 +211,3 @@ class OutputManager(QObject):
         self._outputList = new_list
         # Emit the signal to indicate that the list has been updated
         self.outputListUpdated.emit()
-
-

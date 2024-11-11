@@ -5,23 +5,22 @@ Created on Wed Jan 26 15:12:24 2022
 
 @author: philippkenkel
 """
-import cloudpickle as pic
+import copy
+import datetime
 # import os
 # import sys
 # import pickle5 as pic5
 import time
-import copy
-from tabulate import tabulate
-import matplotlib.pyplot as plt
+
+import cloudpickle as pic
 import matplotlib
-import numpy as np
-import datetime
-from matplotlib.colors import ListedColormap
 import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 from scipy.spatial import cKDTree
-
-
+from tabulate import tabulate
 
 
 class AdvancedMultiModelAnalyzer:
@@ -243,8 +242,6 @@ class AdvancedMultiModelAnalyzer:
                 data[titel][1].append(y)
 
         return data
-
-    import matplotlib.pyplot as plt
 
     def create_sensitivity_graph(self, savePath=None, saveName=None, figureMode='subplot', xlable=None):
         """
