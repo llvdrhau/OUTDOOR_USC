@@ -6,6 +6,8 @@ import sys
 
 from data.CentralDataManager import CentralDataManager
 from data.CentralDataManager import OutputManager
+from data.superstructure_frame import SuperstructureFrame
+from src.outdoor.outdoor_core.input_classes.superstructure import Superstructure
 
 import os
 
@@ -110,8 +112,10 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         #     self.logger.error("File opening cancelled: {}".format(e))
 
     def saveFile(self):
-        # temporary fix for a bug during saving: can not pickle QT objects!!
-        # I'm not using the DTO to acess the ports so this is relatively safe for now
+        """
+        Save the current project to the file path specified in self.ProjectPath
+        :return:
+        """
         for unitDTO in self.centralDataManager.unitProcessData.values():
             unitDTO.exitPorts = []
             unitDTO.entryPorts = []
@@ -121,7 +125,16 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         print("Saved File: ", self.ProjectPath)
         self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
 
+        # generate the superstructure frame
+        #Frame = SuperstructureFrame()
+        #Frame.constructSuperstructureFrame(self.centralDataManager)
+
+
     def saveAsFile(self):
+        """
+        Save the current project to a new file path
+        :return:
+        """
         try:
             self.ProjectPath = QFileDialog.getSaveFileName(self, 'Save As', filter='*.outdr', directory='data/frames')[
                 0]
@@ -167,9 +180,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
                                                              outputManager=self.outputManager)
 
-        # todo go over each tab and make a methode to import data from the central data manager,
-        # check generalSystemDataTab on how to do it !!!
-
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
         tabWidget.addTab(projectDescriptionTab, "Project Description")
@@ -180,6 +190,135 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         tabWidget.addTab(superstructureMappingTab, "Superstructure Mapping")
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
+
+    def _makeSuperstructureObject(self):
+        """
+        This methode makes the superstructure object used to run to OUTDOOR in the
+        back end. The old funcitons used to wrapp the data from excel to the superstructure object should come here
+        :return:
+        """
+
+        # make the inicial object:
+        superstructureObject = Superstructure()
+
+    def _setGeneralData(self):
+        """
+        Initiates the superstructure object and fills in general data
+
+        :return: Superstructure Object
+        """
+        # model name
+        modelName = self.centralDataManager.generalData['projectName']
+
+        # retrieve the objective
+        objectiveFull = self.centralDataManager.generalData['objective']
+        objectiveMap = {'EBIT: Earnings Before Income Taxes': 'EBIT',
+                        "NPC: Net Production Costs": "NPC",
+                        "NPE: Net Produced CO2 Emissions": "NPE",
+                        "FWD: Freshwater Demand": "FWD"}
+
+        objective = objectiveMap[objectiveFull]
+
+        productDriven = self.centralDataManager.generalData['productDriver']
+
+        mainProduct = self.centralDataManager.generalData['mainProduct']
+        if mainProduct == '':
+            mainProduct = 'None'
+        productLoad = self.centralDataManager.generalData['productLoad']
+
+        if productLoad == '':
+            productLoad = None
+
+        optimizationMode = self.centralDataManager.generalData['optimizationMode']
+
+        obj = Superstructure(ModelName=modelName,
+                             Objective= objective,
+                             productDriver=productDriven,
+                             MainProduct=mainProduct,
+                             ProductLoad= productLoad,
+                             OptimizationMode=optimizationMode)
+
+        opH = self.centralDataManager.generalData['operatingHours']
+        obj.set_operatingHours(opH)
+
+        obj.set_cecpi(self.centralDataManager.generalData['yearOfStudy'])
+
+        obj.set_interestRate(self.centralDataManager.generalData['interestRate'])
+
+        obj.set_linearizationDetail()
+
+        obj.set_omFactor(0.04) # as default, nornally it is specified per unit process
+
+        # Heat Pump values
+        heatPumpSwitch = self.centralDataManager.generalData['heatPumpSwitch']
+        if heatPumpSwitch == 'Yes':
+            COP = self.centralDataManager.generalData['COP']
+            Costs = self.centralDataManager.generalData['cost']
+            Lifetime = self.centralDataManager.generalData['lifetime']
+
+            T_IN = self.centralDataManager.generalData['TIN']
+            T_OUT = self.centralDataManager.generalData['TOUT']
+            if T_IN == '' or T_OUT == '':
+                self.logger.error("Temperatures for the Heat Pump are not set.")
+            obj.set_heatPump(Costs,
+                             Lifetime,
+                             COP,
+                             T_IN,
+                             T_OUT
+                             )
+
+        # ADD LISTS OF COMPONENTS, ETC.
+        # ----------------------------
+        liste = WF.read_list(df2, 0)
+        obj.add_utilities(liste)
+
+        liste = WF.read_list(df3, 0)
+        obj.add_components(liste)
+
+        liste = WF.read_list(df6, 0)
+        obj.add_reactions(liste)
+
+        liste = WF.read_list(df7, 0)
+        obj.add_reactants(liste)
+
+        dict1 = WF.read_type1(df3, 0, 1)
+        obj.set_lhv(dict1)
+
+        dict2 = WF.read_type1(df3, 0, 3)
+        obj.set_mw(dict2)
+
+        dict3 = WF.read_type1(df3, 0, 2)
+        obj.set_cp(dict3)
+
+        # ADD OTHER PARAMETERS
+        # ---------------------
+
+        dict1 = WF.read_type1(df2, 0, 2)
+        obj.set_utilityEmissionsFactor(dict1)
+
+        dict1 = WF.read_type1(df2, 0, 3)
+        obj.set_utilityFreshWaterFator(dict1)
+
+        liste = WF.read_type1(df3, 0, 4)
+        obj.set_componentEmissionsFactor(liste)
+
+        obj.set_deltaCool(df8.iloc[4, 1])
+
+        liste1 = WF.read_list(df8, 0)
+        liste2 = WF.read_list(df8, 1)
+        # TODO: I think this dict shit here isn't used by anything. Please verify.
+        dictTemperaturePrices = {'super': df8.iloc[0, 1],
+                                 'high': df8.iloc[1, 1],
+                                 'medium': df8.iloc[2, 1],
+                                 'low': df8.iloc[3, 1]}
+
+        obj.temperaturePricesDict = dictTemperaturePrices
+        obj.set_heatUtilities(liste1, liste2)
+
+        dict3 = WF.read_type1(df2, 0, 1)
+        obj.set_deltaUt(dict3)
+
+        return obj
 
 
 def checkFocus():

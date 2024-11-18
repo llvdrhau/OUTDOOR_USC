@@ -1439,7 +1439,7 @@ class PhysicalProcessesDialog(QDialog):
             'TemperatureOut1':                  self._getWidgetData(self.temperatureLeavingProcess, "float"),
             'TemperatureIn2':                   self._getWidgetData(self.temperatureEnteringUnitProcess2, "float"),
             'TemperatureOut2':                  self._getWidgetData(self.temperatureLeavingUnitProcess2, "float"),
-            'Operating Hours':                  self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
+            'O&M':                              self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
             'Direct Cost Factor':               self._getWidgetData(self.directCostFactor, "float"),
             'Indirect Cost Factor':             self._getWidgetData(self.indirectCostFactor, "float"),
 

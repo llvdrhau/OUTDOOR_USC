@@ -50,6 +50,11 @@ class ProcessDTO(object):
         self.entryPorts = []
         self.exitPorts = []
 
+        # curvature of leaving lines
+        self.curvatureLines = {1: None,   # position control point
+                              2: None,   # None if there is no curvature
+                              3: None}
+
         # input flow variables
         self.inputFlows = []  # list of the ID of the input process type that flow into the current process
         # Dictionary of the ID's units that flow into the current process unit and the stream number

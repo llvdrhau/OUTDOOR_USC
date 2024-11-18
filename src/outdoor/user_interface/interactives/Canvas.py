@@ -208,7 +208,7 @@ class Canvas(QGraphicsView):
             port.connectionLines.append(self.currentLine)
             self.scene.addItem(self.currentLine)
 
-    def endLine(self, port, pos, loadingLinesFlag=False):
+    def endLine(self, port, pos, loadingLinesFlag=False, curveInfo=None):
         """
         End drawing a new line from the given port (function called in the IconPort class)
         :param port: IconPort object or TriangleIconPorts object
@@ -218,6 +218,9 @@ class Canvas(QGraphicsView):
         # Do not start a new line if the startPort is not set error has occured
         if self.startPort is None:
             return
+
+        if self.startPort.portType == port.portType:
+            return # you can not connect exit ports to each other of entry port to each other
 
         # Do not end a new line in a port that is already occupied
         if port.occupied:
@@ -244,6 +247,12 @@ class Canvas(QGraphicsView):
         if self.currentLine and self.startPort != port:
             self.currentLine.endPoint = pos  # Update the end point
             self.currentLine.endPort = port  # Update the end port
+            if curveInfo:
+                # get the current stream number we're working on
+                streamNumber = self.startPort.exitStream
+                curveData = curveInfo[streamNumber]
+                # set the control point ect using the _setCurveData Method
+                self._setCurveData(curveData=curveData)
             self.currentLine.updateAppearance()  # Update the line appearance based on its current state
             port.connectionLines.append(self.currentLine)
 
@@ -681,6 +690,9 @@ class Canvas(QGraphicsView):
             # ---------------------------------------------------
             for iconId, IconWidget in allMoveableIcons.items():
                 unitDTO = self.centralDataManager.unitProcessData[iconId]
+                # get the curveature data if any
+                curveInfo = unitDTO.curvatureLines
+                # self.logger.debug('the curve info is:  {}'.format(curveInfo))
                 # get the material flow of the unitDTO
                 materialFlow = unitDTO.materialFlow
 
@@ -694,7 +706,7 @@ class Canvas(QGraphicsView):
                             startPort = self._getStartPort(ownerWidget, streamNumber)
                             endPort = port
                             self.startLine(startPort, startPort.scenePos())
-                            self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+                            self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
 
                         elif port.portType == 'exit' and unitDTO.distributionContainer:
                             # get the owner of the distributor
@@ -703,7 +715,7 @@ class Canvas(QGraphicsView):
                                 startPort = port
                                 endPort = self._getEndPort(receivingWidget)
                                 self.startLine(startPort, startPort.scenePos())
-                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
                         else:
                             continue # if the distributor is not connected, don't bother connecting it
 
@@ -718,7 +730,7 @@ class Canvas(QGraphicsView):
                                 startPort = sendingWidget.ports[0]  # the first port is the only (exit) port in the input icon
                                 endPort = port # the current port is the end port of the connection
                                 self.startLine(startPort, startPort.scenePos())
-                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
 
                         # connect processes and outputs
                         else: # exit ports
@@ -732,7 +744,7 @@ class Canvas(QGraphicsView):
                                     startPort = port  # the current port is the start port of the connection
                                     endPort = self._getEndPort(targetWidget)
                                     self.startLine(startPort, startPort.scenePos())
-                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True)
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
 
 
     def _getEndPort(self, iconWidget):
@@ -757,6 +769,15 @@ class Canvas(QGraphicsView):
             if port.portType == 'exit' and port.exitStream == streamNumber:
                 return port
 
+    def _setCurveData(self, curveData):
+        # only set if there is curve data, could be empty
+        if curveData:
+            x = curveData[0]
+            y = curveData[1]
+            self.currentLine.controlPoint = ControlPoint(x, y, self.currentLine)
+            self.currentLine.isCurved = True
+            self.currentLine.controlPoint.setVisible(False)
+            self.currentLine.selected = False
 
 
 class IconPort(QGraphicsEllipseItem):
@@ -1297,6 +1318,13 @@ class InteractiveLine(QGraphicsPathItem):
                                (self.startPoint.y() + self.endPoint.y()) / 2)
             self.controlPoint = ControlPoint(midPoint.x(), midPoint.y(), self)
 
+        else: # deactivate the line curve data if it's not active any more
+            # get the DTO from where the line starts from and the stream number
+            streamNumber = self.startPort.exitStream
+            idDTO = self.startPort.iconID
+            sendingDTO = self.centralDataManager.unitProcessData[idDTO]
+            sendingDTO.curvatureLines[streamNumber] = None
+
         self.updateAppearance()
         super().mouseDoubleClickEvent(event)
 
@@ -1443,7 +1471,16 @@ class InteractiveLine(QGraphicsPathItem):
             # Use the control point's current position for the curve
             controlPos = self.controlPoint.pos()
             path.quadTo(controlPos, self.endPoint)
-        else:
+
+            # update the position of the control point
+            # get the DTO from where the line starts from and the stream number
+            streamNumber = self.startPort.exitStream
+            idDTO = self.startPort.iconID
+            sendingDTO = self.centralDataManager.unitProcessData[idDTO]
+            sendingDTO.curvatureLines[streamNumber] = (controlPos.x(), controlPos.y())
+            # self.logger.debug("control pos updated")
+
+        else: # make a straight line
             path.lineTo(self.endPoint)
 
         self.setPath(path)

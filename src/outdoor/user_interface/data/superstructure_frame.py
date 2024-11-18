@@ -3,6 +3,7 @@ import pickle
 
 class SuperstructureFrame():
     def __init__(self):
+
         self.MainProduct = ""
         self.ProductLoad = {'ProductLoad': 0}
         self.objective = ""
@@ -130,6 +131,17 @@ class SuperstructureFrame():
         self.NI_ParameterList = []
         self.I_ParameterList = []
 
+    def constructSuperstructureFrame(self, centralDataManager):
+        """
+        Construct the superstructure frame from the central data manager
+
+        :param centralDataManager:
+        :return:
+        """
+        # start general system data
+        self.MainProduct = centralDataManager.generalData['MainProduct']
+
+        pass
     def save_frame(self):
         try:
             filename = "data/frames/" + self.ModelName + ".pkl"

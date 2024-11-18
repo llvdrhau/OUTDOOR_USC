@@ -4,7 +4,7 @@ import pandas as pd
 from ..utils.linearizer import capex_calculator
 
 
-class Superstructure:
+class Superstructure_from_UI():
     """
     Class Description
     -----------------
