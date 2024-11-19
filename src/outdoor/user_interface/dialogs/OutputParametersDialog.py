@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox, QComboBox
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 class OutputParametersDialog(QDialog):
@@ -89,6 +89,19 @@ class OutputParametersDialog(QDialog):
         # set validator to restrict to floating-point numbers
         self.maxProduction.setValidator(QDoubleValidator(0.00, 999999.99, 2))
 
+        # define if the product is a main product or a byproduct with a dropdown menu
+        self.productType = QComboBox(self)
+        self.productType.addItem("Main Product")
+        self.productType.addItem("By Product")
+        layout.addLayout(self._formRow("Product Type:", self.productType))
+
+        # define if the product belong to a processing group (integer values only)
+        self.processingGroup = QLineEdit(self)
+        layout.addLayout(self._formRow("Processing Group:", self.processingGroup))
+        self.processingGroup.setValidator(QIntValidator(0, 20))
+        # set as empty string
+        self.processingGroup.setText("")
+
         # OK and Cancel buttons
         buttonsLayout = QHBoxLayout()
         self.okButton = QPushButton("OK", self)
@@ -119,7 +132,9 @@ class OutputParametersDialog(QDialog):
             'priceOutput': self.priceOutput.text(),
             'co2Credits': self.co2Credits.text(),
             'minProduction': self.minProduction.text(),
-            'maxProduction': self.minProduction.text()
+            'maxProduction': self.minProduction.text(),
+            'productType': self.productType.currentText(),
+            'processingGroup': self.processingGroup.text()
         }
         return data
 
@@ -140,6 +155,10 @@ class OutputParametersDialog(QDialog):
             self.minProduction.setText(data['minProduction'])
         if 'maxProduction' in data:
             self.maxProduction.setText(data['maxProduction'])
+        if 'productType' in data:
+            self.productType.setCurrentText(data['productType'])
+        if 'processingGroup' in data:
+            self.processingGroup.setText(data['processingGroup'])
 
 
     def saveData(self):
@@ -168,7 +187,6 @@ class OutputParametersDialog(QDialog):
         current_list.append(newName)
         # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
         self.outputManager.outputList = current_list
-
 
         self.accept()
 

@@ -1,5 +1,7 @@
 import copy
 import math
+
+import numpy as np
 import pandas as pd
 from ..utils.linearizer import capex_calculator
 
@@ -134,6 +136,8 @@ class Superstructure:
         self.ModelName = ModelName
 
         if not isinstance(MainProduct, str):
+            if MainProduct is None:
+                MainProduct = np.nan
             if math.isnan(MainProduct) and productDriver == 'yes':
                 raise Exception('No Main Product was chosen, please select a main product in the Sheet "Systemblatt"')
 
@@ -286,9 +290,13 @@ class Superstructure:
     #------------------------------------------------------------------------------
 
     def set_operatingHours(self, hours):
+        if isinstance(hours, str):
+            hours = float(hours)
         self.H['H'] = hours
 
     def set_interestRate(self, IR):
+        if isinstance(IR, str):
+            IR = float(IF)
         self.IR['IR'] = IR
 
     def set_omFactor(self, OM):
@@ -303,7 +311,7 @@ class Superstructure:
 
         """
         if year not in self.CECPI_SET:
-            raise ValueError('Year is not in the range of 1994 to 2018')
+            raise ValueError('Year is not in the range of 1994 to 2024')
         else:
             self.CECPI['CECPI'] = self.CECPI_SET[year]
 

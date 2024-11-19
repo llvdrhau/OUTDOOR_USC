@@ -118,7 +118,7 @@ def read_list(df, Col1, *args):
     pylist = []
 
     for x in range(*args, len(df)):
-        if  pd.isna(df.iloc[x,Col1]) == False :
+        if pd.isna(df.iloc[x,Col1]) == False:
             pylist.append(df.iloc[x,Col1])
 
 
@@ -140,12 +140,6 @@ def read_list_new(df, Col, Start=0, End=None):
             pylist.append(df.iloc[i,Col])
 
     return pylist
-
-
-
-
-
-
 
 
 

@@ -66,11 +66,9 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     df5 = dfi.iloc[TemperatureIntervals]
     df6 = dfi.iloc[ReactionsListRange]
 
-
     df7 = dfi.iloc[ReactantsListRange]
 
-
-    df8= dfi.iloc [TemperaturePriceRange]
+    df8 = dfi.iloc[TemperaturePriceRange]
 
 
 
@@ -138,7 +136,7 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     dict1 = WF.read_type1(df3,0,1)
     obj.set_lhv(dict1)
 
-    dict2  = WF.read_type1(df3,0,3)
+    dict2 = WF.read_type1(df3,0,3)
     obj.set_mw(dict2)
 
     dict3 = WF.read_type1(df3,0,2)

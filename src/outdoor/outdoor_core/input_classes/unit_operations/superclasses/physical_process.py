@@ -92,16 +92,10 @@ class PhysicalProcess(Process):
         # to get an updated list use the following website:
         # https://toweringskills.com/financial-analysis/cost-indices/
 
-
-
-
-
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
         superstructure.CostUnitsList['U_C'].append(self.Number)
-
-
 
     # ECONOMIC DATA SETTING
     # ---------------------

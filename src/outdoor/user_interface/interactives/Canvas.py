@@ -520,7 +520,7 @@ class Canvas(QGraphicsView):
             current_list = self.outputManager.outputList
             # Safely remove the item if it exists
             if outputName in current_list:
-                current_list.remove(item_to_remove)
+                current_list.remove(outputName)
 
             # Update the outputList to the centralDataManager
             self.centralDataManager.outputList = current_list

@@ -145,6 +145,8 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Processing Group:", widget=self.processingGroupInput,
                                 tooltipText=tooltipText)
         self.processingGroupInput.setValidator(QIntValidator(0, 20))
+        # set as empty string
+        self.processingGroupInput.setText("")
 
         # Life time Unit process
         self.lifeTimeUnitProcess = QLineEdit(self)
