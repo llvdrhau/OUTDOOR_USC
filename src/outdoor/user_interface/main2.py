@@ -2,6 +2,8 @@ import os
 import pickle
 import sys
 
+import coloredlogs
+import colorlog
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
 from data.CentralDataManager import CentralDataManager
@@ -37,6 +39,7 @@ current_path = os.getcwd()
 # Print the current working directory
 print(f"Current working directory: {current_path}")
 
+
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
     """
@@ -47,14 +50,16 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         super().__init__()
 
         # add the logger
-        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger = logging.getLogger()
+        coloredlogs.install(logger=self.logger, level='DEBUG')
+
 
         self.setWindowTitle("OUTDOOR 2.0 - Open Source Process Simulator")
         self.setGeometry(100, 100, 1200, 800)
         self.ProjectName = ""
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
-        self.outputManager = OutputManager() # Initialize the output manager
+        self.outputManager = OutputManager()  # Initialize the output manager
 
         menu_bar = self.menuBar()
         fileMenu = menu_bar.addMenu('File')
@@ -82,12 +87,17 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.editAction.setDisabled(True)
         self.editAction.triggered.connect(self.editConfigs)
         editMenu.addAction(self.editAction)
+
+        structureMenu = menu_bar.addMenu('Superstructure')
+        self.superStructureAction = QAction('Generate Superstructure', self)
+        self.superStructureAction.triggered.connect(self.generateSuperstructureObject)
+        structureMenu.addAction(self.superStructureAction)
+
         self.initTabs()
 
     def enableSave(self):
         self.saveAction.setEnabled(True)
         self.editAction.setEnabled(True)
-
 
     def openFile(self):
         #There has to be a way to handle "i cancelled the load" that's not this trash
@@ -105,7 +115,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.logger.info("Opened File: {}".format(self.ProjectPath))
 
         # todo: set this in appropiate place (save methods), just for ease of use for now to test the superstructure
-        self._makeSuperstructureObject()
+        #self._makeSuperstructureObject()
 
         # comment for now to make bebugging easier
         # try:
@@ -135,12 +145,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             pickle.dump(self.centralDataManager, file)
         print("Saved File: ", self.ProjectPath)
         self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
-
-        # generate the superstructure frame
-        self._makeSuperstructureObject()
-        #Frame = SuperstructureFrame()
-        #Frame.constructSuperstructureFrame(self.centralDataManager)
-
 
     def saveAsFile(self):
         """
@@ -190,7 +194,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
-                                                             outputManager=self.outputManager)
+                                                            outputManager=self.outputManager)
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
@@ -203,7 +207,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
 
-    def _makeSuperstructureObject(self):
+    def generateSuperstructureObject(self):
         """
         This methode makes the superstructure object used to run to OUTDOOR in the
         back end. The old functions used to wrapp the data from excel to the superstructure object should come here
@@ -285,7 +289,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 self.logger.error("{} for the Heat Pump is not set correctly \n"
                                   "Defaulted to T_in = 0 and T_out = 0.".format(errorTemp))
 
-
             obj.set_heatPump(Costs,
                              Lifetime,
                              COP,
@@ -301,7 +304,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         componentList = [dto.name for dto in self.centralDataManager.componentData]
         obj.add_components(componentList)
 
-        reactionNumberList = [i+1 for i in range(len(self.centralDataManager.reactionData))]
+        reactionNumberList = [i + 1 for i in range(len(self.centralDataManager.reactionData))]
         obj.add_reactions(reactionNumberList)
 
         # todo this seems redundant I don't know why this is done, must optimize this in the future
@@ -365,7 +368,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         Continue filling in the superstructure with data from unit operations
         :return: Superstructure Object
         """
-        self.processUnit_ObjectList = [] # in outdoor this is PU_ObjectList in main.py in the excel wrapper
+        self.processUnit_ObjectList = []  # in outdoor this is PU_ObjectList in main.py in the excel wrapper
         unitDTODictionary = self.centralDataManager.unitProcessData
         for uuid, dto in unitDTODictionary.items():
             if dto.type == ProcessType.INPUT:
@@ -495,6 +498,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return: Superstructure Object
         """
         pass
+
 
 def checkFocus():
     """

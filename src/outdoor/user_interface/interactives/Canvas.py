@@ -27,7 +27,7 @@ class Canvas(QGraphicsView):
     def __init__(self, centralDataManager, outputManager, iconLabels):
         super().__init__()
         # set up the logger
-        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
         # Store the icon data managers for use in the widget
         self.centralDataManager = centralDataManager
         self.outputManager = outputManager
@@ -875,7 +875,7 @@ class MovableIcon(QGraphicsObject):
         super().__init__()
 
         # set up the logger
-        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
         # Set the text of the icon (the initial label)
         self.text = text
         # save the positon
@@ -1266,7 +1266,7 @@ class InteractiveLine(QGraphicsPathItem):
         super().__init__(parent)
 
         # initiate the logger
-        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
 
         # add the centralDataManager
         self.centralDataManager = centralDataManager

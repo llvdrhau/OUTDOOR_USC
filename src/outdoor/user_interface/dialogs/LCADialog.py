@@ -23,7 +23,8 @@ class LCADialog(QDialog):
 
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
-        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
+        logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {

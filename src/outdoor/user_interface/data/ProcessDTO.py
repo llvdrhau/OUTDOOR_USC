@@ -40,7 +40,7 @@ class ProcessDTO(OutdoorDTO):
 
         # add the logger
         super().__init__()
-        self.logger = outdoorLogger(name="outdoor_logger", level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
 
         # identification variables
         self.uid = uid

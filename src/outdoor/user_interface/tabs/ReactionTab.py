@@ -21,7 +21,7 @@ class ReactionsTab(QWidget):
         super().__init__(parent)
 
         # add the logger
-        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
 
         self.centralDataManager = centralDataManager
         self.reactionList: list[ReactionDTO] = centralDataManager.reactionData
