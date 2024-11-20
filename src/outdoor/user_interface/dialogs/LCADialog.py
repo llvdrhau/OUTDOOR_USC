@@ -1,4 +1,7 @@
 import difflib
+import logging
+import sys
+from types import TracebackType
 
 import bw2calc as bc
 import bw2data as bw
@@ -8,7 +11,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem
 
 from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
-
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 class LCADialog(QDialog):
     """
@@ -20,6 +23,8 @@ class LCADialog(QDialog):
 
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
+        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {
                                         background-color: #f2f2f2;
@@ -63,7 +68,6 @@ class LCADialog(QDialog):
         self.eidb = bw.Database('ecoinvent-3.10-consequential')
         self.bios = bw.Database('ecoinvent-3.10-biosphere')
         self.outd = bw.Database('outdoor')
-
         layout = QVBoxLayout(self)
         self.dto = initialData
         # Lookup name
@@ -128,7 +132,6 @@ class LCADialog(QDialog):
             for item in all:
                 if item.row() not in rows:
                     rows.append(item.row())
-            print(rows)
             for row in rows:
                 index = self.lcaColumns.index("ID")
                 id = self.selectedProcessesTable.item(row, index).text()
@@ -159,6 +162,10 @@ class LCADialog(QDialog):
             self.addRowToTable(Reference=item['name'], Unit=item['unit'], Activity=item['type'],
                                Region=str(item['categories']), ID=item['code'], Table="Search")
 
+        self.logger.info(f"Search on {name} found:\n{len(loc_results)} in {location}."
+                         f"\n{len(gen_results)} in other locations"
+                         f"\n{len(biosphere_results)} in biosphere")
+
     def addRowToTable(self, **kwargs):
         rowPosition = 0
         match kwargs["Table"]:
@@ -171,7 +178,7 @@ class LCADialog(QDialog):
                 rowPosition = self.selectedProcessesTable.rowCount()
                 table = self.selectedProcessesTable
             case _:
-                print("There's been a problem with your table.")
+                self.logger.error("Something is wrong with your table.")
                 return
         table.insertRow(rowPosition)
         if "Type" in kwargs:
@@ -202,7 +209,7 @@ class LCADialog(QDialog):
                         "Region": self.componentsTable.item(item.row(), 3).text(),
                         "Demand": "0",
                         "Parameter": "bw_param_name",
-                        "DB": self.componentsTable.item(item.row(), 2).text(),
+                        "Type": self.componentsTable.item(item.row(), 2).text(),
                     }
                     self.addRowToTable(Demand=self.dto.LCA[item.text()]["Demand"],
                                        Unit=self.dto.LCA[item.text()]["Unit"],
@@ -212,63 +219,58 @@ class LCADialog(QDialog):
                                        Table="LCA")
         self.componentsTable.clearSelection()
 
-    def updateLCAProcesses(self):
-        if self.selectedProcessesTable.rowCount() > 1:
-            for i in range(self.selectedProcessesTable.rowCount()):
-                id = self.selectedProcessesTable.item(i, 3).text()
-                print(self.selectedProcessesTable.item(i, 0).text())
-                self.dto.LCA[id]["Demand"] = self.selectedProcessesTable.item(i, 0).text()
-                self.dto.LCA[id]["Reference"] = self.selectedProcessesTable.item(i, 3).text()
-                self.dto.LCA[id]["Unit"] = self.selectedProcessesTable.item(i, 1).text()
-                self.dto.LCA[id]["Region"] = self.selectedProcessesTable.item(i, 2).text()
-
     def loadInitialData(self):
         for key, value in self.dto.LCA.items():
-            print(key, value)
+            self.logger.info("Loading initial data.")
             self.addRowToTable(Demand=value["Demand"], Unit=value["Unit"], Region=value["Region"], Reference=value["Reference"], ID=key,
                                Table="LCA")
 
     def persistLCA(self):
-        process = {
-            "location": "GLO",
-            "name": self.dto.uid,
-            "type": "process",
-            "unit": "kilogram",
-            "exchanges": []
-        }
-        tup = ("outdoor", self.dto.uid)
-        self.outd.write({tup: process})
+        try:
+            exist = len([m for m in self.outd if m["code"] == self.dto.uid]) > 0
+            if not exist:
+                process = {
+                    "name": self.dto.name,
+                    "reference product": self.dto.name,
+                    "unit": "unit",
+                    "type": "process"
+                }
+                self.outd.new_activity(self.dto.uid, **process).save()
 
-        calc_act = [m for m in self.outd if m['name'] == self.dto.uid][0]
-        ext_list = []
-        for row in range(self.selectedProcessesTable.rowCount()):
-            demand = self.selectedProcessesTable.item(row, 0).text()
-            id = self.selectedProcessesTable.item(row, 4).text()
-            self.dto.LCA[id]["Demand"] = demand
-        for id, dic in self.dto.LCA.items():
-            if dic["DB"] == "process":
-                ex = [m for m in self.eidb if m['code'] == id][0]
-                ext_list.append((ex, dic["Demand"], dic["Unit"], dic["DB"]))
-            else:
-                ex = [m for m in self.bios if m['code'] == id][0]
-                ext_list.append((ex, dic["Demand"], dic["Unit"], dic["DB"]))
+            act = [m for m in self.outd if m["code"] == self.dto.uid][0]
 
-        for tup in ext_list:
-            ex = tup[0]
-            calc_act.new_exchange(
-                input=(ex['database'], ex['code']),
-                amount=float(tup[1]),
-                unit=ex['unit'],
-                type="biosphere" if ex['database'] == "biosphere3" else "technosphere",
-            ).save()
-        calc_act.save()
+            ext_list = []
+            for row in range(self.selectedProcessesTable.rowCount()):
+                demand = self.selectedProcessesTable.item(row, 0).text()
+                id = self.selectedProcessesTable.item(row, 4).text()
+                self.dto.LCA[id]["Demand"] = demand
+            for id, dic in self.dto.LCA.items():
+                if "process" in dic["Type"]:
+                    ex = [m for m in self.eidb if m['code'] == id][0]
+                    ext_list.append((ex, dic["Demand"], dic["Unit"], dic["Type"]))
+                else:
+                    ex = [m for m in self.bios if m['code'] == id][0]
+                    ext_list.append((ex, dic["Demand"], dic["Unit"], dic["Type"]))
+
+            for tup in ext_list:
+                ex = tup[0]
+                act.new_exchange(
+                    input=(ex['database'], ex['code']),
+                    amount=float(tup[1]),
+                    unit=ex['unit'],
+                    type="biosphere" if ex['database'] == "biosphere3" else "technosphere",
+                ).save()
+            act.save()
+        except Exception as e:
+            self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
 
     def calculateLCA(self):
+        self.logger.info("Calculation beginning. Please wait, this may take a moment.")
         midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
-        endpoints = [ m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
+        endpoints = [m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
         meths = midpoint + endpoints
         try:
-            activ = [m for m in self.outd if m['name'] == self.dto.uid][0]
+            activ = [m for m in self.outd if m['code'] == self.dto.uid][0]
             calc_setup = {"inv":[{activ:1}],"ia":meths}
             bw.calculation_setups["set"] = calc_setup
             mlca = bc.MultiLCA("set")
@@ -277,10 +279,21 @@ class LCADialog(QDialog):
             for f in mlca.func_units:
                 indic.append(f"{str(f).replace('{', '').replace('}', '')}")
             dfresults = pd.DataFrame(mlca.results, columns=mlca.methods, index=indic)
-            print(dfresults)
+            self.logger.info("MLCA complete, saving results.")
+            self.sortLCAResults(dfresults)
             self.dto.LCA["Results"]=dfresults
             self.dto.calculated = True
         except Exception as e:
             if type(e) is IndexError:
-                print("Didn't find the uuid in bw, ", self.dto.uid)
+                self.logger.warn("Didn't find the uuid in bw:", self.dto.uid)
 
+    def sortLCAResults(self, dfresults: pd.DataFrame):
+        self.logger.debug("is there anybody out there")
+        self.logger.debug(f"so cold {dfresults.columns}")
+        for col in dfresults.columns:
+            replace = col.split(" (")[-1]
+            self.logger.info(f"What even {col} and then {replace}")
+            dfresults.rename(columns={str(col): replace}, inplace=True)
+        flipped = dfresults.transpose().reset_index(names=["Damage Category"])
+        self.logger.debug(flipped.columns)
+        self.logger.debug(flipped)
