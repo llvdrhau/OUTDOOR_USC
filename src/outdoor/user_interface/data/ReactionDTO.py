@@ -1,20 +1,17 @@
-class ReactionDTO:
-    def __init__(self,
-                 rowposition: int,
-                 uid: str,
-                 name: str = "",
-                 reactants: dict = {},
-                 products: dict = {},
-                 reactionEquation: str = ""
-                 ):
+from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 
+
+class ReactionDTO(OutdoorDTO):
+    def __init__(self, rowposition: int, uid: str, name: str = "", reactants: dict = {}, products: dict = {},
+                 reactionEquation: str = ""):
+
+        super().__init__()
         self.rowPosition = rowposition
         self.uid = uid
         self.name = name
         self.reactants = reactants
         self.products = products
         self.reactionEquation = reactionEquation
-
 
     def __getitem__(self, item):
         match item:

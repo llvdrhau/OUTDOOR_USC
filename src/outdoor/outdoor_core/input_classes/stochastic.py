@@ -15,13 +15,13 @@ Class description
             - The dataFrame of the uncertain parameters and their values for each scenario
 """
 
-import pandas as pd
-import itertools
 import ast
+import itertools
+
+import pandas as pd
 from numpy import isnan, random, zeros
 from pyDOE import lhs
 from scipy.stats import norm, uniform
-
 
 
 # from itertools import product

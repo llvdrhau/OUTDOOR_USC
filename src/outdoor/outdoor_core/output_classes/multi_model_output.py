@@ -6,15 +6,15 @@ Created on Thu Nov 25 15:26:08 2021
 @author: philippkenkel
 """
 
-from pyomo.environ import value
-from tabulate import tabulate
-import os
 import datetime
-import cloudpickle as pic
-from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
+import os
+
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from tabulate import tabulate
+
+from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
 
 
 class MultiModelOutput(ModelOutput):

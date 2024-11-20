@@ -9,11 +9,8 @@ Created on Mon Mar 23 15:26:49 2020
 # Definition des Systempfades der PySuOpt Bibliothek
 
 
-import pandas as pd
-
-from ..outdoor_core.input_classes.superstructure import Superstructure
 from . import wrapping_functions as WF
-
+from ..outdoor_core.input_classes.superstructure import Superstructure
 
 
 def wrapp_SystemData(dfi, optimization_mode=None):

@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip, QMenu
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QColor
+from PyQt5.QtGui import QDoubleValidator, QColor
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTableWidgetItem, QFormLayout, \
+    QComboBox, QMenu
 
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog, ProcessType
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO
+
 
 class StoichiometricReactorDialog(PhysicalProcessesDialog):
     def __init__(self, initialData, centralDataManager, iconID):

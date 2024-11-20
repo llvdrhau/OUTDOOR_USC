@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QLineEdit, QLabel, QWidget, QFormLayout, QComboBox
 
-from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import ProcessType
+from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 
 
 class GeneratorDialog(StoichiometricReactorDialog):

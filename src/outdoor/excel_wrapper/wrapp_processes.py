@@ -10,20 +10,17 @@ Created on Thu Mar 26 10:56:00 2020
 @author: Celina
 """
 
-import pandas as pd
+from . import wrapping_functions as WF
+from .wrapp_unit_data import *
+from ..outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
+from ..outdoor_core.input_classes.unit_operations.library.distributor import Distributor
+from ..outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
 from ..outdoor_core.input_classes.unit_operations.library.pool import ProductPool
 from ..outdoor_core.input_classes.unit_operations.library.source import Source
 from ..outdoor_core.input_classes.unit_operations.library.stoich_reactor import StoichReactor
-from ..outdoor_core.input_classes.unit_operations.library.yield_reactor import YieldReactor
-from ..outdoor_core.input_classes.unit_operations.library.distributor import Distributor
-from ..outdoor_core.input_classes.unit_operations.library.splitter import Splitter
-from ..outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
 from ..outdoor_core.input_classes.unit_operations.library.turbine import ElectricityGenerator
-from ..outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
-
+from ..outdoor_core.input_classes.unit_operations.library.yield_reactor import YieldReactor
 from ..outdoor_core.input_classes.unit_operations.superclasses.physical_process import PhysicalProcess
-from .wrapp_unit_data import *
-from . import wrapping_functions as WF
 
 
 def wrapp_processUnits(dfi):

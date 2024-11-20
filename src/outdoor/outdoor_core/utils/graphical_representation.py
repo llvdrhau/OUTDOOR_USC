@@ -5,8 +5,9 @@ Created on Thu Dec  9 15:23:46 2021
 @author: Joshua
 """
 
-import pydot
 import os
+
+import pydot
 
 
 def create_superstructure_flowsheet(superstructure, path, saveName=None):

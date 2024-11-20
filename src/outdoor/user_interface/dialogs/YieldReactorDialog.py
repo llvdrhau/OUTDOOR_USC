@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QFormLayout, QComboBox
 
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog, ProcessType
+
 
 class YieldReactorDialog(PhysicalProcessesDialog):
     def __init__(self, initialData, centralDataManager, iconID):

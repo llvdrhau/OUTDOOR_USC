@@ -1,11 +1,14 @@
 import os
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip, QCheckBox, QMessageBox
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QPixmap, QColor
-from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
+    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip, QCheckBox, QMessageBox
+
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
+from outdoor.user_interface.data.ProcessDTO import ProcessType, UpdateField
+from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox
+
 
 class PhysicalProcessesDialog(QDialog):
     """

@@ -1,5 +1,3 @@
-import math 
-
 from ..superclasses.physical_process import PhysicalProcess
 
 
@@ -11,17 +9,17 @@ from ..superclasses.physical_process import PhysicalProcess
 
 
 class StoichReactor(PhysicalProcess):
-    
+
     """
     Class description
     -----------------
-    
+
     This Class models stoichmetric reactors, which inherit from the PhysicalProcess
     class. Therefore, they includes capital costs factors, energy demand factors and
-    mass balance factors. 
+    mass balance factors.
     This class adds parameters to calculated mass-based stoichmetric reactions
-    based on reactants, conversion factors and stoichmetric values. 
-    
+    based on reactants, conversion factors and stoichmetric values.
+
     """
 
     def __init__(self, Name, UnitNumber, Parent =None, *args, **kwargs):
@@ -40,12 +38,12 @@ class StoichReactor(PhysicalProcess):
     # ------------------------
 
     def fill_unitOperationsList(self, superstructure):
-        
+
         super().fill_unitOperationsList(superstructure)
         superstructure.StoichRNumberList['U_STOICH_REACTOR'].append(self.Number)
 
     def set_gammaFactors(self, gamma_dic):
-       
+
         """
 
         Parameters
@@ -76,12 +74,12 @@ class StoichReactor(PhysicalProcess):
                           StoichiometricFactors,
                           ConversionFactors
                           ):
-        
+
         if self.Type == "Stoich-Reactor":
             print(self.Name)
             self.add_gammaFactors(StoichiometricFactors)
             self.add_thetaFactors(ConversionFactors)
- 
+
 
     def fill_parameterList(self):
         super().fill_parameterList()

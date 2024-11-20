@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QWidget, QTableWidget, QTabWidget, \
-    QApplication, QHBoxLayout, QTableWidgetItem, QFormLayout, QComboBox, QFrame, QToolTip
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
+from PyQt5.QtWidgets import QLineEdit, QWidget, QHBoxLayout, QFormLayout, QComboBox
 
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
+
 
 class ElectricityGeneratorDialog(StoichiometricReactorDialog):
     def __init__(self, initialData, centralDataManager, iconID):

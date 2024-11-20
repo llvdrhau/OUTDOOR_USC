@@ -6,12 +6,14 @@ Created on Wed Jan 26 15:12:24 2022
 @author: philippkenkel
 """
 
+import copy
 import os
+import time
+
 # import pickle5 as pic5
 import cloudpickle as pic
-import time
-import copy
 from tabulate import tabulate
+
 from .basic_analyzer import BasicModelAnalyzer
 
 
@@ -21,8 +23,8 @@ class BasicMultiModelAnalyzer:
     -----------------
     This class is the analyzer class for the MultiModelOutput class. It presents
     the same functionalities as the BasicAnalyzer for ModelOutput classes does.
-    In order to do so often BasicModelAnalyzer objects are created in the 
-    analyzing methods which than call their internal functions to collect data 
+    In order to do so often BasicModelAnalyzer objects are created in the
+    analyzing methods which than call their internal functions to collect data
     on the single ModelOutput-objects stored in the used MultiModelOutput object.
     """
     def __init__(self, model_output=None):
@@ -48,7 +50,7 @@ class BasicMultiModelAnalyzer:
                 f.write("\n")
                 f.write("\n \n")
             print("")
-        
+
 # -----------------------------------------------------------------------------
 # -------------------------Public methods -------------------------------------
 # -----------------------------------------------------------------------------

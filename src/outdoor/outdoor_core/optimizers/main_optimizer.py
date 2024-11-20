@@ -7,11 +7,10 @@ Created on Tue Jun 15 12:19:19 2021
 """
 
 import pyomo.environ as pyo
-from pyomo.opt import SolverStatus, TerminationCondition
+from pyomo.opt import TerminationCondition
 
 from ..output_classes.model_output import ModelOutput
 from ..output_classes.stochastic_model_output import StochasticModelOutput
-
 from ..utils.timer import time_printer
 
 

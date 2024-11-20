@@ -9,9 +9,14 @@ Created on Tue Jun 15 11:54:16 2021
 from ...utils.timer import time_printer
 #from pyomo.environ import *
 from numpy import linspace
-import pandas as pd
 
 from .change_functions.parameter_changer_functions import * # contains all funcitions to change the parameters in the model instance called in change_parameter
+# from pyomo.environ import *
+from numpy import linspace
+
+from .change_functions.parameter_changer_functions import *  # contains all funcitions to change the parameters in the model instance called in change_parameter
+from ...utils.timer import time_printer
+
 
 # from .change_functions.utility_cost_changer import change_utility_costs
 # from .change_functions.capital_cost_changer import change_capital_costs

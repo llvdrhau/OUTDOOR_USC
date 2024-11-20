@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QTableWidget, QVBoxLayout, QTableWidgetItem
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QLabel, QTableWidget, QVBoxLayout, QTableWidgetItem
 
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate

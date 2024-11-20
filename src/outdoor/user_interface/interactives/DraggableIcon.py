@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtCore import QMimeData, Qt
 from PyQt5.QtGui import QDrag
+from PyQt5.QtWidgets import QPushButton
+
 
 class DraggableIcon(QPushButton):
     """

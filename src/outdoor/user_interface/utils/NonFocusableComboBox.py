@@ -1,6 +1,7 @@
 
-from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QComboBox
+
 
 class NonFocusableComboBox(QComboBox):
     def __init__(self, *args, **kwargs):

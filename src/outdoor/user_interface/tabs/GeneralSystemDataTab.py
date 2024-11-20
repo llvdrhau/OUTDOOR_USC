@@ -1,11 +1,12 @@
-from unittest import case
+import logging
 
-from PyQt5.QtWidgets import QFormLayout, QComboBox, QFrame, QWidget, QLineEdit, QPushButton, QLabel
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QDoubleValidator, QFont
+from PyQt5.QtWidgets import QFormLayout, QComboBox, QFrame, QWidget, QLineEdit, QPushButton, QLabel
+
 # add the looger
 from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
-import logging
+
 
 class GeneralSystemDataTab(QWidget):
     """
@@ -270,8 +271,8 @@ class GeneralSystemDataTab(QWidget):
 
     def collectData(self):
         # Collect data from the Widget fields
-        if "PROJECT_NAME" in self.centralDataManager.data:
-            projectName = self.centralDataManager.data["PROJECT_NAME"]
+        if "PROJECT_NAME" in self.centralDataManager.metadata:
+            projectName = self.centralDataManager.metadata["PROJECT_NAME"]
         else:
             projectName = "Not Saved"
 

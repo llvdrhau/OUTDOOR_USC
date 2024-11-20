@@ -1,6 +1,7 @@
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout
 from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout
+
 
 class SplittingDialog(QDialog):
     """

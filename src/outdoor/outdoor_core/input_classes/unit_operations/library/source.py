@@ -1,5 +1,3 @@
-import math
-
 from ..superclasses.virtual_process import VirtualProcess
 
 #------------------------------------------------------------------------------
