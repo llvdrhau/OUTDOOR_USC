@@ -66,9 +66,14 @@ class LCADialog(QDialog):
         self.setGeometry(100, 100, 400, 500)  # Adjust size as needed
         # TODO: Better initialization and handling of BW integration.
         bw.projects.set_current("outdoor")
-        self.eidb = bw.Database('ecoinvent-3.10-consequential')
-        self.bios = bw.Database('ecoinvent-3.10-biosphere')
+        self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
+        self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
         self.outd = bw.Database('outdoor')
+        try:
+            self.outd.register()
+        except Exception as e:
+            # Already registered outdoor db
+            pass
         layout = QVBoxLayout(self)
         self.dto = initialData
         # Lookup name
