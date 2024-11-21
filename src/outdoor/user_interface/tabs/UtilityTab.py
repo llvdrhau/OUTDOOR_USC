@@ -1,160 +1,336 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QTableWidget, QVBoxLayout, QTableWidgetItem
+import logging
+import uuid
 
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QTableWidget, QVBoxLayout, QTableWidgetItem, QMenu
+
+from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
+from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
+from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 
 
 class UtilityTab(QWidget):
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
+        # add the logger
+        self.logger = logging.getLogger(__name__)
+
+        # add the central data manager
         self.centralDataManager = centralDataManager
-        self.utilityDTO: UtilityDTO = centralDataManager.utilityData
-        # Main layout for the tab
-        layout = QVBoxLayout(self)
+        self.utilityData: list[UtilityDTO] = centralDataManager.utilityData
+        self.temperatureData: list[TemperatureDTO] = centralDataManager.temperatureData
+        self.wasteData: list[WasteTreatmentDTO] = centralDataManager.wasteData
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
 
-        # Upper table for general utilities
-        self.utilitiesColumns = ["Costs (€/MWh)", "CO2 Emissions (t/MWh)", "Fresh water depletion (t/MWh)", "LCA"]
-        self.utilitiesTable = QTableWidget(3, len(self.utilitiesColumns))  # 3 rows for utilities, 4 columns for data
+        self.setStyleSheet("""
+                                                            QDialog {
+                                                                background-color: #f2f2f2;
+                                                            }
+                                                            QLabel {
+                                                                color: #333333;
+                                                            }
+                                                            QLineEdit {
+                                                                border: 1px solid #cccccc;
+                                                                border-radius: 2px;
+                                                                padding: 5px;
+                                                                background-color: #ffffff;
+                                                                selection-background-color: #b0daff;
+                                                            }
+                                                            QPushButton {
+                                                                color: #ffffff;
+                                                                background-color: #5a9;
+                                                                border-style: outset;
+                                                                border-width: 2px;
+                                                                border-radius: 10px;
+                                                                border-color: beige;
+                                                                font: bold 14px;
+                                                                padding: 6px;
+                                                            }
+                                                            QPushButton:hover {
+                                                                background-color: #78d;
+                                                            }
+                                                            QPushButton:pressed {
+                                                                background-color: #569;
+                                                                border-style: inset;
+                                                            }
+                                                            QTableWidget {
+                                                                border: 1px solid #cccccc;
+                                                                selection-background-color: #b0daff;
+                                                            }
+                                                        """)
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignTop)
 
+        # Title for the component tab
+        self.title = QLabel("Utility Data")
+        self.title.setMaximumHeight(20)
+        self.title.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.title)
+
+        # Table for the component data
+        self.utilitiesTable = QTableWidget()
+        self.utilitiesColumns = ["Name", "Costs (€/MWh)", "CO2 Emissions (t/MWh)", "Fresh water depletion (t/MWh)",
+                                 "LCA"]
+        self.columnShortnames = ["name", "cost", "co2", "fwd", "LCA"]
+        self.utilitiesTable.setColumnCount(len(self.utilitiesColumns))
         self.utilitiesTable.setHorizontalHeaderLabels(self.utilitiesColumns)
-        self.utilitiesRows = ["Electricity", "Heat", "Chilling"]
-        self.utilitiesTable.setVerticalHeaderLabels(self.utilitiesRows)
-        # set the width of the columns to be bigger so it fits the column names
-        self.utilitiesTable.setColumnWidth(0, 120)
-        self.utilitiesTable.setColumnWidth(1, 200)
-        self.utilitiesTable.setColumnWidth(2, 230)
-        self.utilitiesTable.setColumnWidth(3, 120)
 
-        # Row 2, Column 1 (zero-based indexing: row 1, column 0) - make it uneditable
-        # (cost of heat is specified by the user in the table below)
-        item = QTableWidgetItem("")  # Set a placeholder value
-        self.utilitiesTable.setItem(1, 0, item)
-        item.setFlags(item.flags() & ~Qt.ItemIsEditable)  # Make uneditable
+        # adjust the width of the columns
+        self.utilitiesTable.setColumnWidth(0, 150)
+        self.utilitiesTable.setColumnWidth(1, 230)
+        self.utilitiesTable.setColumnWidth(2, 180)
+        self.utilitiesTable.setColumnWidth(3, 210)
+        self.utilitiesTable.setColumnWidth(4, 150)
 
-        # Graying out the item (optional)
-        item.setBackground(Qt.gray)  # Change text color to gray
+        self.utilitiesTable.setMaximumHeight(120)  #This is where the problem is when you wanna add new things
 
-        self._populateUtilitiesTable(self.utilityDTO.utilityParameters)
-        # Save the data if something is changed in the table
-        self.utilitiesTable.itemChanged.connect(self._saveData)
+        self.temperatureTable = QTableWidget()
+        self.temperatureColumns = ["Type", "Temperature", "Cost", "LCA"]
+        self.tshortNames = ["name", "temp", "cost", "LCA"]
+
+        self.temperatureTable.setColumnCount(len(self.tshortNames))
+        self.temperatureTable.setHorizontalHeaderLabels(self.temperatureColumns)
+        for n in range(len(self.temperatureColumns)):
+            self.temperatureTable.setColumnWidth(n, 100)
+
+        self.wasteTable = QTableWidget()
+        self.wasteColumns = ["Type", "Cost", "LCA"]
+        self.wshortNames = ["name", "cost", "LCA"]
+
+        self.wasteTable.setColumnCount(len(self.wshortNames))
+        self.wasteTable.setHorizontalHeaderLabels(self.wasteColumns)
+        for n in range(len(self.wasteColumns)):
+            self.temperatureTable.setColumnWidth(n, 100)
 
 
         # Set validators for the numeric columns using a custom delegate class
-        self.doubleDelegateUtility = DoubleDelegate(self.utilitiesTable)
-        for i in range(0, self.utilitiesTable.columnCount()):
-            if self.utilitiesColumns[i] != "LCA":
-                self.utilitiesTable.setItemDelegateForColumn(i, self.doubleDelegateUtility)
-            else:
-                #TODO Add a separate ctor for LCA button that takes a UtilityDTO
-                pass
+        self.doubleDelegate = DoubleDelegate(self.utilitiesTable)
+        self.doubleDelegateTemp = DoubleDelegate(self.temperatureTable)
+        self.doubleDelegateWaste = DoubleDelegate(self.wasteTable)
+        # self.doubleValidator = QDoubleValidator(0.00, 9999.99, 2)
+
+        # save if something is changed in the table
+        self.utilitiesTable.itemChanged.connect(self.saveData)
+        self.temperatureTable.itemChanged.connect(self.saveData)
+        self.wasteTable.itemChanged.connect(self.saveData)
+
+        # Add the table to the layout
+        self.layout.addWidget(self.utilitiesTable)
+
+        self.tempTitle = QLabel("Temperature Data")
+        self.tempTitle.setMaximumHeight(20)
+        self.tempTitle.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.tempTitle)
+
+        self.layout.addWidget(self.temperatureTable)
+        # Ensure the widget can receive focus to detect key presses
+
+        self.wasteTitle = QLabel("Waste Treatment Data")
+        self.wasteTitle.setMaximumHeight(20)
+        self.wasteTitle.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.wasteTitle)
+        self.layout.addWidget(self.wasteTable)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setLayout(self.layout)
+
+        # if the central data manager has data, import it
+        if len(self.utilityData) == 0:
+            for name in ['Electricity', 'Heat', 'Chilling']:
+                self.utilityData.append(UtilityDTO(utility_name=name, uid=str(uuid.uuid4())))
+        if len(self.temperatureData) == 0:
+            for name in ["Superheated steam", "High pressure steam", "Medium pressure steam", "Low pressure steam", "Cooling water"]:
+                self.temperatureData.append(TemperatureDTO(temperatureName=name, uid=str(uuid.uuid4())))
+        if len(self.wasteData) == 0:
+            for name in ['Incineration', 'Landfilling', 'WWT']:
+                self.wasteData.append(WasteTreatmentDTO(waste_name=name, uid=str(uuid.uuid4())))
+        self.importData()
 
 
-        # Lower table for temperature levels
-        self.temperatureTable = QTableWidget(5, 2)  # 5 rows for temperature levels, 3 columns for data
-        self.temperatureTable.setHorizontalHeaderLabels(["Temperature (°C)", "Costs (€/MWh)"])
-        self.temperatureTable.setVerticalHeaderLabels(["Superheated steam", "High pressure steam", "Medium pressure steam", "Low pressure steam", "Cooling water"])
-        self.temperatureTable.setColumnWidth(0, 150)
-        self.temperatureTable.setColumnWidth(1, 150)
+    def _addUtilityRow(self, data: UtilityDTO, rowPosition: int):
+        # set the flag of adding a row to true
+        self.addingRowFlag = True
+        self.utilitiesTable.insertRow(rowPosition)
+        for key, value in data.as_dict().items():
+            if key in self.columnShortnames:
+                index = self.columnShortnames.index(key)
+                if key == "LCA":
+                    if "Results" in value:
+                        btn = LcaButton(self.utilitiesTable, data)
+                        btn.setText("Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.utilitiesTable.setCellWidget(rowPosition, index, btn)
+                    else:
+                        btn = LcaButton(self.utilitiesTable, data)
+                        btn.setText("Not Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.utilitiesTable.setCellWidget(rowPosition, index, btn)
+                else:
+                    insert = QTableWidgetItem(value)
+                    insert.setFlags(insert.flags() | Qt.ItemIsEditable)
+                    if key == 'name':
+                        insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
+                        insert.setBackground(Qt.lightGray)
+                    if (key == 'cost') & (data.name == 'Heat'):
+                        insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
+                        insert.setBackground(Qt.lightGray)
+                    self.utilitiesTable.setItem(rowPosition, index, insert)
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
 
-        self._populateTemperatureTable(self.utilityDTO.temperatureParameters)
+    def _addTemperatureRow(self, data: TemperatureDTO, rowPosition: int):
+        # set the flag of adding a row to true
+        self.addingRowFlag = True
+        self.temperatureTable.insertRow(rowPosition)
+        for key, value in data.as_dict().items():
+            if key in self.tshortNames:
+                index = self.tshortNames.index(key)
+                if key == "LCA":
+                    if "Results" in value:
+                        btn = LcaButton(self.temperatureTable, data)
+                        btn.setText("Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.temperatureTable.setCellWidget(rowPosition, index, btn)
+                        logging.debug(f"{rowPosition} - {index} - {key}")
+                    else:
+                        btn = LcaButton(self.temperatureTable, data)
+                        btn.setText("Not Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.temperatureTable.setCellWidget(rowPosition, index, btn)
 
-        # Set validators for the numeric columns using a custom delegate class
-        self.doubleDelegateTemperature = DoubleDelegate(self.temperatureTable)
-        for i in range(0, self.temperatureTable.columnCount()):
-            self.temperatureTable.setItemDelegateForColumn(i, self.doubleDelegateTemperature)
+                else:
+                    insert = QTableWidgetItem(value)
+                    insert.setFlags(insert.flags() | Qt.ItemIsEditable)
+                    if key == 'name':
+                        insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
+                        insert.setBackground(Qt.lightGray)
+                    self.temperatureTable.setItem(rowPosition, index, insert)
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
 
-        self.temperatureTable.itemChanged.connect(self._saveData)
+    def _addWasteRow(self, data: WasteTreatmentDTO, rowPosition: int):
+        # set the flag of adding a row to true
+        self.addingRowFlag = True
+        self.wasteTable.insertRow(rowPosition)
+        for key, value in data.as_dict().items():
+            if key in self.wshortNames:
+                index = self.wshortNames.index(key)
+                if key == "LCA":
+                    if "Results" in value:
+                        btn = LcaButton(self.wasteTable, data)
+                        btn.setText("Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.wasteTable.setCellWidget(rowPosition, index, btn)
+                    else:
+                        btn = LcaButton(self.wasteTable, data)
+                        btn.setText("Not Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.wasteTable.setCellWidget(rowPosition, index, btn)
 
-        # Add tables to the layout
-        layout.addWidget(QLabel("Utilities"))
-        layout.addWidget(self.utilitiesTable)
-        layout.addWidget(QLabel("Cost of heat"))
-        layout.addWidget(self.temperatureTable)
-
-        # Save button
-        # not needed, data is saved automatically when edited
-        # saveButton = QPushButton("Save Data")
-        # saveButton.clicked.connect(self._saveData)
-        # layout.addWidget(saveButton)
-
-    def _populateUtilitiesTable(self, utilitiesData):
-        """
-        populate the utilities table with data
-        :param utilitiesData:
-        :return:
-        """
-        for column, (key, values) in enumerate(utilitiesData.items()):
-            for row, value in enumerate(values):
-                if column == 0 and row == 1:
-                    continue
-                item = QTableWidgetItem(str(value))
-                self.utilitiesTable.setItem(row, column, item)
-    def _populateTemperatureTable(self, temperatureParameters):
-        """
-        populate the temperature table with data
-        :param temperatureParameters:
-        :return:
-        """
-        for row, t in enumerate(temperatureParameters["Temperature (°C)"].values()):
-            itemTemp = QTableWidgetItem(str(t))
-            self.temperatureTable.setItem(row, 0, itemTemp)
-
-        for row, cost in enumerate(temperatureParameters["Costs (€/MWh)"].values()):
-            itemCost = QTableWidgetItem(str(cost))
-            self.temperatureTable.setItem(row, 1, itemCost)
-
-    def _saveData(self):
-        """
-        Save the data from the tables to the central data manager
-        """
-
-        # collects and updates the utility data in the DTO and the central data manager simulataniously
-        self._collectUtilitiesData()
-        self._collectTemperatureData()
-
-        print(self.centralDataManager.utilityData.utilityParameters)
-        print(self.centralDataManager.utilityData.temperatureParameters)
-
-
-    def _collectUtilitiesData(self):
-        """
-        Collect the data from the utilities table and update the utilityDTO (as DTO is connected to the central data
-        manager, it is also updated)
-        :return:
-        """
-        for column in range(self.utilitiesTable.rowCount()):
-            name = self.utilitiesTable.horizontalHeaderItem(column).text()
-            for row in range(self.utilitiesTable.rowCount()):
-                value = self.utilitiesTable.item(row, column).text()
-                if value == "":
-                    value = 0
-                self.utilityDTO.utilityParameters[name][row] = float(value)
-
-    def _collectTemperatureData(self):
-        """
-        Collect the data from the temperature table and update the utilityDTO (as DTO is connected to the central data
-        manager, it is also updated)
-        :return:
-        """
-
-        for row in range(self.temperatureTable.rowCount()):
-            temp = self.temperatureTable.item(row, 0).text()
-            cost = self.temperatureTable.item(row, 1).text()
-            keys = list(self.utilityDTO.temperatureParameters["Temperature (°C)"].keys())
-            self.utilityDTO.temperatureParameters["Temperature (°C)"][keys[row]] = float(temp)
-            self.utilityDTO.temperatureParameters["Costs (€/MWh)"][keys[row]] = float(temp)
-            #temperatureData.append([temp, cost])
-        # print(temperatureData)
-
-    # def _loadUtilityData(self):
-    #     utilityLoad = self.centralDataManager.data["utilitiesData"]
-    #     utilityCleaned = []
-    #     for row in utilityLoad:
-    #         utilityCleaned.append([row[1], row[2], row[3]])
-    #         self._populateUtilitiesTable(utilityCleaned)
+                else:
+                    insert = QTableWidgetItem(value)
+                    insert.setFlags(insert.flags() | Qt.ItemIsEditable)
+                    if key == 'name':
+                        insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
+                        insert.setBackground(Qt.lightGray)
+                    self.wasteTable.setItem(rowPosition, index, insert)
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
+    # def keyPressEvent(self, event):
+    #     if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
+    #         selectedItems = self.utilitiesTable.selectedItems()
+    #         if selectedItems:
+    #             selectedRow = selectedItems[0].row()  # Get the row of the first selected item
+    #             self.utilitiesTable.removeRow(selectedRow)
+    #             target = [u for u in self.componentList if u.rowPosition == selectedRow][0]
+    #             self.componentList.remove(target)
+    #             for c in [u for u in self.componentList if u.rowPosition >= selectedRow]:
+    #                 c.updateRow()
+    #     else:
+    #         super().keyPressEvent(event)
     #
-    # def _loadTemperatureData(self):
-    #     tempLoad = self.centralDataManager.data["temperatureData"]
-    #     self._populateTemperatureTable(tempLoad)
+    # def doubleClickEvent(self, item):
+    #     print(item.row(), item.column())
 
+    @pyqtSlot()
+    def saveData(self):
+        if not self.addingRowFlag:
+            self.collectData()
+            # # Save the data to the central data manager
+            # self.centralDataManager.addData("utilityData")
+            self.logger.debug("Data saved components tab to central data manager")
+
+    def collectData(self):
+        '''
+        This is a truly unhinged way of doing this but here goes.
+        So we have two arrays, one of the names of the columns in the table and one with the
+        names of the properties on the DTOs that those coloumns refer to. The properties one is called
+        'columnShortnames'. So what we do is we iterate through everything in the table. For every row, we step
+        through the columns. We get our shortname index, "sindex" and then check if the column we're in
+        is in the list we want to deal with. LCA deals with itself. So now, knowing the index of the shortname we can
+        get it from the shortname list, and then we use the DTO's update field method with the shortname and the value
+        to update. DTOs are expected to implement a method that updates every possible value this way.
+        It's so we can dynamically update and change tables and their contents while minimizing rewriting.
+        '''
+        for row in range(self.utilitiesTable.rowCount()):
+            edit = self.utilityData[row]
+            for column in self.utilitiesColumns:
+                sindex = self.utilitiesColumns.index(column)
+                item = self.utilitiesTable.item(row, sindex)
+                if column not in ['Name','LCA']:
+                    edit.upadateField(self.columnShortnames[sindex], item.text())
+        for row in range(self.temperatureTable.rowCount()):
+            edit = self.temperatureData[row]
+            for column in self.temperatureColumns:
+                sindex = self.temperatureColumns.index(column)
+                item = self.temperatureTable.item(row, sindex)
+                if column not in ['Type', 'LCA']:
+                    edit.upadateField(self.tshortNames[sindex], item.text())
+
+    def importData(self):
+        try:
+            rows = len(self.utilityData)
+            for n in range(rows):
+                self._addUtilityRow(self.utilityData[n], n)
+        except Exception as e:
+            self.logger.info("Probably just trying to import an empty utilitydata list.",e)
+        try:
+            rows = len(self.temperatureData)
+            for n in range(rows):
+                self._addTemperatureRow(self.temperatureData[n], n)
+            # it only gets here if there aren't any saved rows, like in a new project
+        except Exception as e:
+            self.logger.info("Honestly I can't fathom how it would get to this error. Congartulations.", e)
+        try:
+            rows = len(self.wasteData)
+            for n in range(rows):
+                self._addWasteRow(self.wasteData[n], n)
+        except Exception as e:
+            self.logger.info("Waste had a problem.",e)
+            pass
+
+    def contextMenuEvent(self, event):
+        # Create a context menu
+        context_menu = QMenu(self)
+
+        # Add actions for deleting rows from both tables
+        deleteAction = context_menu.addAction("Delete Row")
+
+        # Execute the context menu and get the selected action
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+
+        # Determine which table was clicked
+        component_pos = self.utilitiesTable.viewport().mapFrom(self, event.pos())
+
+        if self.utilitiesTable.geometry().contains(event.pos()) and action == deleteAction:
+            # Determine the row that was clicked in the reactants table
+            row = self.utilitiesTable.rowAt(component_pos.y())
+            if row != -1:
+                self.utilitiesTable.removeRow(row)
+
+            # update the dto list containing the chemical components
+            self.centralDataManager.updateData('componentData', row)
+            # todo make a consistency check to see if the chemical component is used in any reaction or unit operation
+            # open a dialog if the component is used in a reaction or unit operation

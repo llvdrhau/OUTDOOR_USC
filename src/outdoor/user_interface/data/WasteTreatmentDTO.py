@@ -1,17 +1,15 @@
 from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 
 
-class UtilityDTO(OutdoorDTO):
+class WasteTreatmentDTO(OutdoorDTO):
     subDTO: {} # We need some nested DTOs because of how the Utilities table is set up
 
-    def __init__(self, utility_name: str, uid: str, LCA: dict = {}, temperatureParameters:{} = {},cost: float = 0, co2: float = 0, fwd: float = 0, calculated: bool = False):
+    def __init__(self, waste_name: str, uid: str, LCA: dict = {}, cost: float = 0, calculated: bool = False):
 
         # set initial values for utilityData and temperatureData if they are not provided
         super().__init__()
-        self.name = utility_name
+        self.name = waste_name
         self.cost = cost
-        self.co2 = co2
-        self.fwd = fwd
         self.LCA = LCA
         self.uid = uid
         self.calculated = calculated
@@ -20,10 +18,9 @@ class UtilityDTO(OutdoorDTO):
         d = {
             "name": self.name,
             "cost": self.cost,
-            "co2": self.co2,
-            "fwd": self.fwd,
             "LCA": self.LCA,
             "uid": self.uid,
+            "calculated": self.calculated
         }
         return d
 
@@ -33,9 +30,5 @@ class UtilityDTO(OutdoorDTO):
                 self.name = value
             case 'cost':
                 self.cost = value
-            case 'co2':
-                self.co2 = value
-            case 'fwd':
-                self.fwd = value
             case 'calculated':
                 self.calculated = value

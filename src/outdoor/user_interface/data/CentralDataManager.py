@@ -4,6 +4,7 @@
 # Central data manager for all data related to icons and associated dialogs
 import csv
 import glob
+import logging
 import os.path
 import pickle
 
@@ -12,7 +13,9 @@ from PyQt5.QtCore import QObject, pyqtSignal  # needed to emmit signals
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
+from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
+from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 
 
@@ -24,7 +27,7 @@ class CentralDataManager:
 
     def __init__(self):
         super().__init__()
-
+        self.logger = logging.getLogger(__name__)
         self.projectDescription = ""
         self.unitProcessData: dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
         self.namesChemicalComponents = []  # list to store chemical components data
@@ -33,12 +36,13 @@ class CentralDataManager:
         self.configs = {}
         self.loadConfigs()
         self.generalData = {}
-        self.utilityData = UtilityDTO()
+        self.utilityData: list[UtilityDTO] = []
+        self.temperatureData: list[TemperatureDTO] = []
+        self.wasteData: list[WasteTreatmentDTO] = []
         self.componentData: list[ComponentDTO] = []
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
         self._outputList: list[str] = []
-
         self.metadata = {}  # Stores project metadata like the name. TODO move configs into this
 
     def addData(self, field, data):
@@ -61,10 +65,11 @@ class CentralDataManager:
             case "reactionData":
                 self.reactionData.append(data)
 
+            case "utilityData":
+                self.utilityData.append(data)
             case _:
-                # print in red
-                print("\033[91m" + "Error: Field not recognized" + "\033[0m")
-                print("\033[91m" + "Adding data to the Central data manager for field: {}".format(field) + "\033[0m")
+                self.logger.error(f"Error: Field \"{field}\" not recognized")
+
 
     def getChemicalComponentNames(self):
         return self.namesChemicalComponents
@@ -75,6 +80,7 @@ class CentralDataManager:
         :param data:
         :return:
         """
+        ## TODO what on earth is going on here.
         self.componentData.append(data)
 
     def updateData(self, dataType: str, row: int):

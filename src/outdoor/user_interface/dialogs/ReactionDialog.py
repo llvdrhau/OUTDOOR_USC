@@ -1,3 +1,4 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QComboBox, \
     QMenu
@@ -69,7 +70,6 @@ class ReactionDialog(QDialog):
         self.nameEdit = QLineEdit()
         main_layout.addWidget(self.nameEdit)
 
-
         # Add description label at the top of the dialog
         description_label = QLabel(
             "Please define the reactants and products involved in the reaction, including their stoichiometric coefficients.\n "
@@ -99,7 +99,6 @@ class ReactionDialog(QDialog):
         self.productsTable.setColumnWidth(0, 150)
         self.productsTable.setColumnWidth(1, 150)
         tables_layout.addWidget(self.productsTable)
-
 
         # Add Row Button for Products Table
         addProductButton = QPushButton("Add Product", self)
@@ -143,7 +142,6 @@ class ReactionDialog(QDialog):
 
         # Add the QLineEdit widget to the table
         self.reactantsTable.setCellWidget(rowPosition, 1, stoichiometryEdit)
-
 
     def addProductRow(self):
         # Add a new row to the Products Table
@@ -235,7 +233,7 @@ class ReactionDialog(QDialog):
                 self.warningDialog(errorType="Stoich")
                 return
 
-            if name=="":
+            if name == "":
                 self.warningDialog(errorType="Name")
                 return
 
@@ -350,7 +348,7 @@ class ReactionDialog(QDialog):
             if row != -1:
                 self.productsTable.removeRow(row)
 
-    def warningDialog(self, errorType:str):
+    def warningDialog(self, errorType: str):
         """
         Makes a warning Dialog if the stoichiometry is not balanced or no reaction name is given
         :param errorType: "Name" or "Stoich"

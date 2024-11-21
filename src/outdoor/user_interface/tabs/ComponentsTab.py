@@ -20,7 +20,7 @@ class ComponentsTab(QWidget):
     def __init__(self, centralDataManager, parent=None):
         super().__init__(parent)
         # add the logger
-        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
 
         # add the central data manager
         self.centralDataManager = centralDataManager

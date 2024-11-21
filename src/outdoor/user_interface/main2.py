@@ -3,6 +3,7 @@ import pickle
 import sys
 import pandas as pd
 
+import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
 from data.CentralDataManager import CentralDataManager
@@ -50,7 +51,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         super().__init__()
 
         # add the logger
-        self.logger = outdoorLogger(name='outdoor_logger', level=logging.DEBUG)
+        self.logger = logging.getLogger()
+        coloredlogs.install(logger=self.logger, level='DEBUG')
+
 
         self.setWindowTitle("OUTDOOR 2.0 - Open Source Process Simulator")
         self.setGeometry(100, 100, 1200, 800)
@@ -85,6 +88,12 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.editAction.setDisabled(True)
         self.editAction.triggered.connect(self.editConfigs)
         editMenu.addAction(self.editAction)
+
+        structureMenu = menu_bar.addMenu('Superstructure')
+        self.superStructureAction = QAction('Generate Superstructure', self)
+        self.superStructureAction.triggered.connect(self.generateSuperstructureObject)
+        structureMenu.addAction(self.superStructureAction)
+
         self.initTabs()
 
     def enableSave(self):
@@ -106,8 +115,8 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.enableSave()
         self.logger.info("Opened File: {}".format(self.ProjectPath))
 
-        # todo: set this in appropriate place (save methods), just for ease of use for now to test the superstructure
-        self._makeSuperstructureObject()
+        # todo: set this in appropiate place (save methods), just for ease of use for now to test the superstructure
+        #self._makeSuperstructureObject()
 
         # comment for now to make bebugging easier
         # try:
@@ -137,11 +146,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             pickle.dump(self.centralDataManager, file)
         print("Saved File: ", self.ProjectPath)
         self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
-
-        # generate the superstructure frame
-        self._makeSuperstructureObject()
-        #Frame = SuperstructureFrame()
-        #Frame.constructSuperstructureFrame(self.centralDataManager)
 
     def saveAsFile(self):
         """
@@ -204,7 +208,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
 
-    def _makeSuperstructureObject(self):
+    def generateSuperstructureObject(self):
         """
         This methode makes the superstructure object used to run to OUTDOOR in the
         back end. The old functions used to wrapp the data from excel to the superstructure object should come here
@@ -701,6 +705,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
             processObject.set_gammaFactors(reactionStoichiometryDict)
             processObject.set_thetaFactors(conversionRateDict)
+
 
 
 def checkFocus():
