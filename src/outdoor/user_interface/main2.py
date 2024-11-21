@@ -1,6 +1,7 @@
 import os
 import pickle
 import sys
+import pandas as pd
 
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
@@ -542,9 +543,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             ProcessObject = PhysicalProcess(Name=name, UnitNumber=unitNumber)
             self._energyData(dto, ProcessObject)
 
-        wrapp_GeneralData(obj, dfi.iloc[GeneralDataRange])
-        wrapp_EconomicData(obj, dfi.iloc[EconomicDataRange], dfi.iloc[GeneralDataRange])
-        wrapp_AdditivesData(obj, dfi.iloc[PossibleSourcesRange], dfi.iloc[ConcDataRange], dfi.iloc[BalanceDataRange])
+        # wrapp_GeneralData(obj, dfi.iloc[GeneralDataRange])
+        # wrapp_EconomicData(obj, dfi.iloc[EconomicDataRange], dfi.iloc[GeneralDataRange])
+        # wrapp_AdditivesData(obj, dfi.iloc[PossibleSourcesRange], dfi.iloc[ConcDataRange], dfi.iloc[BalanceDataRange])
 
         return ProcessObject
 
@@ -679,7 +680,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             yieldDict = {product: yieldFactor}
             processObject.set_xiFactors(yieldDict)
             inertList = dto.dialogData['Inert Components']
-            obj.set_inertComponents(inertList)
+            processObject.set_inertComponents(inertList)
 
         elif dto.type == ProcessType.STOICHIOMETRIC:
             reactions = dto.dialogData['Reactions']
@@ -699,7 +700,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 conversionRateDict.update({(rxn[-1], rxnNumber): float(rxn[1])})
 
             processObject.set_gammaFactors(reactionStoichiometryDict)
-            processObject.set_thetaFactors(dict2)
+            processObject.set_thetaFactors(conversionRateDict)
 
 
 def checkFocus():
