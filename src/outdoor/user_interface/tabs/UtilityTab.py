@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QTableWidget, QVBoxLayout, QTableWi
 
 from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
+from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
 from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 
@@ -20,6 +21,7 @@ class UtilityTab(QWidget):
         self.centralDataManager = centralDataManager
         self.utilityData: list[UtilityDTO] = centralDataManager.utilityData
         self.temperatureData: list[TemperatureDTO] = centralDataManager.temperatureData
+        self.wasteData: list[WasteTreatmentDTO] = centralDataManager.wasteData
         # set the flag of adding a row to false
         self.addingRowFlag = False
 
@@ -89,21 +91,31 @@ class UtilityTab(QWidget):
         self.temperatureColumns = ["Type", "Temperature", "Cost", "LCA"]
         self.tshortNames = ["name", "temp", "cost", "LCA"]
 
-        for n in range(len(self.temperatureColumns)):
-            self.temperatureTable.setColumnWidth(n, 600)
-
         self.temperatureTable.setColumnCount(len(self.tshortNames))
         self.temperatureTable.setHorizontalHeaderLabels(self.temperatureColumns)
+        for n in range(len(self.temperatureColumns)):
+            self.temperatureTable.setColumnWidth(n, 100)
+
+        self.wasteTable = QTableWidget()
+        self.wasteColumns = ["Type", "Cost", "LCA"]
+        self.wshortNames = ["name", "cost", "LCA"]
+
+        self.wasteTable.setColumnCount(len(self.wshortNames))
+        self.wasteTable.setHorizontalHeaderLabels(self.wasteColumns)
+        for n in range(len(self.wasteColumns)):
+            self.temperatureTable.setColumnWidth(n, 100)
 
 
         # Set validators for the numeric columns using a custom delegate class
         self.doubleDelegate = DoubleDelegate(self.utilitiesTable)
         self.doubleDelegateTemp = DoubleDelegate(self.temperatureTable)
+        self.doubleDelegateWaste = DoubleDelegate(self.wasteTable)
         # self.doubleValidator = QDoubleValidator(0.00, 9999.99, 2)
 
         # save if something is changed in the table
         self.utilitiesTable.itemChanged.connect(self.saveData)
         self.temperatureTable.itemChanged.connect(self.saveData)
+        self.wasteTable.itemChanged.connect(self.saveData)
 
         # Add the table to the layout
         self.layout.addWidget(self.utilitiesTable)
@@ -115,6 +127,12 @@ class UtilityTab(QWidget):
 
         self.layout.addWidget(self.temperatureTable)
         # Ensure the widget can receive focus to detect key presses
+
+        self.wasteTitle = QLabel("Waste Treatment Data")
+        self.wasteTitle.setMaximumHeight(20)
+        self.wasteTitle.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.wasteTitle)
+        self.layout.addWidget(self.wasteTable)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setLayout(self.layout)
 
@@ -125,6 +143,9 @@ class UtilityTab(QWidget):
         if len(self.temperatureData) == 0:
             for name in ["Superheated steam", "High pressure steam", "Medium pressure steam", "Low pressure steam", "Cooling water"]:
                 self.temperatureData.append(TemperatureDTO(temperatureName=name, uid=str(uuid.uuid4())))
+        if len(self.wasteData) == 0:
+            for name in ['Incineration', 'Landfilling', 'WWT']:
+                self.wasteData.append(WasteTreatmentDTO(waste_name=name, uid=str(uuid.uuid4())))
         self.importData()
 
 
@@ -156,8 +177,6 @@ class UtilityTab(QWidget):
                         insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
                         insert.setBackground(Qt.lightGray)
                     self.utilitiesTable.setItem(rowPosition, index, insert)
-
-
         # set the flag of adding a row to false
         self.addingRowFlag = False
 
@@ -188,11 +207,37 @@ class UtilityTab(QWidget):
                         insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
                         insert.setBackground(Qt.lightGray)
                     self.temperatureTable.setItem(rowPosition, index, insert)
-
-
         # set the flag of adding a row to false
         self.addingRowFlag = False
 
+    def _addWasteRow(self, data: WasteTreatmentDTO, rowPosition: int):
+        # set the flag of adding a row to true
+        self.addingRowFlag = True
+        self.wasteTable.insertRow(rowPosition)
+        for key, value in data.as_dict().items():
+            if key in self.wshortNames:
+                index = self.wshortNames.index(key)
+                if key == "LCA":
+                    if "Results" in value:
+                        btn = LcaButton(self.wasteTable, data)
+                        btn.setText("Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.wasteTable.setCellWidget(rowPosition, index, btn)
+                    else:
+                        btn = LcaButton(self.wasteTable, data)
+                        btn.setText("Not Defined")
+                        btn.clicked.connect(btn.lcaAction)
+                        self.wasteTable.setCellWidget(rowPosition, index, btn)
+
+                else:
+                    insert = QTableWidgetItem(value)
+                    insert.setFlags(insert.flags() | Qt.ItemIsEditable)
+                    if key == 'name':
+                        insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
+                        insert.setBackground(Qt.lightGray)
+                    self.wasteTable.setItem(rowPosition, index, insert)
+        # set the flag of adding a row to false
+        self.addingRowFlag = False
     # def keyPressEvent(self, event):
     #     if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
     #         selectedItems = self.utilitiesTable.selectedItems()
@@ -251,8 +296,6 @@ class UtilityTab(QWidget):
                 self._addUtilityRow(self.utilityData[n], n)
         except Exception as e:
             self.logger.info("Probably just trying to import an empty utilitydata list.",e)
-            pass
-
         try:
             rows = len(self.temperatureData)
             for n in range(rows):
@@ -260,6 +303,14 @@ class UtilityTab(QWidget):
             # it only gets here if there aren't any saved rows, like in a new project
         except Exception as e:
             self.logger.info("Honestly I can't fathom how it would get to this error. Congartulations.", e)
+        try:
+            rows = len(self.wasteData)
+            for n in range(rows):
+                self._addWasteRow(self.wasteData[n], n)
+        except Exception as e:
+            self.logger.info("Waste had a problem.",e)
+            pass
+
     def contextMenuEvent(self, event):
         # Create a context menu
         context_menu = QMenu(self)

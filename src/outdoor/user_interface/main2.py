@@ -3,7 +3,6 @@ import pickle
 import sys
 
 import coloredlogs
-import colorlog
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
 from data.CentralDataManager import CentralDataManager

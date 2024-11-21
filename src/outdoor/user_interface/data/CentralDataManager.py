@@ -15,6 +15,7 @@ from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
+from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 
 
@@ -39,6 +40,7 @@ class CentralDataManager:
         self.generalData = {}
         self.utilityData: list[UtilityDTO] = []
         self.temperatureData: list[TemperatureDTO] = []
+        self.wasteData: list[WasteTreatmentDTO] = []
         self.componentData: list[ComponentDTO] = []
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
