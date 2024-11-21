@@ -26,9 +26,7 @@ class CentralDataManager:
         super().__init__()
 
         self.projectDescription = ""
-
         self.unitProcessData: dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
-
         self.namesChemicalComponents = []  # list to store chemical components data
         self.enabledTabs: list[str] = []
         self.enabledSuperstructureTabs: list[str] = []

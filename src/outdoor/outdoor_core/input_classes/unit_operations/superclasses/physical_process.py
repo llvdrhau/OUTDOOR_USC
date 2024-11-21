@@ -283,7 +283,7 @@ class PhysicalProcess(Process):
 
 
     def set_energyData(self,
-                        Temperature1 = None,
+                        Temperature1 = None, # not used??
                         Temperature2 = None,
                         ElectricityDemand = None,
                         HeatDemand = None,
@@ -394,9 +394,6 @@ class PhysicalProcess(Process):
         self.T_OUT['Heat2'] = T_OUT_2
 
         "Public"
-
-
-
 
 
     def fill_parameterList(self):

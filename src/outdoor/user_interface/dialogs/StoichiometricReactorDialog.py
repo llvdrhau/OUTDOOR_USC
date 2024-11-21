@@ -216,7 +216,7 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         reactions = []
         for row in range(self.reactionTableUnitProcess.rowCount()):
             reactionName = self.reactionTableUnitProcess.cellWidget(row, 0).currentText()
-            conversion = self.reactionTableUnitProcess.cellWidget(row, 2).text()
+            conversion = float(self.reactionTableUnitProcess.cellWidget(row, 2).text())
             reactant = self.reactionTableUnitProcess.cellWidget(row, 3).currentText()
             reactions.append((reactionName, conversion, reactant))
 

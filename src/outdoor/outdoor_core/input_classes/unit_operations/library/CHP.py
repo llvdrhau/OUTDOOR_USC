@@ -23,12 +23,21 @@ class CombinedHeatAndPower(StoichReactor):
     def __init__(self, Name, UnitNumber, Efficiency=None, Parent=None,
                  *args, **kwargs):
         super().__init__(Name, UnitNumber, Parent)
+        """
+        Efficiency : is a tuple, with the first element being the electrical efficiency
+        and the second element being the furnace heat efficiency
+        """
 
         # Non-Indexed Parameters
         self.Type = "CombinedHeatAndPower" # Type of the unit operation
         # https://doi.org/10.1016/j.apenergy.2018.06.013
-        self.Eff_tur = 0.35 # Efficiency of the turbine to generate electricity 30-40%
-        self.Eff_fur = 0.50 # Efficiency of the furnace to generate heat 50-60%
+        if Efficiency is not None:
+            self.Eff_tur = 0.35 # Efficiency of the turbine to generate electricity 30-40%
+            self.Eff_fur = 0.50 # Efficiency of the furnace to generate heat 50-60%
+        else:
+            self.Eff_tur = Efficiency[0]
+            self.Eff_fur = Efficiency[1]
+
         self.Efficiency_FUR = {'Efficiency_FUR': {self.Number: self.Eff_fur}}
         self.Efficiency_TUR = {'Efficiency_TUR': {self.Number: self.Eff_tur}}
 

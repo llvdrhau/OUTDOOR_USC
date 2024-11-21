@@ -1440,10 +1440,10 @@ class PhysicalProcessesDialog(QDialog):
             'Life Time Unit Process':           self._getWidgetData(self.lifeTimeUnitProcess, "float"),
             'Working Time Unit Process':        self._getWidgetData(self.fullLoadingHours, "float"),
             'CO2 Building':                     self._getWidgetData(self.co2EmissionsBuilding, "float"),
-            'TemperatureIn1':                   self._getWidgetData(self.temperatureEnteringProcess, "float"),
-            'TemperatureOut1':                  self._getWidgetData(self.temperatureLeavingProcess, "float"),
-            'TemperatureIn2':                   self._getWidgetData(self.temperatureEnteringUnitProcess2, "float"),
-            'TemperatureOut2':                  self._getWidgetData(self.temperatureLeavingUnitProcess2, "float"),
+            'TemperatureIn1':                   self._getWidgetData(self.temperatureEnteringProcess, "float", returnAlternative=None),
+            'TemperatureOut1':                  self._getWidgetData(self.temperatureLeavingProcess, "float", returnAlternative=None),
+            'TemperatureIn2':                   self._getWidgetData(self.temperatureEnteringUnitProcess2, "float", returnAlternative=None),
+            'TemperatureOut2':                  self._getWidgetData(self.temperatureLeavingUnitProcess2, "float", returnAlternative=None),
             'O&M':                              self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
             'Direct Cost Factor':               self._getWidgetData(self.directCostFactor, "float"),
             'Indirect Cost Factor':             self._getWidgetData(self.indirectCostFactor, "float"),
@@ -1877,13 +1877,11 @@ class PhysicalProcessesDialog(QDialog):
         # add the processDTO to the centralDataManager
         self.accept()
 
-
-
     # -----------------------------------------------------------------
     # Methods for checking errors
     # -----------------------------------------------------------------
 
-    def _errorCheck(self,dialogData):
+    def _errorCheck(self, dialogData):
         """
         Check for errors in the dialog data.
 
@@ -1911,6 +1909,12 @@ class PhysicalProcessesDialog(QDialog):
         if errorCheckSeparation:
             self._showErrorDialog(errorMessageSeparation)
             return True
+
+        if self.type == ProcessType.YIELD:
+            if dialogData['Yield Factor'] == 0:
+                errorMessage = "The yield factor is not set"
+                self._showErrorDialog(errorMessage)
+                return True
 
         return False  # if no errors are found return False
 

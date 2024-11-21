@@ -105,8 +105,6 @@ def wrapp_ReacionData(obj, df1, df2 = None):
         list1 = WF.read_list_new(df1, 2, 0)
         obj.set_inertComponents(list1)
 
-
-
     else:
 
         dict1 = WF.read_type2(df1,0,1,2)

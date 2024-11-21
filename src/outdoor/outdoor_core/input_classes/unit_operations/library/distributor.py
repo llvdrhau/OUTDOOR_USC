@@ -37,9 +37,6 @@ class Distributor (VirtualProcess):
 
     """
 
-
-
-
     def __init__(self, Name, UnitNumber, Decimal_place= 3, Targets= None,
                  Parent= None, *args, **kwargs):
 
@@ -61,8 +58,6 @@ class Distributor (VirtualProcess):
         self.calc_decimalNumbers()
 
 
-
-
     def calc_decimalNumbers(self):
         X = [1, 2, 4 ,8]
         XO = 0
@@ -77,8 +72,6 @@ class Distributor (VirtualProcess):
 
                 self.decimal_numbers['Decimal_numbers'][self.Number,idx] = entr
                 self.decimal_set.append((self.Number,idx))
-
-
 
 
 

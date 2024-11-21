@@ -19,6 +19,7 @@ from src.outdoor.outdoor_core.input_classes.unit_operations.library.splitter imp
 from src.outdoor.outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
 from src.outdoor.outdoor_core.input_classes.unit_operations.library.turbine import ElectricityGenerator
 from src.outdoor.outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
+from src.outdoor.outdoor_core.input_classes.unit_operations.superclasses.physical_process import PhysicalProcess
 
 from outdoor.user_interface.WelcomeTab import WelcomeTab
 from tabs.ComponentsTab import ComponentsTab
@@ -37,6 +38,7 @@ current_path = os.getcwd()
 # Print the current working directory
 print(f"Current working directory: {current_path}")
 
+
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
     """
@@ -54,7 +56,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.ProjectName = ""
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
-        self.outputManager = OutputManager() # Initialize the output manager
+        self.outputManager = OutputManager()  # Initialize the output manager
 
         menu_bar = self.menuBar()
         fileMenu = menu_bar.addMenu('File')
@@ -88,7 +90,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.saveAction.setEnabled(True)
         self.editAction.setEnabled(True)
 
-
     def openFile(self):
         #There has to be a way to handle "i cancelled the load" that's not this trash
         filepath = QFileDialog(self, caption='Open Saved Project', filter='*.outdr', directory='data/frames')
@@ -104,7 +105,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.enableSave()
         self.logger.info("Opened File: {}".format(self.ProjectPath))
 
-        # todo: set this in appropiate place (save methods), just for ease of use for now to test the superstructure
+        # todo: set this in appropriate place (save methods), just for ease of use for now to test the superstructure
         self._makeSuperstructureObject()
 
         # comment for now to make bebugging easier
@@ -140,7 +141,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self._makeSuperstructureObject()
         #Frame = SuperstructureFrame()
         #Frame.constructSuperstructureFrame(self.centralDataManager)
-
 
     def saveAsFile(self):
         """
@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
-                                                             outputManager=self.outputManager)
+                                                            outputManager=self.outputManager)
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
@@ -209,6 +209,10 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         back end. The old functions used to wrapp the data from excel to the superstructure object should come here
         :return:
         """
+
+        # make a dictionary of the reaction names and the corresponding reaction dto for easy access later on
+        self.reactionDict = {dto.name: dto for dto in self.centralDataManager.reactionData}
+        self.reactionNumberDict = {dto.name: i+1 for i, dto in enumerate(self.centralDataManager.reactionData)}
 
         # make the initial object:
         self.superstructureObject = self._setGeneralData()
@@ -285,7 +289,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 self.logger.error("{} for the Heat Pump is not set correctly \n"
                                   "Defaulted to T_in = 0 and T_out = 0.".format(errorTemp))
 
-
             obj.set_heatPump(Costs,
                              Lifetime,
                              COP,
@@ -301,7 +304,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         componentList = [dto.name for dto in self.centralDataManager.componentData]
         obj.add_components(componentList)
 
-        reactionNumberList = [i+1 for i in range(len(self.centralDataManager.reactionData))]
+        reactionNumberList = [i + 1 for i in range(len(self.centralDataManager.reactionData))]
         obj.add_reactions(reactionNumberList)
 
         # todo this seems redundant I don't know why this is done, must optimize this in the future
@@ -365,7 +368,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         Continue filling in the superstructure with data from unit operations
         :return: Superstructure Object
         """
-        self.processUnit_ObjectList = [] # in outdoor this is PU_ObjectList in main.py in the excel wrapper
+        self.processUnit_ObjectList = []  # in outdoor this is PU_ObjectList in main.py in the excel wrapper
         unitDTODictionary = self.centralDataManager.unitProcessData
         for uuid, dto in unitDTODictionary.items():
             if dto.type == ProcessType.INPUT:
@@ -375,17 +378,11 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 OutputObject = self._setOutputData(dto)
                 self.processUnit_ObjectList.append(OutputObject)
             elif dto.type == ProcessType.DISTRIBUTOR:
-                # todo: implement the distributor object
-                pass
-                # obj = Distributor(series[4], series[5], series[6])
-                # wrapp_DistributorData(obj, series, df1, counter)
-                # distributor_list.append(obj)
-                # counter += 1
-                #
-                # elif i == 'Distributor':
-                # distributors = wrapp_distributors(dataframe[i])
-                # for k in distributors:
-                #     PU_ObjectList.append(k)
+                DistributorObject = self._setDistributionData(dto)
+                self.processUnit_ObjectList.append(DistributorObject)
+            elif dto.type.value in list(range(1, 7)):  # not an input, output or distributor
+                ProcessObject = self._setProcessData(dto)
+                self.processUnit_ObjectList.append(ProcessObject)
 
     def _setInputData(self, dto):
         """
@@ -457,11 +454,12 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         price = float(dto.dialogData['priceOutput'])
         OutputObject.set_productPrice(price)
 
-        if 'processingGroup' in list(dto.dialogData.keys()) and processingGroup != '':
+        if 'processingGroup' in list(dto.dialogData.keys()):
             processingGroup = dto.dialogData['processingGroup']
-            OutputObject.set_group(float(processingGroup))
-        else:
-            OutputObject.set_group(None)
+            if processingGroup != '':
+                OutputObject.set_group(float(processingGroup))
+            else:
+                OutputObject.set_group(None)
 
         # emission credits and freshwater credits are not used anymore, replaced by the LCA object
         # defaulting to 0
@@ -494,7 +492,215 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         Continue filling in the superstructure with data from distributor units
         :return: Superstructure Object
         """
-        pass
+        name = dto.name
+        unitNumber = dto.uid
+        # todo add a dialog to the distributor to set the decimal place
+        decimalPlace = 2  # default value for decimal place
+
+        distributorObject = Distributor(Name=name,
+                                        UnitNumber=unitNumber,
+                                        Decimal_place=decimalPlace)
+        distributionList = dto.distributionContainer
+        distributorObject.set_targets(distributionList)
+
+        return distributorObject
+
+    def _setProcessData(self, dto):
+
+        name = dto.name
+        unitNumber = dto.uid
+
+        if dto.type == ProcessType.STOICHIOMETRIC:
+            ProcessObject = StoichReactor(Name=name, UnitNumber=unitNumber)
+            self._energyData(dto, ProcessObject)
+            self._reactionData(dto, ProcessObject)
+
+        elif dto.type == ProcessType.YIELD:
+            ProcessObject = YieldReactor(Name=name, UnitNumber=unitNumber)
+            self._energyData(dto, ProcessObject)
+            self._reactionData(dto, ProcessObject)
+
+        elif dto.type == ProcessType.GEN_HEAT:
+            heatEff = dto.dialogData['heatEfficiency']
+            ProcessObject = HeatGenerator(Name=name, UnitNumber=unitNumber, Efficiency=heatEff)
+            self._reactionData(dto, ProcessObject)
+
+        elif dto.type == ProcessType.GEN_ELEC:
+            elecEff = dto.dialogData['electricalEfficiency']
+            ProcessObject = ElectricityGenerator(Name=name, UnitNumber=unitNumber, Efficiency=elecEff)
+            self._reactionData(dto, ProcessObject)
+
+        elif dto.type == ProcessType.GEN_CHP:
+            elecEff = dto.dialogData['electricalEfficiency']
+            heatEff = dto.dialogData['heatEfficiency']
+            efficiency = (elecEff, heatEff)
+            ProcessObject = CombinedHeatAndPower(Name=name, UnitNumber=unitNumber, Efficiency=efficiency)
+            self._reactionData(dto, ProcessObject)
+
+        # everything else is a PhysicalProcess (which can only split or distribute streams)
+        else:
+            ProcessObject = PhysicalProcess(Name=name, UnitNumber=unitNumber)
+            self._energyData(dto, ProcessObject)
+
+        wrapp_GeneralData(obj, dfi.iloc[GeneralDataRange])
+        wrapp_EconomicData(obj, dfi.iloc[EconomicDataRange], dfi.iloc[GeneralDataRange])
+        wrapp_AdditivesData(obj, dfi.iloc[PossibleSourcesRange], dfi.iloc[ConcDataRange], dfi.iloc[BalanceDataRange])
+
+        return ProcessObject
+
+    def _energyData(self, dto, processObject):
+        """
+        This method reads the energy data from the dto and writes it to the process object
+        :param dto:
+        :param processObject:
+        :return:
+        """
+
+        # # General data
+        # 'Type': 'Physical Process',
+        # 'Name': self.nameInput.text(),
+        # 'Processing Group': self._getWidgetData(self.processingGroupInput, "int"),
+        # 'Life Time Unit Process': self._getWidgetData(self.lifeTimeUnitProcess, "float"),
+        # 'Working Time Unit Process': self._getWidgetData(self.fullLoadingHours, "float"),
+        # 'CO2 Building': self._getWidgetData(self.co2EmissionsBuilding, "float"),
+        # 'TemperatureIn1': self._getWidgetData(self.temperatureEnteringProcess, "float", returnAlternative=None),
+        # 'TemperatureOut1': self._getWidgetData(self.temperatureLeavingProcess, "float", returnAlternative=None),
+        # 'TemperatureIn2': self._getWidgetData(self.temperatureEnteringUnitProcess2, "float", returnAlternative=None),
+        # 'TemperatureOut2': self._getWidgetData(self.temperatureLeavingUnitProcess2, "float", returnAlternative=None),
+        # 'O&M': self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
+        # 'Direct Cost Factor': self._getWidgetData(self.directCostFactor, "float"),
+        # 'Indirect Cost Factor': self._getWidgetData(self.indirectCostFactor, "float"),
+
+        # Utility Consumption data
+        # 'Reference Flow Type Energy':
+        # 'Energy Consumption':
+        # 'Components Energy Consumption':
+        # 'Reference Flow Type Chilling':
+        # 'Chilling Consumption':
+        # 'Components Chilling Consumption':
+
+        # Heat Consumption data
+        # 'Reference Flow Type Heat1': self._getWidgetData(self.referenceFlowTypeHeat1, "str"),
+        # 'Heat Consumption 1': self._getWidgetData(self.heatConsumption, "float"),
+        # 'Components Heat Consumption 1': self._collectTableData(self.componentsTableHeat1),
+        # 'Reference Flow Type Heat2': self._getWidgetData(self.referenceFlowTypeHeat2, "str"),
+        # 'Heat Consumption 2': self._getWidgetData(self.heatConsumption2, "float"),
+        # 'Components Heat Consumption 2': self._collectTableData(self.componentsTableHeat2),
+        #
+        # # Concentration data
+        # 'Concentration Factor': self._getWidgetData(self.concentrationFactor, "float"),
+        # 'Reference Flow 1': self._getWidgetData(self.referenceFlow1Concentration, "str"),
+        # 'Components Flow1': self._collectTableData(self.componentsTableConcentration1),
+        # 'Reference Flow 2': self._getWidgetData(self.referenceFlow2Concentration, "str"),
+        # 'Components Flow2': self._collectTableData(self.componentsTableConcentration2),
+        #
+        # # Separation Efficiency data
+        # 'Separation Fractions': self._collectTableData(self.separationEfficiencyTable,
+        #                                                tableType="separationEfficiency"),
+        # 'Waste Management': self._getWidgetData(self.wasteManagement, "str"),
+        # "Check box stream 1": self.stream1CheckBox.isChecked(),
+        # "Check box stream 2": self.stream2CheckBox.isChecked(),
+        # "Check box stream 3": self.stream3CheckBox.isChecked(),
+
+
+        ProcessElectricityDemand = dto.dialogData['Energy Consumption']
+        if not pd.isnull(ProcessElectricityDemand):
+            ProcessElectricityReferenceFlow = dto.dialogData['Reference Flow Type Energy']
+            ProcessElectricityReferenceComponentList = dto.dialogData['Components Energy Consumption']
+        else:
+            ProcessElectricityDemand = 0
+            ProcessElectricityReferenceFlow = None
+            ProcessElectricityReferenceComponentList = []
+
+        ProcessHeatDemand = dto.dialogData['Heat Consumption 1']
+        if not pd.isnull(ProcessHeatDemand):
+            ProcessHeatReferenceFlow = dto.dialogData['Reference Flow Type Heat1']
+            ProcessHeatReferenceComponentList = dto.dialogData['Components Heat Consumption 1']
+        else:
+            ProcessHeatDemand = None
+            ProcessHeatReferenceFlow = None
+            ProcessHeatReferenceComponentList = []
+
+        ProcessHeat2Demand = dto.dialogData['Heat Consumption 2']
+        if not pd.isnull(ProcessHeat2Demand):
+            ProcessHeat2ReferenceFlow = dto.dialogData['Reference Flow Type Heat2']
+            ProcessHeat2ReferenceComponentList = dto.dialogData['Components Heat Consumption 2']
+        else:
+            ProcessHeat2Demand = None
+            ProcessHeat2ReferenceFlow = None
+            ProcessHeat2ReferenceComponentList = []
+
+        ChillingDemand = dto.dialogData['Chilling Consumption']
+        if not pd.isnull(ChillingDemand):
+            ChillingReferenceFlow = dto.dialogData['Reference Flow Type Chilling']
+            ChillingReferenceComponentList = dto.dialogData['Components Chilling Consumption']
+        else:
+            ChillingDemand = 0
+            ChillingReferenceFlow = None
+            ChillingReferenceComponentList = []
+
+        # set the temperatures
+        temperatureIn1 = dto.dialogData['TemperatureIn1']
+        temperatureOut1 = dto.dialogData['TemperatureOut1']
+        temperatureIn2 = dto.dialogData['TemperatureIn2']
+        temperatureOut2 = dto.dialogData['TemperatureOut2']
+
+        processObject.set_Temperatures(T_IN_1=temperatureIn1, T_OUT_1=temperatureOut1, tau1=ProcessHeatDemand ,
+                                       T_IN_2=temperatureIn2, T_OUT_2=temperatureOut2, tau2=ProcessHeat2Demand)
+
+        processObject.set_energyData(None,
+                                     None,
+                                     ProcessElectricityDemand,
+                                     ProcessHeatDemand,
+                                     ProcessHeat2Demand,
+                                     ProcessElectricityReferenceFlow,
+                                     ProcessElectricityReferenceComponentList,
+                                     ProcessHeatReferenceFlow,
+                                     ProcessHeatReferenceComponentList,
+                                     ProcessHeat2ReferenceFlow,
+                                     ProcessHeat2ReferenceComponentList,
+                                     ChillingDemand,
+                                     ChillingReferenceFlow,
+                                     ChillingReferenceComponentList
+                                     )
+
+    def _reactionData(self, dto, processObject):
+        """
+        This method reads the reaction data from the dto and writes it to the process object
+        type can be either stoichiometric or yield reactor
+        :param dto:
+        :param processObject:
+        :return:
+        """
+
+        if dto.type == ProcessType.YIELD:
+            product = dto.dialogData['Product']
+            yieldFactor = dto.dialogData['Yield Factor']
+            yieldDict = {product: yieldFactor}
+            processObject.set_xiFactors(yieldDict)
+            inertList = dto.dialogData['Inert Components']
+            obj.set_inertComponents(inertList)
+
+        elif dto.type == ProcessType.STOICHIOMETRIC:
+            reactions = dto.dialogData['Reactions']
+            conversionRateDict = {}
+            reactionStoichiometryDict = {}
+
+            for rxn in reactions:
+                # rxn is a tuple (reactionName, conversion, main reactant)
+                rxnName = rxn[0]
+                rxnDTO = self.reactionDict[rxnName]
+                rxnNumber = self.reactionNumberDict[rxnName]
+                for reactants, stoi in rxnDTO.reactants.items():
+                    reactionStoichiometryDict.update({(reactants, rxnNumber): float(stoi)})
+                for products, stoi in rxnDTO.products.items():
+                    reactionStoichiometryDict.update({(products, rxnNumber): float(stoi)})
+
+                conversionRateDict.update({(rxn[-1], rxnNumber): float(rxn[1])})
+
+            processObject.set_gammaFactors(reactionStoichiometryDict)
+            processObject.set_thetaFactors(dict2)
+
 
 def checkFocus():
     """

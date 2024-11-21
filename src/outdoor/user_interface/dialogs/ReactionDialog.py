@@ -166,7 +166,6 @@ class ReactionDialog(QDialog):
         # Add the QLineEdit widget to the table
         self.productsTable.setCellWidget(rowPosition, 1, stoichiometryEdit)
 
-
     def loadInitialData(self, data: ReactionDTO):
         """
         Load the initial data from the provided ReactionDTO into the dialog.
@@ -239,7 +238,6 @@ class ReactionDialog(QDialog):
             if name=="":
                 self.warningDialog(errorType="Name")
                 return
-
 
             self.dataDTO.upadateField("name", name)
             self.dataDTO.upadateField("reactants", reactants)
