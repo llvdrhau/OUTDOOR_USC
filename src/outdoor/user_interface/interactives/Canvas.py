@@ -301,7 +301,9 @@ class Canvas(QGraphicsView):
             ownerDTO = unitDTOSending
             stream = self.startPort.exitStream
             distributionType = receivingIconType
-            ownerDTO.updateProcessDTO(field=UpdateField.STREAM_CLASSIFICATION, value=(stream, distributionType))
+            distributionID = distributionDTO.uid
+            ownerDTO.updateProcessDTO(field=UpdateField.STREAM_CLASSIFICATION, value=(stream, distributionType,
+                                                                                      distributionID))
 
             # update the connection if the boolean distributor contains units that are already connected to it
             if distributionDTO.distributionContainer:
@@ -323,7 +325,7 @@ class Canvas(QGraphicsView):
 
 
         elif ((sendingIconType == ProcessType.BOOLDISTRIBUTOR or sendingIconType == ProcessType.DISTRIBUTOR)
-              and receivingIconType.value in [1, 2, 3, 4, 5, 6]):
+              and receivingIconType.value in [1, 2, 3, 4, 5, 6, 7]):
 
             distributionDTO = unitDTOSending  # to make it clear that the sending unit is a boolean distributor
             distributionDTO.updateProcessDTO(field=UpdateField.DISTRIBUTION_CONTAINER, value=unitDTOReceiving.uid)
