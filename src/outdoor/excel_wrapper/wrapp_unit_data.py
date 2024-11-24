@@ -344,9 +344,7 @@ def wrapp_EconomicData(obj, df, df2):
         ReferenceCosts = 0.000001
         ReferenceFlow = 1000000
 
-
     # Set Economic Data in Process Unit Object
-
     obj.set_economicData(DirectCostFactor,
                           IndirectCostFactor,
                           ReferenceCosts,
@@ -356,7 +354,6 @@ def wrapp_EconomicData(obj, df, df2):
                           ReferenceFlowType,
                           ReferenceFlowComponentList
                           )
-
 
 
 def wrapp_ProductpoolData(obj, series):

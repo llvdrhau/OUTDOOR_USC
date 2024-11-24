@@ -314,8 +314,8 @@ class PhysicalProcessesDialog(QDialog):
         # Reference Flow type
         self.referenceFlowType = QComboBox(self)
         # add options to ComboBox
-        self.referenceFlowType.addItem("Entering Flow")
-        self.referenceFlowType.addItem("Exiting Flow")
+        self.referenceFlowType.addItem("Entering Mass Flow")
+        self.referenceFlowType.addItem("Exiting Mass Flow")
         self.referenceFlowType.addItem("Electricity consumption")
         self.referenceFlowType.addItem("Electricity production (generators)")
         self.referenceFlowType.addItem("Heat production (generators)")
@@ -426,11 +426,12 @@ class PhysicalProcessesDialog(QDialog):
             :return:
             """
             comboBox = QComboBox(self)
-            comboBox.addItems([
-                "Entering mass Flow", "Exiting mass Flow",
+            self.itemsUtilitiesAndHeating = [
+                "Entering Mass Flow", "Exiting Mass Flow",
                 "Entering Molar Flow", "Exiting Molar Flow",
-                "Entering Flow Cp", "Exiting Flow Cp"
-            ])
+                "Entering Flow Heat Capacity", "Exiting Flow Heat Capacity",
+            ]
+            comboBox.addItems(self.itemsUtilitiesAndHeating)
             comboBox.setObjectName(name)
             return comboBox
 
@@ -604,11 +605,7 @@ class PhysicalProcessesDialog(QDialog):
             - QComboBox: Initialized QComboBox object.
             """
             comboBox = QComboBox(self)
-            comboBox.addItems([
-                "Entering mass Flow", "Exiting mass Flow",
-                "Entering Molar Flow", "Exiting Molar Flow",
-                "Entering Flow Cp", "Exiting Flow Cp"
-            ])
+            comboBox.addItems(self.itemsUtilitiesAndHeating)
             comboBox.setObjectName(name)
             return comboBox
 
@@ -752,8 +749,8 @@ class PhysicalProcessesDialog(QDialog):
             """
             comboBox = QComboBox(self)
             comboBox.addItems([
-                "Entering mass Flow (F_IN)",
-                "Exiting mass Flow (F_OUT)",
+                "Entering Mass Flow",
+                "Exiting Mass Flow",
             ])
             comboBox.setObjectName(name)
             return comboBox
@@ -888,6 +885,7 @@ class PhysicalProcessesDialog(QDialog):
         # Make check box 1 checked by default and immutable
         self.stream1CheckBox.setChecked(True)
         self.stream1CheckBox.setEnabled(False)
+
         # Make check box 2 and 3 unchecked by default and mutable
         self.stream2CheckBox.setChecked(False)
         self.stream2CheckBox.setEnabled(True)
@@ -1338,7 +1336,7 @@ class PhysicalProcessesDialog(QDialog):
     def _componentSelectionSwitch(self, type):
         """ Only fill in the component and product load if the reference flow type is mass flow"""
         if type == "Cost":
-            if self.referenceFlowType.currentText() == "Exiting Flow" or self.referenceFlowType.currentText() == "Entering Flow":
+            if self.referenceFlowType.currentText() == "Exiting Mass Flow" or self.referenceFlowType.currentText() == "Entering Mass Flow":
                 # If a mass flow is selected, make the button to add components clickable
                 self.referenceFlowUnit.setText("t/h")
                 self.componentsTable.setDisabled(False)
@@ -1384,7 +1382,7 @@ class PhysicalProcessesDialog(QDialog):
                 self.referenceFlowUnit.setText("MWh")
 
         elif type == "Electricity":
-            if self.referenceFlowTypeEnergy.currentText() == 'Entering mass Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting mass Flow':
+            if self.referenceFlowTypeEnergy.currentText() == 'Entering Mass Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting Mass Flow':
                 self.referenceFlowUnitEnergy.setText("MWh/t")
             elif self.referenceFlowTypeEnergy.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeEnergy.currentText() == 'Exiting Molar Flow':
                 self.referenceFlowUnitEnergy.setText("MWh/Mmol")
@@ -1392,7 +1390,7 @@ class PhysicalProcessesDialog(QDialog):
                 self.referenceFlowUnitEnergy.setText("ΔT")
 
         elif type == "Heat1":
-            if self.referenceFlowTypeHeat1.currentText() == 'Entering mass Flow' or self.referenceFlowTypeHeat1.currentText() == 'Exiting mass Flow':
+            if self.referenceFlowTypeHeat1.currentText() == 'Entering Mass Flow' or self.referenceFlowTypeHeat1.currentText() == 'Exiting Mass Flow':
                 self.heatConsumptionUnit.setText("MWh/t")
             elif self.referenceFlowTypeHeat1.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeHeat1.currentText() == 'Exiting Molar Flow':
                 self.heatConsumptionUnit.setText("MWh/Mmol")
@@ -1400,7 +1398,7 @@ class PhysicalProcessesDialog(QDialog):
                 self.heatConsumptionUnit.setText("ΔT")
 
         elif type == "Heat2":
-            if self.referenceFlowTypeHeat2.currentText() == 'Entering mass Flow' or self.referenceFlowTypeHeat2.currentText() == 'Exiting mass Flow':
+            if self.referenceFlowTypeHeat2.currentText() == 'Entering Mass Flow' or self.referenceFlowTypeHeat2.currentText() == 'Exiting Mass Flow':
                 self.heatConsumption2Unit.setText("MWh/t")
             elif self.referenceFlowTypeHeat2.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeHeat2.currentText() == 'Exiting Molar Flow':
                 self.heatConsumption2Unit.setText("MWh/Mmol")
@@ -1408,7 +1406,7 @@ class PhysicalProcessesDialog(QDialog):
                 self.heatConsumption2Unit.setText("ΔT")
 
         elif type == "Chilling":
-            if self.referenceFlowTypeChilling.currentText() == 'Entering mass Flow' or self.referenceFlowTypeChilling.currentText() == 'Exiting mass Flow':
+            if self.referenceFlowTypeChilling.currentText() == 'Entering Mass Flow' or self.referenceFlowTypeChilling.currentText() == 'Exiting Mass Flow':
                 self.chillingConsumptionUnit.setText("MWh/t")
             elif self.referenceFlowTypeChilling.currentText() == 'Entering Molar Flow' or self.referenceFlowTypeChilling.currentText() == 'Exiting Molar Flow':
                 self.chillingConsumptionUnit.setText("MWh/Mmol")
@@ -1434,8 +1432,8 @@ class PhysicalProcessesDialog(QDialog):
 
         data = {
             # General data
-            'Type':     'Physical Process',
-            'Name':     self.nameInput.text(),
+            'Type':                             'Physical Process',
+            'Name':                             self.nameInput.text(),
             'Processing Group':                 self._getWidgetData(self.processingGroupInput, "int"),
             'Life Time Unit Process':           self._getWidgetData(self.lifeTimeUnitProcess, "float"),
             'Working Time Unit Process':        self._getWidgetData(self.fullLoadingHours, "float"),
@@ -1501,6 +1499,10 @@ class PhysicalProcessesDialog(QDialog):
 
         :param data: Dictionary containing data to populate the dialog.
         """
+
+        #todo this might be more interesting to do with a dictionary that maps the names of the widgets to the keys in
+        # the dialogData dictionary
+
         # General parameters
         if 'Name' in dialogData:
             self.nameInput.setText(dialogData['Name'])
@@ -1513,13 +1515,37 @@ class PhysicalProcessesDialog(QDialog):
         if 'CO2 Building' in dialogData:
             self.co2EmissionsBuilding.setText(str(dialogData['CO2 Building']))
         if 'TemperatureIn1' in dialogData:
-            self.temperatureEnteringProcess.setText(str(dialogData['TemperatureIn1']))
+            TIN1 = dialogData['TemperatureIn1']
+            if TIN1 is None:
+                TIN1 = ""
+            else:
+                TIN1 = str(TIN1)
+            self.temperatureEnteringProcess.setText(TIN1)
+
         if 'TemperatureOut1' in dialogData:
-            self.temperatureLeavingProcess.setText(str(dialogData['TemperatureOut1']))
+            TOUT1 = dialogData['TemperatureOut1']
+            if TOUT1 is None:
+                TOUT1 = ""
+            else:
+                TOUT1 = str(TOUT1)
+            self.temperatureLeavingProcess.setText(TOUT1)
+
         if 'TemperatureIn2' in dialogData:
-            self.temperatureEnteringUnitProcess2.setText(str(dialogData['TemperatureIn2']))
+            TIN2 = dialogData['TemperatureIn2']
+            if TIN2 is None:
+                TIN2 = ""
+            else:
+                TIN2 = str(TIN2)
+            self.temperatureEnteringUnitProcess2.setText(TIN2)
+
         if 'TemperatureOut2' in dialogData:
-            self.temperatureLeavingUnitProcess2.setText(str(dialogData['TemperatureOut2']))
+            TOUT2 = dialogData['TemperatureOut2']
+            if TOUT2 is None:
+                TOUT2 = ""
+            else:
+                TOUT2 = str(TOUT2)
+            self.temperatureLeavingUnitProcess2.setText(TOUT2)
+
         if 'Operating Hours' in dialogData:
             self.operatingAndMaintenanceCost.setText(str(dialogData['Operating Hours']))
         if 'Direct Cost Factor' in dialogData:
@@ -1826,7 +1852,7 @@ class PhysicalProcessesDialog(QDialog):
                 data.append(element)
         return data
 
-    def _getWidgetData(self, widget, type:str, returnAlternative=0):
+    def _getWidgetData(self, widget, type:str, returnAlternative:any=0):
         """
         Get the data from the widgets.
         :return:
@@ -1910,7 +1936,7 @@ class PhysicalProcessesDialog(QDialog):
             self._showErrorDialog(errorMessageSeparation)
             return True
 
-        if self.type == ProcessType.YIELD:
+        if self.UnitType == ProcessType.YIELD:
             if dialogData['Yield Factor'] == 0:
                 errorMessage = "The yield factor is not set"
                 self._showErrorDialog(errorMessage)

@@ -232,7 +232,11 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         """
         reactionData = dialogData['Reactions']
         for rowData in reactionData:
-            self._addReactionRow(rowData)
+            rowData = list(rowData)
+            for i, data in enumerate(rowData):
+                if not isinstance(data, str):
+                    rowData[i] = str(data)  # convert all data to strings so it can be added to the table
+            self._addReactionRow(tuple(rowData))
 
     def _addFoundComponents(self):
         """

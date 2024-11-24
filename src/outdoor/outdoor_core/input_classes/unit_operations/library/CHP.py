@@ -31,7 +31,7 @@ class CombinedHeatAndPower(StoichReactor):
         # Non-Indexed Parameters
         self.Type = "CombinedHeatAndPower" # Type of the unit operation
         # https://doi.org/10.1016/j.apenergy.2018.06.013
-        if Efficiency is not None:
+        if Efficiency is None:
             self.Eff_tur = 0.35 # Efficiency of the turbine to generate electricity 30-40%
             self.Eff_fur = 0.50 # Efficiency of the furnace to generate heat 50-60%
         else:

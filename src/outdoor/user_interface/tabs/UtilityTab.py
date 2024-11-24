@@ -85,25 +85,25 @@ class UtilityTab(QWidget):
         self.utilitiesTable.setColumnWidth(3, 210)
         self.utilitiesTable.setColumnWidth(4, 150)
 
-        self.utilitiesTable.setMaximumHeight(120)  #This is where the problem is when you wanna add new things
+        # self.utilitiesTable.setMaximumHeight(150)  #This is where the problem is when you wanna add new things
 
         self.temperatureTable = QTableWidget()
-        self.temperatureColumns = ["Type", "Temperature", "Cost", "LCA"]
+        self.temperatureColumns = ["Type", "Temperature °(C)", "Cost (€/MWh)", "LCA"]
         self.tshortNames = ["name", "temp", "cost", "LCA"]
 
         self.temperatureTable.setColumnCount(len(self.tshortNames))
         self.temperatureTable.setHorizontalHeaderLabels(self.temperatureColumns)
         for n in range(len(self.temperatureColumns)):
-            self.temperatureTable.setColumnWidth(n, 100)
+            self.temperatureTable.setColumnWidth(n, 110)
 
         self.wasteTable = QTableWidget()
-        self.wasteColumns = ["Type", "Cost", "LCA"]
+        self.wasteColumns = ["Type", "Cost (€/t)", "LCA"]
         self.wshortNames = ["name", "cost", "LCA"]
 
         self.wasteTable.setColumnCount(len(self.wshortNames))
         self.wasteTable.setHorizontalHeaderLabels(self.wasteColumns)
         for n in range(len(self.wasteColumns)):
-            self.temperatureTable.setColumnWidth(n, 100)
+            self.temperatureTable.setColumnWidth(n, 110)
 
 
         # Set validators for the numeric columns using a custom delegate class
