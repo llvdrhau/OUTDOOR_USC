@@ -273,34 +273,36 @@ class LCADialog(QDialog):
 
     def calculateLCA(self):
         self.logger.info("Calculation beginning. Please wait, this may take a moment.")
-        midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
-        endpoints = [m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
-        meths = midpoint + endpoints
+        midpoint = [m for m in bw.methods if
+                    "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and "global warming potential (GWP100)" in str(
+                        m) and not "no LT" in str(m)]
+        endpoints = [m for m in bw.methods if
+                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and "total: natural resources" in str(
+                         m) and not "no LT" in str(m)]
+        methodconfs = {"impact_categories":midpoint+endpoints}
         try:
             activ = [m for m in self.outd if m['code'] == self.dto.uid][0]
-            calc_setup = {"inv":[{activ:1}],"ia":meths}
-            bw.calculation_setups["set"] = calc_setup
-            mlca = bc.MultiLCA("set")
-            indic = []
+            inv_list = {self.dto.uid:{activ.id:1}}
+            data_objs = bw.get_multilca_data_objs(functional_units=inv_list,method_config=methodconfs)
+            mlca = bc.MultiLCA(demands=inv_list,method_config=methodconfs,data_objs=data_objs)
+            mlca.lci()
+            mlca.lcia()
 
-            for f in mlca.func_units:
-                indic.append(f"{str(f).replace('{', '').replace('}', '')}")
-            dfresults = pd.DataFrame(mlca.results, columns=mlca.methods, index=indic)
+            for n, v in mlca.scores.items():
+                match n[0][2]:
+                    case "climate change":
+                        self.LCA["Results"]["GWP"] = v
+                    case "total: natural resources":
+                        self.LCA["Results"]["NR"] = v
+                    case _:
+                        raise Exception("One of your result categories doesn't look right. Fix the methods part of this function.")
+
             self.logger.info("MLCA complete, saving results.")
-            self.sortLCAResults(dfresults)
-            self.dto.LCA["Results"]=dfresults
+
             self.dto.calculated = True
         except Exception as e:
             if type(e) is IndexError:
-                self.logger.warn("Didn't find the uuid in bw:", self.dto.uid)
-
-    def sortLCAResults(self, dfresults: pd.DataFrame):
-        self.logger.debug("is there anybody out there")
-        self.logger.debug(f"so cold {dfresults.columns}")
-        for col in dfresults.columns:
-            replace = col.split(" (")[-1]
-            self.logger.info(f"What even {col} and then {replace}")
-            dfresults.rename(columns={str(col): replace}, inplace=True)
-        flipped = dfresults.transpose().reset_index(names=["Damage Category"])
-        self.logger.debug(flipped.columns)
-        self.logger.debug(flipped)
+                self.logger.warning("Didn't find the uuid in bw:", self.dto.uid)
+            elif type(e) is Exception:
+                self.logger.error(e)
+                self.dto.calculated = False
