@@ -297,7 +297,7 @@ class Superstructure:
 
     def set_interestRate(self, IR):
         if isinstance(IR, str):
-            IR = float(IF)
+            IR = float(IR)
         self.IR['IR'] = IR
 
     def set_omFactor(self, OM):

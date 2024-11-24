@@ -296,7 +296,6 @@ def wrapp_AdditivesData(obj,df1, df2, df3):
     sourceslist = WF.read_list(df1,0)
     obj.set_possibleSources(sourceslist)
 
-
     connections = dict()
 
     for i in range(1,4):

@@ -219,29 +219,19 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.reactionNumberDict = {dto.name: i + 1 for i, dto in enumerate(self.centralDataManager.reactionData)}
         # make the dictionary maps to link the right reference flow to in input from the widgets
         self.referenceFlowDictMap = {"Entering Mass Flow": 'FIN',
-                                  "Exiting Mass Flow": 'FOUT',
-                                  "Entering Molar Flow": 'FIN_M',
-                                  "Exiting Molar Flow": 'FOUT_M',
-                                  "Entering Flow Heat Capacity": 'FIN_CP',
-                                  "Exiting Flow Heat Capacity": 'FOUT_CP',
-                                  "Electricity consumption": 'PEL',
-                                  "Electricity production (generators)": 'PEL_PROD',
-                                  "Heat production (generators)": 'PHEAT',}
-
-        # self.referenceFlowType.addItem("Entering Mass Flow")
-        # self.referenceFlowType.addItem("Exiting Mass Flow")
-        # self.referenceFlowType.addItem("Electricity consumption")
-        # self.referenceFlowType.addItem("Electricity production (generators)")
-        # self.referenceFlowType.addItem("Heat production (generators)")
-
-        # "Entering Mass Flow", "Exiting Mass Flow",
-        # "Entering Molar Flow", "Exiting Molar Flow",
-        # "Entering Flow Heat Capacity", "Exiting Flow Heat Capacity",
+                                     "Exiting Mass Flow": 'FOUT',
+                                     "Entering Molar Flow": 'FIN_M',
+                                     "Exiting Molar Flow": 'FOUT_M',
+                                     "Entering Flow Heat Capacity": 'FIN_CP',
+                                     "Exiting Flow Heat Capacity": 'FOUT_CP',
+                                     "Electricity consumption": 'PEL',
+                                     "Electricity production (generators)": 'PEL_PROD',
+                                     "Heat production (generators)": 'PHEAT', }
 
         # make the initial object:
         self.superstructureObject = self._setGeneralData()
         self._setUnitProcessData()
-
+        self.logger.debug("superstructure object created")
 
     def _setGeneralData(self):
         """
@@ -350,46 +340,45 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         cpDict = {dto.name: float(dto.heatCapacity) for dto in self.centralDataManager.componentData}
         obj.set_cp(cpDict)
 
-        # ADD OTHER PARAMETERS
-        # ---------------------
-        utilityDTO = self.centralDataManager.utilityData
-        co2Factors = utilityDTO.utilityParameters['CO2 Emissions (t/MWh)']
-        emissionsUtilityDict = {utility: float(co2Factors[i]) for i, utility in enumerate(utilityNames)}
-        obj.set_utilityEmissionsFactor(emissionsUtilityDict)
-
-        freshWaterFactors = utilityDTO.utilityParameters['Fresh water depletion (t/MWh)']
-        emissionsWaterUtilityDict = {utility: float(freshWaterFactors[i]) for i, utility in enumerate(utilityNames)}
-        obj.set_utilityFreshWaterFator(emissionsWaterUtilityDict)
-
-        co2ComponentList = [0 for dto in self.centralDataManager.componentData]
-        # replaced by the lca data not important any more, just make a list of zeros to not break the code
-        obj.set_componentEmissionsFactor(co2ComponentList)
-
-        # get the price of cooling water and the various steam prices
-        superHeatedSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Superheated steam']
-        highPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['High pressure steam']
-        mediumPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Medium pressure steam']
-        lowPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Low pressure steam']
-        costCooling = utilityDTO.temperatureParameters['Costs (€/MWh)']['Cooling water']
-        # set the cost prices
-        dictTemperaturePrices = {'super': superHeatedSteam,
-                                 'high': highPressureSteam,
-                                 'medium': mediumPressureSteam,
-                                 'low': lowPressureSteam}
-
-        obj.temperaturePricesDict = dictTemperaturePrices
-        obj.set_deltaCool(costCooling)
-
-        temperatureList = list(utilityDTO.temperatureParameters['Temperature (°C)'].values())
-        priceList = list(utilityDTO.temperatureParameters['Costs (€/MWh)'].values())
-        obj.set_heatUtilities(temperatureList, priceList)
-
-        utilityPrices = {'Electricity': utilityDTO.utilityParameters['Costs (€/MWh)'][0],
-                         'Chilling': utilityDTO.utilityParameters['Costs (€/MWh)'][-1]}
-        obj.set_deltaUt(utilityPrices)
+        # # ADD OTHER PARAMETERS
+        # # ---------------------
+        # utilityDTO = self.centralDataManager.utilityData
+        # co2Factors = utilityDTO.utilityParameters['CO2 Emissions (t/MWh)']
+        # emissionsUtilityDict = {utility: float(co2Factors[i]) for i, utility in enumerate(utilityNames)}
+        # obj.set_utilityEmissionsFactor(emissionsUtilityDict)
+        #
+        # freshWaterFactors = utilityDTO.utilityParameters['Fresh water depletion (t/MWh)']
+        # emissionsWaterUtilityDict = {utility: float(freshWaterFactors[i]) for i, utility in enumerate(utilityNames)}
+        # obj.set_utilityFreshWaterFator(emissionsWaterUtilityDict)
+        #
+        # co2ComponentList = [0 for dto in self.centralDataManager.componentData]
+        # # replaced by the lca data not important any more, just make a list of zeros to not break the code
+        # obj.set_componentEmissionsFactor(co2ComponentList)
+        #
+        # # get the price of cooling water and the various steam prices
+        # superHeatedSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Superheated steam']
+        # highPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['High pressure steam']
+        # mediumPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Medium pressure steam']
+        # lowPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Low pressure steam']
+        # costCooling = utilityDTO.temperatureParameters['Costs (€/MWh)']['Cooling water']
+        # # set the cost prices
+        # dictTemperaturePrices = {'super': superHeatedSteam,
+        #                          'high': highPressureSteam,
+        #                          'medium': mediumPressureSteam,
+        #                          'low': lowPressureSteam}
+        #
+        # obj.temperaturePricesDict = dictTemperaturePrices
+        # obj.set_deltaCool(costCooling)
+        #
+        # temperatureList = list(utilityDTO.temperatureParameters['Temperature (°C)'].values())
+        # priceList = list(utilityDTO.temperatureParameters['Costs (€/MWh)'].values())
+        # obj.set_heatUtilities(temperatureList, priceList)
+        #
+        # utilityPrices = {'Electricity': utilityDTO.utilityParameters['Costs (€/MWh)'][0],
+        #                  'Chilling': utilityDTO.utilityParameters['Costs (€/MWh)'][-1]}
+        # obj.set_deltaUt(utilityPrices)
 
         return obj
-
 
     def _setUnitProcessData(self):
         """
@@ -412,7 +401,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 ProcessObject = self._setProcessData(dto)
                 self.processUnit_ObjectList.append(ProcessObject)
 
-
     def _setInputData(self, dto):
         """
         Continue filling in the superstructure with data from input units
@@ -420,7 +408,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         """
         # todo you might need to change the number to hex code instead of using the UID directly
 
-        # Initiate object
+        # Initiate an object
         InputObject = Source(Name=dto.name, UnitNumber=dto.uid)
 
         # Set of default vales of the data if not provided
@@ -463,7 +451,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                    Composition_dictionary=dicComposition)
 
         return InputObject
-
 
     def _setOutputData(self, dto):
         """
@@ -517,7 +504,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         return OutputObject
 
-
     def _setDistributionData(self, dto):
         """
         Continue filling in the superstructure with data from distributor units
@@ -535,7 +521,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         distributorObject.set_targets(distributionList)
 
         return distributorObject
-
 
     def _setProcessData(self, dto):
         name = dto.name
@@ -573,12 +558,15 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             ProcessObject = PhysicalProcess(Name=name, UnitNumber=unitNumber)
             self._energyData(dto, ProcessObject)
 
+        self._generalUnitData(dto, ProcessObject)
+        self._economicUnitData(dto, ProcessObject)
+        self._additivesUnitData(dto, ProcessObject)
+
         # wrapp_GeneralData(obj, dfi.iloc[GeneralDataRange])
         # wrapp_EconomicData(obj, dfi.iloc[EconomicDataRange], dfi.iloc[GeneralDataRange])
         # wrapp_AdditivesData(obj, dfi.iloc[PossibleSourcesRange], dfi.iloc[ConcDataRange], dfi.iloc[BalanceDataRange])
 
         return ProcessObject
-
 
     def _energyData(self, dto, processObject):
         """
@@ -652,7 +640,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                      ChillingReferenceComponentList
                                      )
 
-
     def _reactionData(self, dto, processObject):
         """
         This method reads the reaction data from the dto and writes it to the process object
@@ -690,7 +677,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             processObject.set_gammaFactors(reactionStoichiometryDict)
             processObject.set_thetaFactors(conversionRateDict)
 
-
     def _generalUnitData(self, dto, processObject):
         """
         This method reads the general unit data from the dto and writes it to the process object
@@ -698,57 +684,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :param processObject:
         :return:
         """
-
-        # # General data
-        # 'Type': 'Physical Process',
-        # 'Name': self.nameInput.text(),
-        # 'Processing Group': self._getWidgetData(self.processingGroupInput, "int"),
-        # 'Life Time Unit Process': self._getWidgetData(self.lifeTimeUnitProcess, "float"),
-        # 'Working Time Unit Process': self._getWidgetData(self.fullLoadingHours, "float"),
-        # 'CO2 Building': self._getWidgetData(self.co2EmissionsBuilding, "float"),
-        # 'TemperatureIn1': self._getWidgetData(self.temperatureEnteringProcess, "float", returnAlternative=None),
-        # 'TemperatureOut1': self._getWidgetData(self.temperatureLeavingProcess, "float", returnAlternative=None),
-        # 'TemperatureIn2': self._getWidgetData(self.temperatureEnteringUnitProcess2, "float", returnAlternative=None),
-        # 'TemperatureOut2': self._getWidgetData(self.temperatureLeavingUnitProcess2, "float", returnAlternative=None),
-        # 'O&M': self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
-        # 'Direct Cost Factor': self._getWidgetData(self.directCostFactor, "float"),
-        # 'Indirect Cost Factor': self._getWidgetData(self.indirectCostFactor, "float"),
-
-        # Reoccurring Annualized Capital Costs
-        # 'Reoccurring Cost Factor': self._getWidgetData(self.turnOverFactor, "float"),
-        # 'Turn Over Time': self._getWidgetData(self.turnOverTime, "float"),
-        # 'Turn Over Unit': self._getWidgetData(self.comboBoxUnits, "str"),
-
-        # Utility Consumption data
-        # 'Reference Flow Type Energy':
-        # 'Energy Consumption':
-        # 'Components Energy Consumption':
-        # 'Reference Flow Type Chilling':
-        # 'Chilling Consumption':
-        # 'Components Chilling Consumption':
-
-        # Heat Consumption data
-        # 'Reference Flow Type Heat1': self._getWidgetData(self.referenceFlowTypeHeat1, "str"),
-        # 'Heat Consumption 1': self._getWidgetData(self.heatConsumption, "float"),
-        # 'Components Heat Consumption 1': self._collectTableData(self.componentsTableHeat1),
-        # 'Reference Flow Type Heat2': self._getWidgetData(self.referenceFlowTypeHeat2, "str"),
-        # 'Heat Consumption 2': self._getWidgetData(self.heatConsumption2, "float"),
-        # 'Components Heat Consumption 2': self._collectTableData(self.componentsTableHeat2),
-        #
-        # # Concentration data
-        # 'Concentration Factor': self._getWidgetData(self.concentrationFactor, "float"),
-        # 'Reference Flow 1': self._getWidgetData(self.referenceFlow1Concentration, "str"),
-        # 'Components Flow1': self._collectTableData(self.componentsTableConcentration1),
-        # 'Reference Flow 2': self._getWidgetData(self.referenceFlow2Concentration, "str"),
-        # 'Components Flow2': self._collectTableData(self.componentsTableConcentration2),
-        #
-        # # Separation Efficiency data
-        # 'Separation Fractions': self._collectTableData(self.separationEfficiencyTable,
-        #                                                tableType="separationEfficiency"),
-        # 'Waste Management': self._getWidgetData(self.wasteManagement, "str"),
-        # "Check box stream 1": self.stream1CheckBox.isChecked(),
-        # "Check box stream 2": self.stream2CheckBox.isChecked(),
-        # "Check box stream 3": self.stream3CheckBox.isChecked(),
 
         Name = dto.name
 
@@ -789,13 +724,13 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             full_load_hours = None
 
         processObject.set_generalData(ProcessGroup,
-                            LifeTime,
-                            emissions,
-                            full_load_hours,
-                            maintenance_factor,
-                            cost_percentage,
-                            time_span,
-                            time_mode)
+                                      LifeTime,
+                                      emissions,
+                                      full_load_hours,
+                                      maintenance_factor,
+                                      cost_percentage,
+                                      time_span,
+                                      time_mode)
 
     def _economicUnitData(self, dto, processObject):
         """
@@ -815,7 +750,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         IndirectCostFactor = dto.dialogData["Indirect Cost Factor"]
 
         ReferenceFlowType_dialog = dto.dialogData["Reference Flow Type"]
-        ReferenceFlowType = self.referenceFlowDictMap[ReferenceFlowType_dialog] # get the correct abbreviation
+        ReferenceFlowType = self.referenceFlowDictMap[ReferenceFlowType_dialog]  # get the correct abbreviation
 
         ReferenceFlowComponentList = dto.dialogData["Components Equipment Costs"]
 
@@ -827,14 +762,14 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         # Set Economic Data in Process Unit Object
 
         processObject.set_economicData(DirectCostFactor,
-                             IndirectCostFactor,
-                             ReferenceCosts,
-                             ReferenceFlow,
-                             CostExponent,
-                             ReferenceYear,
-                             ReferenceFlowType,
-                             ReferenceFlowComponentList
-                             )
+                                       IndirectCostFactor,
+                                       ReferenceCosts,
+                                       ReferenceFlow,
+                                       CostExponent,
+                                       ReferenceYear,
+                                       ReferenceFlowType,
+                                       ReferenceFlowComponentList
+                                       )
 
     def _additivesUnitData(self, dto, processObject):
         """
@@ -863,32 +798,42 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         if pd.isnull(req_concentration):
             req_concentration = None
 
-        #todo continue here yihhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         # the myu dictionary is where the split fractions are stored and defined
         # {(unitNr_that_receives, component), Fraction}
 
         materialFlow = dto.materialFlow
-        myu_dict = WF.read_type2(df3, 0, 1, 2)
 
-        obj.set_flowData(req_concentration,
-                         rhs_ref_flow,
-                         lhs_ref_flow,
-                         rhs_comp_list,
-                         lhs_comp_list,
-                         myu_dict,
-                         )
+        myu_dict = {}
+        streamTypeDict = dto.classificationStreams
+        for stream, dict in materialFlow.items():
+            # check if it's a boolean stream
+            streamType = streamTypeDict[stream]
+            if streamType is None or streamType == ProcessType.BOOLDISTRIBUTOR:
+                for unitID, dictComponents in dict.items():
+                    for component, fraction in dictComponents.items():
+                        myu_dict[(unitID, component)] = fraction
+            else: # get the id of the distributor (see owner of the stream)
+                pass
 
-        sourceslist = WF.read_list(df1, 0)
-        obj.set_possibleSources(sourceslist)
 
-        connections = dict()
 
-        for i in range(1, 4):
-            x = WF.read_list(df1, i)
-            connections[i] = x
+        processObject.set_flowData(req_concentration,
+                                   rhs_ref_flow,
+                                   lhs_ref_flow,
+                                   rhs_comp_list,
+                                   lhs_comp_list,
+                                   myu_dict,
+                                   )
 
-        obj.set_connections(connections)
+        sourceslist = dto.inputFlows
+        processObject.set_possibleSources(sourceslist)
 
+        # connections = dict()
+        # for i in range(1, 4):
+        #     x = WF.read_list(df1, i)
+        #     connections[i] = x
+
+        processObject.set_connections(connections)
 
 
 def checkFocus():
