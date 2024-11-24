@@ -213,6 +213,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         back end. The old functions used to wrapp the data from excel to the superstructure object should come here
         :return:
         """
+        # todo set all methodes called here into a seperate class
 
         # make a dictionary of the reaction names and the corresponding reaction dto for easy access later on
         self.reactionDict = {dto.name: dto for dto in self.centralDataManager.reactionData}
@@ -565,9 +566,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             ProcessObject = PhysicalProcess(Name=name, UnitNumber=unitNumber)
             self._energyData(dto, ProcessObject)
 
-        # wrapp_GeneralData(obj, dfi.iloc[GeneralDataRange])
-        # wrapp_EconomicData(obj, dfi.iloc[EconomicDataRange], dfi.iloc[GeneralDataRange])
-        # wrapp_AdditivesData(obj, dfi.iloc[PossibleSourcesRange], dfi.iloc[ConcDataRange], dfi.iloc[BalanceDataRange])
+        self._generalUnitData(dto, ProcessObject)
+        self._economicData(dto, ProcessObject)
+        self._additivesUnitData(dto, ProcessObject)
 
         return ProcessObject
 
@@ -855,32 +856,56 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         if pd.isnull(req_concentration):
             req_concentration = None
 
-        #todo continue here yihhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         # the myu dictionary is where the split fractions are stored and defined
         # {(unitNr_that_receives, component), Fraction}
-
         materialFlow = dto.materialFlow
-        myu_dict = WF.read_type2(df3, 0, 1, 2)
+        myu_dict = {}
+        streamTypeDict = dto.classificationStreams
+        for stream, dict in materialFlow.items():
+            # check if it's a boolean stream
+            streamType = streamTypeDict[stream]
+            if streamType is None or streamType == ProcessType.BOOLDISTRIBUTOR:
+                for unitID, dictComponents in dict.items():
+                    for component, fraction in dictComponents.items():
+                        myu_dict[(unitID, component)] = fraction
+            else:  # get the id of the distributor
+                distributorID = dto.classificationId[stream]
+                for _, dictComponents in dict.items():
+                    for component, fraction in dictComponents.items():
+                        myu_dict[(distributorID, component)] = fraction
 
-        obj.set_flowData(req_concentration,
-                         rhs_ref_flow,
-                         lhs_ref_flow,
-                         rhs_comp_list,
-                         lhs_comp_list,
-                         myu_dict,
-                         )
+        processObject.set_flowData(req_concentration,
+                                   rhs_ref_flow,
+                                   lhs_ref_flow,
+                                   rhs_comp_list,
+                                   lhs_comp_list,
+                                   myu_dict,
+                                   )
 
-        sourceslist = WF.read_list(df1, 0)
-        obj.set_possibleSources(sourceslist)
+        sourceslist = dto.inputFlows
+        processObject.set_possibleSources(sourceslist)
 
-        connections = dict()
+        # Connections is a dictionary with the keys the streams and the values the unit
+        # uids to which they are connected if the stream is a boolean stream add a list
+        # E.g.: , {1:[222, 333], 2:[], 3:[]}
 
-        for i in range(1, 4):
-            x = WF.read_list(df1, i)
-            connections[i] = x
+        connections = {}
 
-        obj.set_connections(connections)
+        for stream, type in streamTypeDict.items():
+            if type == ProcessType.BOOLDISTRIBUTOR:
+                sendList = []
+                for unitID in materialFlow[stream]:
+                    sendList.append(unitID)
+                connections[stream] = sendList
+            elif type == ProcessType.DISTRIBUTOR:
+                connections[stream] = [dto.classificationId[stream]]
+            else: # just a normal process
+                sendList = []
+                for unitID in materialFlow[stream]:
+                    sendList.append(unitID)
+                connections[stream] = sendList
 
+        processObject.set_connections(connections)
 
 
 def checkFocus():

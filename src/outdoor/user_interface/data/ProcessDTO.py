@@ -91,8 +91,11 @@ class ProcessDTO(OutdoorDTO):
 
         # stream classification
         # can either be 'Normal', 'Boolean', or 'Distributed' for each stream depending if it is conected
-        # to a distribution unit
+        # to a distribution unit. the value are either None or ProcessType.BOOLDISTRIBUTOR or ProcessType.DISTRIBUTOR
         self.classificationStreams = {1: None, 2: None, 3: None}
+        # the classificationId is a dictionary with the stream number as the key and the value is the id of the
+        # distributor that is connected to the stream
+        self.classificationId = {1: None, 2: None, 3: None}
 
 
     def addDialogData(self, dialogData):
@@ -165,7 +168,9 @@ class ProcessDTO(OutdoorDTO):
         elif field == UpdateField.STREAM_CLASSIFICATION:
             streamNumber = value[0]
             distributorType = value[1]  # the type of distributor either 'Boolean' or 'Distributor'
+            distributorID = value[2]  # the id of the distributor
             self.classificationStreams[streamNumber] = distributorType
+            self.classificationId[streamNumber] = distributorID
 
         elif field == UpdateField.DISTRIBUTION_CONNECTION:
             unitID2Add = value[0]
