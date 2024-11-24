@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
+
 class LCADialog(QDialog):
     """
     Opens a dialog to set the input parameters for the input icon. The dialog allows the user to set the source name,

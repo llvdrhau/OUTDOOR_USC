@@ -176,6 +176,7 @@ class Superstructure:
 
         # Heat Balance and Utilities
         # --------------------------
+        self.temperaturePricesDict = {}
         self.HeatIntervalList = {'HI': []}
         self.HeatUtilitiesList = {'H_UT': []}
         self.Heat_Temperatures = []
@@ -297,7 +298,7 @@ class Superstructure:
 
     def set_interestRate(self, IR):
         if isinstance(IR, str):
-            IR = float(IF)
+            IR = float(IR)
         self.IR['IR'] = IR
 
     def set_omFactor(self, OM):
@@ -765,6 +766,9 @@ class Superstructure:
             self.heat_utilities[TemperatureList[i]] = CostList[i]
             self.__set_heatTemperatures(TemperatureList[i])
 
+    def set_heatUtilitiesFromList(self, temperatureDict: dict):
+        for key, value in temperatureDict.items():
+            self.heat_utilities[value[0]] = value[1]
     def __calc_heatPump(self):
         """
 

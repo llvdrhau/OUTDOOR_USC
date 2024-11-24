@@ -352,40 +352,32 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         # ADD OTHER PARAMETERS
         # ---------------------
-        utilityDTO = self.centralDataManager.utilityData
-        co2Factors = utilityDTO.utilityParameters['CO2 Emissions (t/MWh)']
-        emissionsUtilityDict = {utility: float(co2Factors[i]) for i, utility in enumerate(utilityNames)}
-        obj.set_utilityEmissionsFactor(emissionsUtilityDict)
+        # TODO later on, make this a toggle for either self-entered data or the LCA data
+        emissionsUtilityDict = {}
+        emissionsWaterUtilityDict = {}
+        utilityPrices = {}
+        for dto in self.centralDataManager.utilityData:
+            emissionsUtilityDict[dto.name] = dto.co2
+            emissionsWaterUtilityDict[dto.name] = dto.fwd
+            if dto.name in ["Electricity", "Chilling"]:
+                utilityPrices[dto.name] = dto.cost
 
-        freshWaterFactors = utilityDTO.utilityParameters['Fresh water depletion (t/MWh)']
-        emissionsWaterUtilityDict = {utility: float(freshWaterFactors[i]) for i, utility in enumerate(utilityNames)}
+        obj.set_utilityEmissionsFactor(emissionsUtilityDict)
         obj.set_utilityFreshWaterFator(emissionsWaterUtilityDict)
 
-        co2ComponentList = [0 for dto in self.centralDataManager.componentData]
         # replaced by the lca data not important any more, just make a list of zeros to not break the code
+        co2ComponentList = [0 for dto in self.centralDataManager.componentData]
         obj.set_componentEmissionsFactor(co2ComponentList)
-
-        # get the price of cooling water and the various steam prices
-        superHeatedSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Superheated steam']
-        highPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['High pressure steam']
-        mediumPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Medium pressure steam']
-        lowPressureSteam = utilityDTO.temperatureParameters['Costs (€/MWh)']['Low pressure steam']
-        costCooling = utilityDTO.temperatureParameters['Costs (€/MWh)']['Cooling water']
-        # set the cost prices
-        dictTemperaturePrices = {'super': superHeatedSteam,
-                                 'high': highPressureSteam,
-                                 'medium': mediumPressureSteam,
-                                 'low': lowPressureSteam}
-
-        obj.temperaturePricesDict = dictTemperaturePrices
-        obj.set_deltaCool(costCooling)
-
-        temperatureList = list(utilityDTO.temperatureParameters['Temperature (°C)'].values())
-        priceList = list(utilityDTO.temperatureParameters['Costs (€/MWh)'].values())
-        obj.set_heatUtilities(temperatureList, priceList)
-
-        utilityPrices = {'Electricity': utilityDTO.utilityParameters['Costs (€/MWh)'][0],
-                         'Chilling': utilityDTO.utilityParameters['Costs (€/MWh)'][-1]}
+        # TODO Condense these into a single list when you have time.
+        setterList = {}
+        for dto in self.centralDataManager.temperatureData:
+            if dto.shortname == "cool":
+                obj.set_deltaCool(dto.cost)
+                setterList[dto.shortname] = (dto.temp, dto.cost)
+            else:
+                obj.temperaturePricesDict[dto.shortname] = dto.cost
+                setterList[dto.shortname] = (dto.temp, dto.cost)
+        obj.set_heatUtilitiesFromList(setterList)
         obj.set_deltaUt(utilityPrices)
 
         return obj

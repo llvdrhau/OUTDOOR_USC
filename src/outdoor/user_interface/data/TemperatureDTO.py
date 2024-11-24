@@ -14,6 +14,20 @@ class TemperatureDTO(OutdoorDTO):
         self.LCA = LCA
         self.uid = uid
         self.calculated = calculated
+        self.shortname = ""
+        match temperatureName:
+            case "Superheated steam":
+                self.shortname = 'super'
+            case "High pressure steam":
+                self.shortname = 'high'
+            case "Medium pressure steam":
+                self.shortname = 'medium'
+            case "Low pressure steam":
+                self.shortname = 'low'
+            case "Cooling water":
+                self.shortname = 'cool'
+            case _:
+                self.shortname = ""
 
     def as_dict(self):
         d = {
