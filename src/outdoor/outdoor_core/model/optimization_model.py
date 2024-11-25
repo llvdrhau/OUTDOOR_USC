@@ -98,6 +98,7 @@ class SuperstructureModel(AbstractModel):
         self.create_Sets()
         self.create_MassBalances()
         self.create_EnergyBalances()
+        self.create_WasteCosts()
         self.create_EconomicEvaluation()
         self.create_EnvironmentalEvaluation()
         self.create_FreshwaterEvaluation()
@@ -152,9 +153,13 @@ class SuperstructureModel(AbstractModel):
         self.U_SU = Set(within=self.U_S * self.U)
         self.U_DIST = Set(within=self.U)
         self.U_DIST_SUB = Set(within=self.U_DIST * self.U)
-
         self.U_CONNECTORS = Set(within=self.U * self.U)
 
+        # waste Management
+        self.WASTE_MANAGEMENT_TYPES = Set(initialize=["Incineration", "Landfill", "WWTP"])
+
+        # impact categories of life cycle assessment
+        self.IMPACT_CATAGORIES = Set(initialize=["GWP"])
 
         # Components
         # ----------
@@ -604,9 +609,7 @@ class SuperstructureModel(AbstractModel):
                 return self.REF_FLOW_UT[u, ut] == 0
 
         def UtilityBalance_2_rule(self, u, ut):
-            return (
-                self.ENERGY_DEMAND[u, ut] == self.REF_FLOW_UT[u, ut] * self.tau[u, ut]
-            )
+            return (self.ENERGY_DEMAND[u, ut] == self.REF_FLOW_UT[u, ut] * self.tau[u, ut])
 
         def UtilityBalance_3_rule(self, ut):
             if ut == "Electricity":
@@ -878,7 +881,31 @@ class SuperstructureModel(AbstractModel):
         self.HeatBalance_15 = Constraint(self.U, rule=HeatBalance_15_rule)
         self.HeatBalance_16 = Constraint(rule=HeatBalance_16_rule)
 
-    # **** COST BALANCES *****
+    # *** Waste Costs ****
+    # --------------------
+    def create_WasteCosts(self):
+
+        # set parameters
+        self.waste_cost_fac = Param(self.WASTE_MANAGEMENT_TYPES, initialize=0, mutable=True)
+        self.waste_type_U = Param(self.U, initialize='Landfill', mutable=True)
+
+        # set variables
+        self.WASTE_COST_U = Var(self.U, within=NonNegativeReals)
+        self.WASTE_COST_TOT = Var(within=NonNegativeReals)
+
+        def Cost_Waste_rule(self, u):
+            wasteType = self.waste_type_U[u].value
+            return (self.WASTE_COST_U[u] == self.flh[u] *
+                    sum(self.FLOW_WASTE[u, i] * self.waste_cost_fac[wasteType] for i in self.I))
+
+        def Cost_Waste_TOT(self):
+            return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.U)/1000
+
+        # add constraints
+        self.Cost_Waste = Constraint(self.U, rule=Cost_Waste_rule)
+        self.Cost_Waste_TOT = Constraint(rule=Cost_Waste_TOT)
+
+    # **** COST BALANCES ****
     # -------------------------
 
     def create_EconomicEvaluation(self):
@@ -1156,8 +1183,9 @@ class SuperstructureModel(AbstractModel):
                 == self.M_COST_TOT                                 # operating and maintenance costs
                 + self.RM_COST_TOT/1000                                 # raw material costs
                 + sum(self.ENERGY_COST[ut] for ut in self.U_UT)/1000    # utility costs energy
-                + self.C_TOT   /1000                                    # selling or buying of energy (from HEN)
-                + self.ELCOST /1000                                      # electricity costs for heat pump
+                + self.C_TOT/1000                                    # selling or buying of energy (from HEN)
+                + self.ELCOST/1000                                      # electricity costs for heat pump
+                + self.WASTE_COST_TOT/1000                               # waste costs
             )
 
         self.RM_CostBalance_1 = Constraint(rule=RM_CostBalance_1_rule)
@@ -1353,133 +1381,67 @@ class SuperstructureModel(AbstractModel):
     # *** LCA EQUATIONS ***
     # ------------------------
     def create_LCAEquations(self):
+        """
+        Description
+        :return:
+        """
+        # start with impacts of the inflowing components
+        # needs to be introduced like phi variable! look how it is passed on
+        self.impact_inFlow_components = Param(self.I, initialize=0, mutable=True)
+        self.IMPACT_INPUTS_U_CAT = Var(self.U, self.IMPACT_CATAGORIES)
+        self.IMPACT_INPUTS_PER_CAT = Var(self.IMPACT_CATAGORIES)
 
-        # parameters
-        self.rmh_TAP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_GWP1000 = Param(self.U, initialize=0, mutable=True)
-        self.rmh_FETP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_METP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_TETP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_FFP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_FEP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_MEP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_HTPc = Param(self.U, initialize=0, mutable=True)
-        self.rmh_HTPnc = Param(self.U, initialize=0, mutable=True)
-        self.rmh_IRP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_LOP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_SOP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_ODPinfinite =Param(self.U, initialize=0, mutable=True)
-        self.rmh_PMFP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_HOFP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_EOFP = Param(self.U, initialize=0, mutable=True)
-        self.rmh_WCP = Param(self.U, initialize=0, mutable=True)
-        self.reh_ecosystem_quality = Param(self.U, initialize=0, mutable=True)
-        self.reh_human_health = Param(self.U, initialize=0, mutable=True)
-        self.reh_natural_resources = Param(self.U, initialize=0, mutable=True)
-        self.ced_renewable_energy_resources  = Param(self.U, initialize=0, mutable=True)
-        self.ced_non_renewable_energy_sources  = Param(self.U, initialize=0, mutable=True)
+        def LCA_Inflow_U_rule(self, u, ImpCat):
+            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i]
+                                                for i in self.I)
+        def LCA_All_Inflow_rule(self, ImpCat):
+            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u,ImpCat] for u in self.U) * self.H
 
-        # variables; the impact per unit process
-        self.rmh_TAP_var = Var(self.U)
-        self.rmh_GWP1000_var = Var(self.U)
-        self.rmh_FETP_var = Var(self.U)
-        self.rmh_METP_var = Var(self.U)
-        self.rmh_TETP_var = Var(self.U)
-        self.rmh_FFP_var = Var(self.U)
-        self.rmh_FEP_var = Var(self.U)
-        self.rmh_MEP_var = Var(self.U)
-        self.rmh_HTPc_var = Var(self.U)
-        self.rmh_HTPnc_var = Var(self.U)
-        self.rmh_IRP_var = Var(self.U)
-        self.rmh_LOP_var = Var(self.U)
-        self.rmh_SOP_var = Var(self.U)
-        self.rmh_ODPinfinite_var = Var(self.U)
-        self.rmh_PMFP_var = Var(self.U)
-        self.rmh_HOFP_var = Var(self.U)
-        self.rmh_EOFP_var = Var(self.U)
-        self.rmh_WCP_var = Var(self.U)
-        self.reh_ecosystem_quality_var = Var(self.U)
-        self.reh_human_health_var = Var(self.U)
-        self.reh_natural_resources_var = Var(self.U)
-        self.ced_renewable_energy_resources_var = Var(self.U)
-        self.ced_non_renewable_energy_sources_var = Var(self.U)
+        self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATAGORIES, rule=LCA_Inflow_U_rule)
+        self.LCA_InFlow_Total_Per_Catagories = Constraint(self.IMPACT_CATAGORIES, rule=LCA_All_Inflow_rule)
 
-        # the total Enviromental impact
+        # now the impacts of energy and heat consumption
+        # set the parameters
+        self.util_impact_factors = Param(self.UT, self.IMPACT_CATAGORIES, initialize=0, mutable=True)
+        # set the variables
+        self.IMPACT_UTILITIES = Var(self.UT, self.IMPACT_CATAGORIES)
+        self.IMPACT_UTILITIES_PER_CAT = Var(self.IMPACT_CATAGORIES)
 
-        def LCA_rmh_TAP_rule(self,u):
-            return self.rmh_TAP_var[u] == self.rmh_TAP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_GWP1000_rule(self,u):
-            return self.rmh_GWP1000_var[u] == self.rmh_GWP1000[u] * self.FLOW_SUM[u]
-        def LCA_rmh_FETP_rule(self,u):
-            return self.rmh_FETP_var[u] == self.rmh_FETP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_METP_rule(self,u):
-            return self.rmh_METP_var[u] == self.rmh_METP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_TETP_rule(self,u):
-            return self.rmh_TETP_var[u] == self.rmh_TETP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_FFP_rule(self,u):
-            return self.rmh_FFP_var[u] == self.rmh_FFP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_FEP_rule(self, u):
-            return self.rmh_FEP_var[u] == self.rmh_FEP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_MEP_rule(self, u):
-            return self.rmh_MEP_var[u] == self.rmh_MEP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_HTPc_rule(self, u):
-            return self.rmh_HTPc_var[u] == self.rmh_HTPc[u] * self.FLOW_SUM[u]
-        def LCA_rmh_HTPnc_rule(self, u):
-            return self.rmh_HTPnc_var[u] == self.rmh_HTPnc[u] * self.FLOW_SUM[u]
-        def LCA_rmh_IRP_rule(self, u):
-            return self.rmh_IRP_var[u] == self.rmh_IRP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_LOP_rule(self, u):
-            return self.rmh_LOP_var[u] == self.rmh_LOP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_SOP_rule(self, u):
-            return self.rmh_SOP_var[u] == self.rmh_SOP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_ODPinfinite_rule(self, u):
-            return self.rmh_ODPinfinite_var[u] == self.rmh_ODPinfinite[u] * self.FLOW_SUM[u]
-        def LCA_rmh_PMFP_rule(self, u):
-            return self.rmh_PMFP_var[u] == self.rmh_PMFP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_HOFP_rule(self, u):
-            return self.rmh_HOFP_var[u] == self.rmh_HOFP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_EOFP_rule(self, u):
-            return self.rmh_EOFP_var[u] == self.rmh_EOFP[u] * self.FLOW_SUM[u]
-        def LCA_rmh_WCP_rule(self, u):
-            return self.rmh_WCP_var[u] == self.rmh_WCP[u] * self.FLOW_SUM[u]
-        def LCA_reh_ecosystem_quality_rule(self, u):
-            return self.reh_ecosystem_quality_var[u] == self.reh_ecosystem_quality[u] * self.FLOW_SUM[u]
-        def LCA_reh_human_health_rule(self, u):
-            return self.reh_human_health_var[u] == self.reh_human_health[u] * self.FLOW_SUM[u]
-        def LCA_reh_natural_resources_rule(self, u):
-            return self.reh_natural_resources_var[u] == self.reh_natural_resources[u] * self.FLOW_SUM[u]
-        def LCA_ced_renewable_energy_resources_rule(self, u):
-            return self.ced_renewable_energy_resources_var[u] == self.ced_renewable_energy_resources[u] * self.FLOW_SUM[
-                u]
-        def LCA_ced_non_renewable_energy_sources_rule(self, u):
-            return self.ced_non_renewable_energy_sources_var[u] == self.ced_non_renewable_energy_sources[u] * \
-                self.FLOW_SUM[u]
+        # set the constraints
+        def LCA_Utility_rule(self, ut, impCat):
+            if ut == "Electricity":
+                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut] + self.ENERGY_DEMAND_HP_EL * self.H)
+                        * self.util_impact_factors[ut, impCat])
+            elif ut == "Chilling":
+                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut] * self.util_impact_factors[ut, impCat]
 
-        # add all the constraints to the model
-        self.LCA_rmh_TAP_Equation = Constraint(self.U, rule=LCA_rmh_TAP_rule)
-        self.LCA_rmh_GWP1000_Equation = Constraint(self.U, rule=LCA_rmh_GWP1000_rule)
-        self.LCA_rmh_FETP_Equation = Constraint(self.U, rule=LCA_rmh_FETP_rule)
-        self.LCA_rmh_METP_Equation = Constraint(self.U, rule=LCA_rmh_METP_rule)
-        self.LCA_rmh_TETP_Equation = Constraint(self.U, rule=LCA_rmh_TETP_rule)
-        self.LCA_rmh_FFP_Equation = Constraint(self.U, rule=LCA_rmh_FFP_rule)
-        self.LCA_rmh_FEP_Equation = Constraint(self.U, rule=LCA_rmh_FEP_rule)
-        self.LCA_rmh_MEP_Equation = Constraint(self.U, rule=LCA_rmh_MEP_rule)
-        self.LCA_rmh_HTPc_Equation = Constraint(self.U, rule=LCA_rmh_HTPc_rule)
-        self.LCA_rmh_HTPnc_Equation = Constraint(self.U, rule=LCA_rmh_HTPnc_rule)
-        self.LCA_rmh_IRP_Equation = Constraint(self.U, rule=LCA_rmh_IRP_rule)
-        self.LCA_rmh_LOP_Equation = Constraint(self.U, rule=LCA_rmh_LOP_rule)
-        self.LCA_rmh_SOP_Equation = Constraint(self.U, rule=LCA_rmh_SOP_rule)
-        self.LCA_rmh_ODPinfinite_Equation = Constraint(self.U, rule=LCA_rmh_ODPinfinite_rule)
-        self.LCA_rmh_PMFP_Equation = Constraint(self.U, rule=LCA_rmh_PMFP_rule)
-        self.LCA_rmh_HOFP_Equation = Constraint(self.U, rule=LCA_rmh_HOFP_rule)
-        self.LCA_rmh_EOFP_Equation = Constraint(self.U, rule=LCA_rmh_EOFP_rule)
-        self.LCA_rmh_WCP_Equation = Constraint(self.U, rule=LCA_rmh_WCP_rule)
-        self.LCA_reh_ecosystem_quality_Equation = Constraint(self.U, rule=LCA_reh_ecosystem_quality_rule)
-        self.LCA_reh_human_health_Equation = Constraint(self.U, rule=LCA_reh_human_health_rule)
-        self.LCA_reh_natural_resources_Equation = Constraint(self.U, rule=LCA_reh_natural_resources_rule)
-        self.LCA_ced_renewable_energy_resources_Equation = Constraint(self.U, rule=LCA_ced_renewable_energy_resources_rule)
-        self.LCA_ced_non_renewable_energy_sources_Equation = Constraint(self.U, rule=LCA_ced_non_renewable_energy_sources_rule)
+            elif ut == "Heat":
+                return (self.IMPACT_UTILITIES[ut, impCat] == self.H * self.util_impact_factors[ut]
+                    (sum(self.ENERGY_DEMAND_HEAT_DEFI[hi] for hi in self.HI) - self.ENERGY_DEMAND_HEAT_PROD_SELL))
+            else:
+                # skip heat 2
+                return self.IMPACT_UTILITIES[ut, impCat] == 0
+        def LCA_Utility_TOT_rule(self, impCat):
+            return self.IMPACT_UTILITIES_PER_CAT[impCat] == sum(self.IMPACT_UTILITIES[ut, impCat] for ut in self.UT)
 
+        self.LCA_GWP_Utilities = Constraint(self.U_UT, self.IMPACT_CATAGORIES, rule=LCA_Utility_rule)
+        self.LCA_GWP_Utilities_TOT = Constraint(self.IMPACT_CATAGORIES, rule=LCA_Utility_TOT_rule)
+
+        # impact of waste
+        # set the parameters
+        self.waste_impact_fac = Param(self.WASTE_MANAGEMENT_TYPES, self.IMPACT_CATAGORIES, initialize=0, mutable=True)
+        # set the variables
+        self.WASTE_U = Var(self.U, self.IMPACT_CATAGORIES)
+        self.WASTE_TOT = Var(self.IMPACT_CATAGORIES)
+        def LCA_Waste_rule(self, u, impCat):
+            wasteType = self.waste_type_U[u].value
+            return (self.WASTE_U[u, impCat] == self.flh[u] * sum(self.FLOW_WASTE[u, i] * self.waste_impact_fac[wasteType, impCat]
+                                                          for i in self.I))
+        def LCA_Waste_TOT_rule(self, impCat):
+            return self.WASTE_TOT[impCat] == sum(self.WASTE_U[u, impCat] for u in self.U)
+
+        self.LCA_Waste = Constraint(self.U, self.IMPACT_CATAGORIES, rule=LCA_Waste_rule)
+        self.LCA_Waste_TOT = Constraint(self.IMPACT_CATAGORIES, rule=LCA_Waste_TOT_rule)
 
 
     # **** DECISION MAKING EQUATIONS *****
@@ -1519,7 +1481,7 @@ class SuperstructureModel(AbstractModel):
 
                 if u in j and uu in j:
                     return self.Y[u] == self.Y[uu]
-                    ind = True
+                    ind = True # what is this?? Unreachable code?
 
             if ind == False:
                 return Constraint.Skip
@@ -1540,7 +1502,7 @@ class SuperstructureModel(AbstractModel):
                         # also this currently does not work if you want your input to only go into one unit...,
                         # Might have to build that functionality in the SOURCE tab of the Excel file
                         return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
-                        #ind = True
+                        # ind = True
 
             if ind == False:
                 return Constraint.Skip

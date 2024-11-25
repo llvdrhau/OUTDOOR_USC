@@ -1427,7 +1427,7 @@ class InteractiveLine(QGraphicsPathItem):
             self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
         elif ((unitDTOSending.type == ProcessType.DISTRIBUTOR or unitDTOSending.type == ProcessType.BOOLDISTRIBUTOR)
-              and unitDTOReceiving.type.value in [1, 2, 3, 4, 5, 6]):
+              and unitDTOReceiving.type.value in [1, 2, 3, 4, 5, 6, 7]):
 
             id2Delete = unitDTOReceiving.uid
             unitDTOSending.distributionContainer.remove(id2Delete)

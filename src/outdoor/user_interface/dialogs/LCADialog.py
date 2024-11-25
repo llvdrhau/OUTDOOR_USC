@@ -25,6 +25,7 @@ class LCADialog(QDialog):
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
         self.logger = logging.getLogger(__name__)
+        logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
         logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
@@ -64,7 +65,8 @@ class LCADialog(QDialog):
                                     }
                                 """)
         self.setWindowTitle("LCA Lookup")
-        self.setGeometry(100, 100, 400, 500)  # Adjust size as needed
+        self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
+
         # TODO: Better initialization and handling of BW integration.
         bw.projects.set_current("outdoor")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
@@ -245,7 +247,7 @@ class LCADialog(QDialog):
                 self.outd.new_activity(self.dto.uid, **process).save()
 
             act = [m for m in self.outd if m["code"] == self.dto.uid][0]
-
+            self.logger.debug(f"Persisting LCA data for {self.dto.name} with BW code {act['code']}")
             ext_list = []
             for row in range(self.selectedProcessesTable.rowCount()):
                 demand = self.selectedProcessesTable.item(row, 0).text()
@@ -268,6 +270,7 @@ class LCADialog(QDialog):
                     type="biosphere" if ex['database'] == "biosphere3" else "technosphere",
                 ).save()
             act.save()
+            self.logger.info("Inventory saved.")
         except Exception as e:
             self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
 
