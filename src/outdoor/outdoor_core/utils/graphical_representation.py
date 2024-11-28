@@ -67,13 +67,8 @@ def create_superstructure_flowsheet(superstructure, path, saveName=None):
         data = list(dict.fromkeys(data))
 
 
-
-
-
     flowchart  = pydot.Dot('flowchart', rankdir = 'LR', ratio="compress",
                            size="15!,1",  dpi="500")
-
-
 
     nodes = {}
     edges = {}

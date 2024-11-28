@@ -11,7 +11,7 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         self.UnitType = ProcessType.YIELD
 
         # Add Yield Reaction Tab to the tab widget of the parent class
-        self.tabWidget.addTab(self._createYieldTab(), "Yield Reaction")
+        self.tabWidget.insertTab(6, self._createYieldTab(), "Yield Reaction")
 
         if initialData.dialogData:
             self._populateYieldTab(initialData.dialogData)

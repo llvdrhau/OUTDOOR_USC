@@ -39,6 +39,7 @@ class CentralDataManager:
         self.utilityData: list[UtilityDTO] = []
         self.temperatureData: list[TemperatureDTO] = []
         self.wasteData: list[WasteTreatmentDTO] = []
+        self.wasteManagementTypes: list[str] = []
         self.componentData: list[ComponentDTO] = []
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
@@ -70,10 +71,11 @@ class CentralDataManager:
             case _:
                 self.logger.error(f"Error: Field \"{field}\" not recognized")
 
-
     def getChemicalComponentNames(self):
         return self.namesChemicalComponents
 
+    def setWasteManagementTypes(self, wasteManagementTypes):
+        self.wasteManagementTypes = wasteManagementTypes
     def addReactionData(self, data):
         """
         Adds Reactions to the ReactionsData

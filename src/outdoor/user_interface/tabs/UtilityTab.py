@@ -99,6 +99,10 @@ class UtilityTab(QWidget):
         self.wasteTable = QTableWidget()
         self.wasteColumns = ["Type", "Cost (€/t)", "LCA"]
         self.wshortNames = ["name", "cost", "LCA"]
+        # add more waste managment types here! Propogates trought the whole program
+        self.wasteManagementList = ["Incineration", "Landfill", "WWTP"]
+        # add the list to the centralDataManager
+        self.centralDataManager.setWasteManagementTypes(self.wasteManagementList)
 
         self.wasteTable.setColumnCount(len(self.wshortNames))
         self.wasteTable.setHorizontalHeaderLabels(self.wasteColumns)
@@ -144,7 +148,7 @@ class UtilityTab(QWidget):
             for name in ["Superheated steam", "High pressure steam", "Medium pressure steam", "Low pressure steam", "Cooling water"]:
                 self.temperatureData.append(TemperatureDTO(temperatureName=name, uid=str(uuid.uuid4())))
         if len(self.wasteData) == 0:
-            for name in ['Incineration', 'Landfilling', 'WWT']:
+            for name in self.wasteManagementList:
                 self.wasteData.append(WasteTreatmentDTO(waste_name=name, uid=str(uuid.uuid4())))
         self.importData()
 
@@ -168,7 +172,7 @@ class UtilityTab(QWidget):
                         btn.clicked.connect(btn.lcaAction)
                         self.utilitiesTable.setCellWidget(rowPosition, index, btn)
                 else:
-                    insert = QTableWidgetItem(value)
+                    insert = QTableWidgetItem(str(value))
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
                     if key == 'name':
                         insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
@@ -201,7 +205,7 @@ class UtilityTab(QWidget):
                         self.temperatureTable.setCellWidget(rowPosition, index, btn)
 
                 else:
-                    insert = QTableWidgetItem(value)
+                    insert = QTableWidgetItem(str(value))
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
                     if key == 'name':
                         insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
@@ -230,7 +234,7 @@ class UtilityTab(QWidget):
                         self.wasteTable.setCellWidget(rowPosition, index, btn)
 
                 else:
-                    insert = QTableWidgetItem(value)
+                    insert = QTableWidgetItem(str(value))
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
                     if key == 'name':
                         insert.setFlags(insert.flags() | ~Qt.ItemIsEditable)
@@ -238,6 +242,7 @@ class UtilityTab(QWidget):
                     self.wasteTable.setItem(rowPosition, index, insert)
         # set the flag of adding a row to false
         self.addingRowFlag = False
+
     # def keyPressEvent(self, event):
     #     if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
     #         selectedItems = self.utilitiesTable.selectedItems()
@@ -281,6 +286,7 @@ class UtilityTab(QWidget):
                 item = self.utilitiesTable.item(row, sindex)
                 if column not in ['Name','LCA']:
                     edit.upadateField(self.columnShortnames[sindex], item.text())
+
         for row in range(self.temperatureTable.rowCount()):
             edit = self.temperatureData[row]
             for column in self.temperatureColumns:
@@ -288,6 +294,14 @@ class UtilityTab(QWidget):
                 item = self.temperatureTable.item(row, sindex)
                 if column not in ['Type', 'LCA']:
                     edit.upadateField(self.tshortNames[sindex], item.text())
+
+        for row in range(self.wasteTable.rowCount()):
+            edit = self.wasteData[row]
+            for column in self.wasteColumns:
+                sindex = self.wasteColumns.index(column)
+                item = self.wasteTable.item(row, sindex)
+                if column not in ['Type', 'LCA']:
+                    edit.upadateField(self.wshortNames[sindex], item.text())
 
     def importData(self):
         try:

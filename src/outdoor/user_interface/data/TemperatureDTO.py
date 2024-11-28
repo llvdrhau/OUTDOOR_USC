@@ -45,8 +45,16 @@ class TemperatureDTO(OutdoorDTO):
             case 'name':
                 self.name = value
             case 'cost':
+                if value == "":
+                    self.cost = 0
+                else:
+                    value = float(value)
                 self.cost = value
             case 'temp':
+                if value == "":
+                    self.temp = 0
+                else:
+                    value = float(value)
                 self.temp = value
             case 'calculated':
                 self.calculated = value

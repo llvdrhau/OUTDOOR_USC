@@ -172,7 +172,25 @@ class Superstructure:
         self.Scenarios = {'SC': []}  #Stochastic, maybe redundant
         self.Odds = {'odds': []}  #Prolly stochastic modeling too
 
-        # ------------------
+        # todo add to the indexed or non indexed attributes
+        # ---------------------------------------------------------------
+        # new attributes for the new UI variables
+        # sets NON INDEXED
+        self.ImpactCategories = {'IMPACT_CATEGORIES': []}  # set when collecting general data
+        self.WasteManagementTypes = {'WASTE_MANAGEMENT_TYPES': []}  # set when collecting general data
+
+        # Parameters INDEXED
+        self.WasteCost = {'waste_cost_factor': {}} # set When collecting general data
+        self.WasteDisposalImpactFactors = {'waste_impact_fac': {}}
+        self.ImpactInflowComponents = {'impact_inFlow_components': {}}
+        self.UtilityImpactFactors = {'util_impact_factors': {}}
+
+        # this should be a parameter that is set in the Class PysicalProcess!! (as it depends on the process)
+        # or you could set it in this Class and give the attribute to the PhysicalProcess which can be called from the
+        # attribute self.UnitList (see _set_unitNames() for an example)
+        self.WasteTypeU = {'waste_type_U': {}}
+        # ---------------------------------------------------------------
+
 
         # Heat Balance and Utilities
         # --------------------------
@@ -518,36 +536,6 @@ class Superstructure:
         for i, j in cp_dic.items():
             self.cp['CP'][i] = j
 
-    def set_LCA_parameters(self, lca_dic):
-        """
-        Parameters
-        :param lca_dic: dict{UnitNumber, {parameterName :value}}
-        :return:
-        """
-        for i, j in lca_dic.items():
-            self.rmh_TAP['rmh_TAP'][i] = j['rmh_TAP']
-            self.rmh_GWP1000['rmh_GWP1000'][i] = j['rmh_GWP1000']
-            self.rmh_FETP['rmh_FETP'][i] = j['rmh_FETP']
-            self.rmh_METP['rmh_METP'][i] = j['rmh_METP']
-            self.rmh_TETP['rmh_TETP'][i] = j['rmh_TETP']
-            self.rmh_FFP['rmh_FFP'][i] = j['rmh_FFP']
-            self.rmh_FEP['rmh_FEP'][i] = j['rmh_FEP']
-            self.rmh_MEP['rmh_MEP'][i] = j['rmh_MEP']
-            self.rmh_HTPc['rmh_HTPc'][i] = j['rmh_HTPc']
-            self.rmh_HTPnc['rmh_HTPnc'][i] = j['rmh_HTPnc']
-            self.rmh_IRP['rmh_IRP'][i] =  j['rmh_IRP']
-            self.rmh_LOP['rmh_LOP'][i] =  j['rmh_LOP']
-            self.rmh_SOP['rmh_SOP'][i] =  j['rmh_SOP']
-            self.rmh_ODPinfinite['rmh_ODPinfinite'][i] = j['rmh_ODPinfinite']
-            self.rmh_PMFP['rmh_PMFP'][i] =  j['rmh_PMFP']
-            self.rmh_HOFP['rmh_HOFP'][i] =  j['rmh_HOFP']
-            self.rmh_EOFP['rmh_EOFP'][i] =  j['rmh_EOFP']
-            self.rmh_WCP['rmh_WCP'][i] =  j['rmh_WCP']
-            self.reh_ecosystem_quality['reh_ecosystem_quality'][i] = j['reh_ecosystem_quality']
-            self.reh_human_health['reh_human_health'][i] = j['reh_human_health']
-            self.reh_natural_resources['reh_natural_resources'][i] = j['reh_natural_resources']
-            self.ced_renewable_energy_resources['ced_renewable_energy_resources'][i] = j['ced_renewable_energy_resources']
-            self.ced_non_renewable_energy_sources['ced_non_renewable_energy_sources'][i] = j['ced_non_renewable_energy_sources']
 
     def add_linearisationIntervals(self):
         if self.linearizationDetail == "rough":
@@ -839,8 +827,8 @@ class Superstructure:
         r = len(self.Heat_Temperatures)
 
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C'] and i.Number not in self.HeatGeneratorList[
-                "U_FUR"] and i.Number not in self.ElectricityGeneratorList['U_TUR']:
+            if (i.Number in self.CostUnitsList['U_C'] and i.Number not in self.HeatGeneratorList["U_FUR"]
+                and i.Number not in self.ElectricityGeneratorList['U_TUR']):
                 for k, j in i.HeatData.items():
                     tau = j['tau']
                     if tau is not None:
@@ -944,6 +932,34 @@ class Superstructure:
             if i not in self.connections_set['U_CONNECTORS']:
                 self.connections_set['U_CONNECTORS'].append(i)
 
+    def _set_waste_management_types(self, waste_types: list):
+        for waste_type in waste_types:
+            self.WasteManagementTypes['WASTE_MANAGEMENT_TYPES'].append(waste_type)
+    def _set_impact_categories(self, impact_categories: list):
+        for impact_category in impact_categories:
+            self.ImpactCategories['IMPACT_CATEGORIES'].append(impact_category)
+
+    def _set_waste_cost(self, waste_cost: dict):
+        for key, value in waste_cost.items():
+            self.WasteCost['waste_cost_factor'][key] = value
+
+    def _set_waste_management_impact_factors(self, waste_disposal_impact_factors: dict):
+        for key, value in waste_disposal_impact_factors.items():
+            self.WasteDisposalImpactFactors['waste_impact_fac'][key] = value
+    def _set_component_impact_factors(self, component_impact_factors: dict):
+        for key, value in component_impact_factors.items():
+            self.ImpactInflowComponents['impact_inFlow_components'][key] = value
+
+    def _set_utility_impact_factors(self, utility_impact_factors: dict):
+        for key, value in utility_impact_factors.items():
+            self.UtilityImpactFactors['util_impact_factors'][key] = value
+
+    def _set_waste_type_u(self):
+        for unit in self.UnitsList:
+            if unit.WasteType is not None:
+                self.WasteTypeU['waste_type_U'][unit.Number] = unit.WasteType
+            else:
+                RaiseError('Waste Type is not set for unit {}'.format(unit.Number))
     #------------------------------------------------------------------------------
     #------------------------------------------------------------------------------
     #--------------------------CREATE DATA-FILE METHODS ---------------------------
@@ -993,6 +1009,9 @@ class Superstructure:
         self.NI_ParameterList.append(self.OtherUtilitiesList)
         self.NI_ParameterList.append(self.ProductLoad)
         self.NI_ParameterList.append(self.Scenarios)
+        # new additions
+        self.NI_ParameterList.append(self.ImpactCategories)
+        self.NI_ParameterList.append(self.WasteManagementTypes)
 
     def __fill_indexedParameterList(self):
         """
@@ -1011,6 +1030,14 @@ class Superstructure:
         self.I_ParameterList.append(self.cp)
         self.I_ParameterList.append(self.delta_ut)
         self.I_ParameterList.append(self.Odds)
+
+        # new additions
+        self.I_ParameterList.append(self.WasteCost)
+        self.I_ParameterList.append(self.WasteDisposalImpactFactors)
+        self.I_ParameterList.append(self.ImpactInflowComponents)
+        self.I_ParameterList.append(self.UtilityImpactFactors)
+        self.I_ParameterList.append(self.WasteTypeU)
+
 
     # Add the Parameters from the Lists to the Model-Ready Data File
     # ---------------

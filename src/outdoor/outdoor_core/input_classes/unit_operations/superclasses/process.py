@@ -40,6 +40,7 @@ class Process():
         self.Type = None
         self.Group = None
         self.Connections = dict()
+        self.WasteDisposalType = None
 
 
 
@@ -106,11 +107,16 @@ class Process():
                         maintenancefactor=None,
                         CostPercentage=None,
                         TimeSpan=None,
-                        TimeMode=None
+                        TimeMode=None,
+                        wasteDisposalType=None,
                          ):
 
         self.set_group(ProcessGroup)
         self.set_full_load_hours(full_load_hours)
+
+        # if wasteDisposalType is not None, set it only works with the UI interface, hence the if statement
+        if wasteDisposalType:
+            self.set_wasteDisposalType(wasteDisposalType)
 
 
 
@@ -130,8 +136,8 @@ class Process():
     def set_connections(self, units_dict):
         self.Connections = units_dict
 
-
-
+    def set_wasteDisposalType(self, WasteDisposalType):
+        self.WasteDisposalType = WasteDisposalType
 
 
     # FLOW DATA SETTING

@@ -21,8 +21,14 @@ class ConstructSuperstructure:
 
         # pass on the centralDataManager
         self.centralDataManager = centralDataManager
-        # set some default values
 
+        self.warningMessage = ''
+        # stop the code if the centralDataManager is empty
+        if not self.centralDataManager.unitProcessData:
+            self.warningMessage = "The centralDataManager is empty, please fill in the data before running the simulation"
+            return
+
+        # set some default values
         # make a dictionary of the reaction names and the corresponding reaction dto for easy access later on
         self.reactionDict = {dto.name: dto for dto in self.centralDataManager.reactionData}
         self.reactionNumberDict = {dto.name: i + 1 for i, dto in enumerate(self.centralDataManager.reactionData)}
@@ -71,7 +77,7 @@ class ConstructSuperstructure:
         productLoad = self.centralDataManager.generalData['productLoad']
 
         if productLoad == '':
-            productLoad = None
+            productLoad = 1
         else:
             productLoad = float(productLoad)
 
@@ -115,6 +121,9 @@ class ConstructSuperstructure:
                     errorTemp = 'Outlet Temperature'
                 self.logger.error("{} for the Heat Pump is not set correctly \n"
                                   "Defaulted to T_in = 0 and T_out = 0.".format(errorTemp))
+            else:
+                T_IN = float(T_IN)
+                T_OUT = float(T_OUT)
 
             obj.set_heatPump(Costs,
                              Lifetime,
@@ -166,7 +175,7 @@ class ConstructSuperstructure:
         obj.set_utilityFreshWaterFator(emissionsWaterUtilityDict)
 
         # replaced by the lca data not important any more, just make a list of zeros to not break the code
-        co2ComponentList = [0 for dto in self.centralDataManager.componentData]
+        co2ComponentList = {dto.name: 0 for dto in self.centralDataManager.componentData}
         obj.set_componentEmissionsFactor(co2ComponentList)
         # TODO Condense these into a single list when you have time.
         setterList = {}
@@ -180,6 +189,43 @@ class ConstructSuperstructure:
         obj.set_heatUtilitiesFromList(setterList)
         obj.set_deltaUt(utilityPrices)
 
+        # set new additions
+        # set # sets NON INDEXED
+        #         self.ImpactCategories = {'IMPACT_CATEGORIES': []}  # set when collecting general data
+        #         self.WasteManagementTypes = {'WASTE_MANAGEMENT_TYPES': []}  # set when collecting general data
+        #
+        #         # Parameters INDEXED
+        #         self.WasteCost = {'waste_cost_factor': {}} # set When collecting general data
+        #         self.WasteDisposalImpactFactors = {'waste_impact_fac': {}}
+        #         self.ImpactInflowComponents = {'impact_inFlow_components': {}}
+        #         self.UtilityImpactFactors = {'util_impact_factors': {}}
+
+        # set the impact categories
+        #impactCategories = ['GWP', 'RM'] # dto.dialogData['Impact Categories']
+        # you could also get the impact categories from the LCA data from the waste or Temperature dto's
+        # the impact categories should be the same for all the dto's
+        # todo this is mega convoluted,add attributes to the dto's to get the impact categories, wait until Mias has
+        #  implemented methodes to select impact categories
+        impactCategoriesDict = self.centralDataManager.utilityData[0].getLCAImpacts()
+        impactCategories = list(list(impactCategoriesDict.values())[0].keys())
+        obj._set_impact_categories(impactCategories)
+
+        # set the waste management types
+        wasteManagementTypes = self.centralDataManager.wasteManagementTypes
+        obj._set_waste_management_types(wasteManagementTypes)
+
+        # set the waste cost factor
+        wasteCostFactorDict = {dto.name: float(dto.cost) for dto in self.centralDataManager.wasteData}
+        obj._set_waste_cost(wasteCostFactorDict)
+
+        # set the waste impact factors
+        wasteImpactFactorsDict = {dto.name: float(dto.impact) for dto in self.centralDataManager.wasteData}
+        obj._set_waste_management_impact_factors(wasteImpactFactorsDict)
+
+        # set the impact inflow components
+        # todo tomoorow, add the impact inflow components to the dto's
+
+
         return obj
 
     def _setUnitProcessData(self):
@@ -189,6 +235,7 @@ class ConstructSuperstructure:
         """
         processUnit_ObjectList = []  # in outdoor this is PU_ObjectList in main.py in the excel wrapper
         unitDTODictionary = self.centralDataManager.unitProcessData
+        counter = 0 # to give unique names to the distributors
         for uuid, dto in unitDTODictionary.items():
             if dto.type == ProcessType.INPUT:
                 InputObject = self._setInputData(dto)
@@ -197,18 +244,19 @@ class ConstructSuperstructure:
                 OutputObject = self._setOutputData(dto)
                 processUnit_ObjectList.append(OutputObject)
             elif dto.type == ProcessType.DISTRIBUTOR:
-                DistributorObject = self._setDistributionData(dto)
+                DistributorObject = self._setDistributionData(dto, counter)
                 processUnit_ObjectList.append(DistributorObject)
+                counter += 1 # to give unique names to the distributors
             elif dto.type.value in list(range(1, 7)):  # not an input, output or distributor
                 ProcessObject = self._setProcessData(dto)
                 processUnit_ObjectList.append(ProcessObject)
         return processUnit_ObjectList
+
     def _setInputData(self, dto):
         """
         Continue filling in the superstructure with data from input units
         :return: Superstructure Object
         """
-        # todo you might need to change the number to hex code instead of using the UID directly
 
         # Initiate object
         InputObject = Source(Name=dto.name, UnitNumber=dto.uid)
@@ -231,12 +279,12 @@ class ConstructSuperstructure:
         # freshwaterFactor = dto.dialogData['Freshwater Factor']
 
         if upperLimit == '':
-            upperLimit = default_lowerLimit
+            upperLimit = default_upperLimit
         else:
             upperLimit = float(upperLimit)
 
         if lowerLimit == '':
-            lowerLimit = default_upperLimit
+            lowerLimit = default_lowerLimit
         else:
             lowerLimit = float(lowerLimit)
 
@@ -262,6 +310,8 @@ class ConstructSuperstructure:
         # main or by product
         if 'productType' in list(dto.dialogData.keys()):
             productType = dto.dialogData['productType']
+            # get rid of the spaces so it is correctly formatted for the superstructure object
+            productType = productType.replace(" ", "")
         else:
             productType = "MainProduct"  # default value
 
@@ -270,7 +320,11 @@ class ConstructSuperstructure:
                                    UnitNumber=dto.uid,
                                    ProductType=productType)
         # price
-        price = float(dto.dialogData['priceOutput'])
+        if dto.dialogData['priceOutput'] == '':
+            price = 0
+        else:
+            price = float(dto.dialogData['priceOutput'])
+
         OutputObject.set_productPrice(price)
 
         if 'processingGroup' in list(dto.dialogData.keys()):
@@ -306,12 +360,13 @@ class ConstructSuperstructure:
 
         return OutputObject
 
-    def _setDistributionData(self, dto):
+    def _setDistributionData(self, dto, counter):
         """
         Continue filling in the superstructure with data from distributor units
         :return: Superstructure Object
         """
         name = dto.name
+        name = 'Distr.{}'.format(counter) if name == '' else name
         unitNumber = dto.uid
         # todo add a dialog to the distributor to set the decimal place
         decimalPlace = 2  # default value for decimal place
@@ -376,7 +431,7 @@ class ConstructSuperstructure:
         :return:
         """
         ProcessElectricityDemand = dto.dialogData['Energy Consumption']
-        if not pd.isnull(ProcessElectricityDemand):
+        if ProcessElectricityDemand: # make sure it's always a number or None
             ProcessElectricityReferenceFlow = dto.dialogData['Reference Flow Type Energy']
             ProcessElectricityReferenceFlow = self.referenceFlowDictMap[ProcessElectricityReferenceFlow]
             ProcessElectricityReferenceComponentList = dto.dialogData['Components Energy Consumption']
@@ -386,7 +441,7 @@ class ConstructSuperstructure:
             ProcessElectricityReferenceComponentList = []
 
         ProcessHeatDemand = dto.dialogData['Heat Consumption 1']
-        if not pd.isnull(ProcessHeatDemand):
+        if ProcessHeatDemand:
             ProcessHeatReferenceFlow = dto.dialogData['Reference Flow Type Heat1']
             ProcessHeatReferenceFlow = self.referenceFlowDictMap[ProcessHeatReferenceFlow]
             ProcessHeatReferenceComponentList = dto.dialogData['Components Heat Consumption 1']
@@ -396,7 +451,7 @@ class ConstructSuperstructure:
             ProcessHeatReferenceComponentList = []
 
         ProcessHeat2Demand = dto.dialogData['Heat Consumption 2']
-        if not pd.isnull(ProcessHeat2Demand):
+        if ProcessHeat2Demand:
             ProcessHeat2ReferenceFlow = dto.dialogData['Reference Flow Type Heat2']
             ProcessHeat2ReferenceFlow = self.referenceFlowDictMap[ProcessHeat2ReferenceFlow]
             ProcessHeat2ReferenceComponentList = dto.dialogData['Components Heat Consumption 2']
@@ -406,7 +461,7 @@ class ConstructSuperstructure:
             ProcessHeat2ReferenceComponentList = []
 
         ChillingDemand = dto.dialogData['Chilling Consumption']
-        if not pd.isnull(ChillingDemand):
+        if ChillingDemand:
             ChillingReferenceFlow = dto.dialogData['Reference Flow Type Chilling']
             ChillingReferenceFlow = self.referenceFlowDictMap[ChillingReferenceFlow]
             ChillingReferenceComponentList = dto.dialogData['Components Chilling Consumption']
@@ -473,10 +528,10 @@ class ConstructSuperstructure:
                 for products, stoi in rxnDTO.products.items():
                     reactionStoichiometryDict.update({(products, rxnNumber): float(stoi)})
 
-                conversionRateDict.update({(rxn[-1], rxnNumber): float(rxn[1])})
+                conversionRateDict.update({(rxnNumber, rxn[-1]): float(rxn[1])/100}) # dived by 100 to get the fraction
 
             processObject.set_gammaFactors(reactionStoichiometryDict)
-            processObject.set_thetaFactors(conversionRateDict)
+            processObject.set_thetaFactors(conversionRateDict) # fixme
 
 
     def _generalUnitData(self, dto, processObject):
@@ -492,26 +547,27 @@ class ConstructSuperstructure:
         LifeTime = dto.dialogData['Life Time Unit Process']
 
         ProcessGroup = dto.dialogData['Processing Group']
-        if not pd.isnull(ProcessGroup):
+        if ProcessGroup:
             ProcessGroup = int(ProcessGroup)
         else:
             ProcessGroup = None
 
         CO2Emissions = dto.dialogData['CO2 Building']
-        if not pd.isnull(CO2Emissions):
+        if CO2Emissions:
             emissions = CO2Emissions
         else:
             emissions = 0
 
         maintenance_factor = dto.dialogData['O&M']
-        if pd.isnull(maintenance_factor):
+        if maintenance_factor:
             maintenance_factor = None
 
         cost_percentage = dto.dialogData['Reoccurring Cost Factor']
         time_span = dto.dialogData['Turn Over Time']
         time_mode = dto.dialogData['Turn Over Unit']
 
-        if pd.isnull(cost_percentage):
+        if not cost_percentage:
+            # if the cost percentage is not set, set variables to None and the time mode to 'No Mode'
             cost_percentage = None
             time_span = None
             time_mode = 'No Mode'
@@ -522,17 +578,21 @@ class ConstructSuperstructure:
                 time_mode = 'Hourly'
 
         full_load_hours = dto.dialogData['Working Time Unit Process']
-        if pd.isnull(full_load_hours):
+        if full_load_hours:
             full_load_hours = None
 
+        wasteDisposalType = dto.dialogData['Waste Management']
+
         processObject.set_generalData(ProcessGroup,
-                            LifeTime,
-                            emissions,
-                            full_load_hours,
-                            maintenance_factor,
-                            cost_percentage,
-                            time_span,
-                            time_mode)
+                                      LifeTime,
+                                      emissions,
+                                      full_load_hours,
+                                      maintenance_factor,
+                                      cost_percentage,
+                                      time_span,
+                                      time_mode,
+                                      wasteDisposalType)
+
 
     def _economicUnitData(self, dto, processObject):
         """
@@ -590,12 +650,12 @@ class ConstructSuperstructure:
 
         lhs_comp_list = dto.dialogData["Components Flow1"]
         rhs_comp_list = dto.dialogData["Components Flow2"]
-        lhs_ref_flow = dto.dialogData["Reference Flow 1"]
-        rhs_ref_flow = dto.dialogData["Reference Flow 2"]
+        lhs_ref_flow = self.referenceFlowDictMap[dto.dialogData["Reference Flow 1"]]
+        rhs_ref_flow = self.referenceFlowDictMap[dto.dialogData["Reference Flow 2"]]
 
         req_concentration = dto.dialogData["Concentration Factor"]
-        if pd.isnull(req_concentration):
-            req_concentration = None
+        if not req_concentration:
+            req_concentration = 0 # set to 0 if not provided
 
         # the myu dictionary is where the split fractions are stored and defined
         # {(unitNr_that_receives, component), Fraction}
@@ -646,10 +706,5 @@ class ConstructSuperstructure:
 
         processObject.set_connections(connections)
 
-
-
-
-
-
     def get_superstructure(self):
-        return self.superstructure
+        return self.superstructureObject

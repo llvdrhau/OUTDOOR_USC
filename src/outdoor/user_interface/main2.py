@@ -203,14 +203,20 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return:
         """
         constructorSuperstructure = ConstructSuperstructure(self.centralDataManager)
-        superstructure = constructorSuperstructure.superstructureObject
-        self.logger.info("Superstructure Object generated.")
+        if constructorSuperstructure.warningMessage:
+            self.logger.error(constructorSuperstructure.warningMessage)
+            return # if there is a warning, do not proceed with the superstructure generation
+
+        superstructure = constructorSuperstructure.get_superstructure()
+
 
         # save the object in the same location as the project file
         # with the name of the project file + '_superstructure'
         superstructurePath = self.ProjectPath.split('.')[0] + '_superstructure.pkl'
         with open(superstructurePath, 'wb') as file:
             pickle.dump(superstructure, file)
+
+        self.logger.info("Superstructure Object Saved in: {}".format(superstructurePath))
 
 
 def checkFocus():

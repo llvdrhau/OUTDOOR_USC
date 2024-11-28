@@ -867,7 +867,6 @@ class PhysicalProcessesDialog(QDialog):
         # --- Create Figure ---
         self.separationEfficiencyFigure = QLabel(self)
 
-
         # --- Create Check Boxes ---
         # Define the font for the checkboxes to make the text larger
         checkbox_font = QFont()
@@ -971,7 +970,9 @@ class PhysicalProcessesDialog(QDialog):
 
         # Add a combo box for the waste management
         self.wasteManagement = QComboBox(self)
-        self.wasteManagement.addItems(["Incineration", "Landfill", "WWTP"])
+        wasteManagementList = self.centralDataManager.wasteManagementTypes
+
+        self.wasteManagement.addItems(wasteManagementList)
         tooltipText = """The waste management method used for the waste stream.\n
                 Incineration: The waste is burned in an incinerator.\n
                 Landfill: The waste is disposed of in a landfill.\n
@@ -1929,6 +1930,13 @@ class PhysicalProcessesDialog(QDialog):
             errorMessage = "The temperatures of the unit process are not set"
             self._showErrorDialog(errorMessage)
             return True
+
+        # check if the seperation is defined, otherwise raise an error
+        if dialogData["Separation Fractions"] == []:
+            errorMessage = ("The separation efficiency is not defined, This will not necesarlly raise an error but it is "
+                            "recommended to define the separation efficiency")
+            self._showErrorDialog(errorMessage)
+            return False
 
         # check if the sum of the fractions is not larger than 1
         errorCheckSeparation, errorMessageSeparation = self._checkSumOfSeparationFractions()
