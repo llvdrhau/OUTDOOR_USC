@@ -190,18 +190,11 @@ class ConstructSuperstructure:
         obj.set_deltaUt(utilityPrices)
 
         # set new additions
-        # set # sets NON INDEXED
-        #         self.ImpactCategories = {'IMPACT_CATEGORIES': []}  # set when collecting general data
-        #         self.WasteManagementTypes = {'WASTE_MANAGEMENT_TYPES': []}  # set when collecting general data
-        #
         #         # Parameters INDEXED
-        #         self.WasteCost = {'waste_cost_factor': {}} # set When collecting general data
-        #         self.WasteDisposalImpactFactors = {'waste_impact_fac': {}}
-        #         self.ImpactInflowComponents = {'impact_inFlow_components': {}}
         #         self.UtilityImpactFactors = {'util_impact_factors': {}}
 
         # set the impact categories
-        #impactCategories = ['GWP', 'RM'] # dto.dialogData['Impact Categories']
+        # impactCategories = ['GWP', 'RM'] # dto.dialogData['Impact Categories']
         # you could also get the impact categories from the LCA data from the waste or Temperature dto's
         # the impact categories should be the same for all the dto's
         # todo this is mega convoluted,add attributes to the dto's to get the impact categories, wait until Mias has
@@ -214,17 +207,22 @@ class ConstructSuperstructure:
         wasteManagementTypes = self.centralDataManager.wasteManagementTypes
         obj._set_waste_management_types(wasteManagementTypes)
 
+        # set waste types per Unit Process
+        # links the waste types to the unit processes needs to be done after the unit processes are added
+        obj._set_waste_type_u(self.centralDataManager.unitProcessData)
+
         # set the waste cost factor
         wasteCostFactorDict = {dto.name: float(dto.cost) for dto in self.centralDataManager.wasteData}
         obj._set_waste_cost(wasteCostFactorDict)
 
         # set the waste impact factors
-        wasteImpactFactorsDict = {dto.name: float(dto.impact) for dto in self.centralDataManager.wasteData}
-        obj._set_waste_management_impact_factors(wasteImpactFactorsDict)
+        obj._set_waste_management_impact_factors(self.centralDataManager.wasteData)
 
         # set the impact inflow components
-        # todo tomoorow, add the impact inflow components to the dto's
+        obj._set_component_impact_factors(self.centralDataManager.componentData)
 
+        # set the impact of utility factors
+        obj._set_utility_impact_factors(self.centralDataManager.utilityData)
 
         return obj
 

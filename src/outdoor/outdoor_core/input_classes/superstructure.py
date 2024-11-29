@@ -943,23 +943,59 @@ class Superstructure:
         for key, value in waste_cost.items():
             self.WasteCost['waste_cost_factor'][key] = value
 
-    def _set_waste_management_impact_factors(self, waste_disposal_impact_factors: dict):
-        for key, value in waste_disposal_impact_factors.items():
-            self.WasteDisposalImpactFactors['waste_impact_fac'][key] = value
-    def _set_component_impact_factors(self, component_impact_factors: dict):
-        for key, value in component_impact_factors.items():
-            self.ImpactInflowComponents['impact_inFlow_components'][key] = value
+    def _set_waste_management_impact_factors(self, wasteDTOs: list):
+        """
+        Description
+        :param wasteDTOs: list witht the wasteData dto objects
+        :return:
+        """
+        for dto in wasteDTOs:
+            impactFactorsDict = dto.getLCAImpacts()
+            impactFactorsDict = list(impactFactorsDict.values())[0]  # get the first value of the dict is the only one
+            for impactCat, value in impactFactorsDict.items():
+                key = (dto.name, impactCat)
+                self.WasteDisposalImpactFactors['waste_impact_fac'][key] = value
 
-    def _set_utility_impact_factors(self, utility_impact_factors: dict):
-        for key, value in utility_impact_factors.items():
-            self.UtilityImpactFactors['util_impact_factors'][key] = value
 
-    def _set_waste_type_u(self):
-        for unit in self.UnitsList:
-            if unit.WasteType is not None:
-                self.WasteTypeU['waste_type_U'][unit.Number] = unit.WasteType
-            else:
-                RaiseError('Waste Type is not set for unit {}'.format(unit.Number))
+    def _set_component_impact_factors(self, componentsDTOs: list):
+        """
+        Description
+        :param component_impact_factors: list of component dtos
+        :return:
+        """
+        for dto in componentsDTOs:
+            impactFactorsDict = dto.getLCAImpacts()
+            impactFactorsDict = list(impactFactorsDict.values())[0]  # get the first value of the dict is the only one
+            for impactCat, value in impactFactorsDict.items():
+                key = (dto.name, impactCat)
+                self.ImpactInflowComponents['impact_inFlow_components'][key] = value
+
+
+    def _set_utility_impact_factors(self, utilityDTOs: list):
+        """
+        Description
+        :param utilityDTOs: List of utility dtos
+        :return:
+        """
+        for dto in utilityDTOs:
+            utility_impact_factors = dto.getLCAImpacts()
+            utility_impact_factors = list(utility_impact_factors.values())[0]
+            for impactCat, value in utility_impact_factors.items():
+                key = (dto.name, impactCat)
+                self.UtilityImpactFactors['util_impact_factors'][key] = value
+
+
+    def _set_waste_type_u(self, unitDTOs: list):
+        """
+        Description
+        :param unitDTOs: list of unit DTOs
+        :return:
+        """
+        for dto in unitDTOs.values():
+            if dto.type.value in [1, 2, 3, 4, 5, 6]:
+                wasteType = dto.dialogData['Waste Management']
+                self.WasteTypeU['waste_type_U'][dto.uid] = wasteType
+
     #------------------------------------------------------------------------------
     #------------------------------------------------------------------------------
     #--------------------------CREATE DATA-FILE METHODS ---------------------------

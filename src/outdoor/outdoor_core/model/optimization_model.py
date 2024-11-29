@@ -1395,15 +1395,15 @@ class SuperstructureModel(AbstractModel):
         """
         # start with impacts of the inflowing components
         # needs to be introduced like phi variable! look how it is passed on
-        self.impact_inFlow_components = Param(self.I, initialize=0, mutable=True)
+        self.impact_inFlow_components = Param(self.I, self.IMPACT_CATEGORIES, initialize=0, mutable=True)
         self.IMPACT_INPUTS_U_CAT = Var(self.U, self.IMPACT_CATEGORIES)
         self.IMPACT_INPUTS_PER_CAT = Var(self.IMPACT_CATEGORIES)
 
         def LCA_Inflow_U_rule(self, u, ImpCat):
-            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i]
+            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i, ImpCat]
                                                 for i in self.I)
         def LCA_All_Inflow_rule(self, ImpCat):
-            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u,ImpCat] for u in self.U) * self.H
+            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u, ImpCat] for u in self.U) * self.H
 
         self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Inflow_U_rule)
         self.LCA_InFlow_Total_Per_Catagories = Constraint(self.IMPACT_CATEGORIES, rule=LCA_All_Inflow_rule)
