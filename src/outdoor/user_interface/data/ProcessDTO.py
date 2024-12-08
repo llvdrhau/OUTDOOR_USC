@@ -105,8 +105,7 @@ class ProcessDTO(OutdoorDTO):
         #portType, startIconID, endIconID, starPosition, endPosition):
         # Add a connection between two icons
         self.incomingStreams.append(enteringProcessID)
-        # todo figure out how to add the chemicals that are coming in the process and add them to the dialogs which are
-        # relavant to incomming chemicals
+
 
     def addMaterialFlow(self, streamType:int, reciveingID:str, splitFactorDict:dict):
         """

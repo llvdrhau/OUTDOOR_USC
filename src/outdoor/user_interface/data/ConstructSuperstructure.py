@@ -140,8 +140,9 @@ class ConstructSuperstructure:
         componentList = [dto.name for dto in self.centralDataManager.componentData]
         obj.add_components(componentList)
 
-        reactionNumberList = [i + 1 for i in range(len(self.centralDataManager.reactionData))]
-        obj.add_reactions(reactionNumberList)
+        # reactionNumberList = [i + 1 for i in range(len(self.centralDataManager.reactionData))]
+        reactionNumberIds = [dto.uid for dto in self.centralDataManager.reactionData]
+        obj.add_reactions(reactionNumberIds)
 
         # todo this seems redundant I don't know why this is done, must optimize this in the future
         reactantsList = []
@@ -520,7 +521,7 @@ class ConstructSuperstructure:
                 # rxn is a tuple (reactionName, conversion, main reactant)
                 rxnName = rxn[0]
                 rxnDTO = self.reactionDict[rxnName]
-                rxnNumber = self.reactionNumberDict[rxnName]
+                rxnNumber = rxnDTO.uid #self.reactionNumberDict[rxnName] use the uid instead of the number
                 for reactants, stoi in rxnDTO.reactants.items():
                     reactionStoichiometryDict.update({(reactants, rxnNumber): float(stoi)})
                 for products, stoi in rxnDTO.products.items():
@@ -529,7 +530,7 @@ class ConstructSuperstructure:
                 conversionRateDict.update({(rxnNumber, rxn[-1]): float(rxn[1])/100}) # dived by 100 to get the fraction
 
             processObject.set_gammaFactors(reactionStoichiometryDict)
-            processObject.set_thetaFactors(conversionRateDict) # fixme
+            processObject.set_thetaFactors(conversionRateDict)
 
 
     def _generalUnitData(self, dto, processObject):

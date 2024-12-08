@@ -20,6 +20,7 @@ from tabs.UtilityTab import UtilityTab
 from tabs.SuperstructureMappingTab import SuperstructureMappingTab
 from tabs.ReactionTab import ReactionsTab
 from tabs.ProjectDescriptionTab import ProjectDescriptionTab
+from tabs.UncertaintyTab import UncertaintyTab
 from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 from outdoor.user_interface.data.ProcessDTO import ProcessType
 
@@ -185,6 +186,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
                                                             outputManager=self.outputManager)
+        uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(createWelcomeTab, "Welcome")
@@ -194,6 +196,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         tabWidget.addTab(reactionsTab, "Reactions")
         tabWidget.addTab(utilityTab, "Utilities")
         tabWidget.addTab(superstructureMappingTab, "Superstructure Mapping")
+        tabWidget.addTab(uncertaintyTab, "Uncertainty")
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
 

@@ -1181,14 +1181,13 @@ class PhysicalProcessesDialog(QDialog):
             # update the table columns based on the checkbox state
             self._updateTableColumns()
 
-
         self.comboBoxComponents = NonFocusableComboBox()
         chemicalNames = self.centralDataManager.getChemicalComponentNames()
         self.comboBoxComponents.addItems(chemicalNames)
         self.comboBoxComponents.setObjectName(f"comboBoxComponents_{rowPosition}")
 
-        item = QTableWidgetItem(
-            'hack')  # adding this item is a bit of a hack otherwise the row can't be selected and deleted
+        # adding this item is a bit of a hack otherwise the row can't be selected and deleted
+        item = QTableWidgetItem('hack')
         table.setItem(rowPosition, 0, item)
         table.setCellWidget(rowPosition, 0, self.comboBoxComponents)
 

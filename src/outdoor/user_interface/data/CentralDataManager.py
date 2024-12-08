@@ -16,6 +16,7 @@ from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
 from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
+from outdoor.user_interface.data.UncertaintyDTO import UncertaintyDTO
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 
 
@@ -45,6 +46,7 @@ class CentralDataManager:
         self.struct = SuperstructureFrame()
         self._outputList: list[str] = []
         self.metadata = {}  # Stores project metadata like the name. TODO move configs into this
+        self.uncertaintyData: list[UncertaintyDTO] = []
 
     def addData(self, field, data):
         """
@@ -68,6 +70,10 @@ class CentralDataManager:
 
             case "utilityData":
                 self.utilityData.append(data)
+
+            case "uncertaintyData":
+                self.uncertaintyData = data
+
             case _:
                 self.logger.error(f"Error: Field \"{field}\" not recognized")
 
@@ -114,6 +120,16 @@ class CentralDataManager:
                 if row != sizeComponentList:  # if it's the last element in the list don't adjust the indices
                     for i in range(row, sizeComponentList):
                         data = self.componentData[i]
+                        data.updateRow()
+
+            case "uncertaintyData":
+                # delete the row with the data for that uncertainty
+                self.uncertaintyData.pop(row)
+                sizeUncertaintyList = len(self.uncertaintyData)
+
+                if row != sizeUncertaintyList:  # if it's the last element in the list don't adjust the indices
+                    for i in range(row, sizeUncertaintyList):
+                        data = self.uncertaintyData[i]
                         data.updateRow()
 
     def updateIconData(self, iconId, newData):
@@ -195,9 +211,29 @@ class CentralDataManager:
         target = project_name
         with open(target, 'rb') as file:
             self.struct = pickle.load(file)
-
         print(self.struct)
 
+    def getProcessNames(self,):
+        """
+        Returns the names of all the processes in the superstructure
+        :return: listNames
+        """
+        # todo you could specify which types of processes you want to return based on the type of process defined in
+        #  the DTO
+        listNames = []
+        for process in self.unitProcessData.values():
+            listNames.append(process.name)
+        return listNames
+
+    def getReactionNames(self):
+        """
+        Returns the names of all the reactions in the superstructure
+        :return:
+        """
+        namesList = []
+        for dto in self.reactionData:
+            namesList.append(dto.name)
+        return namesList
 
 class OutputManager(QObject):
     # Signal that is emitted when outputList changes
