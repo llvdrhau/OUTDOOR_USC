@@ -25,8 +25,8 @@ class LCADialog(QDialog):
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
-        logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
+        # logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
+        # logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {
@@ -68,7 +68,7 @@ class LCADialog(QDialog):
         self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
 
         # TODO: Better initialization and handling of BW integration.
-        bw.projects.set_current("outdoor")
+        bw.projects.set_current("outdoor_2")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
         self.outd = bw.Database('outdoor')
@@ -240,13 +240,17 @@ class LCADialog(QDialog):
             if not exist:
                 process = {
                     "name": self.dto.name,
-                    "reference product": self.dto.name,
                     "unit": "unit",
-                    "type": "process"
                 }
                 self.outd.new_activity(self.dto.uid, **process).save()
+                act = self.outd.search(self.dto.uid)[0]
+                act.new_exchange(
+                    input=act,
+                    amount=1,
+                    type='production',
+                ).save()
 
-            act = [m for m in self.outd if m["code"] == self.dto.uid][0]
+            act = self.outd.search(self.dto.uid)[0]
             self.logger.debug(f"Persisting LCA data for {self.dto.name} with BW code {act['code']}")
             ext_list = []
             for row in range(self.selectedProcessesTable.rowCount()):
@@ -286,17 +290,19 @@ class LCADialog(QDialog):
         try:
             activ = [m for m in self.outd if m['code'] == self.dto.uid][0]
             inv_list = {self.dto.uid:{activ.id:1}}
+            self.logger.info(inv_list)
             data_objs = bw.get_multilca_data_objs(functional_units=inv_list,method_config=methodconfs)
             mlca = bc.MultiLCA(demands=inv_list,method_config=methodconfs,data_objs=data_objs)
             mlca.lci()
             mlca.lcia()
-
+            self.logger.info(f"i am dying")
+            self.logger.info(f"there is no escape")
             for n, v in mlca.scores.items():
                 match n[0][2]:
                     case "climate change":
-                        self.LCA["Results"]["GWP"] = v
+                        self.dto.LCA["GWP"] = v
                     case "total: natural resources":
-                        self.LCA["Results"]["NR"] = v
+                        self.dto.LCA["NR"] = v
                     case _:
                         raise Exception("One of your result categories doesn't look right. Fix the methods part of this function.")
 
@@ -304,8 +310,10 @@ class LCADialog(QDialog):
 
             self.dto.calculated = True
         except Exception as e:
+            self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
             if type(e) is IndexError:
                 self.logger.warning("Didn't find the uuid in bw:", self.dto.uid)
             elif type(e) is Exception:
                 self.logger.error(e)
+                self.logger.info(f"help me")
                 self.dto.calculated = False
