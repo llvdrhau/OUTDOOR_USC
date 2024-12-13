@@ -13,6 +13,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from tabulate import tabulate
+import matplotlib.pyplot as plt
 
 from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
 
@@ -54,6 +55,7 @@ class MultiModelOutput(ModelOutput):
         self._optimization_mode_set = {
             "sensitivity",
             "multi-objective",
+            "multi-objective MCDA",
             "cross-parameter sensitivity",
             "wait and see",
         }
@@ -67,6 +69,13 @@ class MultiModelOutput(ModelOutput):
 
         # fill the data files of the different scenarios
         self._dataFiles = dataFiles
+
+        # Min max of the objective function
+        self._max_objective_function = None
+        self._min_objective_function = None
+
+        # pass on the multi-objective settings
+        self.multi_data = None
 
 
     def add_process(self, index, process_results):
@@ -366,8 +375,5 @@ class MultiModelOutput(ModelOutput):
                     rangDict[parameter].append(parVal)
 
         return rangDict
-
-
-
 
 

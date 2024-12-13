@@ -100,17 +100,18 @@ class PhysicalProcess(Process):
     # ---------------------
 
     def set_generalData(self,
-                         ProcessGroup,
-                         lifetime,
-                         emissions = 0,
-                         full_load_hours = None,
-                         maintenancefactor = None,
-                         CostPercentage = None,
-                         TimeSpan = None,
-                         TimeMode = None
-                         ):
+                        ProcessGroup,
+                        lifetime,
+                        emissions = 0,
+                        full_load_hours = None,
+                        maintenancefactor = None,
+                        CostPercentage = None,
+                        TimeSpan = None,
+                        TimeMode = None,
+                        wasteDisposalType=None):
 
-        super().set_generalData(ProcessGroup,lifetime,emissions,full_load_hours)
+        super().set_generalData(ProcessGroup=ProcessGroup,lifetime=lifetime,emissions=emissions,
+                                full_load_hours=full_load_hours, wasteDisposalType=wasteDisposalType)
         self.__set_lifeTime(lifetime)
         self.__set_unitoperationEmissionsFactor(emissions)
         self.__set_maintenanceFactor(maintenancefactor)

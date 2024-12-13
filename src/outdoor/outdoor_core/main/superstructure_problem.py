@@ -6,15 +6,10 @@ from pyomo.environ import *
 from ..model.optimisation_model_2_stage_recourse import SuperstructureModel_2_Stage_recourse
 from ..model.optimization_model import SuperstructureModel
 from ..optimizers.customs.change_params import prepare_mutable_parameters
-from ..optimizers.customs.custom_optimizer import (
-    MCDAOptimizer,
-    SensitivityOptimizer,
-    TwoWaySensitivityOptimizer,
-    StochasticRecourseOptimizer,
-    WaitAndSeeOptimizer,
-    StochasticRecourseOptimizer_mpi_sppy,
-    HereAndNowOptimizer
-)
+from ..optimizers.customs.custom_optimizer import (MCDAOptimizer, MultiObjectiveOptimizer, SensitivityOptimizer,
+                                                   TwoWaySensitivityOptimizer, StochasticRecourseOptimizer,
+                                                   WaitAndSeeOptimizer, StochasticRecourseOptimizer_mpi_sppy,
+                                                   HereAndNowOptimizer,)
 from ..optimizers.main_optimizer import SingleOptimizer
 from ..utils.timer import time_printer
 
@@ -80,6 +75,7 @@ class SuperstructureProblem:
         cross_sensitivity_parameters=None,
         mpi_sppy_options=None,
         outputFileDesignSpace=None,
+        multi_objective_options=None,
     ):
         """
 
@@ -136,6 +132,7 @@ class SuperstructureProblem:
         # what are the permitted optimization modes
         OptimisationPermissionList = ["single",
                                       "multi-objective",
+                                      "multi-objective MCDA",
                                       "sensitivity",
                                       "cross-parameter sensitivity",
                                       "2-stage-recourse",
@@ -175,14 +172,14 @@ class SuperstructureProblem:
             # check_nan = self.find_nan_parameters_in_model_instance(model_instance)
             # self.CheckNoneVariables = check_nan
             # set model options
-            mode_options = self.set_mode_options(optimization_mode, input_data)
+            mode_options = self.set_mode_options(optimization_mode, input_data, multi_objective_options)
             # pass on stochastic optimization options dictionary
             stochastic_options = {'calculation_EVPI': calculation_EVPI, 'calculation_VSS': calculation_VSS}
             # settings optimisation problem
             optimizer = self.setup_optimizer(solver,
                                              interface,
                                              solver_path,
-                                             options, optimization_mode,mode_options,
+                                             options, optimization_mode, mode_options,
                                              input_data, stochastic_options,
                                              mpi_sppy_options=mpi_sppy_options) #add options for mpi-sppy None if not mpi-sppy
             # run the optimization
@@ -314,6 +311,7 @@ class SuperstructureProblem:
         """
         MODE_LIBRARY = {"single",
                         "multi-objective",
+                        "multi-objective MCDA",
                         "sensitivity",
                         "cross-parameter sensitivity",
                         "2-stage-recourse",
@@ -362,8 +360,11 @@ class SuperstructureProblem:
                                         optimization_mode=optimization_mode, solver_path=solver_path,
                                         solver_options=options)
 
-        elif optimization_mode == "multi-objective":
+        elif optimization_mode == "multi-objective MCDA":
             optimizer = MCDAOptimizer(solver, interface, options, mode_options)
+
+        elif optimization_mode == "multi-objective":
+            optimizer = MultiObjectiveOptimizer(solver, interface, options, mode_options)
 
         elif optimization_mode == "sensitivity":
             optimizer = SensitivityOptimizer(solver, interface, options,
@@ -384,7 +385,7 @@ class SuperstructureProblem:
 
         return optimizer
 
-    def set_mode_options(self, optimization_mode, superstructure):
+    def set_mode_options(self, optimization_mode, superstructure, multi_objective_options=None):
         """
 
         Parameters
@@ -402,8 +403,17 @@ class SuperstructureProblem:
         Object. e.g. sensititive parameters for sensitivity run.
 
         """
-        if optimization_mode == "multi-objective":
+        if optimization_mode == "multi-objective MCDA":
             mode_options = superstructure.multi_objectives
+        elif optimization_mode == "multi-objective":
+            if multi_objective_options is None:
+                raise ValueError("Multi-objective optimization requires you te specifiy 2 objectives and "
+                                 "the lv of detail of the pareto front")
+            if isinstance(multi_objective_options, dict):
+                mode_options = multi_objective_options
+            else:
+                raise ValueError("Multi-objective options have to be a dictionary")
+
         elif (
             optimization_mode == "sensitivity" or optimization_mode == "cross-parameter sensitivity"):
             mode_options = superstructure.sensitive_parameters

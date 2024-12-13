@@ -832,7 +832,7 @@ class BasicModelAnalyzer:
 
         return fig
 
-    def create_flowsheet(self, path, saveName=None):
+    def create_flowsheet(self, path, saveName=None, dataScenario=None):
 
         """
         Parameters
@@ -902,7 +902,15 @@ class BasicModelAnalyzer:
         data = dict()
         nodes = dict()
         edges = dict()
-        model_data = self.model_output._data
+
+        if dataScenario:
+            # if we want to plot a specific scenario (e.g. for the wait and see approach or multi-objective
+            # optimization)
+            model_data = dataScenario
+        else:
+            # otherwise we plot the nominal scenario for the single-objective optimization
+            model_data = self.model_output._data
+
         data = self._collect_mass_flows(model_data=model_data, nDecimals=4)["Mass flows"]
         flowchart = pydot.Dot(
             "flowchart", rankdir="LR", ratio="compress", size="15!,1", dpi="500"
@@ -919,48 +927,51 @@ class BasicModelAnalyzer:
 
                     if isinstance(list(model_data["Names"].keys())[0], str):
 
-                        # studid fix for the case where the names are strings
+                        # stupid fix for the case where the names are strings
                         # (when loading from json the keys of model_data["Names"] are strings for some reason)
                         # transform the keys to integers to be able to compare them with the unit numbers
-                        model_data["Names"] = {int(k): v for k, v in model_data["Names"].items()}
+                        try:
+                            model_data["Names"] = {int(k): v for k, v in model_data["Names"].items()}
+                        except:
+                            model_data["Names"] = {k: v for k, v in model_data["Names"].items()} # if the keys are already integers or are UIDs
 
                     if v in model_data["U_S"]:
-                        nodes[int(v)] = make_node(
+                        nodes[v] = make_node(
                             flowchart, model_data["Names"][v], shape="ellipse", color='green'
                         )
 
                     elif v in model_data["U_STOICH_REACTOR"]:
 
                         if v in model_data["U_TUR"]:
-                            nodes[int(v)] = make_node(
+                            nodes[v] = make_node(
                                 flowchart, model_data["Names"][v], "doubleoctagon"
                             )
 
                         elif v in model_data["U_FUR"]:
-                            nodes[int(v)] = make_node(
+                            nodes[v] = make_node(
                                 flowchart, model_data["Names"][v], "doubleoctagon"
                             )
 
                         else:
-                            nodes[int(v)] = make_node(
+                            nodes[v] = make_node(
                                 flowchart, model_data["Names"][v], "octagon"
                             )
 
                     elif v in model_data["U_YIELD_REACTOR"]:
-                        nodes[int(v)] = make_node(
+                        nodes[v] = make_node(
                             flowchart, model_data["Names"][v], "octagon"
                         )
 
                     elif v in model_data["U_PP"]:
-                        nodes[int(v)] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
+                        nodes[v] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
 
                     elif v in model_data["U_DIST"]:
-                        nodes[int(v)] = make_node(
+                        nodes[v] = make_node(
                             flowchart, model_data["Names"][v], shape="triangle", orientation=270
                         )
 
                     else:
-                        nodes[int(v)] = make_node(flowchart, model_data["Names"][v], "box")
+                        nodes[v] = make_node(flowchart, model_data["Names"][v], "box")
 
         # if we're dealing with a Stochastic model, we need to create a new dictionary where the labels are the min,
         # mean and max values. For this we to transform the stream data to get the right labels

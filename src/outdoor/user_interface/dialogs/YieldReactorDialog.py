@@ -11,7 +11,7 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         self.UnitType = ProcessType.YIELD
 
         # Add Yield Reaction Tab to the tab widget of the parent class
-        self.tabWidget.addTab(self._createYieldTab(), "Yield Reaction")
+        self.tabWidget.insertTab(6, self._createYieldTab(), "Yield Reaction")
 
         if initialData.dialogData:
             self._populateYieldTab(initialData.dialogData)
@@ -77,7 +77,7 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         self.addRowButton.setObjectName("addRowButtonYieldTable")
         layout.addWidget(self.addRowButton)
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="yield")
+        # self._addRowToTable(tabName="yield")
 
         widget.setLayout(layout)
         return widget

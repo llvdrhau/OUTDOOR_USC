@@ -32,10 +32,22 @@ class UtilityDTO(OutdoorDTO):
             case 'name':
                 self.name = value
             case 'cost':
+                if value == "":
+                    self.cost = 0
+                else:
+                    value = float(value)
                 self.cost = value
             case 'co2':
+                if value == "":
+                    self.co2 = 0
+                else:
+                    value = float(value)
                 self.co2 = value
             case 'fwd':
+                if value == "":
+                    self.fwd = 0
+                else:
+                    value = float(value)
                 self.fwd = value
             case 'calculated':
                 self.calculated = value

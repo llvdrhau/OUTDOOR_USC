@@ -16,7 +16,7 @@ class StoichiometricReactorDialog(PhysicalProcessesDialog):
         self.reactionIDs = []
 
         #self.tabWidget = self.tabWidget # in the parent class
-        self.tabWidget.addTab(self._createStoichiometricDialogTab(), "Reactions")
+        self.tabWidget.insertTab(6, self._createStoichiometricDialogTab(), "Reactions")
 
         # populate the dialog with existing data (initialData) if it is not empty
         if initialData.dialogData: # if the dialogData is not empty then populate the dialog with the data

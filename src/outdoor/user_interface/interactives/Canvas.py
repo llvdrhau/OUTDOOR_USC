@@ -538,6 +538,12 @@ class Canvas(QGraphicsView):
             if distributionDTO.distributionOwner:  # if the distribution has an owner remove the connection to the owner
                 ownerID = distributionDTO.distributionOwner[0]
                 streamAffected = distributionDTO.distributionOwner[1]
+                # it could be that the owner of the distribution icon is deleeted before the distribution icon
+                # in that case the owner of the distribution icon is not in the centralDataManager anymore
+                if ownerID not in self.centralDataManager.unitProcessData:
+                    distributionDTO.distributionOwner = None
+                    return
+
                 ownerDTO = self.centralDataManager.unitProcessData[ownerID]
                 # update the classification Dictionary defining where each individual stream goes
                 ownerDTO.classificationStreams[streamAffected] = None

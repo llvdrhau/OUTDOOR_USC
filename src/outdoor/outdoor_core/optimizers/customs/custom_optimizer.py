@@ -44,7 +44,8 @@ class MCDAOptimizer(SingleOptimizer):
                          interface="local",
                          solver_path=None,
                          options=None,
-                         count_variables_constraints=False
+                         count_variables_constraints=False,
+
                          ):
 
         timer = time_printer(programm_step="MCDA optimization")
@@ -67,6 +68,153 @@ class MCDAOptimizer(SingleOptimizer):
         timer = time_printer(timer, "MCDA optimization")
         model_output.fill_information(timer)
         return model_output
+
+class MultiObjectiveOptimizer(SingleOptimizer):
+    """
+    This class is used to solve a multi-objective optimization problem between two objectives
+    with the goal of finding the pareto front
+    """
+    def __init__(self, solver_name, solver_interface, solver_options=None, multi_data=None):
+        super().__init__(solver_name, solver_interface, solver_options)
+        self.multi_data = multi_data
+        self.single_optimizer = SingleOptimizer(solver_name, solver_interface, solver_options)
+
+    def run_optimization(self,
+                         model_instance,
+                         optimization_mode=None,
+                         solver="gurobi",
+                         interface="local",
+                         solver_path=None,
+                         options=None,
+                         count_variables_constraints=False,
+
+                         ):
+        timer = time_printer(programm_step="Multi-objective optimization")
+        model_output = MultiModelOutput(optimization_mode="multi-objective")
+        model_output.multi_data = self.multi_data
+
+        objective1 = self.multi_data["objective1"]
+        objective2 = self.multi_data["objective2"]
+        paretoPoints = self.multi_data["paretoPoints"]
+
+        # run the optimization for the first objective
+        self.change_model_objective(model_instance, objective1)
+        single_solved_obj1 = self.single_optimizer.run_optimization(model_instance)
+        single_solved_obj1._tidy_data()
+        model_output.add_process("maxObjective1", single_solved_obj1)
+
+        # run the optimization for the second objective
+        self.change_model_objective(model_instance, objective2)
+        single_solved_obj2 = self.single_optimizer.run_optimization(model_instance)
+        single_solved_obj2._tidy_data()
+        model_output.add_process("maxObjective2", single_solved_obj2)
+
+        # get the result of the first objective from the second optimization problem
+        bound_1 = single_solved_obj1._data[objective1] # upper bound of the first objective
+        bound_2 = single_solved_obj2._data[objective1] # lower bound of the second objective
+
+
+        bounds = np.linspace(bound_1, bound_2, paretoPoints)
+        for bound in bounds:
+            outputName = "bound_" + str(round(bound, 2))
+            # change the objective function to the first objective
+            self.bound_objective(model_instance, objective1, bound)
+            single_solved = self.single_optimizer.run_optimization(model_instance)
+            single_solved._tidy_data()
+            model_output.add_process(outputName, single_solved)
+
+
+        return model_output
+
+    def change_model_objective(self, model_instance, objective):
+        """
+        This function is used to change the objective function of the model instance
+        :param model_instance: the model instance to change the objective function
+        :param objective: the new objective function
+        :return: model_instance with the new objective function
+        """
+        model_instance.del_component(model_instance.Objective)
+        if objective == "NPC":
+            def Objective_rule(Instance):
+                return Instance.NPC
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        elif objective == "EBIT":
+            def Objective_rule(Instance):
+                return Instance.EBIT
+            model_instance.Objective = Objective(rule=Objective_rule, sense=maximize)
+
+        elif objective == "NPE":
+            def Objective_rule(Instance):
+                return Instance.NPE
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        elif objective == "FWD":
+            def Objective_rule(Instance):
+                return Instance.NPFWD
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        else:
+            if objective in model_instance.impact_categories_list:
+                def Objective_rule(Instance):
+                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name]
+                model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+            else:
+                raise Exception("The objective function {} is not defined in the model instance".format(objective))
+
+    def bound_objective(self, model_instance, objective, bound):
+        """
+        This function is used to bound the objective function of the model instance
+        :param model_instance: the model instance to change the objective function
+        :param objective: the new objective function
+        :return: model_instance with the new objective function
+        """
+        model_instance.del_component(model_instance.Objective)
+        if objective == "NPC":
+            def bound_objective_rule(Instance):
+                return Instance.NPC >= bound
+            model_instance.Constraint = Constraint(rule=bound_objective_rule)
+            def Objective_rule(Instance):
+                return Instance.NPC
+
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        elif objective == "EBIT":
+            def bound_objective_rule(Instance):
+                return Instance.EBIT <= bound
+            model_instance.Constraint = Constraint(rule=bound_objective_rule)
+            def Objective_rule(Instance):
+                return Instance.EBIT
+            model_instance.Objective = Objective(rule=Objective_rule, sense=maximize)
+
+        elif objective == "NPE":
+            def bound_objective_rule(Instance):
+                return Instance.NPE >= bound
+            model_instance.Constraint = Constraint(rule=bound_objective_rule)
+            def Objective_rule(Instance):
+                return Instance.NPE
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        elif objective == "FWD":
+            def bound_objective_rule(Instance):
+                return Instance.NPFWD >= bound
+            model_instance.Constraint = Constraint(rule=bound_objective_rule)
+            def Objective_rule(Instance):
+                return Instance.NPFWD
+            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
+        else:
+            if objective in Instance.impact_categories_list:
+                def bound_objective_rule(Instance):
+                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name] >= bound
+                model_instance.Constraint = Constraint(rule=bound_objective_rule)
+                def Objective_rule(Instance):
+                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name]
+                model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+            else:
+                raise Exception("The objective function {} is not defined in the model instance".format(objective))
+
 
 
 class SensitivityOptimizer(SingleOptimizer):

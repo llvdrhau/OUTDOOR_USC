@@ -21,9 +21,12 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 from scipy.spatial import cKDTree
 from tabulate import tabulate
+#from basic_analyzer import BasicModelAnalyzer
+from outdoor.outdoor_core.output_classes.analyzers.basic_analyzer import BasicModelAnalyzer
 
 
-class AdvancedMultiModelAnalyzer:
+
+class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
     """
     Class description
     -----------------
@@ -35,10 +38,13 @@ class AdvancedMultiModelAnalyzer:
         - create_mcda_table()           --> Usable for MCDAOptimizer runs
         - create_sensitivity_graph()    --> Usable for SensitivityOptimizer
         - create_crossparameter_graph() --> Usable for TwoWaySensitivityOptimizer runs
+        - plot_parero_front()            --> Usable for MultiObjectiveOptimizer runs
 
     """
+
     def __init__(self, model_output=None):
-        self.model_output = copy.deepcopy(model_output)
+        super().__init__(model_output)
+        #self.model_output = copy.deepcopy(model_output)
         self._case_time = datetime.datetime.now()
 
     # INPUT METHODS
@@ -1058,3 +1064,79 @@ class AdvancedMultiModelAnalyzer:
         orange_color = "\033[33m"
         reset_color = "\033[0m"
         print(f"{orange_color}-------WARNING-------{reset_color}")
+
+
+    def plot_pareto_front(self, path, saveName, flowTreshold=1e-5):
+        """
+        Plot the pareto front of the multi-objective optimization, the dots have different colors depending on the
+        flow sheet design. The x-axis is the first objective function and the y-axis is the second objective function.
+        :return:
+        """
+
+        data = self.model_output._results_data
+        objectiveFunctionName1 = self.model_output.multi_data['objective1']
+        objectiveFunctionName2 = self.model_output.multi_data['objective2']
+
+        x = []
+        y = []
+        colors = []
+        color_map = {}
+        color_index = 0
+
+        for sc in data:
+            scData = data[sc]._data
+            flowSheet = self.model_output.return_chosen(scData, flowTreshold)
+            flowSheetTuple = tuple(flowSheet.items())
+
+            if flowSheetTuple not in color_map:
+                color_map[flowSheetTuple] = color_index
+                color_index += 1
+
+            x.append(scData[objectiveFunctionName1])
+            y.append(scData[objectiveFunctionName2])
+            colors.append(color_map[flowSheetTuple])
+
+        # Normalize colors to the range [0, 1]
+        norm_colors = np.array(colors) / max(colors)
+
+        plt.scatter(x, y, c=norm_colors, cmap='viridis')
+        plt.xlabel(objectiveFunctionName1)
+        plt.ylabel(objectiveFunctionName2)
+
+        # save the plot
+        if saveName:
+            if 'png' not in saveName:
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/pareto_front.png"
+        plt.savefig(savePath)
+
+    def create_all_flowsheets(self, path=None, saveName=None):
+        """
+        This methode finds the different flow sheet designs of the multi objective optimisation and returns
+        a png of each flow sheet design,
+
+        :param flowThreshold: float cut off the mass flow of the flow sheet design
+        :return:
+        """
+        flowTreshold = 1e-5
+        data = self.model_output._results_data
+        designDict = {}
+        for scenario in data:
+            scData = data[scenario]._data
+            flowSheet = self.model_output.return_chosen(scData, flowTreshold)
+            flowSheetTuple = tuple(flowSheet.items())
+
+            if flowSheetTuple not in designDict:
+                designDict[flowSheetTuple] = scenario
+
+        # make and save the flow sheet designs
+        if not saveName:
+            saveName = 'Flowsheet Design '
+
+        for i, scenario in enumerate(designDict.values()):
+            dataScenario = data[scenario]._data
+            saveName = saveName + str(i)
+            self.create_flowsheet(path=path, saveName=saveName, dataScenario=dataScenario)

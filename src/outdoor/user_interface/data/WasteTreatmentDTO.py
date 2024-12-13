@@ -29,6 +29,11 @@ class WasteTreatmentDTO(OutdoorDTO):
             case 'name':
                 self.name = value
             case 'cost':
+                if value == "":
+                    self.cost = 0
+                else:
+                    value = float(value)
                 self.cost = value
+
             case 'calculated':
                 self.calculated = value

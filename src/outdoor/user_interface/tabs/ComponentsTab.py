@@ -158,18 +158,18 @@ class ComponentsTab(QWidget):
         self.addingRowFlag = False
 
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
-            selectedItems = self.componentsTable.selectedItems()
-            if selectedItems:
-                selectedRow = selectedItems[0].row()  # Get the row of the first selected item
-                self.componentsTable.removeRow(selectedRow)
-                target = [u for u in self.componentList if u.rowPosition == selectedRow][0]
-                self.componentList.remove(target)
-                for c in [u for u in self.componentList if u.rowPosition >= selectedRow]:
-                    c.updateRow()
-        else:
-            super().keyPressEvent(event)
+    # def keyPressEvent(self, event):
+    #     if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
+    #         selectedItems = self.componentsTable.selectedItems()
+    #         if selectedItems:
+    #             selectedRow = selectedItems[0].row()  # Get the row of the first selected item
+    #             self.componentsTable.removeRow(selectedRow)
+    #             target = [u for u in self.componentList if u.rowPosition == selectedRow][0]
+    #             self.componentList.remove(target)
+    #             for c in [u for u in self.componentList if u.rowPosition >= selectedRow]:
+    #                 c.updateRow()
+    #     else:
+    #         super().keyPressEvent(event)
 
     def doubleClickEvent(self, item):
         print(item.row(), item.column())

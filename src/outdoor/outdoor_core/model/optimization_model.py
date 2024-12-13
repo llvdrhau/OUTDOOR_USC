@@ -47,7 +47,10 @@ class SuperstructureModel(AbstractModel):
                 - Objective name (NPC/NPE/NPFWD)
         """
 
-        self.productDriven = superstructure_input.productDriven
+        self.productDriven = superstructure_input.productDriven.lower()
+
+        # list of impact categories should be the same as the set created in the model, see self.IMPACT_CATEGORIES
+        self.impact_categories_list = []
 
         if superstructure_input.HP_active:
             self.heat_pump_options = {
@@ -74,7 +77,12 @@ class SuperstructureModel(AbstractModel):
         # create warning if more than one main product pool is defined and the model is product driven
         if len(checkList) > 1 and self.productDriven == 'yes':
             raise ValueError("There is more than one product pool defined as the mainProduct. "
-                             "Please check the superstructure input.")
+                             "Please check the superstructure inputs and select only one main product if the process is"
+                             "Product driven (see general data tab).")
+
+        if len(checkList) == 0 and self.productDriven == 'yes':
+            raise ValueError("There is no main product pool defined. Please check the superstructure inputs and select "
+                             "one main product if the process is Product driven (see general data tab).")
 
     def _set_options_from_external(self, **kwargs):
         print("There is no external parsing implemented at the moment.")
@@ -159,7 +167,7 @@ class SuperstructureModel(AbstractModel):
         self.WASTE_MANAGEMENT_TYPES = Set(initialize=["Incineration", "Landfill", "WWTP"])
 
         # impact categories of life cycle assessment
-        self.IMPACT_CATAGORIES = Set(initialize=["GWP"])
+        self.IMPACT_CATEGORIES = Set(initialize=["GWP"])
 
         # Components
         # ----------
@@ -886,7 +894,7 @@ class SuperstructureModel(AbstractModel):
     def create_WasteCosts(self):
 
         # set parameters
-        self.waste_cost_fac = Param(self.WASTE_MANAGEMENT_TYPES, initialize=0, mutable=True)
+        self.waste_cost_factor = Param(self.WASTE_MANAGEMENT_TYPES, initialize=0, mutable=True)
         self.waste_type_U = Param(self.U, initialize='Landfill', mutable=True)
 
         # set variables
@@ -895,8 +903,8 @@ class SuperstructureModel(AbstractModel):
 
         def Cost_Waste_rule(self, u):
             wasteType = self.waste_type_U[u].value
-            return (self.WASTE_COST_U[u] == self.flh[u] *
-                    sum(self.FLOW_WASTE[u, i] * self.waste_cost_fac[wasteType] for i in self.I))
+            return (self.WASTE_COST_U[u] == self.flh[u] *   # units WASTE_COST = k€/year
+                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType] )
 
         def Cost_Waste_TOT(self):
             return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.U)/1000
@@ -1213,7 +1221,7 @@ class SuperstructureModel(AbstractModel):
         # Total Annualized Costs
 
         def TAC_1_rule(self):
-            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000
+            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000  # waste costs are in the OPEX
 
         self.TAC_Equation = Constraint(rule=TAC_1_rule)
 
@@ -1387,25 +1395,25 @@ class SuperstructureModel(AbstractModel):
         """
         # start with impacts of the inflowing components
         # needs to be introduced like phi variable! look how it is passed on
-        self.impact_inFlow_components = Param(self.I, initialize=0, mutable=True)
-        self.IMPACT_INPUTS_U_CAT = Var(self.U, self.IMPACT_CATAGORIES)
-        self.IMPACT_INPUTS_PER_CAT = Var(self.IMPACT_CATAGORIES)
+        self.impact_inFlow_components = Param(self.I, self.IMPACT_CATEGORIES, initialize=0, mutable=True)
+        self.IMPACT_INPUTS_U_CAT = Var(self.U, self.IMPACT_CATEGORIES)
+        self.IMPACT_INPUTS_PER_CAT = Var(self.IMPACT_CATEGORIES)
 
         def LCA_Inflow_U_rule(self, u, ImpCat):
-            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i]
+            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i, ImpCat]
                                                 for i in self.I)
         def LCA_All_Inflow_rule(self, ImpCat):
-            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u,ImpCat] for u in self.U) * self.H
+            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u, ImpCat] for u in self.U) * self.H
 
-        self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATAGORIES, rule=LCA_Inflow_U_rule)
-        self.LCA_InFlow_Total_Per_Catagories = Constraint(self.IMPACT_CATAGORIES, rule=LCA_All_Inflow_rule)
+        self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Inflow_U_rule)
+        self.LCA_InFlow_Total_Per_Catagories = Constraint(self.IMPACT_CATEGORIES, rule=LCA_All_Inflow_rule)
 
         # now the impacts of energy and heat consumption
         # set the parameters
-        self.util_impact_factors = Param(self.UT, self.IMPACT_CATAGORIES, initialize=0, mutable=True)
+        self.util_impact_factors = Param(self.UT, self.IMPACT_CATEGORIES, initialize=0, mutable=True)
         # set the variables
-        self.IMPACT_UTILITIES = Var(self.UT, self.IMPACT_CATAGORIES)
-        self.IMPACT_UTILITIES_PER_CAT = Var(self.IMPACT_CATAGORIES)
+        self.IMPACT_UTILITIES = Var(self.UT, self.IMPACT_CATEGORIES)
+        self.IMPACT_UTILITIES_PER_CAT = Var(self.IMPACT_CATEGORIES)
 
         # set the constraints
         def LCA_Utility_rule(self, ut, impCat):
@@ -1424,15 +1432,15 @@ class SuperstructureModel(AbstractModel):
         def LCA_Utility_TOT_rule(self, impCat):
             return self.IMPACT_UTILITIES_PER_CAT[impCat] == sum(self.IMPACT_UTILITIES[ut, impCat] for ut in self.UT)
 
-        self.LCA_GWP_Utilities = Constraint(self.U_UT, self.IMPACT_CATAGORIES, rule=LCA_Utility_rule)
-        self.LCA_GWP_Utilities_TOT = Constraint(self.IMPACT_CATAGORIES, rule=LCA_Utility_TOT_rule)
+        self.LCA_GWP_Utilities = Constraint(self.U_UT, self.IMPACT_CATEGORIES, rule=LCA_Utility_rule)
+        self.LCA_GWP_Utilities_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Utility_TOT_rule)
 
         # impact of waste
         # set the parameters
-        self.waste_impact_fac = Param(self.WASTE_MANAGEMENT_TYPES, self.IMPACT_CATAGORIES, initialize=0, mutable=True)
+        self.waste_impact_fac = Param(self.WASTE_MANAGEMENT_TYPES, self.IMPACT_CATEGORIES, initialize=0, mutable=True)
         # set the variables
-        self.WASTE_U = Var(self.U, self.IMPACT_CATAGORIES)
-        self.WASTE_TOT = Var(self.IMPACT_CATAGORIES)
+        self.WASTE_U = Var(self.U, self.IMPACT_CATEGORIES)
+        self.WASTE_TOT = Var(self.IMPACT_CATEGORIES)
         def LCA_Waste_rule(self, u, impCat):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_U[u, impCat] == self.flh[u] * sum(self.FLOW_WASTE[u, i] * self.waste_impact_fac[wasteType, impCat]
@@ -1440,8 +1448,8 @@ class SuperstructureModel(AbstractModel):
         def LCA_Waste_TOT_rule(self, impCat):
             return self.WASTE_TOT[impCat] == sum(self.WASTE_U[u, impCat] for u in self.U)
 
-        self.LCA_Waste = Constraint(self.U, self.IMPACT_CATAGORIES, rule=LCA_Waste_rule)
-        self.LCA_Waste_TOT = Constraint(self.IMPACT_CATAGORIES, rule=LCA_Waste_TOT_rule)
+        self.LCA_Waste = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Waste_rule)
+        self.LCA_Waste_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Waste_TOT_rule)
 
 
     # **** DECISION MAKING EQUATIONS *****
@@ -1526,7 +1534,7 @@ class SuperstructureModel(AbstractModel):
         # Parameter
         # ---------
 
-        self.ProductLoad = Param()
+        self.ProductLoad = Param(initialize=1, mutable=True)
         self.ObjectiveFunctionName = Param(within=Any, initialize=self.objective_name)
 
 
@@ -1601,12 +1609,10 @@ class SuperstructureModel(AbstractModel):
         # Definition of the used Objective Function
 
         if self.objective_name == "NPC":
-
             def Objective_rule(self):
                 return self.NPC
 
         elif self.objective_name == "NPE":
-
             def Objective_rule(self):
                 return self.NPE
 
@@ -1619,6 +1625,9 @@ class SuperstructureModel(AbstractModel):
                 def Objective_rule(self):
                     return self.EBIT
 
+        elif self.objective_name in self.impact_categories_list:
+            def Objective_rule(self):
+                return self.IMPACT_UTILITIES_PER_CAT[self.objective_name]
         else:
             def Objective_rule(self):
                 return self.NPC
