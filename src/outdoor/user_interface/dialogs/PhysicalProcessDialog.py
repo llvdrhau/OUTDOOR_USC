@@ -190,7 +190,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Temperature in (°C):", widget=self.temperatureEnteringProcess,
                                 tooltipText=tooltipText)
         # only double values are allowed
-        self.temperatureEnteringProcess.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.temperatureEnteringProcess.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # temperature leaving the process
         self.temperatureLeavingProcess = QLineEdit(self)
@@ -198,7 +198,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Temperature out (°C):", widget=self.temperatureLeavingProcess,
                                 tooltipText=tooltipText)
         # only double values are allowed
-        self.temperatureLeavingProcess.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.temperatureLeavingProcess.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # temperature entering the unit process 2
         self.temperatureEnteringUnitProcess2 = QLineEdit(self)
@@ -207,7 +207,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Temperature in unit process 2 (°C):",
                                 widget=self.temperatureEnteringUnitProcess2, tooltipText=tooltipText)
         # only double values are allowed
-        self.temperatureEnteringUnitProcess2.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.temperatureEnteringUnitProcess2.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # temperature leaving the unit process 2
         self.temperatureLeavingUnitProcess2 = QLineEdit(self)
@@ -216,7 +216,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Temperature out unit process 2 (°C):",
                                 widget=self.temperatureLeavingUnitProcess2, tooltipText=tooltipText)
         # only double values are allowed
-        self.temperatureLeavingUnitProcess2.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.temperatureLeavingUnitProcess2.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
 
 
@@ -245,7 +245,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText=labelText, widget=self.operatingAndMaintenanceCost,
                                 tooltipText=tooltipText)
         # only double values are allowed
-        self.operatingAndMaintenanceCost.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.operatingAndMaintenanceCost.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # Direct Cost Factor
         self.directCostFactor = QLineEdit(self)
@@ -255,7 +255,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Direct Cost Factor:", widget=self.directCostFactor,
                                 tooltipText=tooltipText)
         # only double values are allowed
-        self.directCostFactor.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.directCostFactor.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # indirect Cost Factor
         self.indirectCostFactor = QLineEdit(self)
@@ -266,7 +266,7 @@ class PhysicalProcessesDialog(QDialog):
                                 tooltipText=tooltipText)
 
         # only double values are allowed
-        self.indirectCostFactor.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.indirectCostFactor.setValidator(QDoubleValidator(0.000, 999999.999, 3))
 
         # ---------------------------------------------------------------
         #  parameters Reoccurring Annualized Capital Costs
@@ -279,7 +279,7 @@ class PhysicalProcessesDialog(QDialog):
 
         # turn over time
         self.turnOverTime = QLineEdit(self)
-        self.turnOverTime.setValidator(QDoubleValidator(0.00, 999.99, 2))
+        self.turnOverTime.setValidator(QDoubleValidator(0.00, 999.99, 6))
         # Create QComboBox
         self.comboBoxUnits = QComboBox(self)
         self.comboBoxUnits.addItem("years")
@@ -298,7 +298,7 @@ class PhysicalProcessesDialog(QDialog):
         self._addRowWithTooltip(layout, labelText="Turn Over Factor:", widget=self.turnOverFactor,
                                 tooltipText=tooltipText)
         # only double values are allowed
-        self.turnOverFactor.setValidator(QDoubleValidator(0.00, 1.00, 2))
+        self.turnOverFactor.setValidator(QDoubleValidator(0.00, 1.00, 6))
 
         # add the layout to the widget and return the widget
         widget.setLayout(layout)
@@ -331,7 +331,7 @@ class PhysicalProcessesDialog(QDialog):
 
         # Reference Flow input
         self.referenceFlowInput = QLineEdit(self)
-        self.referenceFlowInput.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.referenceFlowInput.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         # set object name
         self.referenceFlowInput.setObjectName("referenceFlowInput")
         self.referenceFlowUnit = QLabel(self)
@@ -402,7 +402,7 @@ class PhysicalProcessesDialog(QDialog):
         # Exponent input
         self.exponentInput = QLineEdit(self)
         self.exponentInput.setText("0.67")  # preallocate the value, with it's default value
-        self.exponentInput.setValidator(QDoubleValidator(0.00, 5.00, 2))
+        self.exponentInput.setValidator(QDoubleValidator(0.00, 5.00, 6))
         # set object name
         self.exponentInput.setObjectName("exponentInput")
         tooltipText = """The exponent is used to calculate the Equipment Costs of the unit process according to
@@ -456,7 +456,7 @@ class PhysicalProcessesDialog(QDialog):
         # Electricity Consumption parameter
         self.energyConsumption = QLineEdit(self)
         self.energyConsumption.setText("0.00")
-        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.energyConsumption.setObjectName("energyConsumption")
         tooltipText = """The energy consumption of the unit process."""
         # add a label to the energy consumption units
@@ -529,7 +529,7 @@ class PhysicalProcessesDialog(QDialog):
         self.chillingConsumption = QLineEdit(self)
         self.chillingConsumption.setText("0.00")
         # only double values are allowed
-        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.chillingConsumption.setObjectName("chillingConsumption")
         tooltipText = """The chilling consumption of the unit process."""
         # add a label to the chilling consumption units
@@ -629,7 +629,7 @@ class PhysicalProcessesDialog(QDialog):
         # Heat consumption 1
         self.heatConsumption = QLineEdit(self)
         self.heatConsumption.setText("0.00")
-        self.heatConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.heatConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.heatConsumption.setObjectName("heatConsumption")
         tooltipText = """The cooling (Negative) or heating (Positive) required for the unit process."""
         self.heatConsumptionUnit = QLabel(self)
@@ -687,7 +687,7 @@ class PhysicalProcessesDialog(QDialog):
         # Heat consumption 2
         self.heatConsumption2 = QLineEdit(self)
         self.heatConsumption2.setText("0.00")
-        self.heatConsumption2.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.heatConsumption2.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.heatConsumption2.setObjectName("heatConsumption2")
         tooltipText = """The second cooling (Negative) or heating (Positive) required for the unit process."""
         self.heatConsumption2Unit = QLabel(self)
@@ -771,7 +771,7 @@ class PhysicalProcessesDialog(QDialog):
 
         self.concentrationFactor = QLineEdit(self)
         self.concentrationFactor.setText("0.00")
-        self.concentrationFactor.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.concentrationFactor.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.concentrationFactor.setObjectName("concentrationFactor")
         tooltipText = """ The concentration factor is the ratio of the mass of FLOW1 to the mass of FLOW2,
                         specified underneath."""
@@ -1722,7 +1722,7 @@ class PhysicalProcessesDialog(QDialog):
         # Electricity Consumption parameter
         self.energyConsumption = QLineEdit(self)
         self.energyConsumption.setText("0.00")
-        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.energyConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.energyConsumption.setObjectName("energyConsumption")
         tooltipText = """The energy consumption of the unit process."""
         # add a label to the energy consumption units
@@ -1779,7 +1779,7 @@ class PhysicalProcessesDialog(QDialog):
         self.chillingConsumption = QLineEdit(self)
         self.chillingConsumption.setText("0.00")
         # only double values are allowed
-        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.chillingConsumption.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.chillingConsumption.setObjectName("chillingConsumption")
         tooltipText = """The chilling consumption of the unit process."""
         # add a label to the chilling consumption units

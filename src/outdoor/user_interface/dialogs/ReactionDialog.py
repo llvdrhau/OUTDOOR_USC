@@ -229,9 +229,12 @@ class ReactionDialog(QDialog):
             reactionEq = self.makeStringEquation(reactants, products)
 
             # check if the sum of the stoichiometry is zero print a warning dialog
-            if sum(reactants.values()) + sum(products.values()) != 0:
-                self.warningDialog(errorType="Stoich")
+            if sum(reactants.values()) + sum(products.values()) >= 0:
+                self.warningDialog(errorType="Stoich_critical")
                 return
+            elif sum(reactants.values()) + sum(products.values()) != 0:
+                self.warningDialog(errorType="Stoich_non_critical")
+                # no need to return as the user can still save the reaction
 
             if name == "":
                 self.warningDialog(errorType="Name")
@@ -358,8 +361,12 @@ class ReactionDialog(QDialog):
         layout = QVBoxLayout()
 
         match errorType:
-            case "Stoich":
-                label = QLabel("<b>The sum of the stoichiometry is not zero, "
+            case "Stoich_critical":
+                label = QLabel("<b>The sum of the stoichiometry of products Exceeds the stoichimotery of the inputs!, "
+                               "please check that the mass is balanced correctly</b>")
+            case "Stoich_non_critical":
+                label = QLabel("<b>The sum of the stoichiometry of products and reactants is not equal, "
+                               "This will not lead to errors but do be carefull could lead to unexpected results, "
                                "please check that the mass is balanced correctly</b>")
 
             case "Name":

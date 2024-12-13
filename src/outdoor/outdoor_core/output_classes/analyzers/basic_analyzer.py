@@ -832,7 +832,7 @@ class BasicModelAnalyzer:
 
         return fig
 
-    def create_flowsheet(self, path, saveName=None):
+    def create_flowsheet(self, path, saveName=None, dataScenario=None):
 
         """
         Parameters
@@ -902,7 +902,15 @@ class BasicModelAnalyzer:
         data = dict()
         nodes = dict()
         edges = dict()
-        model_data = self.model_output._data
+
+        if dataScenario:
+            # if we want to plot a specific scenario (e.g. for the wait and see approach or multi-objective
+            # optimization)
+            model_data = dataScenario
+        else:
+            # otherwise we plot the nominal scenario for the single-objective optimization
+            model_data = self.model_output._data
+
         data = self._collect_mass_flows(model_data=model_data, nDecimals=4)["Mass flows"]
         flowchart = pydot.Dot(
             "flowchart", rankdir="LR", ratio="compress", size="15!,1", dpi="500"

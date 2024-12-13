@@ -705,5 +705,14 @@ class ConstructSuperstructure:
 
         processObject.set_connections(connections)
 
+    def _addUncertaintyData(self):
+        """
+        This method reads the uncertainty data from the dto and writes it to the superstucture object
+        the uncertainty data is a dataFrame,
+        :return:
+        """
+        # todo implement this method
+        pass
+
     def get_superstructure(self):
         return self.superstructureObject

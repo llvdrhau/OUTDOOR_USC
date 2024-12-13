@@ -101,27 +101,21 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.centralDataManager = pickle.load(file)
         self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
         self.centralDataManager.loadConfigs()
+        # check if there are missing attributes in the centralDataManager
+        self.checkMissingAttributes()
+
         self.initTabs()
         self.enableSave()
         self.logger.info("Opened File: {}".format(self.ProjectPath))
 
-        # todo: set this in appropiate place (save methods), just for ease of use for now to test the superstructure
-        # self._makeSuperstructureObject()
-
-        # comment for now to make bebugging easier
-        # try:
-        #     #if filepath.accept():
-        #     self.ProjectPath = filepath.selectedFiles()[0]
-        #     self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
-        #     with open(self.ProjectPath, 'rb') as file:
-        #         self.centralDataManager = pickle.load(file)
-        #     self.centralDataManager.data["PROJECT_NAME"] = self.ProjectName
-        #     self.centralDataManager.loadConfigs()
-        #     self.initTabs()
-        #     self.enableSave()
-        #     self.logger.info("Opened File: {}".format(self.ProjectPath))
-        # except Exception as e:
-        #     self.logger.error("File opening cancelled: {}".format(e))
+    def checkMissingAttributes(self):
+        """
+        During development some new attributes were added to the DTOs, this method checks if the attributes are missing
+        and adds them with default values if they are missing
+        :return:
+        """
+        if not hasattr(self.centralDataManager, 'uncertaintyData'):
+            self.centralDataManager.uncertaintyData = []
 
     def saveFile(self):
         """
@@ -205,13 +199,17 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         Generate the superstructure object from the data in the centralDataManager
         :return:
         """
+
+        # before generating the superstructure object,save the project if the save path is established!
+        if self.ProjectPath != '':
+            self.saveFile()
+
         constructorSuperstructure = ConstructSuperstructure(self.centralDataManager)
         if constructorSuperstructure.warningMessage:
             self.logger.error(constructorSuperstructure.warningMessage)
             return # if there is a warning, do not proceed with the superstructure generation
 
         superstructure = constructorSuperstructure.get_superstructure()
-
 
         # save the object in the same location as the project file
         # with the name of the project file + '_superstructure'

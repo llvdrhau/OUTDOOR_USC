@@ -77,7 +77,7 @@ class YieldReactorDialog(PhysicalProcessesDialog):
         self.addRowButton.setObjectName("addRowButtonYieldTable")
         layout.addWidget(self.addRowButton)
         # Initialize the table with an example row (optional)
-        self._addRowToTable(tabName="yield")
+        # self._addRowToTable(tabName="yield")
 
         widget.setLayout(layout)
         return widget

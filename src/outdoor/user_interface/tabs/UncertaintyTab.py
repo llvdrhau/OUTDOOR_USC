@@ -25,7 +25,7 @@ class UncertaintyTab(QWidget):
 
         # add the central data manager
         self.centralDataManager = centralDataManager
-        self.uncertaintyList: list[UncertaintyDTO] = centralDataManager.componentData
+        self.uncertaintyList: list[UncertaintyDTO] = centralDataManager.uncertaintyData
 
         # set the flag of adding a row to false
         self.addingRowFlag = False
@@ -160,6 +160,9 @@ class UncertaintyTab(QWidget):
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
                     self.uncertaintyTable.setItem(rowPosition, index, insert)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxParameterType)
+                    # set the value of the combobox
+                    if value:
+                        self.comboBoxParameterType.setCurrentText(value)
 
                 elif key == "unitUid":
                     # make a combobox for the unit process
@@ -169,12 +172,19 @@ class UncertaintyTab(QWidget):
                     self.comboBoxUnitProcess.currentIndexChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxUnitProcess)
 
+                    if value and value != "n.a.":
+                        unitDict = self.centralDataManager.unitProcessData
+                        unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        self.comboBoxUnitProcess.setCurrentText(unitName)
+
                 elif key == "componentName":
                     self.comboBoxComponents = ComboBox()
                     ComponentNames = self.centralDataManager.getChemicalComponentNames()
                     self.comboBoxComponents.addItems(ComponentNames)
                     self.comboBoxComponents.currentIndexChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxComponents)
+                    if value:
+                        self.comboBoxComponents.setCurrentText(value)
 
                 elif key == "targetUnitProcess":
                     self.comboBoxTargetUnitProcess = ComboBox()
@@ -183,6 +193,12 @@ class UncertaintyTab(QWidget):
                     self.comboBoxTargetUnitProcess.currentIndexChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxTargetUnitProcess)
 
+                    # add the value to the combobox
+                    if value and value != "n.a.":
+                        unitDict = self.centralDataManager.unitProcessData
+                        unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        self.comboBoxTargetUnitProcess.setCurrentText(unitName)
+
                 elif key == "reactionUid":
                     self.comboBoxReaction = ComboBox()
                     reactionNames = self.centralDataManager.getReactionNames()
@@ -190,12 +206,20 @@ class UncertaintyTab(QWidget):
                     self.comboBoxReaction.currentIndexChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxReaction)
 
+                    #set the value
+                    if value and value != "n.a.":
+                        reactionList = self.centralDataManager.reactionData
+                        reactionName = [u.name for u in reactionList if u.uid == value][0]
+                        self.comboBoxReaction.setCurrentText(reactionName)
+
                 elif key == "uncertaintyFactor":
                     self.doubleSpinBox = QDoubleSpinBox()
                     self.doubleSpinBox.setRange(0.0, 1.0)
                     self.doubleSpinBox.setSingleStep(0.01)
                     self.doubleSpinBox.valueChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.doubleSpinBox)
+                    if value:
+                        self.doubleSpinBox.setValue(float(value))
 
                 elif key == "distributionType":
                     distributionNames = ["Uniform", "Normal"]
@@ -203,14 +227,16 @@ class UncertaintyTab(QWidget):
                     self.comboBoxDistribution.addItems(distributionNames)
                     self.comboBoxDistribution.currentIndexChanged.connect(self.saveData)
                     self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxDistribution)
+                    if value:
+                        self.comboBoxDistribution.setCurrentText(value)
 
                 # else:
                 #     self.logger.error(f"Missing logic for {key}")
 
-        # get the selection setting correct for the new row
-        self._selectionSettings(rowPosition)
         # set the flag of adding a row to false
         self.addingRowFlag = False
+        # get the selection setting correct for the new row
+        self._selectionSettings(rowPosition)
 
     def _selectionSettings(self, rowPostion):
         """
@@ -218,34 +244,35 @@ class UncertaintyTab(QWidget):
         :param rowPostion: the row position in the table that is being edited
         :return:
         """
-        # get the row position
-        row = rowPostion
-        # get the parameter type
-        paramType = self.uncertaintyTable.cellWidget(row, 0).currentText()
+        if not self.addingRowFlag: #don't update the row if a row is being added from data
+            # get the row position
+            row = rowPostion
+            # get the parameter type
+            paramType = self.uncertaintyTable.cellWidget(row, 0).currentText()
 
-        if paramType == "Split factors (myu)": # or paramType == "electricity_price" or paramType == "heat_price":
-            # the reactionUID column is not editable and in gray
-            self._updateColumnEditability(row, [4])
+            if paramType == "Split factors (myu)": # or paramType == "electricity_price" or paramType == "heat_price":
+                # the reactionUID column is not editable and in gray
+                self._updateColumnEditability(row, [4])
 
-        elif paramType == "Costs (materialcosts)" or paramType == "Price (ProductPrice)" or paramType == "heat_price":
-            # set the reactionUID component and the target Unit UID un-editable, gray and have a value of n.a.
-            self._updateColumnEditability(row, [2, 3, 4])
+            elif paramType == "Costs (materialcosts)" or paramType == "Price (ProductPrice)" or paramType == "heat_price":
+                # set the reactionUID component and the target Unit UID un-editable, gray and have a value of n.a.
+                self._updateColumnEditability(row, [2, 3, 4])
 
-        elif paramType == "electricity_price":
-            # all un-editable and gray
-            self._updateColumnEditability(row, [1, 2, 3, 4])
+            elif paramType == "electricity_price":
+                # all un-editable and gray
+                self._updateColumnEditability(row, [1, 2, 3, 4])
 
 
-        elif paramType == "Feed Composition (phi)" or paramType == "Yield factor (xi)":
-            # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
-            self._updateColumnEditability(row, [3, 4])
+            elif paramType == "Feed Composition (phi)" or paramType == "Yield factor (xi)":
+                # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
+                self._updateColumnEditability(row, [3, 4])
 
-        elif paramType == "Conversion factor (theta)" or paramType == "Stoichiometric factor (gamma)":
-            # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a.
-            self._updateColumnEditability(row, [3])
+            elif paramType == "Conversion factor (theta)" or paramType == "Stoichiometric factor (gamma)":
+                # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a.
+                self._updateColumnEditability(row, [3])
 
-        else:
-            print('Missed logic for {}'.format(paramType))
+            else:
+                print('Missed logic for {}'.format(paramType))
 
     def _updateColumnEditability(self, rowPosition, deactivate_columns):
         """

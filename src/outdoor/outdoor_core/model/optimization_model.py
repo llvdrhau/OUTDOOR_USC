@@ -903,8 +903,8 @@ class SuperstructureModel(AbstractModel):
 
         def Cost_Waste_rule(self, u):
             wasteType = self.waste_type_U[u].value
-            return (self.WASTE_COST_U[u] == self.flh[u] *
-                    sum(self.FLOW_WASTE[u, i] * self.waste_cost_factor[wasteType] for i in self.I))
+            return (self.WASTE_COST_U[u] == self.flh[u] *   # units WASTE_COST = k€/year
+                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType] )
 
         def Cost_Waste_TOT(self):
             return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.U)/1000
@@ -1221,7 +1221,7 @@ class SuperstructureModel(AbstractModel):
         # Total Annualized Costs
 
         def TAC_1_rule(self):
-            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000
+            return self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000  # waste costs are in the OPEX
 
         self.TAC_Equation = Constraint(rule=TAC_1_rule)
 

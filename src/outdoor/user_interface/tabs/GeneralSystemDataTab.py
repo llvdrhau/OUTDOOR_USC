@@ -67,7 +67,7 @@ class GeneralSystemDataTab(QWidget):
         self.productLoadLineEdit = QLineEdit()
         self.productLoadLineEdit.setValidator(
             QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
-        self.layout.addRow(QLabel("Product load:"), self.productLoadLineEdit)  # only floating numbers allowed as input
+        self.layout.addRow(QLabel("Product load (t/y):"), self.productLoadLineEdit)  # only floating numbers allowed as input
 
         # Connect the signal to the slot function
         self.productDrivenDropdown.currentIndexChanged.connect(lambda: self.productDrivenSwitch())

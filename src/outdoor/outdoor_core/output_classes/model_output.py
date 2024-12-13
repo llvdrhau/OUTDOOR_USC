@@ -63,6 +63,7 @@ class ModelOutput:
             "single",
             "wait and see",
             "here and now",
+            "multi-objective"
         }
 
         if optimization_mode in self._optimization_mode_set:
@@ -321,6 +322,12 @@ class ModelOutput:
                 wwt -= j * model_data["H"] / 1000
             else:
                 profits -= j * model_data["H"] / 1000
+
+        # so sinks/pools wich are negative are waste streams, but we've also got treatment that we now specify and
+        # calculate for all the waste streams that are not passed on to other units
+
+        if model_data['WASTE_COST_TOT'] > 0:
+            wwt += model_data['WASTE_COST_TOT'] /1000 # in M€
 
         economic_results["Economic results"]["CAPEX share"] = round(
             model_data.get("CAPEX", 0) / total_costs * 100, 2
