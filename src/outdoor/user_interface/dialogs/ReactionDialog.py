@@ -229,7 +229,7 @@ class ReactionDialog(QDialog):
             reactionEq = self.makeStringEquation(reactants, products)
 
             # check if the sum of the stoichiometry is zero print a warning dialog
-            if sum(reactants.values()) + sum(products.values()) >= 0:
+            if sum(reactants.values()) + sum(products.values()) > 0:
                 self.warningDialog(errorType="Stoich_critical")
                 return
             elif sum(reactants.values()) + sum(products.values()) != 0:

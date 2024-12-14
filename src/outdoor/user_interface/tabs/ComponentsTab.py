@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLa
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
+from outdoor.user_interface.data.ProcessDTO import ProcessType
 # retrive the logger
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
@@ -95,8 +96,11 @@ class ComponentsTab(QWidget):
         self.doubleDelegate = DoubleDelegate(self.componentsTable)
         # self.doubleValidator = QDoubleValidator(0.00, 9999.99, 2)
 
+        # Variable to store old value
+        self.oldValue = None
         # save if something is changed in the table
-        self.componentsTable.itemChanged.connect(self.saveData)
+        self.componentsTable.itemChanged.connect(self.handleItemChanged) # saves and updates data
+        self.componentsTable.currentItemChanged.connect(self.trackOldValue)
 
         # Add the table to the layout
         self.layout.addWidget(self.componentsTable)
@@ -174,7 +178,40 @@ class ComponentsTab(QWidget):
     def doubleClickEvent(self, item):
         print(item.row(), item.column())
 
-    @pyqtSlot()
+    #@pyqtSlot()
+    def handleItemChanged(self, item):
+        """Handle when an item is changed."""
+        if not self.addingRowFlag:
+            self.saveData()
+
+            # get the old and new name of the chemical component
+            oldValue = self.oldValue
+            newValue = item.text()
+
+            # Reset old value
+            self.oldValue = newValue
+
+            ## You can call updateData or saveData here
+            self.updateData(oldValue, newValue)
+
+
+            # if item.row() != 0:  # Ignore changes in rows other than the first
+            #    return
+
+            #row = item.row()
+            #column = item.column()
+            #new_value = item.text()
+
+            ## Use the stored old value
+            #print(f"Item in first row, column {column} changed from '{self.oldValue}' to '{new_value}'")
+
+            ## Reset old value
+            #self.oldValue = new_value
+
+            ## You can call updateData or saveData here
+            #self.updateData(column, self.oldValue, new_value)
+            #self.saveData()
+
     def saveData(self):
         if not self.addingRowFlag:
             self.collectData()
@@ -182,6 +219,54 @@ class ComponentsTab(QWidget):
             self.centralDataManager.addData("chemicalComponentsData", self.componentList)
             self.logger.debug("Data saved components tab to central data manager")
 
+    def updateData(self, oldChemicalName, newChemicalName):
+        if not self.addingRowFlag:
+            # start by going over the unit data
+            lists2Change = []
+            for dto in self.centralDataManager.unitProcessData.values():
+
+                # if the dto is an input
+                if dto.type.value == 0:
+                    compositionList = dto.dialogData['components']
+                    if oldChemicalName in compositionList:
+                        # change the old name with the new name
+                        # Change the old name with the new name
+                        index = compositionList.index(oldChemicalName)
+                        compositionList[index] = newChemicalName
+
+                if dto.type.vlaue >= 1 and dto.type.vlaue < 7: # if anything but input output or distribution
+                    lists2Change = ['Components Equipment Costs',
+                                   'Components Energy Consumption',
+                                   'Components Chilling Consumption',
+                                   'Components Heat Consumption 1',
+                                   'Components Heat Consumption 2',
+                                   'Components Flow1',
+                                   'Components Flow2', ] # separation fraction needs special attention
+
+                    for changeList in lists2Change:
+                        compositionList = dto.dialogData[changeList]
+                        if oldChemicalName in compositionList:
+                            # change the old name with the new name
+                            # Change the old name with the new name
+                            index = compositionList.index(oldChemicalName)
+                            compositionList[index] = newChemicalName
+
+                        # todo handel splitting please
+                        #splitDialogdata = dto.dialogData['Separation Fractions']
+
+                # todo continue
+                if dto.type.value == 2: # stoichiometric
+                    pass
+                    #lists2Change.append('Reactions')
+
+
+
+
+    def trackOldValue(self, current, previous):
+        """Track the old value of the currently selected item."""
+        if current and current.column() == 0:  # Check if the item is in the first row
+            self.oldValue = current.text()
+            print(self.oldValue)
 
     def collectData(self):
         # Collect data from the table
@@ -231,6 +316,5 @@ class ComponentsTab(QWidget):
 
             # update the dto list containing the chemical components
             self.centralDataManager.updateData('componentData', row)
-            # todo make a consistency check to see if the chemical component is used in any reaction or unit operation
             # open a dialog if the component is used in a reaction or unit operation
 

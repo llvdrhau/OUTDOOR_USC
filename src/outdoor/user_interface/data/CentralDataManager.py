@@ -78,7 +78,10 @@ class CentralDataManager:
                 self.logger.error(f"Error: Field \"{field}\" not recognized")
 
     def getChemicalComponentNames(self):
-        return self.namesChemicalComponents
+        namesChemicalComponents = []
+        for species in self.componentData:
+            namesChemicalComponents.append(species.name)
+        return namesChemicalComponents
 
     def setWasteManagementTypes(self, wasteManagementTypes):
         self.wasteManagementTypes = wasteManagementTypes
@@ -121,6 +124,7 @@ class CentralDataManager:
                     for i in range(row, sizeComponentList):
                         data = self.componentData[i]
                         data.updateRow()
+
 
             case "uncertaintyData":
                 # delete the row with the data for that uncertainty
