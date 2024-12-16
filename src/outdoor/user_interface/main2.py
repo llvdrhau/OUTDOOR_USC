@@ -10,6 +10,7 @@ from data.CentralDataManager import CentralDataManager
 from data.CentralDataManager import OutputManager
 from data.superstructure_frame import SuperstructureFrame
 from data.ConstructSuperstructure import ConstructSuperstructure
+from data.TabManager import TabManager
 
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
 
@@ -51,6 +52,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
         self.outputManager = OutputManager()  # Initialize the output manager
+        self.tabManager = TabManager()  # Initialize the tab manager
 
         menu_bar = self.menuBar()
         fileMenu = menu_bar.addMenu('File')
@@ -147,6 +149,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 unitDTO.exitPorts = []
                 unitDTO.entryPorts = []
 
+
             with open(self.ProjectPath, 'wb') as file:
                 pickle.dump(self.centralDataManager, file)
             self.setWindowTitle(self.ProjectName)
@@ -171,19 +174,29 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.setCentralWidget(tabWidget)
 
         # Create the tabs
-        createWelcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
+        welcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
         projectDescriptionTab = ProjectDescriptionTab(centralDataManager=self.centralDataManager)
         generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager,
                                                     outputManager=self.outputManager)
-        componentsTab = ComponentsTab(centralDataManager=self.centralDataManager)
+        componentsTab = ComponentsTab(centralDataManager=self.centralDataManager, tabManager=self.tabManager)
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
                                                             outputManager=self.outputManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
+        # add the tabs to the tabManager
+        self.tabManager.addTab(welcomeTab, "WelcomeTab")
+        self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
+        self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
+        self.tabManager.addTab(componentsTab, "ComponentsTab")
+        self.tabManager.addTab(reactionsTab, "ReactionsTab")
+        self.tabManager.addTab(utilityTab, "UtilityTab")
+        self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
+        self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
+
         # Add tabs to the QTabWidget
-        tabWidget.addTab(createWelcomeTab, "Welcome")
+        tabWidget.addTab(welcomeTab, "Welcome")
         tabWidget.addTab(projectDescriptionTab, "Project Description")
         tabWidget.addTab(generalSystemDataTab, "General System Data")
         tabWidget.addTab(componentsTab, "Chemical Components")

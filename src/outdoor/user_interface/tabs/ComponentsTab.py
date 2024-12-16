@@ -3,7 +3,7 @@ import uuid
 
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QMenu
-
+from outdoor.user_interface.tabs.ReactionTab import ReactionsTab
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.dialogs.LcaButton import LcaButton
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
@@ -18,7 +18,7 @@ class ComponentsTab(QWidget):
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
 
-    def __init__(self, centralDataManager, parent=None):
+    def __init__(self, centralDataManager, tabManager, parent=None):
         super().__init__(parent)
         # add the logger
         self.logger = logging.getLogger(__name__)
@@ -26,6 +26,9 @@ class ComponentsTab(QWidget):
         # add the central data manager
         self.centralDataManager = centralDataManager
         self.componentList: list[ComponentDTO] = centralDataManager.componentData
+
+        # add the tab manager
+        self.tabManager = tabManager
 
         # set the flag of adding a row to false
         self.addingRowFlag = False
@@ -162,55 +165,24 @@ class ComponentsTab(QWidget):
         self.addingRowFlag = False
 
 
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
-    #         selectedItems = self.componentsTable.selectedItems()
-    #         if selectedItems:
-    #             selectedRow = selectedItems[0].row()  # Get the row of the first selected item
-    #             self.componentsTable.removeRow(selectedRow)
-    #             target = [u for u in self.componentList if u.rowPosition == selectedRow][0]
-    #             self.componentList.remove(target)
-    #             for c in [u for u in self.componentList if u.rowPosition >= selectedRow]:
-    #                 c.updateRow()
-    #     else:
-    #         super().keyPressEvent(event)
-
     def doubleClickEvent(self, item):
         print(item.row(), item.column())
 
-    #@pyqtSlot()
     def handleItemChanged(self, item):
         """Handle when an item is changed."""
         if not self.addingRowFlag:
             self.saveData()
 
-            # get the old and new name of the chemical component
-            oldValue = self.oldValue
-            newValue = item.text()
+            if item.column() == 0:  # only bothered to track changes in the first column (chemical name)
+                # get the old and new name of the chemical component
+                oldValue = self.oldValue
+                newValue = item.text()
 
-            # Reset old value
-            self.oldValue = newValue
+                # Reset old value
+                self.oldValue = newValue
 
-            ## You can call updateData or saveData here
-            self.updateData(oldValue, newValue)
-
-
-            # if item.row() != 0:  # Ignore changes in rows other than the first
-            #    return
-
-            #row = item.row()
-            #column = item.column()
-            #new_value = item.text()
-
-            ## Use the stored old value
-            #print(f"Item in first row, column {column} changed from '{self.oldValue}' to '{new_value}'")
-
-            ## Reset old value
-            #self.oldValue = new_value
-
-            ## You can call updateData or saveData here
-            #self.updateData(column, self.oldValue, new_value)
-            #self.saveData()
+                ## You can call updateData or saveData here
+                self.updateData(oldValue, newValue)
 
     def saveData(self):
         if not self.addingRowFlag:
@@ -221,52 +193,98 @@ class ComponentsTab(QWidget):
 
     def updateData(self, oldChemicalName, newChemicalName):
         if not self.addingRowFlag:
-            # start by going over the unit data
-            lists2Change = []
+            # go over all the reaction dto's
+            if self.centralDataManager.reactionData:
+                for reactionDTO in self.centralDataManager.reactionData:
+                    # get reactants and products
+                    changeFlag = False
+                    for component_type in ['reactants', 'products']:
+                        components = getattr(reactionDTO, component_type)
+                        if oldChemicalName in components:
+                            changeFlag = True
+                            components[newChemicalName] = components.pop(oldChemicalName)
+                            setattr(reactionDTO, component_type, components)
+                    if changeFlag:
+                        # update the reaction equation
+                        reactionDTO.makeStringEquation()
+                        # now update the reaction tab by calling the editReaction method without opening the dialog
+                        # so the correct reaction equations are shown
+                        self.tabManager.reactionsTab.editReaction(row=reactionDTO.rowPosition, executeDialog=False)
+
+            # go over the unit data
             for dto in self.centralDataManager.unitProcessData.values():
-
-                # if the dto is an input
-                if dto.type.value == 0:
-                    compositionList = dto.dialogData['components']
-                    if oldChemicalName in compositionList:
-                        # change the old name with the new name
-                        # Change the old name with the new name
-                        index = compositionList.index(oldChemicalName)
-                        compositionList[index] = newChemicalName
-
-                if dto.type.vlaue >= 1 and dto.type.vlaue < 7: # if anything but input output or distribution
-                    lists2Change = ['Components Equipment Costs',
-                                   'Components Energy Consumption',
-                                   'Components Chilling Consumption',
-                                   'Components Heat Consumption 1',
-                                   'Components Heat Consumption 2',
-                                   'Components Flow1',
-                                   'Components Flow2', ] # separation fraction needs special attention
-
-                    for changeList in lists2Change:
-                        compositionList = dto.dialogData[changeList]
+                # only if it has filled in data, go ahead and modify
+                if dto.dialogData:
+                    # if the dto is an input
+                    if dto.type.value == 0:
+                        compositionList = [componentsTuple[0] for componentsTuple in dto.dialogData['components']]
                         if oldChemicalName in compositionList:
                             # change the old name with the new name
-                            # Change the old name with the new name
                             index = compositionList.index(oldChemicalName)
-                            compositionList[index] = newChemicalName
+                            #dto.dialogData['components'][index][0] = newChemicalName
+                            compositionFraction = dto.dialogData['components'][index][1]
+                            newTuple = (newChemicalName, compositionFraction)
+                            dto.dialogData['components'][index] = newTuple
 
-                        # todo handel splitting please
-                        #splitDialogdata = dto.dialogData['Separation Fractions']
+                    if dto.type.value >= 1 and dto.type.value < 7: # if anything but input output or distribution
+                        lists2Change = ['Components Equipment Costs',
+                                       'Components Energy Consumption',
+                                       'Components Chilling Consumption',
+                                       'Components Heat Consumption 1',
+                                       'Components Heat Consumption 2',
+                                       'Components Flow1',
+                                       'Components Flow2', ]  # separation fraction needs special attention
 
-                # todo continue
-                if dto.type.value == 2: # stoichiometric
-                    pass
-                    #lists2Change.append('Reactions')
+                        for changeList in lists2Change:
+                            compositionList = dto.dialogData[changeList]
+                            if oldChemicalName in compositionList:
+                                # change the old name with the new name
+                                # Change the old name with the new name
+                                index = compositionList.index(oldChemicalName)
+                                compositionList[index] = newChemicalName
+                                dto.dialogData[changeList] = compositionList
+
+                        splitDialogData = dto.dialogData['Separation Fractions']
+                        componentsList = [splitData['Component'] for splitData in splitDialogData]
+                        if oldChemicalName in componentsList:
+                            index = componentsList.index(oldChemicalName)
+                            splittingDict = splitDialogData[index]
+                            splittingDict['Component'] = newChemicalName
+                            dto.dialogData['Separation Fractions'][index] = splittingDict
+
+                    if dto.type.value in [2, 4, 5, 6]:  # stoichiometric, or the generator types
+                        # update the conversion factors
+                        reactions = dto.dialogData['Reactions']
+                        for reactionTuple in reactions:
+                            if oldChemicalName == reactionTuple[-1]:  # if the old name is the main conversion
+                                index = reactions.index(reactionTuple)
+                                reactionTuple = list(reactionTuple)  # Ensure the tuple is mutable
+                                reactionTuple[-1] = newChemicalName
+                                reactions[index] = tuple(reactionTuple)  # Convert back to tuple if needed
+                        dto.dialogData['Reactions'] = reactions
 
 
 
+                        #lists2Change.append('Reactions')
+
+                    if dto.type.value == 3: # if it is a yield type
+                        # update the yield components
+                        inertComponents = dto.dialogData['Inert Components']
+                        product = dto.dialogData['Product']
+                        if oldChemicalName in inertComponents:
+                            index = inertComponents.index(oldChemicalName)
+                            inertComponents[index] = newChemicalName
+                            dto.dialogData['Inert Components'] = inertComponents
+                        if oldChemicalName == product:
+                            dto.dialogData['Product'] = newChemicalName
+
+            self.logger.info("component Data updated in the centralDataManager and relevant tabs")
 
     def trackOldValue(self, current, previous):
         """Track the old value of the currently selected item."""
         if current and current.column() == 0:  # Check if the item is in the first row
             self.oldValue = current.text()
-            print(self.oldValue)
+            # print(self.oldValue) # for debugging
 
     def collectData(self):
         # Collect data from the table

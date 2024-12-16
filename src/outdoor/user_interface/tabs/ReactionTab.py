@@ -22,6 +22,8 @@ class ReactionsTab(QWidget):
 
         # add the logger
         self.logger = logging.getLogger(__name__)
+        # add row flag to check if a row is being added, to False
+        self.addingRowFlag = False
 
         self.centralDataManager = centralDataManager
         self.reactionList: list[ReactionDTO] = centralDataManager.reactionData
@@ -71,9 +73,7 @@ class ReactionsTab(QWidget):
         # Table for the component data
         self.reactionTable = QTableWidget()
         self.reactionTable.setColumnCount(3)
-        self.columnsList = [
-            "Reaction Name", "Reaction Equation", "Edit button"
-        ]
+        self.columnsList = ["Reaction Name", "Reaction Equation", "Edit button"]
         self.reactionTable.setHorizontalHeaderLabels(self.columnsList)
 
         # adjust the width of the columns
@@ -81,7 +81,11 @@ class ReactionsTab(QWidget):
         self.reactionTable.setColumnWidth(1, 430)
         self.reactionTable.setColumnWidth(2, 150)
 
-        # self.reactionTable.itemDoubleClicked.connect(self.doubleClickEvent)
+        # Variable to store old value
+        self.oldValue = None
+        # save if something is changed in the table
+        self.reactionTable.itemChanged.connect(self.handleItemChanged)  # saves and updates data
+        self.reactionTable.currentItemChanged.connect(self.trackOldValue)
 
         # Set validators for the numeric columns using a custom delegate class
         self.doubleDelegate = DoubleDelegate(self.reactionTable)
@@ -112,6 +116,8 @@ class ReactionsTab(QWidget):
         """
 
         rowPosition: int
+
+        self.addingRowFlag = True
 
         if data is None or not isinstance(data, ReactionDTO):
             rowPosition = self.reactionTable.rowCount()
@@ -152,13 +158,17 @@ class ReactionsTab(QWidget):
         edit_button.clicked.connect(lambda _, row=rowPosition: self.editReaction(row))
         self.reactionTable.setCellWidget(rowPosition, 2, edit_button)
 
-    def editReaction(self, row):
+        self.addingRowFlag = False
+
+    def editReaction(self, row, executeDialog=True):
+
         # Get the current reaction data for the selected row
         data = self.reactionList[row]
 
-        # Create an instance of the ReactionDialog with the current data
-        dialog = ReactionDialog(data, centralDataManager=self.centralDataManager, rowPosition=row)
-        dialog.exec_()  # Open the dialog
+        if executeDialog:
+            # Create an instance of the ReactionDialog with the current data
+            dialog = ReactionDialog(data, centralDataManager=self.centralDataManager, rowPosition=row)
+            dialog.exec_()  # Open the dialog
 
         # redundant code?
         # # Open the dialog and check if the user accepts (e.g., presses Save)
@@ -180,7 +190,6 @@ class ReactionsTab(QWidget):
             self.reactionTable.setItem(row, 0, insertName)
             self.reactionTable.setItem(row, 1, insertEquation)
 
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
             selectedItems = self.reactionTable.selectedItems()
@@ -198,7 +207,7 @@ class ReactionsTab(QWidget):
         pass
 
     def saveData(self):
-        # a bit redundant, every time you add/edit a reaction it is automatically saved.
+        # a bit redundant, every time you add/edit a reaction it is automatically saved in the Reaction Dialog class
         pass
 
     def importData(self):
@@ -237,6 +246,41 @@ class ReactionsTab(QWidget):
             # update the dto list containing the reactions (remove the deleted row, and update the rowPositions)
             self.centralDataManager.updateData('reactionData', row)
 
+    def handleItemChanged(self, item):
+        """
+        Handle the item changed event for the reaction table in the 1st column
+        :param item:
+        :return:
+        """
+        if item.column() == 0:  # only bothered to track changes in the first column (reaction name)
+            # get the old and new name of the chemical component
+            oldValue = self.oldValue
+            newValue = item.text()
+            # Reset old value
+            self.oldValue = newValue
+
+            if not self.addingRowFlag:
+                # You can call updateData here
+                self.updateData(oldValue, newValue)
 
 
+    def trackOldValue(self, current, previous):
+        """Track the old value of the currently selected item."""
+        if not self.addingRowFlag:
+            if current and current.column() == 0:  # Check if the item is in the first row
+                self.oldValue = current.text()
+
+    def updateData(self, oldReactionName, newReactionName):
+        # go over the unit data
+        for dto in self.centralDataManager.unitProcessData.values():
+            # only if it has filled in data, go ahead and modify
+            if dto.dialogData and dto.type.value == 2:
+                reactions = dto.dialogData['Reactions']
+                for reactionTuple in reactions:
+                    if oldReactionName == reactionTuple[0]:  # if the old reaction name is used in the unit process
+                        index = reactions.index(reactionTuple)
+                        reactionTuple = list(reactionTuple)  # Ensure the tuple is mutable
+                        reactionTuple[0] = newReactionName
+                        reactions[index] = tuple(reactionTuple)  # Convert back to tuple if needed
+                dto.dialogData['Reactions'] = reactions
 

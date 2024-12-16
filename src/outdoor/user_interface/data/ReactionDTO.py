@@ -52,3 +52,16 @@ class ReactionDTO(OutdoorDTO):
                 self.products = value
             case "reactionEquation":
                 self.reactionEquation = value
+
+    def makeStringEquation(self):
+        """
+        Extracts the data of the Reactants and Products tables and returns it as a string
+        """
+        reactants = self.reactants
+        products = self.products
+
+        reactants_str = " + ".join([f"{v} {k}" for k, v in reactants.items()])
+        products_str = " + ".join([f"{v} {k}" for k, v in products.items()])
+        reactionEquation = f"{reactants_str} -> {products_str}"
+
+        self.reactionEquation = reactionEquation
