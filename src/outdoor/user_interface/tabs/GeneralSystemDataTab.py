@@ -12,14 +12,14 @@ class GeneralSystemDataTab(QWidget):
     """
     This class creates a tab for the general system data
     """
-    def __init__(self, centralDataManager, outputManager, parent=None):
+    def __init__(self, centralDataManager, signalManager, parent=None):
         super().__init__(parent)
         # add the logger
         self.logger = logging.getLogger(__name__)
 
         # add the central data manager
         self.centralDataManager = centralDataManager
-        self.outputManager = outputManager
+        self.signalManager = signalManager
 
         # Create a new QWidget for the General System Data tab
         self.layout = QFormLayout(self)
@@ -48,33 +48,34 @@ class GeneralSystemDataTab(QWidget):
         # Title for the specific production of a product
         self.createSectionTitle(text="Specific Production", color="#B5EAD7")
 
-        # Create a dropdown for "Product driven"
+        # Create a dropdown for "Product or Substrate driven superstructures"
         self.productDrivenDropdown = QComboBox()
-        self.productDrivenDropdown.addItems(["Yes", "No"])  # Add options to the dropdown
-        self.layout.addRow(QLabel("Product driven:"), self.productDrivenDropdown)
+        self.productDrivenDropdown.addItems(["Product", "Substrate", "None"])
+        self.productDrivenDropdown.setCurrentText("None")
+
+        self.layout.addRow(QLabel("Load Type:"), self.productDrivenDropdown)
         self.productDrivenDropdown.currentIndexChanged.connect(self.saveData)
 
         self.productSelection = QComboBox()
-        self.layout.addRow(QLabel("Main product:"), self.productSelection)
+        self.layout.addRow(QLabel("Main product/Substrate:"), self.productSelection)
         # Initially populate the combo box
         self._updateProductSelectioComboBox()
-        # Connect the centralDataManager's signal to the update method
-        self.outputManager.outputListUpdated.connect(self._updateProductSelectioComboBox)
+        # Connect the centralDataManager's signal to the update methods
+        self.signalManager.outputListUpdated.connect(self._updateProductSelectioComboBox)
+        self.signalManager.inputListUpdated.connect(self._updateProductSelectioComboBox)
         # if changed save data
         self.productSelection.currentIndexChanged.connect(self.saveData)
-
 
         self.productLoadLineEdit = QLineEdit()
         self.productLoadLineEdit.setValidator(
             QDoubleValidator(0.00, 999999.99, 2))  # Set validator to restrict to floating-point numbers
-        self.layout.addRow(QLabel("Product load (t/y):"), self.productLoadLineEdit)  # only floating numbers allowed as input
+        self.layout.addRow(QLabel("Product/Substrate load (t/y):"), self.productLoadLineEdit)  # only floating numbers allowed as input
 
         # Connect the signal to the slot function
         self.productDrivenDropdown.currentIndexChanged.connect(lambda: self.productDrivenSwitch())
 
         # connect to the save data function
         self.productLoadLineEdit.textChanged.connect(self.saveData)
-
 
         # make title "general CAPEX parameters"
         self.createSectionTitle(text="General CAPEX parameters", color="#E2F0CB")
@@ -164,8 +165,6 @@ class GeneralSystemDataTab(QWidget):
         # Connect the signal to the slot function
         self.heatPumpDropdown.currentIndexChanged.connect(lambda: self.heatPumpSwitch())
 
-
-
         # layout widgets:
         # Customize the appearance of line edits and combo boxes
         lineEditStyleSheet = "QLineEdit { border-radius: 5px; padding: 5px; background-color: #ffffff; }"
@@ -185,6 +184,9 @@ class GeneralSystemDataTab(QWidget):
 
         # Set the layout on the generalSystemDataWidget
         self.setLayout(self.layout)
+        # set the switch
+        self.productDrivenSwitch()
+        # import existing data
         self.importData()
 
     def createSectionTitle(self, text, color="#e1e1e1", centerAlign=False):
@@ -200,9 +202,11 @@ class GeneralSystemDataTab(QWidget):
         self.layout.addRow(frame)
 
     def productDrivenSwitch(self):
-        if self.productDrivenDropdown.currentText() == "No":
+
+        if self.productDrivenDropdown.currentText() == "None":
             # If "No" is selected, make the other fields not editable
             self.productSelection.setDisabled(True)
+            self.productSelection.addItems([""])
             self.productSelection.setCurrentText("")
             self.productLoadLineEdit.setDisabled(True)
             self.productLoadLineEdit.setText("")
@@ -213,10 +217,13 @@ class GeneralSystemDataTab(QWidget):
         else:
             # If "Yes" is selected, make the other fields editable
             self.productSelection.setDisabled(False)
+            # self.productSelection.removeItem([""])
             self.productLoadLineEdit.setDisabled(False)
             # set the background color to white
             self.productSelection.setStyleSheet("background-color: #ffffff;")
             self.productLoadLineEdit.setStyleSheet("background-color: #ffffff;")
+            # update the selection list
+            self._updateProductSelectioComboBox()
 
     def heatPumpSwitch(self):
         if self.heatPumpDropdown.currentText() == "No":
@@ -303,6 +310,7 @@ class GeneralSystemDataTab(QWidget):
     def importData(self):
         generalData = self.centralDataManager.generalData
         if generalData:
+            self.signalManager.importLists()
             self.productSelection.setCurrentText(generalData['mainProduct'])
             self.objective_combo.setCurrentText(generalData["objective"])
             self.opti_combo.setCurrentText(generalData["optimizationMode"])
@@ -320,6 +328,8 @@ class GeneralSystemDataTab(QWidget):
             self.lifetimeLineEdit.setText(generalData["lifetime"])
             self.TINLineEdit.setText(generalData["TIN"])
             self.TOUTLineEdit.setText(generalData["TOUT"])
+            # update the list selection list
+            self._updateProductSelectioComboBox()
         else:
             self.logger.info("Booting up with no General System Data")
 
@@ -330,4 +340,7 @@ class GeneralSystemDataTab(QWidget):
         # Clear the existing items
         self.productSelection.clear()
         # Add updated items from centralDataManager
-        self.productSelection.addItems(self.outputManager.outputList)
+        if self.productDrivenDropdown.currentText() == "Product":
+            self.productSelection.addItems(self.signalManager.outputList)
+        elif self.productDrivenDropdown.currentText() == "Substrate":
+            self.productSelection.addItems(self.signalManager.inputList)

@@ -16,7 +16,7 @@ class InputParametersDialog(QDialog):
     components and their composition in the feedstock.
     """
 
-    def __init__(self, initialData, centralDataManager: CentralDataManager, iconID):
+    def __init__(self, initialData, centralDataManager: CentralDataManager, signalManager, iconID):
         super().__init__()
         self.setStyleSheet("""
                                     QDialog {
@@ -57,6 +57,7 @@ class InputParametersDialog(QDialog):
         self.setWindowTitle("Input Parameters")
         self.setGeometry(150, 150, 450, 350)  # Adjust size as needed
         self.centralDataManager = centralDataManager
+        self.signalManager = signalManager
         self.dialogData = initialData.dialogData if initialData else {}
 
         # pass on the iconID to the class
@@ -80,7 +81,7 @@ class InputParametersDialog(QDialog):
         self.priceInput = QLineEdit(self)
         self._addRowWithTooltip(layout=layout, labelText="Cost Input (euro/t):", widget=self.priceInput,
                                 tooltipText="Enter the cost of the feedstock in euros per ton.")
-        self.priceInput.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.priceInput.setValidator(QDoubleValidator(-99999.99, 999999.99, 2))
 
         # the sum of the fractions should be 1.0, keeps track of the sum of the fractions
         self.sumFractionLabel = QLineEdit(self)
@@ -95,7 +96,7 @@ class InputParametersDialog(QDialog):
 
         # Components table
         self.componentsTable = QTableWidget(0, 2, self)  # Initial rows, 2 columns
-        self.componentsTable.setHorizontalHeaderLabels(["Component Name", "% Composition"])
+        self.componentsTable.setHorizontalHeaderLabels(["Component Name", "Composition Fraction"])
         self.componentsTable.setToolTip("Enter the composition of components in percentage.")  # Adding a tooltip
         self._addRowWithTooltip(layout=layout, labelText="Components:", widget=self.componentsTable,
                                 tooltipText="Enter the composition of components in percentage.")
@@ -335,6 +336,15 @@ class InputParametersDialog(QDialog):
 
         # add the dialog data to the processDTO
         dto.addDialogData(dialogData)
+
+        # add the input name to the list of self.signalManager.inputList
+        # Get the current list, append the new item, and reassign it to trigger the signal
+        newName = dialogData['Name']
+        current_list = self.signalManager.inputList
+        if newName not in current_list:
+            current_list.append(newName)
+            # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
+            self.signalManager.inputList = current_list
 
         # # create a new processDTO and add the data to it
         # dtoInput = ProcessDTO(uid=self.iconID, name=dialogData['Name'],

@@ -1121,3 +1121,70 @@ class BasicModelAnalyzer:
 
         return unitDict
 
+
+    def export_results_to_excel(self, savePath=None, saveName=None):
+        """
+        Description
+        -----------
+        Exports the results of the optimization to an excel file
+        """
+
+        # get the list of chosen unit operations
+        chosenUnits = self.model_output.return_chosen()
+        dfDict = {}
+        # get the data of each selected unit
+        for u in chosenUnits:
+            dfUnit = pd.DataFrame(index=[
+                self.model_output._data['Names'][u]])  # create a new dataframe for each unit with unit name as index
+
+            if u in self.model_output._data['U_C']:  # if the unit is not an input or output
+                # get the CAPEX of the unit
+                capexUnit = self.model_output._data['EC'][u]
+                dfUnit['CAPEX (M€/y)'] = round(capexUnit, 3)  # M€
+                # get Operating and Maintenance
+                oAndM = self.model_output._data['K_OM'][u] * self.model_output._data['FCI'][u]
+                dfUnit['O&M (M€/y)'] = round(oAndM, 3)  # M€
+                # get the raw material flow and cost
+                for key, flow in self.model_output._data['FLOW_ADD'].items():
+                    if key[1] == u:
+                        addedFlow = flow
+                        inputName = self.model_output._data['Names'][key[0]]
+                        costAddedMaterial = self.model_output._data['materialcosts'][key[0]] * addedFlow
+
+                        dfUnit[inputName + ' (t/h)'] = round(addedFlow, 3)
+                        dfUnit[inputName + ' cost (€/y)'] = round(costAddedMaterial, 3)
+
+                # electricity consumption + cost
+                electricityDemand = self.model_output._data['ENERGY_DEMAND'][(u, 'Electricity')] * \
+                                    self.model_output._data['flh'][u]  # kWh
+                costElectricity = electricityDemand * self.model_output._data['delta_ut']['Electricity']  # €
+                dfUnit['Electricity Demand (MWh/y)'] = round(electricityDemand, 3)
+                dfUnit['Electricity cost (k€/y)'] = round(costElectricity/1000, 3)
+
+                heatDemand = self.model_output._data['ENERGY_DEMAND_HEAT_UNIT'][u]
+                dfUnit['Heat (MWh/y)'] = round(heatDemand, 3)
+                # dfUnit['Heat cost (€)'] = round(costHeat, 3)
+
+                # the waste costs
+                wasteCost = self.model_output._data['WASTE_COST_U'][u]
+                dfUnit['Waste cost (k€/y)'] = round(wasteCost, 3)
+
+                # store the dataframe in the dictionary
+                dfDict[u] = dfUnit
+
+        # combine all dataframes into a single dataframe
+        final_df = pd.concat(dfDict.values())
+        # print(final_df)
+        # save the dataframe to an excel file
+
+        if savePath is None:
+            savePath = os.getcwd()
+        if saveName is None:
+            saveName = 'excel_output.xlsx'
+        if '.xlsx' not in saveName:
+            saveName += '.xlsx'
+
+        final_df.to_excel(savePath + '/' + saveName)
+
+
+

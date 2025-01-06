@@ -8,8 +8,6 @@ import logging
 import os.path
 import pickle
 
-from PyQt5.QtCore import QObject, pyqtSignal  # needed to emmit signals
-
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
@@ -239,21 +237,3 @@ class CentralDataManager:
             namesList.append(dto.name)
         return namesList
 
-class OutputManager(QObject):
-    # Signal that is emitted when outputList changes
-    outputListUpdated = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-
-        self._outputList: list[str] = []
-
-    @property
-    def outputList(self):
-        return self._outputList
-
-    @outputList.setter
-    def outputList(self, new_list):
-        self._outputList = new_list
-        # Emit the signal to indicate that the list has been updated
-        self.outputListUpdated.emit()

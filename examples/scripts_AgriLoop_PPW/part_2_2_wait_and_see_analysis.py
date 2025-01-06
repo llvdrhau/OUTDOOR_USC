@@ -105,7 +105,7 @@ pickleFilePath = os.path.join(saved_data_dir, fileName)
 ModelOutput = MultiModelOutput.load_from_pickle(path=pickleFilePath)
 
 # Calculate the SRC
-ModelOutput.calculate_SRC()
+#ModelOutput.calculate_SRC()
 
 
 # Initialise the analyser object and plot the scenario analysis
@@ -128,10 +128,14 @@ with open(os.path.join(saved_data_dir, 'Part_2_2_waitAndSeeData.pkl'), 'wb') as 
     pickle.dump(waitAndSeeData, f)
 
 
-
-
 endTime = time.time()
 print("Time elapsed: ", endTime - startTime)
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10 ** 6}MB; Peak was {peak / 10 ** 6}MB")
 print('\033[92m' + '------sucess---------'+ '\033[0m')
+
+# check out what the flow sheets are
+print('Flowsheets:')
+listFlowSheets = list(waitAndSeeData['flowSheetDict'].keys())
+for flowSheet in listFlowSheets:
+    print(flowSheet)

@@ -734,7 +734,8 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
 
             # Highlight the zero contour line with extra boldness
-            zero_contour = plt.contour(x, y, z, levels=[0], colors='cyan',
+            levelHighLightedContor = ecludianDistancePoint[2]
+            zero_contour = plt.contour(x, y, z, levels=[levelHighLightedContor], colors='cyan',
                                        linewidths=3)  # Change color and width as needed
 
             # Label the contour lines with larger fonts

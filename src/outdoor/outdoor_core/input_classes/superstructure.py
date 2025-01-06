@@ -33,24 +33,28 @@ class Superstructure:
         - cross-reference-methods: Calculate values which are dependend on
             boundary condition as well as unit-operation data.
         - create_datafile-methods: Methods to set up the DataFile for further processing.
-
     """
 
     def __init__(self,
                  ModelName,
                  Objective,
-                 MainProduct=None,
-                 ProductLoad=None,
-                 productDriver='yes',
+                 loadName=None, # name input or output unit
+                 load=None, # the load in tons/y
+                 loadType= None, # specify if it's Product or Substrate you're loading in
                  OptimizationMode=None,
                  *args,
                  **kwargs):
 
-        super().__init__()
+        #super().__init__()
 
         # Non-indexed Attribute
         # is the process product driven or not
-        self.productDriven = productDriver
+        # self.productDriven = productDriver
+        if loadType != 'Product' and loadType != 'Substrate':
+            print("Defaulting to load type 'None', Process not specified as 'product' or 'substrate' driven")
+            self.loadType = None
+        else:
+            self.loadType = loadType
 
         # uncertainty parameters for the stochastic problem. filled in if stochastic problem is solved
         self.uncertaintyDict = {}
@@ -109,11 +113,11 @@ class Superstructure:
 
         if Objective in self.OBJECTIVE_SET:
             self.objective = Objective
-            # in this case the flow sheet is determind by the min and max allowable flow rates of the sources
-            if productDriver == 'no':
-                ProductLoad = 1
+            # in this case the flow sheet is determined by the min and max allowable flow rates of the sources
+            if not loadType:
+                load = 1
 
-                # nice print statments
+                # nice print statements
                 # ANSI escape code for bold text
                 bold_text = "\033[1m"
                 # ANSI escape code for green text
@@ -136,14 +140,14 @@ class Superstructure:
 
         self.ModelName = ModelName
 
-        if not isinstance(MainProduct, str):
-            if MainProduct is None:
-                MainProduct = np.nan
-            if math.isnan(MainProduct) and productDriver == 'yes':
+        if not isinstance(loadName, str):
+            if loadName is None:
+                loadName = np.nan
+            if math.isnan(loadName) and loadType == 'Product':
                 raise Exception('No Main Product was chosen, please select a main product in the Sheet "Systemblatt"')
 
-        self.MainProduct = MainProduct
-        self.ProductLoad = {'ProductLoad': ProductLoad}
+        self.loadName = loadName
+        self.sourceOrProductLoad = {'sourceOrProductLoad': load}
 
         # Lists for sets
         # -----
@@ -169,15 +173,17 @@ class Superstructure:
         self.distributor_subset2 = {'U_DIST_SUB2': []}
 
         self.connections_set = {'U_CONNECTORS': []}
-        self.Scenarios = {'SC': []}  #Stochastic, maybe redundant
-        self.Odds = {'odds': []}  #Prolly stochastic modeling too
+        self.Scenarios = {'SC': []}  #  Stochastic, maybe redundant
+        self.Odds = {'odds': []}  # Probably for stochastic modeling too
 
         # todo add to the indexed or non indexed attributes
         # ---------------------------------------------------------------
         # new attributes for the new UI variables
         # sets NON INDEXED
-        self.ImpactCategories = {'IMPACT_CATEGORIES': []}  # set when collecting general data
-        self.WasteManagementTypes = {'WASTE_MANAGEMENT_TYPES': []}  # set when collecting general data
+        # pre-defined sets to make the old excel files work
+        self.ImpactCategories = {'IMPACT_CATEGORIES': ['GWP']}  # set when collecting general data
+        # pre-defined sets to make the old excel files work
+        self.WasteManagementTypes = {'WASTE_MANAGEMENT_TYPES': ["Incineration", "Landfill", "WWTP"]}  # set when collecting general data
 
         # Parameters INDEXED
         self.WasteCost = {'waste_cost_factor': {}} # set When collecting general data
@@ -212,7 +218,7 @@ class Superstructure:
         self.LinPointsList = {'J': []}
         self.LinIntervalsList = {'JI': []}
         self.UnitNames = {'Names': {}}
-        self.UnitNames2 = {'Names': {}}  # for the grafical representation
+        self.UnitNames2 = {'Names': {}}  # for the graphical representation
         # --------------
 
         self.groups = dict()
@@ -579,8 +585,8 @@ class Superstructure:
 
         after all Temperatures are added to the Grid
 
-
         """
+
         k = len(self.Heat_Temperatures) - 1
         for i in self.Heat_Temperatures:
             self.HeatIntervals[k] = i
@@ -934,10 +940,14 @@ class Superstructure:
 
     def _set_waste_management_types(self, waste_types: list):
         for waste_type in waste_types:
-            self.WasteManagementTypes['WASTE_MANAGEMENT_TYPES'].append(waste_type)
+            # check if the waste type is not already in the list
+            if waste_type not in self.WasteManagementTypes['WASTE_MANAGEMENT_TYPES']:
+                self.WasteManagementTypes['WASTE_MANAGEMENT_TYPES'].append(waste_type)
     def _set_impact_categories(self, impact_categories: list):
         for impact_category in impact_categories:
-            self.ImpactCategories['IMPACT_CATEGORIES'].append(impact_category)
+            # check if the impact category is not already in the list
+            if impact_category not in self.ImpactCategories['IMPACT_CATEGORIES']:
+                self.ImpactCategories['IMPACT_CATEGORIES'].append(impact_category)
 
     def _set_waste_cost(self, waste_cost: dict):
         for key, value in waste_cost.items():
@@ -1043,7 +1053,7 @@ class Superstructure:
         self.NI_ParameterList.append(self.decimal_set)
         self.NI_ParameterList.append(self.distributor_subset2)
         self.NI_ParameterList.append(self.OtherUtilitiesList)
-        self.NI_ParameterList.append(self.ProductLoad)
+        self.NI_ParameterList.append(self.sourceOrProductLoad)
         self.NI_ParameterList.append(self.Scenarios)
         # new additions
         self.NI_ParameterList.append(self.ImpactCategories)

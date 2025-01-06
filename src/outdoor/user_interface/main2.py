@@ -7,7 +7,7 @@ import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 
 from data.CentralDataManager import CentralDataManager
-from data.CentralDataManager import OutputManager
+from data.SignalManager import SignalManager
 from data.superstructure_frame import SuperstructureFrame
 from data.ConstructSuperstructure import ConstructSuperstructure
 from data.TabManager import TabManager
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.ProjectName = ""
         self.ProjectPath = ""
         self.centralDataManager = CentralDataManager()  # Initialize the data manager
-        self.outputManager = OutputManager()  # Initialize the output manager
+        self.signalManager = SignalManager(self.centralDataManager)  # Initialize the output manager
         self.tabManager = TabManager()  # Initialize the tab manager
 
         menu_bar = self.menuBar()
@@ -103,6 +103,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.centralDataManager = pickle.load(file)
         self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
         self.centralDataManager.loadConfigs()
+        self.signalManager = SignalManager(self.centralDataManager)  # Initialize the new output manager
         # check if there are missing attributes in the centralDataManager
         self.checkMissingAttributes()
 
@@ -177,12 +178,12 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         welcomeTab = WelcomeTab(centralDataManager=self.centralDataManager)
         projectDescriptionTab = ProjectDescriptionTab(centralDataManager=self.centralDataManager)
         generalSystemDataTab = GeneralSystemDataTab(centralDataManager=self.centralDataManager,
-                                                    outputManager=self.outputManager)
+                                                    signalManager=self.signalManager)
         componentsTab = ComponentsTab(centralDataManager=self.centralDataManager, tabManager=self.tabManager)
         reactionsTab = ReactionsTab(centralDataManager=self.centralDataManager)
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
-                                                            outputManager=self.outputManager)
+                                                            signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
         # add the tabs to the tabManager

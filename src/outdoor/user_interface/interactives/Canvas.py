@@ -24,13 +24,13 @@ class Canvas(QGraphicsView):
     the icons.
     """
 
-    def __init__(self, centralDataManager, outputManager, iconLabels):
+    def __init__(self, centralDataManager, signalManager, iconLabels):
         super().__init__()
         # set up the logger
         self.logger = logging.getLogger(__name__)
         # Store the icon data managers for use in the widget
         self.centralDataManager = centralDataManager
-        self.outputManager = outputManager
+        self.signalManager = signalManager
 
         # store the icon labels
         self.iconLabels = iconLabels
@@ -147,7 +147,7 @@ class Canvas(QGraphicsView):
             index_list.append(UUID)
             # Create MovableIcon
             iconWidget = MovableIcon(text=icon_type, centralDataManager=self.centralDataManager,
-                                     outputManager=self.outputManager, iconID=UUID,
+                                     signalManager=self.signalManager, iconID=UUID,
                                      icon_type=icon_type, position=position)
 
             iconWidget.setPos(self.mapToScene(position))
@@ -512,21 +512,34 @@ class Canvas(QGraphicsView):
                                                                                          unitDTOReceivingInput.uid))
                 self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceivingInput.uid, unitDTOReceivingInput.inputFlows))
 
+                # get the name of the output
+                inputName = self.centralDataManager.unitProcessData[icon2Delete.iconID].name
+                # Get the current list, remove the item, and reassign it to trigger the signal
+                current_list = self.signalManager.inputList
+                # Safely remove the item if it exists
+                if inputName in current_list:
+                    current_list.remove(inputName)
+
+                # Update the outputList to the centralDataManager
+                # self.centralDataManager.inputList = current_list
+                # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
+                self.signalManager.inputList = current_list
+
         elif icon2Delete.icon_type == ProcessType.OUTPUT:
             outputID = icon2Delete.iconID
             # get the name of the output
             outputName = self.centralDataManager.unitProcessData[outputID].name
 
             # Get the current list, remove the item, and reassign it to trigger the signal
-            current_list = self.outputManager.outputList
+            current_list = self.signalManager.outputList
             # Safely remove the item if it exists
             if outputName in current_list:
                 current_list.remove(outputName)
 
             # Update the outputList to the centralDataManager
-            self.centralDataManager.outputList = current_list
+            # self.centralDataManager.inputList = current_list
             # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
-            self.outputManager.outputList = current_list
+            self.signalManager.outputList = current_list
 
         elif icon2Delete.icon_type == ProcessType.DISTRIBUTOR or icon2Delete.icon_type == ProcessType.BOOLDISTRIBUTOR:
             # if you delete a split icon, you need to remove the connections to where the distribution goes from the
@@ -673,7 +686,7 @@ class Canvas(QGraphicsView):
                     name = unitDTO.name
 
                 iconWidget = MovableIcon(text=name, centralDataManager=self.centralDataManager,
-                                   outputManager=self.outputManager, icon_type=unitDTO.type, position=unitDTO.positionOnCanvas,
+                                   signalManager=self.signalManager, icon_type=unitDTO.type, position=unitDTO.positionOnCanvas,
                                    iconID=uid, initiatorFlag=False)
 
                 position = unitDTO.positionOnCanvas
@@ -869,12 +882,12 @@ class MovableIcon(QGraphicsObject):
     is used to create the icons in the canvas and makes them draggable, handels their appearance and opens dialogos.
     """
 
-    def __init__(self, text, centralDataManager, outputManager, icon_type:ProcessType, position, iconID=None, initiatorFlag=True):
+    def __init__(self, text, centralDataManager, signalManager, icon_type:ProcessType, position, iconID=None, initiatorFlag=True):
         """
         Initiate the moveable icon
         :param text: the text displayed on the icon
         :param centralDataManager:
-        :param outputManager:
+        :param signalManager:
         :param icon_type: of the class
         :param position:
         :param iconID:
@@ -904,7 +917,7 @@ class MovableIcon(QGraphicsObject):
         self.icon_type = icon_type
         self.iconID = iconID
         self.centralDataManager = centralDataManager  # to Store and handel dialog data for each icon
-        self.outputManager = outputManager  # to handel the output data
+        self.signalManager = signalManager  # to handel the output data
 
         # save the initial icon to the centralDataManager
         if initiatorFlag:
@@ -1129,11 +1142,12 @@ class MovableIcon(QGraphicsObject):
 
         # choose the dialog to open based on the type of icon that was double clicked
         if self.icon_type == ProcessType.INPUT:
-            dialog = InputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)
+            dialog = InputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager,
+                                           signalManager= self.signalManager, iconID=self.iconID)
 
         elif self.icon_type == ProcessType.OUTPUT:
             dialog = OutputParametersDialog(initialData=existingData, centralDataManager=self.centralDataManager,
-                                            outputManager=self.outputManager, iconID=self.iconID)
+                                            signalManager=self.signalManager, iconID=self.iconID)
 
         elif self.icon_type == ProcessType.PHYSICAL:
             dialog = PhysicalProcessesDialog(initialData=existingData, centralDataManager=self.centralDataManager, iconID=self.iconID)

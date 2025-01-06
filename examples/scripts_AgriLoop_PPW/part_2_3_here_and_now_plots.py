@@ -31,7 +31,7 @@ def plot_boxplots_with_dots(box_plot_data_sets, dots_data_sets:list=None, xTicks
 
     # Customize the plot
     ax.set_xticklabels(xTicks)
-    ax.set_ylabel('Earnings Before Income Taxes (M€/y)')
+    ax.set_ylabel('Earnings Before Income Taxes (€/ton PPW)')
 
     # Only show legend if red dots data is provided
     # if dots_data_sets is not None:
@@ -75,10 +75,21 @@ boxplotData = dataDict['boxplotData']
 keysDict = list(boxplotData.keys())
 
 # extract the wait and see results
-compost_WaitAndSee = boxplotData[keysDict[4]]
-AF_WaitAndSee = boxplotData[keysDict[0]]
-MP_WaitAndSee = boxplotData[keysDict[1]]
-pha_WaitAndSee = boxplotData[keysDict[2]]
+compostKey = ((100, 'Grinding'), (800, 'Composting'), (8000, 'Compost'), (11, 'PotatoPeels'), (888, 'PPW splitter'))
+compost_WaitAndSee = boxplotData[compostKey]
+AFKey = ((100, 'Grinding'), (900, 'Extruder & dryer'), (7000, 'Animal.Feed'), (11, 'PotatoPeels'), (888, 'PPW splitter'))
+AF_WaitAndSee = boxplotData[AFKey]
+MPKey = ((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (500, 'Pasturisation & Decanter'),
+         (510, 'MP Fermentation'), (520, 'Micro Filtration MP'), (550, 'Spray Dryer MP'), (600, 'Anaerobic Digester'),
+         (610, 'Gas Membrane'), (800, 'Composting'), (1100, 'BioMethane'), (8000, 'Compost'), (9700, 'Micro.Prot.'),
+         (11, 'PotatoPeels'), (22, 'Water'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter'))
+MP_WaitAndSee = boxplotData[MPKey]
+PHAKey = ((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (420, 'PHA Accumulation'), (430, 'Basket Centrifuge'),
+          (435, 'PHA recovery Tank'), (438, 'Micro Filtration'), (440, 'PHA Washing'), (450, 'Micro Filtration 2'),
+          (490, 'Spray Dryer PHA'), (600, 'Anaerobic Digester'), (610, 'Gas Membrane'), (800, 'Composting'),
+          (1100, 'BioMethane'), (6000, 'PHA-Plastic'), (8000, 'Compost'), (11, 'PotatoPeels'), (22, 'Water'),
+          (44, 'Lysol'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter'))
+pha_WaitAndSee = boxplotData[PHAKey]
 
 # extract the here and now results
 compost_HereAndNow = dataDict['compost_HereAndNowData']

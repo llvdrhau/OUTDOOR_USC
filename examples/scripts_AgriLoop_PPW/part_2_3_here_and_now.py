@@ -62,11 +62,22 @@ boxplotData = dataDictPart2_2['boxplotData']
 # for the here and now mode, we need to define the design variables.
 # We can get the designs from the flowSheetDict and boxplotData from the wait and see analysis
 keysDict = list(flowSheetDict.keys())
+compostDesignKey = ((100, 'Grinding'), (800, 'Composting'), (8000, 'Compost'), (11, 'PotatoPeels'), (888, 'PPW splitter'))
+afDesignKey = ((100, 'Grinding'), (900, 'Extruder & dryer'), (7000, 'Animal.Feed'), (11, 'PotatoPeels'), (888, 'PPW splitter'))
+mpDesignKey = ((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (500, 'Pasturisation & Decanter'),
+         (510, 'MP Fermentation'), (520, 'Micro Filtration MP'), (550, 'Spray Dryer MP'), (600, 'Anaerobic Digester'),
+         (610, 'Gas Membrane'), (800, 'Composting'), (1100, 'BioMethane'), (8000, 'Compost'), (9700, 'Micro.Prot.'),
+         (11, 'PotatoPeels'), (22, 'Water'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter'))
+phaDesignKey = ((100, 'Grinding'), (400, 'Mixed Culture Fermentation'), (420, 'PHA Accumulation'), (430, 'Basket Centrifuge'),
+          (435, 'PHA recovery Tank'), (438, 'Micro Filtration'), (440, 'PHA Washing'), (450, 'Micro Filtration 2'),
+          (490, 'Spray Dryer PHA'), (600, 'Anaerobic Digester'), (610, 'Gas Membrane'), (800, 'Composting'),
+          (1100, 'BioMethane'), (6000, 'PHA-Plastic'), (8000, 'Compost'), (11, 'PotatoPeels'), (22, 'Water'),
+          (44, 'Lysol'), (888, 'PPW splitter'), (777, 'Gas splitter'), (222, 'MCF splitter'))
 
 # --------------------------
 # FOR MICROBIAL PROTEIN
 # --------------------------
-mpDesignKey = keysDict[1] # microbial protein design key is the 2nd key in the keysDict!!
+# mpDesignKey =  keysDict[2]  # microbial protein design key is the 2nd key in the keysDict!!
 scKeys = list(flowSheetDict[mpDesignKey].keys())
 microbialProteinDesign = flowSheetDict[mpDesignKey][scKeys[0]]  # take the first design
 microbialProteinScenarioDataFiles = {}
@@ -78,7 +89,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR Animal Feed
 # --------------------------
-afDesignKey = keysDict[0] # animal feed design key is the 1st key in the keysDict!!
+# afDesignKey = keysDict[0]  # animal feed design key is the 1st key in the keysDict!!
 scKeys = list(flowSheetDict[afDesignKey].keys())
 animalFeedDesign = flowSheetDict[afDesignKey][scKeys[0]]  # take the first design
 annimalFeedScenarioDataFiles = {}
@@ -90,7 +101,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR PHA PRODUCTION
 # --------------------------
-phaDesignKey = keysDict[2] # PHA design key is the 2nd key in the keysDict!!
+# phaDesignKey = keysDict[3]  # PHA design key is the 2nd key in the keysDict!!
 scKeys = list(flowSheetDict[phaDesignKey].keys())
 phaDesign = flowSheetDict[phaDesignKey][scKeys[0]]  # take the first design
 phaScenarioDataFiles = {}
@@ -102,7 +113,7 @@ for sc in scenarioDataFiles:
 # --------------------------
 # FOR COMPOST PRODUCTION
 # --------------------------
-compostDesignKey = keysDict[4]  # Compost design key: 4
+# compostDesignKey = keysDict[1]  # compost design key is the 1st key in the keysDict!!
 scKeys = list(flowSheetDict[compostDesignKey].keys())
 compostDesign = flowSheetDict[compostDesignKey][scKeys[0]]  # take the first design
 compostScenarioDataFiles = {}
@@ -252,7 +263,7 @@ model_output_compost = abstract_model.solve_optimization_problem(input_data=supe
 
 #print(model_output_microbial_protein._results_data)
 print('scenarios of Compost:', len(compostScenarioDataFiles))
-print('Number of successful runs for Microbial Protein:', len(model_output_compost._results_data))
+print('Number of successful runs for Compost:', len(model_output_compost._results_data))
 
 
 compost_HereAndNowData = []

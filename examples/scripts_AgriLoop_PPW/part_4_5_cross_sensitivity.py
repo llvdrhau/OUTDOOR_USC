@@ -99,7 +99,7 @@ for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
                                          levels=10,
                                          xlabel=xlables[i],
                                          ylabel=ylables[i],
-                                         ecludianDistancePoint=(0.63, 0.65, 0)
+                                         ecludianDistancePoint=(0.63, 0.65, 59.39)
                                          )
 
 

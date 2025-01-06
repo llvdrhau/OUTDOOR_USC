@@ -31,9 +31,11 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 
 # save the results as a txt file, you have to specify the path
 model_output.get_results(path=savePath,
-                         saveName='txt_results_with_enzym_costs_v2')
+                         saveName='txt_results_with_enzym_costs')
 # save and analyze the new results
 analyzer = outdoor.BasicModelAnalyzer(model_output)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePath,
                           saveName='flowsheet_peptide_production_v2')
+analyzer.export_results_to_excel(savePath=savePath,
+                                 saveName='Peptide_Production_with_enym_costs')

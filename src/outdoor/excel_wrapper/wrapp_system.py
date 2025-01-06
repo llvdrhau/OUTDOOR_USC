@@ -77,9 +77,9 @@ def wrapp_SystemData(dfi, optimization_mode=None):
 
     obj = Superstructure(ModelName=df1.loc['TestCaseName'].iloc[0],
                          Objective=df1.loc['Objective'].iloc[0],
-                         productDriver = df1.loc['Product driven'].iloc[0],
-                         MainProduct=df1.loc['Main product'].iloc[0],
-                         ProductLoad=df1.loc['Product load'].iloc[0],
+                         loadType=df1.loc['Product driven'].iloc[0],
+                         loadName=df1.loc['Main product'].iloc[0],
+                         load=df1.loc['Product load'].iloc[0],
                          OptimizationMode=optimization_mode)
 
 

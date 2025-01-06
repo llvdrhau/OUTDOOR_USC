@@ -7,7 +7,7 @@ from outdoor.user_interface.interactives.DraggableIcon import DraggableIcon
 
 
 class SuperstructureMappingTab(QWidget):
-    def __init__(self, centralDataManager, outputManager, parent=None):
+    def __init__(self, centralDataManager, signalManager, parent=None):
         """
         This method creates the tab for the superstructure mapping where the user can drag and drop icons to create the
         superstructure
@@ -16,7 +16,7 @@ class SuperstructureMappingTab(QWidget):
         # Main layout
         super().__init__(parent)
         self.centralDataManager = centralDataManager
-        self.outputManager = outputManager
+        self.signalManager = signalManager
 
         self.mainLayout = QHBoxLayout()
         self.configs = centralDataManager.configs["componentConfigs"]
@@ -75,7 +75,7 @@ class SuperstructureMappingTab(QWidget):
 
         # Right panel as canvas
         self.rightPanel = Canvas(centralDataManager=self.centralDataManager,
-                                 outputManager=self.outputManager,
+                                 signalManager=self.signalManager,
                                  iconLabels=self.iconLabels)
 
         self.rightPanel.setStyleSheet("background-color: white;")

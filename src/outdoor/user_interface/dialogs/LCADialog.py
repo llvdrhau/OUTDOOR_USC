@@ -68,7 +68,7 @@ class LCADialog(QDialog):
         self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
 
         # TODO: Better initialization and handling of BW integration.
-        bw.projects.set_current("outdoor_2")
+        bw.projects.set_current("outdoor")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
         self.outd = bw.Database('outdoor')

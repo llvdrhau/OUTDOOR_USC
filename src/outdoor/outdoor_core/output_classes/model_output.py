@@ -228,7 +228,12 @@ class ModelOutput:
 
         basic_results["Basic results"]["Solver name"] = self._solver
 
-        basic_results["Basic results"]["Earnings Before Tax income"] = "{} Mil. Euro".format(round(self._data["EBIT"], 3))
+        if self._data['sourceOrProductLoad'] == 1:
+            basic_results["Basic results"]["Earnings Before Tax income"] = "{} Mil. Euro".format(
+                round(self._data["EBIT"], 3))
+        else:
+            basic_results["Basic results"]["Earnings Before Tax income"] = "{} €/ton".format(
+                round(self._data["EBIT"], 3))
 
         if self._product_load:
             basic_results["Basic results"]["Net production costs"] = "{} euro/ton".format(round(self._data["NPC"], 2))

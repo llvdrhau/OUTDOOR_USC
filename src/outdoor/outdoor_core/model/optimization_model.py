@@ -19,8 +19,6 @@ class SuperstructureModel(AbstractModel):
 
     """
 
-
-
     def __init__(self, superstructure_input=None, fixedDesign=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -30,7 +28,7 @@ class SuperstructureModel(AbstractModel):
             self._set_optionals_from_external(kwargs)
 
         # if True, the model will make the binary variables parameters for flow choice, therefore fixing the design of
-        # the flowsheet
+        # the flow-sheet
         self._fixedDesign = fixedDesign
 
     def _set_optionals_from_superstructure(self, superstructure_input):
@@ -47,7 +45,8 @@ class SuperstructureModel(AbstractModel):
                 - Objective name (NPC/NPE/NPFWD)
         """
 
-        self.productDriven = superstructure_input.productDriven.lower()
+        # self.productDriven = superstructure_input.productDriven.lower()
+        self.loadType = superstructure_input.loadType
 
         # list of impact categories should be the same as the set created in the model, see self.IMPACT_CATEGORIES
         self.impact_categories_list = []
@@ -68,21 +67,33 @@ class SuperstructureModel(AbstractModel):
         self.groups = superstructure_input.groups
         self.connections = superstructure_input.connections
 
-        checkList = []
-        for i in superstructure_input.UnitsList:
-            if i.Type == "ProductPool" and i.ProductType == "MainProduct":
-                self.main_pool = i.Number
-                checkList.append(i.Number)
+        self.loadID = None
+        if self.loadType:  # if it's product or substrate load
+            loadName = superstructure_input.loadName
+            for unit in superstructure_input.UnitsList:
+                if unit.Name == loadName:
+                    self.loadID = unit.Number
 
-        # create warning if more than one main product pool is defined and the model is product driven
-        if len(checkList) > 1 and self.productDriven == 'yes':
-            raise ValueError("There is more than one product pool defined as the mainProduct. "
-                             "Please check the superstructure inputs and select only one main product if the process is"
-                             "Product driven (see general data tab).")
-
-        if len(checkList) == 0 and self.productDriven == 'yes':
-            raise ValueError("There is no main product pool defined. Please check the superstructure inputs and select "
-                             "one main product if the process is Product driven (see general data tab).")
+            if not self.loadID:
+                raise ValueError('The load Name {} is not valid, check if it is correctly written in the excel '
+                                 'file'.format(loadName))
+        else:
+            self.loadID = None
+        # checkList = []
+        # for i in superstructure_input.UnitsList:
+        #     if i.Type == "ProductPool" and i.ProductType == "MainProduct":
+        #         self.main_pool = i.Number
+        #         checkList.append(i.Number)
+#
+        # # create warning if more than one main product pool is defined and the model is product driven
+        # if len(checkList) > 1 and self.loadType == 'Product':
+        #     raise ValueError("There is more than one product pool defined as the mainProduct. "
+        #                      "Please check the superstructure inputs and select only one main product if the process is"
+        #                      "Product driven (see general data tab).")
+#
+        # if len(checkList) == 0 and self.loadType == 'Product':
+        #     raise ValueError("There is no main product pool defined. Please check the superstructure inputs and select "
+        #                      "one main product if the process is Product driven (see general data tab).")
 
     def _set_options_from_external(self, **kwargs):
         print("There is no external parsing implemented at the moment.")
@@ -101,8 +112,8 @@ class SuperstructureModel(AbstractModel):
             - FWD functions
             - Logics
             - Objective function
-
         """
+
         self.create_Sets()
         self.create_MassBalances()
         self.create_EnergyBalances()
@@ -215,6 +226,9 @@ class SuperstructureModel(AbstractModel):
 
         # Parameter
         # ---------
+        self.ProductLoad = Param(initialize=1, mutable=True)
+        self.SubstrateLoad = Param(initialize=1, mutable=True)
+        self.sourceOrProductLoad = Param(initialize=1, mutable=True)
 
         # Flow parameters (Split factor, concentrations, full load hours)
         self.myu = Param(self.U_CONNECTORS, self.I, initialize=0, mutable=True)
@@ -306,12 +320,25 @@ class SuperstructureModel(AbstractModel):
             )
          # upper and lower bounds for source flows
         def MassBalance_13_rule(self, u_s):
-            # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s] <= self.ul[u_s]
+            # bounds defined in tons per year (t/h) hence flow times full loading hours
+            if u_s == self.loadID and self.loadType == 'Substrate':
+                return self.FLOW_SOURCE[self.loadID] <= self.sourceOrProductLoad / self.H
+            else:
+                return self.FLOW_SOURCE[u_s] <= self.ul[u_s]
 
         def MassBalance_14_rule(self, u_s):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SOURCE[u_s] >= self.ll[u_s]
+            if u_s == self.loadID and self.loadType == 'Substrate':
+                return self.FLOW_SOURCE[self.loadID] >= self.sourceOrProductLoad / self.H
+            else:
+                return self.FLOW_SOURCE[u_s] >= self.ll[u_s]
+
+        def MassBalance_15_rule(self):
+            if self.loadType == 'Substrate':
+                # if the optimisation is substrate driven the mass flow is predefined, load is in tons/year
+                return self.FLOW_SOURCE[self.loadID] == self.sourceOrProductLoad / self.H # in tons/h
+            else:
+                return Constraint.Skip
 
         # stoichimoetric and yield reactor equations
         def MassBalance_5_rule(self, u, i):
@@ -397,7 +424,7 @@ class SuperstructureModel(AbstractModel):
 
         def MassBalance_14b_rule(self, up):
             # bounds defined in tons per year (t/a) hence flow times full loading hours
-            return self.FLOW_SUM[up]  <= self.MaxProduction[up]
+            return self.FLOW_SUM[up] <= self.MaxProduction[up]
 
         def MassBalance_6_rule(self, u, uu, i):
             if (u, uu) not in self.U_DIST_SUB:
@@ -475,6 +502,7 @@ class SuperstructureModel(AbstractModel):
         self.MassBalance_4 = Constraint(self.U_S, rule=MassBalance_4_rule)
         self.MassBalance_13 = Constraint(self.U_S, rule=MassBalance_13_rule)
         self.MassBalance_14 = Constraint(self.U_S, rule=MassBalance_14_rule)
+        #self.MassBalance_15 = Constraint(rule=MassBalance_15_rule)
 
         self.MassBalance_5 = Constraint(self.U, self.I, rule=MassBalance_5_rule)
         self.MassBalance_6 = Constraint(self.U, self.UU, self.I, rule=MassBalance_6_rule)
@@ -761,7 +789,6 @@ class SuperstructureModel(AbstractModel):
             self.HeatBalance_9 = Constraint(rule=HeatBalance_9_rule)
 
         else:
-
             def HeatBalance_3_rule(self, u, hi):
                 k = len(self.HI)
                 if hi == 1:
@@ -858,12 +885,12 @@ class SuperstructureModel(AbstractModel):
         def HeatBalance_14_rule(self, u):
             return self.ENERGY_DEMAND_HEAT_UNIT[u] == sum(
                 self.ENERGY_DEMAND_COOL[u, hi] for hi in self.HI
-            )
+            ) * self.flh[u] / self.H
 
         def HeatBalance_15_rule(self, u):
             return self.ENERGY_DEMAND_COOL_UNIT[u] == sum(
                 self.ENERGY_DEMAND_HEAT[u, hi] for hi in self.HI
-            )
+            ) * self.flh[u] / self.H
 
         def HeatBalance_16_rule(self):
             return (
@@ -894,8 +921,13 @@ class SuperstructureModel(AbstractModel):
     def create_WasteCosts(self):
 
         # set parameters
+        # initial_waste_cost_factors = {
+        #     "Incineration": 0,
+        #     "Landfill": 0,
+        #     "WWTP": 0
+        # }
         self.waste_cost_factor = Param(self.WASTE_MANAGEMENT_TYPES, initialize=0, mutable=True)
-        self.waste_type_U = Param(self.U, initialize='Landfill', mutable=True)
+        self.waste_type_U = Param(self.U, initialize='Landfill', mutable=True, within=Any)
 
         # set variables
         self.WASTE_COST_U = Var(self.U, within=NonNegativeReals)
@@ -985,7 +1017,7 @@ class SuperstructureModel(AbstractModel):
 
         # OPEX (Raw Materials, O&M, , UtilitiesTotal, Profits)
         # self.RM_COST = Var(self.U_C, within=NonNegativeReals) #not used
-        self.RM_COST_TOT = Var(within=NonNegativeReals)
+        self.RM_COST_TOT = Var()  # Var(within=NonNegativeReals) # can also be negative, e.g. gate fees for handeling waste
         self.M_COST = Var(self.U_C)
         self.M_COST_TOT = Var(within=NonNegativeReals)
         # self.O_H = Var()  # doesn't seem to be used
@@ -1432,8 +1464,8 @@ class SuperstructureModel(AbstractModel):
         def LCA_Utility_TOT_rule(self, impCat):
             return self.IMPACT_UTILITIES_PER_CAT[impCat] == sum(self.IMPACT_UTILITIES[ut, impCat] for ut in self.UT)
 
-        self.LCA_GWP_Utilities = Constraint(self.U_UT, self.IMPACT_CATEGORIES, rule=LCA_Utility_rule)
-        self.LCA_GWP_Utilities_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Utility_TOT_rule)
+        self.LCA_Utilities = Constraint(self.U_UT, self.IMPACT_CATEGORIES, rule=LCA_Utility_rule)
+        self.LCA_Utilities_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Utility_TOT_rule)
 
         # impact of waste
         # set the parameters
@@ -1451,6 +1483,12 @@ class SuperstructureModel(AbstractModel):
         self.LCA_Waste = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Waste_rule)
         self.LCA_Waste_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Waste_TOT_rule)
 
+        # totla impact per catagorie:  the the sum of all impacts, inflow, utilities and waste
+        self.IMPACT_TOT = Var(self.IMPACT_CATEGORIES)
+        def LCA_Total_Impact_rule(self, impCat):
+            return self.IMPACT_TOT[impCat] == self.IMPACT_INPUTS_PER_CAT[impCat] + self.IMPACT_UTILITIES_PER_CAT[impCat] + self.WASTE_TOT[impCat]
+
+        self.LCA_Total_Impact = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Total_Impact_rule)
 
     # **** DECISION MAKING EQUATIONS *****
     # -------------------------
@@ -1534,7 +1572,6 @@ class SuperstructureModel(AbstractModel):
         # Parameter
         # ---------
 
-        self.ProductLoad = Param(initialize=1, mutable=True)
         self.ObjectiveFunctionName = Param(within=Any, initialize=self.objective_name)
 
 
@@ -1563,43 +1600,44 @@ class SuperstructureModel(AbstractModel):
         self.SumOfProducts_Equation = Constraint(rule=SumOfProducts_rule)
 
 
-
         def MainProduct_1_rule(self):
-            # If product driven, skip this constraint
-            if self.productDriven == "no":
-                return Constraint.Skip
+            # If product driven, else skip this constraint
+            if self.loadType == 'Product':
+                return self.MainProductFlow == sum(self.FLOW_IN[self.loadID, i] for i in self.I) * self.H
             else:
-                return (
-                    self.MainProductFlow
-                    == sum(self.FLOW_IN[self.main_pool, i] for i in self.I) * self.H
-                )
+                return Constraint.Skip
+
         def MainProduct_2_rule(self):
-            if self.productDriven == "no":
-                return Constraint.Skip
+            if self.loadType == 'Product':
+                return self.MainProductFlow == self.sourceOrProductLoad
+
             else:
-                return self.MainProductFlow == self.ProductLoad
+                return Constraint.Skip
 
         self.MainProduct_Equation_1 = Constraint(rule=MainProduct_1_rule)
         self.MainProduct_Equation_2 = Constraint(rule=MainProduct_2_rule)
 
-        # Definition of specific fucntion
+        # Definition of specific function
 
         def Specific_NPC_rule(self): # in € per year (euro/ton/year)
             # ProductLoad is 1 is substrate driven, otherwise it is the target production
             # self.TAC == (self.CAPEX + self.OPEX - self.PROFITS_TOT) * 1000
-            return self.NPC == (self.TAC * 1000)/self.ProductLoad # in € per tonne of product per year (so your target production)
+            return self.NPC == (self.TAC * 1000)/self.sourceOrProductLoad # in € per tonne of product per year (so your target production)
 
 
         def Specific_GWP_rule(self):
-            return self.NPE == self.GWP_TOT / self.ProductLoad
+            return self.NPE == self.GWP_TOT / self.sourceOrProductLoad
             #return self.NPE == self.GWP_TOT
 
         def Specific_FWD_rule(self):
-            return self.NPFWD == self.FWD_TOT / self.ProductLoad
+            return self.NPFWD == self.FWD_TOT / self.sourceOrProductLoad
             #return self.NPFWD == self.FWD_TOT
 
         def Specific_EBIT_rule(self):
-            return self.EBIT == (self.PROFITS_TOT - self.CAPEX - self.OPEX)  # in M€ (million euro)
+            if self.loadType:  # in €/ton
+                return self.EBIT == (self.PROFITS_TOT - self.CAPEX - self.OPEX) * 1000000 / self.sourceOrProductLoad # in M€ (million euro)
+            else:   # # in Mil €
+                return self.EBIT == (self.PROFITS_TOT - self.CAPEX - self.OPEX)
 
         self.Specific_NPC_rule = Constraint(rule=Specific_NPC_rule)
         self.Specific_GWP_rule = Constraint(rule=Specific_GWP_rule)
@@ -1627,7 +1665,7 @@ class SuperstructureModel(AbstractModel):
 
         elif self.objective_name in self.impact_categories_list:
             def Objective_rule(self):
-                return self.IMPACT_UTILITIES_PER_CAT[self.objective_name]
+                return self.IMPACT_TOT[self.objective_name]
         else:
             def Objective_rule(self):
                 return self.NPC
@@ -1645,7 +1683,5 @@ class SuperstructureModel(AbstractModel):
                 return self.objective_sense == 1  # 1 for maximizing
             else:
                 return self.objective_sense == 0  # 0 for minimizing
-
-
 
         self.objective_sense_rule = Constraint(rule=objective_sense_rule1)
