@@ -90,8 +90,6 @@ mircobialProteinData = AF_WaitAndSee + AF_HereAndNowData
 EVDS = np.mean(mircobialProteinData) # mean of the microbial protein data
 
 
-
-
 # Now lets caluclate the EVPI for the stochastic optimization
 # print in purple
 print('')

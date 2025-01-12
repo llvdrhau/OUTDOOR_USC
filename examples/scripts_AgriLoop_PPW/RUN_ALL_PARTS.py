@@ -40,7 +40,7 @@ script_filenames = [
                     part2_1, part2_2,    # wait and see optimization
                     part2_3, part2_3_1,  # here and now optimization
                     part3_1, part3_2,    # stochastic optimization
-                    # part4_1,             # sensitivity analysis PHA
+                    part4_1,             # sensitivity analysis PHA
                     part4_2,             # production cost analysis PHA
                     part4_3, part4_4,    # SCR analysis PHA
                     part4_5              # cross sensitivity analysis

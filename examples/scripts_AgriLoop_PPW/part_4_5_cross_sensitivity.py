@@ -65,8 +65,8 @@ cross_sensitivity_parameters = [cross_sensitivity_parameters_1,]
 
 optimization_mode = 'cross-parameter sensitivity'
 
-xlables = ['Yield PHA Recovery (gPHA/gX)', 'Price (€/ton)', 'Price (€/ton)']
-ylables = ['Separation efficiency (-)', 'Yield PHA Recovery (gPHA/gX)', 'Yield PHA Recovery (gPHA/gX)']
+xlables = ['Extraction Yield (gPHA/gPHA_in_Biomass)', 'Price (€/ton)', 'Price (€/ton)']
+ylables = ['Separation efficiency (-)', 'Extraction Yield (gPHA/gPHA_in_Biomass)', 'Extraction Yield (gPHA/gPHA_in_Biomass)']
 
 for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
     # create the superstructure data from the Excel file and
@@ -99,7 +99,7 @@ for i, cross_sensitivity_parameter in enumerate(cross_sensitivity_parameters):
                                          levels=10,
                                          xlabel=xlables[i],
                                          ylabel=ylables[i],
-                                         ecludianDistancePoint=(0.63, 0.65, 59.39)
+                                         ecludianDistancePoint=(0.63, 0.65, 61.45)
                                          )
 
 

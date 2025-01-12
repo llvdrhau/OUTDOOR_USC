@@ -732,21 +732,27 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
             # Add contour lines on top of the filled contours
             contour_lines = plt.contour(x, y, z, levels=levels, colors='black')
 
-
             # Highlight the zero contour line with extra boldness
             levelHighLightedContor = ecludianDistancePoint[2]
             zero_contour = plt.contour(x, y, z, levels=[levelHighLightedContor], colors='cyan',
                                        linewidths=3)  # Change color and width as needed
 
             # Label the contour lines with larger fonts
+            # get the right contour label
+            loadAmount = list(self.model_output._results_data.values())[0]._data['sourceOrProductLoad']
+            if loadAmount >= 1:
+                fmt = '%1.2f €/t'
+            else:
+                fmt = '%1.2f M€/y'
+
             # Increase font size here
-            labels = plt.clabel(contour_lines, inline=False, fontsize=12, fmt='%1.2f M€/y')
+            labels = plt.clabel(contour_lines, inline=False, fontsize=12, fmt=fmt)
             # Adjust label positions
             for label in labels:
                 label.set_y(label.get_position()[1] + 0.01)  # Adjust the distance as needed
 
             # Label for the zero contour, if needed
-            zeroLable = plt.clabel(zero_contour, inline=False, fontsize=12, fmt='%1.2f M€/y')
+            zeroLable = plt.clabel(zero_contour, inline=False, fontsize=12, fmt=fmt)
             for lable in zeroLable:
                 lable.set_y(lable.get_position()[1] + 0.01)  # Adjust the distance as needed
 

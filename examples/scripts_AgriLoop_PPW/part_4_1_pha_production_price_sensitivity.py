@@ -26,6 +26,8 @@ Generated files:
 import sys
 import os
 import tracemalloc
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 # start the memory profiler
 # tracemalloc.start()
@@ -74,6 +76,41 @@ fig = analyzer.create_sensitivity_graph(savePath=resultsPath,
                                         saveName="Part_4_1_sensitivity_pha_price",
                                         figureMode="single",
                                         xlable="PHA selling price (€/t)]",)
+
+
+data = analyzer._collect_sensi_data('EBIT')
+dataRegressionY = data['Price (ProductPrice)_6000'][0][-3:-1]  # price
+dataRegressionX = data['Price (ProductPrice)_6000'][1][-3:-1]  # Ebit
+
+def linear_regression_from_points(x, y):
+    """
+    Perform a linear regression on points.
+
+    Args:
+        x list of float: The x values of the points.
+        y list of float: The y values of the points.
+
+    Returns:
+        LinearRegression: The trained linear regression model.
+    """
+    # Extract x and y values
+    x = np.array(x).reshape(-1, 1)
+    y = np.array(y)
+
+    # Perform linear regression
+    model = LinearRegression().fit(x, y)
+    return model
+
+
+# Example usage
+
+model = linear_regression_from_points(dataRegressionX, dataRegressionY)
+# Use the model to predict a y value for a given x
+x_new = 61.456  # €/ton PPW
+y_pred = model.predict([[x_new]])  # Input must be a 2D array
+print(f"The price to sell PHA is: {y_pred[0]}")
+
+
 
 print('\033[92m' + '------sucess---------'+ '\033[0m')
 
