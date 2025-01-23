@@ -252,27 +252,31 @@ class ReactionsTab(QWidget):
         :param item:
         :return:
         """
-        if item.column() == 0:  # only bothered to track changes in the first column (reaction name)
-            # get the old and new name of the chemical component
-            oldValue = self.oldValue
-            newValue = item.text()
-            # Reset old value
-            self.oldValue = newValue
 
-            if not self.addingRowFlag:
-                # You can call updateData here
-                self.updateData(oldValue, newValue)
+        if not self.addingRowFlag and item.column() == 0: # only bothered to track changes in the first column (reaction name)
+            rowPosition = item.row()
+            for reactionDTO in self.centralDataManager.reactionData:
+                if reactionDTO.rowPosition == rowPosition:
+                    # get the old and new name of the chemical component
+                    oldValue = reactionDTO.oldName
+                    newValue = item.text()
+                    # Reset old value
+                    reactionDTO.oldName = newValue
+                    self.updateData(oldValue, newValue)
+
 
 
     def trackOldValue(self, current, previous):
         """Track the old value of the currently selected item."""
-        if not self.addingRowFlag:
-            if current and current.column() == 0:  # Check if the item is in the first row
-                self.oldValue = current.text()
+        # if current and current.column() == 0:  # Check if the item is in the first row
+        #     self.oldValue = current.text()
+        # not used anymore the old value is tracked in the reactionDTO
+        pass
 
     def updateData(self, oldReactionName, newReactionName):
         # go over the unit data
         for dto in self.centralDataManager.unitProcessData.values():
+            a = dto.name
             # only if it has filled in data, go ahead and modify
             if dto.dialogData and dto.type.value == 2:
                 reactions = dto.dialogData['Reactions']
@@ -282,5 +286,5 @@ class ReactionsTab(QWidget):
                         reactionTuple = list(reactionTuple)  # Ensure the tuple is mutable
                         reactionTuple[0] = newReactionName
                         reactions[index] = tuple(reactionTuple)  # Convert back to tuple if needed
-                dto.dialogData['Reactions'] = reactions
+                        dto.dialogData['Reactions'] = reactions
 

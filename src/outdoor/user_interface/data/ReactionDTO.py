@@ -8,6 +8,7 @@ class ReactionDTO(OutdoorDTO):
         super().__init__()
         self.rowPosition = rowposition
         self.uid = uid
+        self.oldName = None
         self.name = name
         self.reactants = reactants
         self.products = products

@@ -76,7 +76,7 @@ options = {
     "solver_name": "gurobi",
     "PHIterLimit": 50,
     "defaultPHrho": 15, # set high for binary variables as first stage
-    "convthresh": 0.00199, #1e-4,
+    "convthresh": 1e-5,
     "verbose": False,
     "display_progress": True,
     "display_timing": False,

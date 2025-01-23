@@ -240,6 +240,10 @@ class ReactionDialog(QDialog):
                 self.warningDialog(errorType="Name")
                 return
 
+            # This is to keep track of the old name of the reaction for if the name is changed
+            self.dataDTO.oldName = self.dataDTO.name
+
+            # Update the data in the DTO
             self.dataDTO.upadateField("name", name)
             self.dataDTO.upadateField("reactants", reactants)
             self.dataDTO.upadateField("products", products)

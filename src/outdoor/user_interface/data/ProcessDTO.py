@@ -144,7 +144,13 @@ class ProcessDTO(OutdoorDTO):
 
         elif field == UpdateField.INCOMING_UNIT_FLOWS:
             # update the incoming unit flows
-            self.incomingUnitFlows.update(value)
+            if list(value.keys())[0] in self.incomingUnitFlows:
+                errorFlag = True
+                return errorFlag
+            else:
+                self.incomingUnitFlows.update(value)
+                errorFlag = False
+                return errorFlag  # if no error return False
 
         elif field == UpdateField.OUTGOINGCHEMICALS:
             self.outgoingChemicals = value # the value is a list of the outgoing chemicals

@@ -1635,7 +1635,7 @@ class SuperstructureModel(AbstractModel):
 
         def Specific_EBIT_rule(self):
             if self.loadType:  # in €/ton
-                return self.EBIT == (self.PROFITS_TOT - self.CAPEX - self.OPEX) * 1000000 / self.sourceOrProductLoad # in M€ (million euro)
+                return self.EBIT == (-self.TAC * 1000) / self.sourceOrProductLoad # in M€ (million euro)
             else:   # # in Mil €
                 return self.EBIT == (self.PROFITS_TOT - self.CAPEX - self.OPEX)
 

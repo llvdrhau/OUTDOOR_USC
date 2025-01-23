@@ -8,6 +8,8 @@ Created on Tue Jun 15 12:19:19 2021
 
 import pyomo.environ as pyo
 from pyomo.opt import TerminationCondition
+from pyomo.util.infeasible import log_infeasible_constraints
+import logging
 
 from ..output_classes.model_output import ModelOutput
 from ..output_classes.stochastic_model_output import StochasticModelOutput
@@ -41,6 +43,9 @@ class SingleOptimizer:
         it does NOT check if the solvers are installed on the maschine.
 
         """
+        # Set the logging level to INFO
+        # logging.basicConfig(level=logging.INFO)
+        # logging.getLogger('pyomo.core').setLevel(logging.INFO)
 
         SOLVER_LIBRARY = {"gurobi", "cbc", "scip", "glpk", 'gams'}
         INTERFACE_LIBRARY = {"local", "executable"}
@@ -117,10 +122,29 @@ class SingleOptimizer:
             results.solver.termination_condition == TerminationCondition.infeasible):
 
             if not VSS_EVPI_mode:
+                # print("\n Model is infeasible or unbounded in constraints: \n")
+                # # Log infeasible constraints AFTER solving the model
+                # log_infeasible_constraints(model_instance)
+                # print('')
+
+                print("Model is infeasible. Running IIS analysis...")
+
+                # Enable IIS computation
+                self.solver.options['ResultFile'] = "iis.ilp"  # Save IIS to a file (optional)
+                self.solver.solve(model_instance, tee=True, options={'IISMethod': 1}, symbolic_solver_labels=True)
+                #results = solver.solve(model_instance, tee=True, options={'IISMethod': 1})
+
+                # Mark constraints that are part of the IIS
+                #for c in model_instance.component_objects(pyo.Constraint, active=True):
+                #    for index in c:
+                #        if c[index].active:
+                #            print(f"Constraint {c.name} at index {index} is in the IIS.")
+
                 raise Exception("The model is infeasible, please check the input data is correct. \n"
                                 " TIP check: 1) the minimum and maximum pool/source fluxes \n"
                                 "2) Split fractions of unit processes \n"
                                 "3) The Product load if active")
+
             else:
                 return 'infeasible' # so we can save the conditions where the solution is infeasible in the VSS_EVPI mode
         else:

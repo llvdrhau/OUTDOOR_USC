@@ -222,7 +222,7 @@ class ModelOutput:
         basic_results["Basic results"]["Objective Function"] = self._objective_function
         basic_results["units"]["Objective Function"] = 'aa'
 
-        basic_results["Basic results"]["Yearly product load"] = self._product_load
+        basic_results["Basic results"]["Yearly product load"] = self._data['sourceOrProductLoad']
 
         basic_results["Basic results"]["Solver run time"] = '{} seconds'.format(round(self._run_time,2))
 
@@ -235,19 +235,17 @@ class ModelOutput:
             basic_results["Basic results"]["Earnings Before Tax income"] = "{} €/ton".format(
                 round(self._data["EBIT"], 3))
 
-        if self._product_load:
+        if self._data['sourceOrProductLoad'] >= 1:
             basic_results["Basic results"]["Net production costs"] = "{} euro/ton".format(round(self._data["NPC"], 2))
         else:
             basic_results["Basic results"]["Net production costs"] = "{} euro/ton".format(round(self._data["NPC"]/ self._data['SumOfProductFlows'], 2))
 
-
-        if self._product_load:
+        if self._data['sourceOrProductLoad'] >= 1:
             basic_results["Basic results"]["Net production GHG emissions"] = "{} CO2-eq/ton".format(round(self._data["NPE"], 2))
         else:
             basic_results["Basic results"]["Net production GHG emissions"] = "{} CO2-eq/ton".format(round(self._data["NPE"] / self._data['SumOfProductFlows'], 2))
 
-
-        if self._product_load:
+        if self._data['sourceOrProductLoad'] >= 1:
             basic_results["Basic results"]["Net present FWD"] = "{} H2O-eq/ton".format(round(self._data["NPFWD"], 2))
         else:
             basic_results["Basic results"]["Net production FWD"] = "{} H2O-eq/ton".format(round(self._data["NPFWD"]/ self._data['SumOfProductFlows'], 2))
@@ -491,9 +489,10 @@ class ModelOutput:
             net_heating, 2
         )
 
-        heatintegration_results["Heating and cooling"]["Net cooling demand"] = round(
-            model_data.get("ENERGY_DEMAND_COOLING", 0), 2
-        )
+        coolingDemand = model_data.get("ENERGY_DEMAND_COOLING", 0)
+        if not coolingDemand: # avoid NoneType error
+            coolingDemand = 0
+        heatintegration_results["Heating and cooling"]["Net cooling demand"] = round(coolingDemand, 2)
 
         return heatintegration_results
 

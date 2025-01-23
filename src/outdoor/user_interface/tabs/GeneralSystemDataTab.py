@@ -21,6 +21,9 @@ class GeneralSystemDataTab(QWidget):
         self.centralDataManager = centralDataManager
         self.signalManager = signalManager
 
+        # set the init flag to true, so data is not saved when the tab is first initialized
+        self.initFlag = True
+
         # Create a new QWidget for the General System Data tab
         self.layout = QFormLayout(self)
         self.subtitleFont = QFont("Arial", 11, QFont.Bold)
@@ -186,6 +189,8 @@ class GeneralSystemDataTab(QWidget):
         self.setLayout(self.layout)
         # set the switch
         self.productDrivenSwitch()
+        # deactivate the init flag
+        self.initFlag = False
         # import existing data
         self.importData()
 
@@ -263,17 +268,17 @@ class GeneralSystemDataTab(QWidget):
 
     @pyqtSlot()
     def saveData(self):
+        if not self.initFlag: # do not save data when the tab is first initialized
+            # Collect data from the table
+            generalData = self.collectData()
 
-        # Collect data from the table
-        generalData = self.collectData()
+            # Save the data to the central data manager
+            # self.centralDataManager.addData("generalData", generalData) # not a fan of this fumction, convoluted
 
-        # Save the data to the central data manager
-        # self.centralDataManager.addData("generalData", generalData) # not a fan of this fumction, convoluted
-
-        # overwrite the data to the central data manager straight away
-        self.centralDataManager.generalData = generalData
-        self.logger.info("General System Data saved")
-        # print(generalData)
+            # overwrite the data to the central data manager straight away
+            self.centralDataManager.generalData = generalData
+            self.logger.info("General System Data saved")
+            # print(generalData)
 
 
     def collectData(self):
@@ -310,11 +315,15 @@ class GeneralSystemDataTab(QWidget):
     def importData(self):
         generalData = self.centralDataManager.generalData
         if generalData:
+            # update the list selection list
+            self._updateProductSelectioComboBox()
+
+            # set the values from the centralDataManager
             self.signalManager.importLists()
-            self.productSelection.setCurrentText(generalData['mainProduct'])
             self.objective_combo.setCurrentText(generalData["objective"])
             self.opti_combo.setCurrentText(generalData["optimizationMode"])
             self.productDrivenDropdown.setCurrentText(generalData["productDriver"])
+            self.productSelection.setCurrentText(generalData['mainProduct'])
             self.productLoadLineEdit.setText(generalData["productLoad"])
             self.operatingHoursLineEdit.setText(generalData["operatingHours"])
             self.yearOfStudyLineEdit.setText(generalData["yearOfStudy"])
@@ -328,8 +337,7 @@ class GeneralSystemDataTab(QWidget):
             self.lifetimeLineEdit.setText(generalData["lifetime"])
             self.TINLineEdit.setText(generalData["TIN"])
             self.TOUTLineEdit.setText(generalData["TOUT"])
-            # update the list selection list
-            self._updateProductSelectioComboBox()
+
         else:
             self.logger.info("Booting up with no General System Data")
 
@@ -341,6 +349,13 @@ class GeneralSystemDataTab(QWidget):
         self.productSelection.clear()
         # Add updated items from centralDataManager
         if self.productDrivenDropdown.currentText() == "Product":
-            self.productSelection.addItems(self.signalManager.outputList)
+            dropList = self.signalManager.outputList
+            self.productSelection.addItems(dropList)
         elif self.productDrivenDropdown.currentText() == "Substrate":
-            self.productSelection.addItems(self.signalManager.inputList)
+            dropList = self.signalManager.inputList
+            self.productSelection.addItems(dropList)
+        else:
+            dropList = []
+
+        if self.centralDataManager.generalData and self.centralDataManager.generalData["mainProduct"] in dropList:
+            self.productSelection.setCurrentText(self.centralDataManager.generalData["mainProduct"])

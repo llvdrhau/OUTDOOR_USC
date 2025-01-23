@@ -132,7 +132,7 @@ class OutputParametersDialog(QDialog):
             'priceOutput': self.priceOutput.text(),
             'co2Credits': self.co2Credits.text(),
             'minProduction': self.minProduction.text(),
-            'maxProduction': self.minProduction.text(),
+            'maxProduction': self.maxProduction.text(),
             'productType': self.productType.currentText(),
             'processingGroup': self.processingGroup.text()
         }

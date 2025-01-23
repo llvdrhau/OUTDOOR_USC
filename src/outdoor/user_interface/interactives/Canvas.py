@@ -262,7 +262,9 @@ class Canvas(QGraphicsView):
             # if we are drawing lines from loaded data the dialog data is already loaded and established, so no need to
             # establish the connection again, this we'll only lead to duplication errors
             if not loadingLinesFlag:
-                self._establishConnection(unitDTOSending, unitDTOReceiving)
+                errorFlag = self._establishConnection(unitDTOSending, unitDTOReceiving)
+                if errorFlag:
+                    return
 
         # rest the positions and switches to None
         self.startPoint = None
@@ -312,9 +314,16 @@ class Canvas(QGraphicsView):
                     updateValue = (receivingID, self.startPort.exitStream)
                     ownerDTO.updateProcessDTO(field=UpdateField.DISTRIBUTION_CONNECTION, value=updateValue)
                     receivingDTO = self.centralDataManager.unitProcessData[receivingID]
-                    receivingDTO.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+                    errorFlag = receivingDTO.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
                                                   value={ownerDTO.uid: self.startPort.exitStream})
-                    self.logger.debug("Incoming flow ids for the receiving unitDTO {} "
+                    if errorFlag:
+                        self.logger.error(
+                            f"Error Updating incoming unit flows for process {receivingDTO.name} but the Unit {ownerDTO.name} is already \n"
+                            f"conected by another stream with a different boolean connector. ABORTING CONNECTION")
+                        return errorFlag
+
+                    else:
+                        self.logger.debug("Incoming flow ids for the receiving unitDTO {} "
                                       "are: {}".format(receivingID, receivingDTO.incomingUnitFlows))
 
 
@@ -347,12 +356,20 @@ class Canvas(QGraphicsView):
                 self.logger.debug("The stream classification is: {}".format(ownerDTO.classificationStreams))
 
                 # update what is id is entering the receiving unit
-                unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+
+                errorFlag = unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
                                                   value={ownerID: ownerStream})
-                self.logger.info("Incoming unit Flow id {} given to the receiving "
-                                 "UnitDTO {}".format(ownerID, unitDTOReceiving.uid))
-                self.logger.debug("Incoming flow ids for the receiving unitDTO "
-                                  "are: ".format(unitDTOReceiving.incomingUnitFlows))
+                if errorFlag:
+                    self.logger.error(
+                        f"Error Updating incoming unit flows for process {unitDTOReceiving.name} but the Unit {ownerDTO.name} is already \n"
+                        f"conected by another stream with a different boolean connector. ABORTING CONNECTION")
+                    return errorFlag
+
+                else:
+                    self.logger.info("Incoming unit Flow id {} given to the receiving "
+                                     "UnitDTO {}".format(ownerID, unitDTOReceiving.uid))
+                    self.logger.debug("Incoming flow ids for the receiving unitDTO "
+                                      "are: ".format(unitDTOReceiving.incomingUnitFlows))
 
 
         else: # the sending and receiving unit are 2 normal unit processes that are connected
@@ -364,21 +381,20 @@ class Canvas(QGraphicsView):
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The stream classification is: {}".format(unitDTOSending.classificationStreams))
 
-            unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
+            errorFlag = unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
                                               value={unitDTOSending.uid: self.startPort.exitStream})
-            self.logger.info("Incoming unit Flow id {} given to the receiving "
-                             "unitDTO {}".format(unitDTOSending.uid, unitDTOReceiving.uid))
-            self.logger.debug("Incoming flow ids for the receiving unitDTO are: "
-                              "{}".format(unitDTOReceiving.incomingUnitFlows))
+            if errorFlag:
+                self.logger.debug(
+                    f"Error Updating incoming unit flows for process {unitDTOReceiving.name} but the Unit {unitDTOSending.name} is already \n"
+                    f"conected by another stream with a different boolean connector. ABORTING CONNECTION")
 
-            # update how incoming chemicals can be identified to automatically fill in the tables in the dialogs
-            #
-            # normaly the input and output ports are available in the process DTO. these contain the lines and to which lines
-            # they are connected. The lines contain the start and end port which contain the iconID of the connected ports
-            # this way you can find the chemicals entering the process and leaving the process
-            #
-            # the problem with this is that we'd have to save to the central data manager with PortWidgets and we can't
-            # pickle those
+            else:
+                self.logger.info("Incoming unit Flow id {} given to the receiving "
+                                 "unitDTO {}".format(unitDTOSending.uid, unitDTOReceiving.uid))
+                self.logger.debug("Incoming flow ids for the receiving unitDTO are: "
+                                  "{}".format(unitDTOReceiving.incomingUnitFlows))
+
+        return False # no errors occurred
 
     def getSeperationDict(self, processType:ProcessType, streamType, dialogData):
         """
@@ -560,12 +576,14 @@ class Canvas(QGraphicsView):
                 ownerDTO = self.centralDataManager.unitProcessData[ownerID]
                 # update the classification Dictionary defining where each individual stream goes
                 ownerDTO.classificationStreams[streamAffected] = None
+                ownerDTO.classificationId[streamAffected] = None
                 for id in id2Delete:
                     ownerDTO.removeFromMaterialFlow(id)
-                    receivingDTO = self.centralDataManager.unitProcessData[id]
-                    receivingDTO.incomingUnitFlows.pop(ownerID)
-                    self.logger.debug(
-                        "Incoming flow ids for the receiving unitDTO are: {}".format(receivingDTO.incomingUnitFlows))
+                    if id in self.centralDataManager.unitProcessData: # could be already deleted, so check if it exists
+                        receivingDTO = self.centralDataManager.unitProcessData[id]
+                        receivingDTO.incomingUnitFlows.pop(ownerID)
+                        self.logger.debug(
+                            "Incoming flow ids for the receiving unitDTO are: {}".format(receivingDTO.incomingUnitFlows))
 
                 self.logger.debug("Connections to the split icon removed\n"
                                  "The material flow of the owner of the split icon is updated to: "
@@ -579,16 +597,18 @@ class Canvas(QGraphicsView):
                 if unitDTOSending.type == ProcessType.DISTRIBUTOR or unitDTOSending.type == ProcessType.BOOLDISTRIBUTOR:
                     # if the sending unit is a distributor, the connection to the receiving unit needs to be removed
                     ownerID = unitDTOSending.distributionOwner[0]
-                    ownerDTO = self.centralDataManager.unitProcessData[ownerID]
-                    ownerDTO.removeFromMaterialFlow(icon2Delete.iconID)
+                    if ownerID in self.centralDataManager.unitProcessData:  # could be already deleted, check if it exists
+                        ownerDTO = self.centralDataManager.unitProcessData[ownerID]
+                        ownerDTO.removeFromMaterialFlow(icon2Delete.iconID)
+
+                        # log the changes
+                        self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
+                        self.logger.info("The amount of connections is: {}".format(len(ownerDTO.materialFlow)))
+                        self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
+                        self.logger.debug("The classification streams are: {}".format(ownerDTO.classificationStreams))
+
                     # we also have to remove the id of the icon we're deleting from the container of the distributor
                     unitDTOSending.distributionContainer.remove(icon2Delete.iconID)
-
-                    # log the changes
-                    self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
-                    self.logger.info("The amount of connections is: {}".format(len(ownerDTO.materialFlow)))
-                    self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
-                    self.logger.debug("The classification streams are: {}".format(ownerDTO.classificationStreams))
 
                 else:  # if the sending unit is not a distributor, the connection to the receiving unit needs to be removed
                     # remove the connection from the sending unitDTO (that is remove connection to current icon)
@@ -602,10 +622,12 @@ class Canvas(QGraphicsView):
                 unitDTOReceiving = self.centralDataManager.unitProcessData[id]
                 if unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR:
                     pass
+                    # unitDTOReceiving.distributionContainer.remove(icon2Delete.iconID)
+                    # self.logger.info("Connection {} removed from the distribution container".format(icon2Delete.iconID))
                 else:
                     unitDTOReceiving.incomingUnitFlows.pop(icon2Delete.iconID)
                     self.logger.info("Incoming Flow id {} removed from the receiving unitDTO".format(icon2Delete.iconID))
-                    self.logger.debug("Incoming flow UIDs for unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
+                    self.logger.info("Incoming flow UIDs for unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
 
     def mousePressEvent(self, event):
         """
@@ -1431,6 +1453,7 @@ class InteractiveLine(QGraphicsPathItem):
             # update the classification Dictionary defining where each individual stream goes
             streamAffected = unitDTOReceiving.distributionOwner[1]
             ownerDTO.classificationStreams[streamAffected] = None
+            ownerDTO.classificationId[streamAffected] = None
 
             # delete the connection from the unit that owned the distribution unit
             for id in ids2Delete:
@@ -1461,7 +1484,8 @@ class InteractiveLine(QGraphicsPathItem):
                 self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
                 # update the incoming flow of the receiving unit
-                unitDTOReceiving.incomingUnitFlows.pop(ownerID)
+                # todo check if this does not break things
+                unitDTOReceiving.incomingUnitFlows.pop(ownerID, None)
                 self.logger.debug("Incoming flow ids for the receiving unitDTO {} are:"
                                   " {}".format(ownerID, unitDTOReceiving.incomingUnitFlows))
 

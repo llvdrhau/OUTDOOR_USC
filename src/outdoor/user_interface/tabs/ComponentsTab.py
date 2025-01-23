@@ -193,6 +193,7 @@ class ComponentsTab(QWidget):
 
     def updateData(self, oldChemicalName, newChemicalName):
         if not self.addingRowFlag:
+
             # go over all the reaction dto's
             if self.centralDataManager.reactionData:
                 for reactionDTO in self.centralDataManager.reactionData:
@@ -252,6 +253,19 @@ class ComponentsTab(QWidget):
                             splittingDict['Component'] = newChemicalName
                             dto.dialogData['Separation Fractions'][index] = splittingDict
 
+                        # Update material flow data, where chemical names are also stored
+                    materialFlow = dto.materialFlow
+                    if materialFlow:  # Protect against empty dictionaries
+                        for dict in materialFlow.values():
+                            if dict:  # Protect against empty dictionaries
+                                for nestedDict in dict.values():
+                                    # Collect keys to update
+                                    keys_to_update = [key for key in nestedDict.keys() if key == oldChemicalName]
+                                    # Update the keys
+                                    for key in keys_to_update:
+                                        nestedDict[newChemicalName] = nestedDict.pop(key)
+                                        # print('Material flow updated!')
+
                     if dto.type.value in [2, 4, 5, 6]:  # stoichiometric, or the generator types
                         # update the conversion factors
                         reactions = dto.dialogData['Reactions']
@@ -262,8 +276,6 @@ class ComponentsTab(QWidget):
                                 reactionTuple[-1] = newChemicalName
                                 reactions[index] = tuple(reactionTuple)  # Convert back to tuple if needed
                         dto.dialogData['Reactions'] = reactions
-
-
 
                         #lists2Change.append('Reactions')
 

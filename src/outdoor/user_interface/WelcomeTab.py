@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase, QFont, QPixmap
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
-
+import os
 
 class WelcomeTab(QWidget):
     def __init__(self, centralDataManager, parent=None):
@@ -20,8 +20,17 @@ class WelcomeTab(QWidget):
         self.titleLabel.setAlignment(Qt.AlignCenter)  # Center the title
 
         # Load and display the logo image
+        #logoPath = "outdoor/user_interface/logo.png"
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        logoPath = os.path.join(current_dir, "logo.png")
         self.logoLabel = QLabel()
-        self.logoPixmap = QPixmap("outdoor/user_interface/logo.png")
+        self.logoPixmap = QPixmap(logoPath)
+
+        if self.logoPixmap.isNull():
+            print(f"Failed to load the logo image from: {logoPath}")
+        else:
+            print(f"Successfully loaded the logo image from: {logoPath}")
+
         # Resize the pixmap to the desired size while maintaining aspect ratio
         self.scaledLogoPixmap = self.logoPixmap.scaled(500, 500, Qt.KeepAspectRatio,
                                                        Qt.SmoothTransformation)  # Adjust (200, 200) to desired dimensions

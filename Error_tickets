@@ -1,0 +1,15 @@
+
+## The goal of this file is to write down errors I encounter that should be fixed in the future.
+
+
+Problem 1 ):
+
+* Imagine process a where fresh tomatoes enter. Tomatoes contain water, in fact more water then is needed to be
+added in the process! (Determined by the concentration Factor parameter)
+=> ERROR for mass balances:
+MassBalance_1, MassBalance_2, MassBalance_4, MassBalance_6, MassBalance_9, MassBalance_11, MassBalance_14, MassBalance_16
+So need a method to check if the mass balance is correct and that an overflow of water is not possible.
+
+problem 2 ):
+when changing the name of a reaction in the reaction list, the name of the reaction in the reaction list is changed but
+in the dialog the reaction get's set to the first reaction in the list! This is not correct and should be fixed.

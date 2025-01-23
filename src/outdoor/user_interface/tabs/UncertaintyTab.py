@@ -174,7 +174,12 @@ class UncertaintyTab(QWidget):
 
                     if value and value != "n.a.":
                         unitDict = self.centralDataManager.unitProcessData
-                        unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        try:
+                            unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        except:
+                            self.logger.warning(f"Unit process with uid {value} not found, it was set to n.a.")
+                            unitName = "n.a."
+
                         self.comboBoxUnitProcess.setCurrentText(unitName)
 
                 elif key == "componentName":
@@ -196,7 +201,13 @@ class UncertaintyTab(QWidget):
                     # add the value to the combobox
                     if value and value != "n.a.":
                         unitDict = self.centralDataManager.unitProcessData
-                        unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        try:
+                            unitName = [u.name for u in unitDict.values() if u.uid == value][0]
+                        except:
+                            self.logger.warning(f"Unit process with uid {value} not found, the field targetUnitProcess "
+                                                f" was set to n.a.")
+                            unitName = "n.a."
+
                         self.comboBoxTargetUnitProcess.setCurrentText(unitName)
 
                 elif key == "reactionUid":

@@ -265,7 +265,7 @@ class UtilityTab(QWidget):
             self.collectData()
             # # Save the data to the central data manager
             # self.centralDataManager.addData("utilityData")
-            self.logger.debug("Data saved components tab to central data manager")
+            self.logger.debug("Save Utility data to the central data manager")
 
     def collectData(self):
         '''

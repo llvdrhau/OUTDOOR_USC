@@ -85,9 +85,9 @@ class ConstructSuperstructure:
 
         obj = Superstructure(ModelName=modelName,
                              Objective=objective,
-                             productDriver=productDriven,
-                             MainProduct=mainProduct,
-                             ProductLoad=productLoad,
+                             loadType=productDriven,
+                             loadName=mainProduct,
+                             load=productLoad,
                              OptimizationMode=optimizationMode)
 
         opH = float(self.centralDataManager.generalData['operatingHours'])
