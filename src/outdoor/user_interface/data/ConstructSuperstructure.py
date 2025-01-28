@@ -368,7 +368,7 @@ class ConstructSuperstructure:
         name = 'Distr.{}'.format(counter) if name == '' else name
         unitNumber = dto.uid
         # todo add a dialog to the distributor to set the decimal place
-        decimalPlace = 2  # default value for decimal place
+        decimalPlace = 3  # default value for decimal place
 
         distributorObject = Distributor(Name=name,
                                         UnitNumber=unitNumber,

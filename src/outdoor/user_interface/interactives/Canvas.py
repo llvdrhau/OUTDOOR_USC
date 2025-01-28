@@ -557,6 +557,15 @@ class Canvas(QGraphicsView):
             # This will emit the signal to update the output list for the dropdown menu in the GerenalSystemDataTab
             self.signalManager.outputList = current_list
 
+            # update the material flow of the owner of the output icon
+            for id in outputFlowsToUpdate:
+                unitDTOSending = self.centralDataManager.unitProcessData[id]
+                unitDTOSending.removeFromMaterialFlow(outputID)
+                self.logger.info("Connection {} removed from the sending unitDTO".format(outputID))
+                self.logger.info("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
+                self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
+                self.logger.debug("The classification streams are: {}".format(unitDTOSending.classificationStreams))
+
         elif icon2Delete.icon_type == ProcessType.DISTRIBUTOR or icon2Delete.icon_type == ProcessType.BOOLDISTRIBUTOR:
             # if you delete a split icon, you need to remove the connections to where the distribution goes from the
             # owner of the distribution ICON
