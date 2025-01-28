@@ -281,30 +281,30 @@ class LCADialog(QDialog):
     def calculateLCA(self):
         self.logger.info("Calculation beginning. Please wait, this may take a moment.")
         midpoint = [m for m in bw.methods if
-                    "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and "global warming potential (GWP100)" in str(
-                        m) and not "no LT" in str(m)]
+                    "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
         endpoints = [m for m in bw.methods if
-                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and "total: natural resources" in str(
-                         m) and not "no LT" in str(m)]
-        methodconfs = {"impact_categories":midpoint+endpoints}
+                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m)]
+        methodconfs = midpoint + endpoints
         try:
             activ = [m for m in self.outd if m['code'] == self.dto.uid][0]
-            inv_list = {self.dto.uid:{activ.id:1}}
-            self.logger.info(inv_list)
-            data_objs = bw.get_multilca_data_objs(functional_units=inv_list,method_config=methodconfs)
-            mlca = bc.MultiLCA(demands=inv_list,method_config=methodconfs,data_objs=data_objs)
-            mlca.lci()
-            mlca.lcia()
-            self.logger.info(f"i am dying")
-            self.logger.info(f"there is no escape")
-            for n, v in mlca.scores.items():
-                match n[0][2]:
-                    case "climate change":
-                        self.dto.LCA["GWP"] = v
-                    case "total: natural resources":
-                        self.dto.LCA["NR"] = v
-                    case _:
-                        raise Exception("One of your result categories doesn't look right. Fix the methods part of this function.")
+            
+            calc_setup = {"inv": [{activ:1}], "ia": methodconfs}
+            bw.calculation_setups['setup'] = calc_setup
+            mlca = bc.MultiLCA("setup")
+            indic = []
+            for f in mlca.func_units:
+                print(str(f).split('\'')[1])
+                indic.append(str(f).split('\'')[1])
+
+            cols = []
+            for c in mlca.methods:
+                cols.append(c[3])
+
+            dfresults = pd.DataFrame(mlca.results, columns=cols, index=indic).to_dict()
+            for n, v in dfresults.items():
+                for e in v.items():
+                    self.dto.LCA[n.split('(')[0]] = e[1]
+                    self.logger.debug(f"Added {n.split('(')[0]} with value {e[1]}")
 
             self.logger.info("MLCA complete, saving results.")
 
