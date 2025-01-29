@@ -27,6 +27,7 @@ class LCADialog(QDialog):
         self.logger = logging.getLogger(__name__)
         logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
         logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
+        logging.getLogger("fsspec").setLevel(logging.ERROR)
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {
@@ -144,7 +145,7 @@ class LCADialog(QDialog):
             for row in rows:
                 index = self.lcaColumns.index("ID")
                 id = self.selectedProcessesTable.item(row, index).text()
-                self.dto.LCA.pop(id)
+                self.dto.LCA['exchanges'].pop(id)
                 self.selectedProcessesTable.removeRow(row)
 
     def search(self):
@@ -211,8 +212,8 @@ class LCADialog(QDialog):
         selectedItems = self.componentsTable.selectedItems()
         for item in selectedItems:
             if item.column() == 4:
-                if item.text() not in self.dto.LCA:
-                    self.dto.LCA[item.text()] = {
+                if item.text() not in self.dto.LCA['exchanges']:
+                    self.dto.LCA['exchanges'][item.text()] = {
                         "Reference": self.componentsTable.item(item.row(), 0).text(),
                         "Unit": self.componentsTable.item(item.row(), 1).text(),
                         "Region": self.componentsTable.item(item.row(), 3).text(),
@@ -220,19 +221,22 @@ class LCADialog(QDialog):
                         "Parameter": "bw_param_name",
                         "Type": self.componentsTable.item(item.row(), 2).text(),
                     }
-                    self.addRowToTable(Demand=self.dto.LCA[item.text()]["Demand"],
-                                       Unit=self.dto.LCA[item.text()]["Unit"],
-                                       Region=self.dto.LCA[item.text()]["Region"],
-                                       Reference=self.dto.LCA[item.text()]["Reference"],
+                    self.addRowToTable(Demand=self.dto.LCA['exchanges'][item.text()]["Demand"],
+                                       Unit=self.dto.LCA['exchanges'][item.text()]["Unit"],
+                                       Region=self.dto.LCA['exchanges'][item.text()]["Region"],
+                                       Reference=self.dto.LCA['exchanges'][item.text()]["Reference"],
                                        ID=item.text(),
                                        Table="LCA")
         self.componentsTable.clearSelection()
 
     def loadInitialData(self):
-        for key, value in self.dto.LCA.items():
-            self.logger.info("Loading initial data.")
-            self.addRowToTable(Demand=value["Demand"], Unit=value["Unit"], Region=value["Region"], Reference=value["Reference"], ID=key,
-                               Table="LCA")
+        try:
+            for key, value in self.dto.LCA['exchanges'].items():
+                self.logger.info("Loading initial data.")
+                self.addRowToTable(Demand=value["Demand"], Unit=value["Unit"], Region=value["Region"], Reference=value["Reference"], ID=key,
+                                   Table="LCA")
+        except KeyError as e:
+            self.logger.info("No initial data.")
 
     def persistLCA(self):
         try:
@@ -256,8 +260,8 @@ class LCADialog(QDialog):
             for row in range(self.selectedProcessesTable.rowCount()):
                 demand = self.selectedProcessesTable.item(row, 0).text()
                 id = self.selectedProcessesTable.item(row, 4).text()
-                self.dto.LCA[id]["Demand"] = demand
-            for id, dic in self.dto.LCA.items():
+                self.dto.LCA['exchanges'][id]["Demand"] = demand
+            for id, dic in self.dto.LCA['exchanges'].items():
                 if "process" in dic["Type"]:
                     ex = [m for m in self.eidb if m['code'] == id][0]
                     ext_list.append((ex, dic["Demand"], dic["Unit"], dic["Type"]))
@@ -287,7 +291,7 @@ class LCADialog(QDialog):
         methodconfs = midpoint + endpoints
         try:
             activ = [m for m in self.outd if m['code'] == self.dto.uid][0]
-            
+
             calc_setup = {"inv": [{activ:1}], "ia": methodconfs}
             bw.calculation_setups['setup'] = calc_setup
             mlca = bc.MultiLCA("setup")
@@ -313,7 +317,4 @@ class LCADialog(QDialog):
             self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
             if type(e) is IndexError:
                 self.logger.warning("Didn't find the uuid in bw:", self.dto.uid)
-            elif type(e) is Exception:
-                self.logger.error(e)
-                self.logger.info(f"help me")
-                self.dto.calculated = False
+            self.dto.calculated = False

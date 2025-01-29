@@ -3,7 +3,7 @@ from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 
 class ComponentDTO(OutdoorDTO):
     def __init__(self, rowposition: int, uid: str, name: str = "", lowerHeat: float = 0.0, heatCapacity: float = 0.0,
-                 molecularWeight: float = 0.0, LCA: dict = {}):
+                 molecularWeight: float = 0.0):
 
         super().__init__()
         self.rowPosition = rowposition
@@ -12,7 +12,6 @@ class ComponentDTO(OutdoorDTO):
         self.lowerHeat = lowerHeat
         self.heatCapacity = heatCapacity
         self.molecularWeight = molecularWeight
-        self.LCA = LCA
         self.calculated = False
 
     def __getitem__(self, item):
