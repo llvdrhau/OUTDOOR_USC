@@ -307,7 +307,7 @@ class LCADialog(QDialog):
             dfresults = pd.DataFrame(mlca.results, columns=cols, index=indic).to_dict()
             for n, v in dfresults.items():
                 for e in v.items():
-                    self.dto.LCA[n.split('(')[0]] = e[1]
+                    self.dto.LCA['Results'][n.split('(')[0]] = e[1]
                     self.logger.debug(f"Added {n.split('(')[0]} with value {e[1]}")
 
             self.logger.info("MLCA complete, saving results.")

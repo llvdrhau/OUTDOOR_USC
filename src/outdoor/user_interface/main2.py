@@ -5,6 +5,7 @@ import pandas as pd
 
 import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
+from pyparsing import empty
 
 from data.CentralDataManager import CentralDataManager
 from data.SignalManager import SignalManager
@@ -121,20 +122,79 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.centralDataManager.uncertaintyData = []
         # had a problem with the material flow in the DTO, this is a temporary fix
 
-        # the reason was that outgoing flows were not updated when output units are removed, fixed now
-        if 'c44290e5-10f9-4697-a7f1-79865df8be27' in self.centralDataManager.unitProcessData:
-            dto2Change = self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27']
-            materialFlow = dto2Change.materialFlow
-            # remove the follwing key from the dictionary: 'e872ef91-2244-4a91-8f35-92b41b3f2735'
-            for dictStream in materialFlow.values():
-                if 'e872ef91-2244-4a91-8f35-92b41b3f2735' in dictStream:
-                    dictStream.pop('e872ef91-2244-4a91-8f35-92b41b3f2735')
-                elif '1d2e7a23-ebd4-43fd-891c-d8f66ffd0249' in dictStream:
-                    dictStream.pop('1d2e7a23-ebd4-43fd-891c-d8f66ffd0249')
-            self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27'] = dto2Change
+        # having a problem with the LCA objects missing a dictionary with key 'exchanges'
+        # this is a temporary fix
+        lcaPatch = {'Results': {}, 'exchanges': {}}
+        data_lists = [
+            self.centralDataManager.componentData,
+            self.centralDataManager.utilityData,
+            self.centralDataManager.wasteData,
+            self.centralDataManager.temperatureData
+        ]
+
+        for data_list in data_lists:
+            for dto in data_list:
+                if not hasattr(dto, 'emptyCategories'):
+                    dto.emptyCategories =  {
+                        'acidification: terrestrial': 0,
+                        'agricultural land occupation ': 0,
+                        'climate change: freshwater ecosystems': 0,
+                        'climate change: human health': 0,
+                        'climate change: terrestrial ecosystems': 0,
+                        'ecosystem quality': 0,
+                        'ecotoxicity: freshwater': 0,
+                        'ecotoxicity: marine': 0,
+                        'ecotoxicity: terrestrial': 0,
+                        'energy resources: non-renewable, fossil': 0,
+                        'eutrophication: freshwater': 0,
+                        'eutrophication: marine': 0,
+                        'fossil fuel potential ': 0,
+                        'freshwater ecotoxicity potential ': 0,
+                        'freshwater eutrophication potential ': 0,
+                        'global warming potential ': 0,
+                        'human health': 0,
+                        'human toxicity potential ': 0,
+                        'human toxicity: carcinogenic': 0,
+                        'human toxicity: non-carcinogenic': 0,
+                        'ionising radiation': 0,
+                        'ionising radiation potential ': 0,
+                        'land use': 0,
+                        'marine ecotoxicity potential ': 0,
+                        'marine eutrophication potential ': 0,
+                        'material resources: metals/minerals': 0,
+                        'natural resources': 0,
+                        'ozone depletion': 0,
+                        'ozone depletion potential ': 0,
+                        'particulate matter formation': 0,
+                        'particulate matter formation potential ': 0,
+                        'photochemical oxidant formation potential: ecosystems ': 0,
+                        'photochemical oxidant formation potential: humans ': 0,
+                        'photochemical oxidant formation: human health': 0,
+                        'photochemical oxidant formation: terrestrial ecosystems': 0,
+                        'surplus ore potential ': 0,
+                        'terrestrial acidification potential ': 0,
+                        'terrestrial ecotoxicity potential ': 0,
+                        'water consumption potential ': 0,
+                        'water use: aquatic ecosystems': 0,
+                        'water use: human health': 0,
+                        'water use: terrestrial ecosystems': 0}
+                if 'Results' not in dto.LCA or 'exchanges' not in dto.LCA:
+                    dto.LCA = lcaPatch
+                    dto.calculated = False
 
 
 
+        # # the reason was that outgoing flows were not updated when output units are removed, fixed now
+        # if 'c44290e5-10f9-4697-a7f1-79865df8be27' in self.centralDataManager.unitProcessData:
+        #     dto2Change = self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27']
+        #     materialFlow = dto2Change.materialFlow
+        #     # remove the follwing key from the dictionary: 'e872ef91-2244-4a91-8f35-92b41b3f2735'
+        #     for dictStream in materialFlow.values():
+        #         if 'e872ef91-2244-4a91-8f35-92b41b3f2735' in dictStream:
+        #             dictStream.pop('e872ef91-2244-4a91-8f35-92b41b3f2735')
+        #         elif '1d2e7a23-ebd4-43fd-891c-d8f66ffd0249' in dictStream:
+        #             dictStream.pop('1d2e7a23-ebd4-43fd-891c-d8f66ffd0249')
+        #     self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27'] = dto2Change
 
     def saveFile(self):
         """

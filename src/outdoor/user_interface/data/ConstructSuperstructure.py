@@ -378,7 +378,6 @@ class ConstructSuperstructure:
 
         return distributorObject
 
-
     def _setProcessData(self, dto):
         name = dto.name
         unitNumber = dto.uid
@@ -420,7 +419,6 @@ class ConstructSuperstructure:
         self._additivesUnitData(dto, ProcessObject)
 
         return ProcessObject
-
 
     def _energyData(self, dto, processObject):
         """
@@ -494,7 +492,6 @@ class ConstructSuperstructure:
                                      ChillingReferenceComponentList
                                      )
 
-
     def _reactionData(self, dto, processObject):
         """
         This method reads the reaction data from the dto and writes it to the process object
@@ -531,7 +528,6 @@ class ConstructSuperstructure:
 
             processObject.set_gammaFactors(reactionStoichiometryDict)
             processObject.set_thetaFactors(conversionRateDict)
-
 
     def _generalUnitData(self, dto, processObject):
         """
@@ -591,7 +587,6 @@ class ConstructSuperstructure:
                                       time_span,
                                       time_mode,
                                       wasteDisposalType)
-
 
     def _economicUnitData(self, dto, processObject):
         """

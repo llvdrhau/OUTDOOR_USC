@@ -4,7 +4,7 @@ from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 class UtilityDTO(OutdoorDTO):
     subDTO: {} # We need some nested DTOs because of how the Utilities table is set up
 
-    def __init__(self, utility_name: str, uid: str, LCA: dict = {}, temperatureParameters:{} = {},cost: float = 0, co2: float = 0, fwd: float = 0, calculated: bool = False):
+    def __init__(self, utility_name: str, uid: str, temperatureParameters:{} = {},cost: float = 0, co2: float = 0, fwd: float = 0, calculated: bool = False):
 
         # set initial values for utilityData and temperatureData if they are not provided
         super().__init__()
@@ -12,7 +12,6 @@ class UtilityDTO(OutdoorDTO):
         self.cost = cost
         self.co2 = co2
         self.fwd = fwd
-        self.LCA = LCA
         self.uid = uid
         self.calculated = calculated
 
