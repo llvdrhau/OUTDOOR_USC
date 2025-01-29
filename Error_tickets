@@ -13,3 +13,10 @@ So need a method to check if the mass balance is correct and that an overflow of
 problem 2 ):
 when changing the name of a reaction in the reaction list, the name of the reaction in the reaction list is changed but
 in the dialog the reaction get's set to the first reaction in the list! This is not correct and should be fixed.
+
+
+
+FOR LCA OF UTLITIES:
+Impact factors need to be in unit_ImpCat/MW! if unit is kW divied my 1000 to get MW!
+
+Impact_UT = consumption (MW) * Impact_factor (kg_co2/kWh) * 1000 (to get MW) * 8760 (working hours in a year)

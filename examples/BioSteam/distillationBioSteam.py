@@ -36,9 +36,9 @@ column = bst.BinaryDistillation(
     ins=feed,
     outs=('distillate', 'bottoms'),
     LHK=('Hexane', 'Glycerol'),  # Light and heavy keys
-    y_top=0.95,  # 95% hexane in the distillate
-    x_bot=0.05,  # 5% hexane in the bottoms
-    k=1.2,  # Relative volatility factor
+    y_top=0.90,  # 95% hexane in the distillate
+    x_bot=0.1,  # 5% hexane in the bottoms
+    k=3.5,  # Relative volatility factor
     P=101325,  # Operating pressure in Pa
 )
 
