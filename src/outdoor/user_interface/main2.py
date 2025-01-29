@@ -119,6 +119,22 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         """
         if not hasattr(self.centralDataManager, 'uncertaintyData'):
             self.centralDataManager.uncertaintyData = []
+        # had a problem with the material flow in the DTO, this is a temporary fix
+
+        # the reason was that outgoing flows were not updated when output units are removed, fixed now
+        if 'c44290e5-10f9-4697-a7f1-79865df8be27' in self.centralDataManager.unitProcessData:
+            dto2Change = self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27']
+            materialFlow = dto2Change.materialFlow
+            # remove the follwing key from the dictionary: 'e872ef91-2244-4a91-8f35-92b41b3f2735'
+            for dictStream in materialFlow.values():
+                if 'e872ef91-2244-4a91-8f35-92b41b3f2735' in dictStream:
+                    dictStream.pop('e872ef91-2244-4a91-8f35-92b41b3f2735')
+                elif '1d2e7a23-ebd4-43fd-891c-d8f66ffd0249' in dictStream:
+                    dictStream.pop('1d2e7a23-ebd4-43fd-891c-d8f66ffd0249')
+            self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27'] = dto2Change
+
+
+
 
     def saveFile(self):
         """
