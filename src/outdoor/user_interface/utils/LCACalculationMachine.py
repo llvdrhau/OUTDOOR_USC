@@ -161,6 +161,7 @@ class LCACalculationMachine:
                 if k == item.uid:
                     self.logger.debug(f"Ding! {item.uid}")
                     item.LCA['Results'] = v
+                    item.calculated = True
 
 
         if write:
