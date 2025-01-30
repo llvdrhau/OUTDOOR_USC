@@ -146,7 +146,7 @@ class ComponentsTab(QWidget):
             if key in self.columnsShortnames:
                 index = self.columnsShortnames.index(key)
                 if key == "LCA":
-                    if "Results" in value:
+                    if len(value['Results']) > 0:
                         btn = LcaButton(self.componentsTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)

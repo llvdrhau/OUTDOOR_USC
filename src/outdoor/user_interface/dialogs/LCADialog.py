@@ -25,9 +25,7 @@ class LCADialog(QDialog):
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
-        logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
-        logging.getLogger("fsspec").setLevel(logging.ERROR)
+        self.logger.setLevel(logging.INFO)
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {
@@ -69,6 +67,7 @@ class LCADialog(QDialog):
         self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
 
         # TODO: Better initialization and handling of BW integration.
+        # TODO: I saw this todo literally months later and it's become a spaghetti problem please future mias fix it
         bw.projects.set_current("superstructure")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
@@ -230,13 +229,13 @@ class LCADialog(QDialog):
         self.componentsTable.clearSelection()
 
     def loadInitialData(self):
+        self.logger.debug("Loading initial data.")
         try:
             for key, value in self.dto.LCA['exchanges'].items():
-                self.logger.info("Loading initial data.")
                 self.addRowToTable(Demand=value["Demand"], Unit=value["Unit"], Region=value["Region"], Reference=value["Reference"], ID=key,
                                    Table="LCA")
         except KeyError as e:
-            self.logger.info("No initial data.")
+            self.logger.debug("No initial data.")
 
     def persistLCA(self):
         try:

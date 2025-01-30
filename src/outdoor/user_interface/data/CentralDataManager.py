@@ -45,6 +45,7 @@ class CentralDataManager:
         self._outputList: list[str] = []
         self.metadata = {}  # Stores project metadata like the name. TODO move configs into this
         self.uncertaintyData: list[UncertaintyDTO] = []
+        self.BWPROJECTNAME = "superstructure"  # this needs to be changed in the configs or something because it's actual satan.
 
     def addData(self, field, data):
         """
