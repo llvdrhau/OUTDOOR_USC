@@ -289,6 +289,21 @@ class ModelOutput:
 
         return capitalcost_shares
 
+    def _collect_LCA_results(self):
+        """
+        Collects data from the self._data dictionary. Everything related to LCA of UTILITY (heat electricity and cooling)
+        :return:
+        """
+
+        model_data = self._data
+        lca_results_utilities = {"LCA Utilities": {}}
+        impact_cat = model_data['IMPACT_CATEGORIES']
+
+        for i in impact_cat:
+            lca_results_utilities["LCA Utilities"][i] = model_data['IMPACT_TOT'][i]
+        return lca_results_utilities
+
+
     def _collect_economic_results(self):
         """
         Description
@@ -696,6 +711,7 @@ class ModelOutput:
         self.results.update(self._collect_FWD_results())
         self.results.update(self._collect_energy_data())
         self.results.update(self._collect_mass_flows())
+        self.results.update(self._collect_LCA_results())
 
     def _save_results(self, model_results, path, saveName=None):
         """

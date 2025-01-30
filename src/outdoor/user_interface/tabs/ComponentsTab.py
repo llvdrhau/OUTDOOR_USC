@@ -146,15 +146,19 @@ class ComponentsTab(QWidget):
             if key in self.columnsShortnames:
                 index = self.columnsShortnames.index(key)
                 if key == "LCA":
-                    if "Results" in value:
+                    if len(value['exchanges']) > 0 and data.calculated: # if there are results, the LCA is defined
                         btn = LcaButton(self.componentsTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        # give the button a green button color in the style of the sheet
+                        btn.changeColorBnt()
                         self.componentsTable.setCellWidget(rowPosition, index, btn)
                     else:
                         btn = LcaButton(self.componentsTable, data)
                         btn.setText("Not Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        # give the button a yellow button color in the style of the sheet
+                        btn.changeColorBnt()
                         self.componentsTable.setCellWidget(rowPosition, index, btn)
                 else:
                     insert = QTableWidgetItem(value)

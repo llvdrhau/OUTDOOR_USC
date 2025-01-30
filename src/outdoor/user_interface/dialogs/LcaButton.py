@@ -16,5 +16,21 @@ class LcaButton(QPushButton):
         if result == QDialog.Rejected:
             if self.data.calculated:
                 self.setText("Defined")
+                # color green
+                self.setStyleSheet("background-color: #00FF00")
             else:
                 self.setText("Not Defined")
+                # color red
+                self.setStyleSheet("background-color: #FF0000")
+
+    def changeColorBnt(self):
+        if self.data.calculated:
+            self.setText("Defined")
+            # color green
+            self.setStyleSheet("background-color: #00FF00")
+        else:
+            self.setText("Not Defined")
+            # color red
+            self.setStyleSheet("background-color: #FF0000")
+        # self.setEnabled(True)
+        # self.setStyleSheet("background-color: #00FF00")

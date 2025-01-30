@@ -280,7 +280,10 @@ class LCADialog(QDialog):
             act.save()
             self.logger.info("Inventory saved.")
         except Exception as e:
-            self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
+            if type(e) is IndexError:
+                self.logger.warning("Define the name for the chemical first before saving for Uuid:", self.dto.uid)
+            else:
+                self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
 
     def calculateLCA(self):
         self.logger.info("Calculation beginning. Please wait, this may take a moment.")

@@ -161,15 +161,17 @@ class UtilityTab(QWidget):
             if key in self.columnShortnames:
                 index = self.columnShortnames.index(key)
                 if key == "LCA":
-                    if "Results" in value:
+                    if len(value['exchanges']) > 0 and data.calculated:
                         btn = LcaButton(self.utilitiesTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
                         self.utilitiesTable.setCellWidget(rowPosition, index, btn)
                     else:
                         btn = LcaButton(self.utilitiesTable, data)
                         btn.setText("Not Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
                         self.utilitiesTable.setCellWidget(rowPosition, index, btn)
                 else:
                     insert = QTableWidgetItem(str(value))
@@ -192,16 +194,18 @@ class UtilityTab(QWidget):
             if key in self.tshortNames:
                 index = self.tshortNames.index(key)
                 if key == "LCA":
-                    if "Results" in value:
+                    if len(value['exchanges']) > 0:
                         btn = LcaButton(self.temperatureTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
                         self.temperatureTable.setCellWidget(rowPosition, index, btn)
                         logging.debug(f"{rowPosition} - {index} - {key}")
                     else:
                         btn = LcaButton(self.temperatureTable, data)
                         btn.setText("Not Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
                         self.temperatureTable.setCellWidget(rowPosition, index, btn)
 
                 else:
@@ -222,15 +226,18 @@ class UtilityTab(QWidget):
             if key in self.wshortNames:
                 index = self.wshortNames.index(key)
                 if key == "LCA":
-                    if "Results" in value:
+                    if len(value['exchanges']) > 0 and data.calculated:
                         btn = LcaButton(self.wasteTable, data)
                         btn.setText("Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
+                        # give the button a green
                         self.wasteTable.setCellWidget(rowPosition, index, btn)
                     else:
                         btn = LcaButton(self.wasteTable, data)
                         btn.setText("Not Defined")
                         btn.clicked.connect(btn.lcaAction)
+                        btn.changeColorBnt()
                         self.wasteTable.setCellWidget(rowPosition, index, btn)
 
                 else:
