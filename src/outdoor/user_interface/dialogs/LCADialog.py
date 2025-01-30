@@ -286,7 +286,7 @@ class LCADialog(QDialog):
         midpoint = [m for m in bw.methods if
                     "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
         endpoints = [m for m in bw.methods if
-                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m)]
+                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
         methodconfs = midpoint + endpoints
         try:
             activ = [m for m in self.outd if m['code'] == self.dto.uid][0]

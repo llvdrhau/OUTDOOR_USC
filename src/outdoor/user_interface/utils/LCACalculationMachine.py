@@ -21,7 +21,7 @@ class LCACalculationMachine:
             "utilities":False,
         }
         # TODO: second todo here because clearly one in LCADialog wasn't enough
-        bw.projects.set_current(self.centralDataManager.BWPROJECTNAME)
+        bw.projects.set_current("superstructure")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
         self.outd = bw.Database('outdoor')
@@ -91,23 +91,58 @@ class LCACalculationMachine:
         """
         self.logger.info("Calculation beginning. Please wait, this may take a moment.")
         midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
-        endpoints = [m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m)]
+        endpoints = [m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
         methodconfs = midpoint + endpoints
         inventory = []
 
         for key, value in self.possibleLCAs.items():
-            if value:
-                match key:
-                    case 'components':
-                        for component in self.centralDataManager.componentData:
-                            inventory.append({self.outd.get(component.uid):1})
-                    case 'waste':
-                        for component in self.centralDataManager.wasteData:
-                            inventory.append({self.outd.get(component.uid): 1})
-                    case 'utilities':
-                        for component in self.centralDataManager.utilityData:
-                            inventory.append({self.outd.get(component.uid): 1})
+            try:
+                if value:
+                    match key:
+                        case 'components':
+                            for component in self.centralDataManager.componentData:
+                                inventory.append({self.outd.get(component.uid):1})
+                        case 'waste':
+                            for component in self.centralDataManager.wasteData:
+                                inventory.append({self.outd.get(component.uid): 1})
+                        case 'utilities':
+                            for component in self.centralDataManager.utilityData:
+                                inventory.append({self.outd.get(component.uid): 1})
+            except Exception as e:
+                self.logger.error(f"Exception occured with uid {component.uid}, not saved in BW. Fixing.")
+                exist = len([m for m in self.outd if m["code"] == component.uid]) > 0
+                if not exist:
+                    process = {
+                        "name": component.name,
+                        "unit": "unit",
+                    }
+                    self.outd.new_activity(component.uid, **process).save()
+                    act = self.outd.search(component.uid)[0]
+                    act.new_exchange(
+                        input=act,
+                        amount=1,
+                        type='production',
+                    ).save()
+                exchanges = component.LCA['exchanges']
+                exlist = []
+                for id, dic in exchanges.values():
+                    if "process" in dic["Type"]:
+                        ex = self.eidb.get(id)
+                        exlist.append(ex, dic["Demand"])
+                    else:
+                        ex = self.bios.get(id)
+                        exlist.append(ex, dic["Demand"])
 
+                for item in exlist:
+                    ex = item[0]
+                    act.new_exchange(
+                        input=(ex['database'], ex['code']),
+                        amount=float(item[1]),
+                        unit=ex["unit"],
+                        type=ex['type'],
+                    ).save()
+                act.save()
+                self.logger.log(f"Component with uid {component.uid} has been saved.")
         calc_setup = {"inv": inventory, "ia": methodconfs}
         bw.calculation_setups["set"] = calc_setup
         mlca = bw2calc.MultiLCA("set")
@@ -120,20 +155,13 @@ class LCACalculationMachine:
             cols.append(c[3])
 
         results = pd.DataFrame(mlca.results, columns=cols, index=indic).transpose().to_dict()
-
+        biglist = self.centralDataManager.componentData + self.centralDataManager.wasteData + self.centralDataManager.utilityData
         for k, v in results.items():
-            for n in self.centralDataManager.componentData:
-                if k in n.name:
-                    n.LCA['Results'] = v
-                    continue
-            for n in self.centralDataManager.wasteData:
-                if k in n.name:
-                    n.LCA['Results'] = v
-                    continue
-            for n in self.centralDataManager.utilityData:
-                if k in n.name:
-                    n.LCA['Results'] = v
-                    continue
+            for item in biglist:
+                if k == item.uid:
+                    self.logger.debug(f"Ding! {item.uid}")
+                    item.LCA['Results'] = v
+
 
         if write:
             self.logger.info("Writing results to file.")
