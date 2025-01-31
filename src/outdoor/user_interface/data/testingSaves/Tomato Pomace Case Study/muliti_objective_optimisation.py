@@ -7,7 +7,7 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 # get current working directory
 current_path = os.getcwd()
 # add the file name Aurelie_peptide_production_superstructure.pkl to the current working directory
-path = os.path.join(current_path, "Tomato_Pomace_superstructure_superstructure.pkl")
+path = os.path.join(current_path, "TP_case_study_superstructure.pkl")
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
@@ -23,8 +23,8 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
                  "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
 
 multi_objective_options = {"objective1": "EBIT",
-                           "objective2": "NPE",
-                           "paretoPoints": 10}
+                           "objective2": "global warming potential ",
+                           "paretoPoints": 5}
 
 model_output = solverObject.solve_optimization_problem(input_data=superstructureObj,
                                                        optimization_mode='multi-objective',

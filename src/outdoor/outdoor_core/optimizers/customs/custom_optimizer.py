@@ -155,9 +155,9 @@ class MultiObjectiveOptimizer(SingleOptimizer):
             model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
 
         else:
-            if objective in model_instance.impact_categories_list:
+            if objective in list(model_instance.IMPACT_CATEGORIES):
                 def Objective_rule(Instance):
-                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name]
+                    return Instance.IMPACT_TOT[objective]
                 model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
 
             else:
