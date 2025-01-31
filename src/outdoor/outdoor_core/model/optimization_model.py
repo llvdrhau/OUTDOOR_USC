@@ -49,7 +49,7 @@ class SuperstructureModel(AbstractModel):
         self.loadType = superstructure_input.loadType
 
         # list of impact categories should be the same as the set created in the model, see self.IMPACT_CATEGORIES
-        self.impact_categories_list = []
+        self.impact_categories_list = superstructure_input.ImpactCategories['IMPACT_CATEGORIES']
 
         if superstructure_input.HP_active:
             self.heat_pump_options = {
@@ -1447,13 +1447,15 @@ class SuperstructureModel(AbstractModel):
         self.IMPACT_UTILITIES = Var(self.UT, self.IMPACT_CATEGORIES)
         self.IMPACT_UTILITIES_PER_CAT = Var(self.IMPACT_CATEGORIES)
 
+        # util_impact_factors['electricity'] units: kgCO2/MWh and ENERGY_DEMAND_TOTAL['electricity'] units: MW
+
         # set the constraints
         def LCA_Utility_rule(self, ut, impCat):
             if ut == "Electricity":
-                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut] + self.ENERGY_DEMAND_HP_EL * self.H)
+                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut] * self.H + self.ENERGY_DEMAND_HP_EL * self.H)
                         * self.util_impact_factors[ut, impCat])
             elif ut == "Chilling":
-                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut] * self.util_impact_factors[ut, impCat]
+                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut]* self.H * self.util_impact_factors[ut, impCat]
 
             elif ut == "Heat":
                 return (self.IMPACT_UTILITIES[ut, impCat] == self.H * self.util_impact_factors[ut]
@@ -1486,7 +1488,7 @@ class SuperstructureModel(AbstractModel):
         # totla impact per catagorie:  the the sum of all impacts, inflow, utilities and waste
         self.IMPACT_TOT = Var(self.IMPACT_CATEGORIES)
         def LCA_Total_Impact_rule(self, impCat):
-            return self.IMPACT_TOT[impCat] == self.IMPACT_INPUTS_PER_CAT[impCat] + self.IMPACT_UTILITIES_PER_CAT[impCat] + self.WASTE_TOT[impCat]
+            return self.IMPACT_TOT[impCat] == (self.IMPACT_INPUTS_PER_CAT[impCat] + self.IMPACT_UTILITIES_PER_CAT[impCat] + self.WASTE_TOT[impCat]) /self.sourceOrProductLoad
 
         self.LCA_Total_Impact = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Total_Impact_rule)
 
