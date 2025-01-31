@@ -96,53 +96,17 @@ class LCACalculationMachine:
         inventory = []
 
         for key, value in self.possibleLCAs.items():
-            try:
-                if value:
-                    match key:
-                        case 'components':
-                            for component in self.centralDataManager.componentData:
-                                inventory.append({self.outd.get(component.uid):1})
-                        case 'waste':
-                            for component in self.centralDataManager.wasteData:
-                                inventory.append({self.outd.get(component.uid): 1})
-                        case 'utilities':
-                            for component in self.centralDataManager.utilityData:
-                                inventory.append({self.outd.get(component.uid): 1})
-            except Exception as e:
-                self.logger.error(f"Exception occured with uid {component.uid}, not saved in BW. Fixing.")
-                exist = len([m for m in self.outd if m["code"] == component.uid]) > 0
-                if not exist:
-                    process = {
-                        "name": component.name,
-                        "unit": "unit",
-                    }
-                    self.outd.new_activity(component.uid, **process).save()
-                    act = self.outd.search(component.uid)[0]
-                    act.new_exchange(
-                        input=act,
-                        amount=1,
-                        type='production',
-                    ).save()
-                exchanges = component.LCA['exchanges']
-                exlist = []
-                for id, dic in exchanges.values():
-                    if "process" in dic["Type"]:
-                        ex = self.eidb.get(id)
-                        exlist.append(ex, dic["Demand"])
-                    else:
-                        ex = self.bios.get(id)
-                        exlist.append(ex, dic["Demand"])
-
-                for item in exlist:
-                    ex = item[0]
-                    act.new_exchange(
-                        input=(ex['database'], ex['code']),
-                        amount=float(item[1]),
-                        unit=ex["unit"],
-                        type=ex['type'],
-                    ).save()
-                act.save()
-                self.logger.log(f"Component with uid {component.uid} has been saved.")
+            if value:
+                match key:
+                    case 'components':
+                        for component in self.centralDataManager.componentData:
+                            inventory.append({self.outd.get(component.uid):1})
+                    case 'waste':
+                        for component in self.centralDataManager.wasteData:
+                            inventory.append({self.outd.get(component.uid): 1})
+                    case 'utilities':
+                        for component in self.centralDataManager.utilityData:
+                            inventory.append({self.outd.get(component.uid): 1})
         calc_setup = {"inv": inventory, "ia": methodconfs}
         bw.calculation_setups["set"] = calc_setup
         mlca = bw2calc.MultiLCA("set")
