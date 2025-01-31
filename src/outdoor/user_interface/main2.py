@@ -16,6 +16,7 @@ from data.TabManager import TabManager
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
 
 from outdoor.user_interface.WelcomeTab import WelcomeTab
+from outdoor.user_interface.utils.LCACalculationMachine import LCACalculationMachine
 from tabs.ComponentsTab import ComponentsTab
 from tabs.GeneralSystemDataTab import GeneralSystemDataTab
 from tabs.UtilityTab import UtilityTab
@@ -45,8 +46,10 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         # add the logger
         self.logger = logging.getLogger()
-        coloredlogs.install(logger=self.logger, level='DEBUG')
-
+        coloredlogs.install(logger=self.logger, level='DEBUG',isatty=True)
+        logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
+        logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
+        logging.getLogger("fsspec").setLevel(logging.ERROR)
         self.setWindowTitle("OUTDOOR 2.0 - Open Source Process Simulator")
         self.setGeometry(100, 100, 1200, 800)
         self.ProjectName = ""
@@ -85,7 +88,10 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         structureMenu = menu_bar.addMenu('Superstructure')
         self.superStructureAction = QAction('Generate Superstructure', self)
         self.superStructureAction.triggered.connect(self.generateSuperstructureObject)
+        self.calcLCAAction = QAction('Calculate all LCAs', self)
+        self.calcLCAAction.triggered.connect(self.calculateAllLCAs)
         structureMenu.addAction(self.superStructureAction)
+        structureMenu.addAction(self.calcLCAAction)
 
         self.initTabs()
 
@@ -310,6 +316,15 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         self.logger.info("Superstructure Object Saved in: {}".format(superstructurePath))
 
+    def calculateAllLCAs(self):
+        """
+        Instead of manually calculating LCAs as you model them, this does it all at once.
+        :return:
+        """
+        calculator = LCACalculationMachine(self.centralDataManager)
+        calculator.possibleToCalculate()
+        if True in calculator.possibleLCAs.values():
+            calculator.calculate(write=True)
 
 def checkFocus():
     """
