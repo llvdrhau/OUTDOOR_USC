@@ -42,7 +42,7 @@ class LCACalculationMachine:
                 valid_components += 1
             else:
                 missing_components.append(component.name)
-        if valid_components == required_components & valid_components != 0:
+        if valid_components == required_components and valid_components != 0:
             self.logger.info("All components are valid.")
             self.possibleLCAs['components'] = True
         else:
@@ -59,8 +59,7 @@ class LCACalculationMachine:
                 valid_waste += 1
             else:
                 missing_waste.append(waste.name)
-        if valid_waste == required_components & valid_waste != 0:
-            self.logger.info("All wastes are valid.")
+        if valid_waste == required_waste and valid_waste != 0:
             self.possibleLCAs['waste'] = True
         else:
             self.logger.warning(f"There are {required_waste - valid_waste} wastes missing exchanges: {missing_waste}.")
@@ -70,10 +69,11 @@ class LCACalculationMachine:
         missing_utilities = []
         for utilities in self.centralDataManager.utilityData:
             if len(utilities.LCA['exchanges']) > 0:
+                self.logger.debug(f"Ding!")
                 valid_utilities += 1
             else:
                 missing_utilities.append(utilities.name)
-        if valid_utilities == required_components & valid_utilities != 0:
+        if valid_utilities == required_utilities and valid_utilities != 0:
             self.logger.info("All utilities are valid.")
             self.possibleLCAs['utilities'] = True
         else:
@@ -96,17 +96,21 @@ class LCACalculationMachine:
         inventory = []
 
         for key, value in self.possibleLCAs.items():
-            if value:
-                match key:
-                    case 'components':
-                        for component in self.centralDataManager.componentData:
-                            inventory.append({self.outd.get(component.uid):1})
-                    case 'waste':
-                        for component in self.centralDataManager.wasteData:
-                            inventory.append({self.outd.get(component.uid): 1})
-                    case 'utilities':
-                        for component in self.centralDataManager.utilityData:
-                            inventory.append({self.outd.get(component.uid): 1})
+            try:
+                if value:
+                    match key:
+                        case 'components':
+                            for component in self.centralDataManager.componentData:
+                                inventory.append({self.outd.get(component.uid):1})
+                        case 'waste':
+                            for component in self.centralDataManager.wasteData:
+                                inventory.append({self.outd.get(component.uid): 1})
+                        case 'utilities':
+                            for component in self.centralDataManager.utilityData:
+                                inventory.append({self.outd.get(component.uid): 1})
+            except Exception as e:
+                self.logger.error(f"Remember to save to your brightway: {key}: {e}")
+                return
         calc_setup = {"inv": inventory, "ia": methodconfs}
         bw.calculation_setups["set"] = calc_setup
         mlca = bw2calc.MultiLCA("set")
