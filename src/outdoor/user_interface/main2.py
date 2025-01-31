@@ -1,3 +1,4 @@
+import argparse
 import os
 import pickle
 import sys
@@ -29,24 +30,17 @@ from outdoor.user_interface.data.ProcessDTO import ProcessType
 
 import logging
 
-# Get the current working directory
-current_path = os.getcwd()
-# Print the current working directory
-print(f"Current working directory: {current_path}")
-
-
 class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
     """
     This class creates the main window for the application and sets up the menu bar and tabbed interface.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
-
         # add the logger
         self.logger = logging.getLogger()
-        coloredlogs.install(logger=self.logger, level='DEBUG',isatty=True)
+        coloredlogs.install(logger=self.logger, level=kwargs['level'],isatty=True)
         logging.getLogger('peewee').setLevel(logging.ERROR)  # This is to make brightway shut up
         logging.getLogger("bw2calc").setLevel(logging.ERROR)  # This is to make brightway shut up
         logging.getLogger("fsspec").setLevel(logging.ERROR)
@@ -101,22 +95,26 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
     def openFile(self):
         # There has to be a way to handle "i cancelled the load" that's not this trash
-        filepath = QFileDialog(self, caption='Open Saved Project', filter='*.outdr', directory='data/frames')
-        filepath.exec()
+        try:
+            filepath = QFileDialog(self, caption='Open Saved Project', filter='*.outdr', directory='data/frames')
+            filepath.exec()
 
-        self.ProjectPath = filepath.selectedFiles()[0]
-        self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
-        with open(self.ProjectPath, 'rb') as file:
-            self.centralDataManager = pickle.load(file)
-        self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
-        self.centralDataManager.loadConfigs()
-        self.signalManager = SignalManager(self.centralDataManager)  # Initialize the new output manager
-        # check if there are missing attributes in the centralDataManager
-        self.checkMissingAttributes()
+            self.ProjectPath = filepath.selectedFiles()[0]
+            self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
+            with open(self.ProjectPath, 'rb') as file:
+                self.centralDataManager = pickle.load(file)
+            self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
+            self.centralDataManager.loadConfigs()
+            self.signalManager = SignalManager(self.centralDataManager)  # Initialize the new output manager
+            # check if there are missing attributes in the centralDataManager
+            self.checkMissingAttributes()
 
-        self.initTabs()
-        self.enableSave()
-        self.logger.info("Opened File: {}".format(self.ProjectPath))
+            self.initTabs()
+            self.enableSave()
+            self.logger.debug("Opened File: {}".format(self.ProjectPath))
+        except Exception as e:
+            #Guess the load got cancelled. This has never failed in the past so if it fails now undo whatever you did.
+            pass
 
     def checkMissingAttributes(self):
         """
@@ -214,7 +212,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         with open(self.ProjectPath, 'wb') as file:
             pickle.dump(self.centralDataManager, file)
-        print("Saved File: ", self.ProjectPath)
+        self.logger.info("Saved File: ", self.ProjectPath)
         self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
 
     def saveAsFile(self):
@@ -238,7 +236,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 pickle.dump(self.centralDataManager, file)
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
-            print("Saved File: ", self.ProjectPath)
+            self.logger.debug("Saved File: ", self.ProjectPath)
             self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
 
         except Exception as e:
@@ -247,10 +245,10 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
     def editConfigs(self):
         dialog = ConfigEditor(self.centralDataManager)
         if dialog.exec_():
-            print("Editing configs")
+            pass
         else:
-            print("Editing configs concluded.")
-        self.initTabs()
+            pass
+        self.update()
 
     def initTabs(self, index=None):
         # Create a QTabWidget and set it as the central widget
@@ -280,8 +278,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         tabWidget.addTab(uncertaintyTab, "Uncertainty")
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
-        if index is not None:
-            tabWidget.setCurrentIndex(index)
 
     def generateSuperstructureObject(self):
         """
@@ -316,7 +312,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         calculator = LCACalculationMachine(self.centralDataManager)
         calculator.calculateAllLCAs(True)
 
-        self.initTabs()
+        self.update()
 
 def checkFocus():
     """
@@ -331,12 +327,17 @@ def checkFocus():
     return currentFocusWidget
 
 
-def main():
+def main(**kwargs):
     app = QApplication(sys.argv)
-    main_window = MainWindow()
+    main_window = MainWindow(**kwargs)
     main_window.show()
     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--level", type=str, help="log level", default="DEBUG")
+    args = parser.parse_args()
+
+    kwargs = vars(args)
+    main(**kwargs)

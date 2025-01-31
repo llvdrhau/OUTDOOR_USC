@@ -100,7 +100,7 @@ class Canvas(QGraphicsView):
         event.accept()
 
     def dropEvent(self, event):
-        print('dropped icon')
+        self.logger.debug('dropped icon')
         mimeData = event.mimeData()
         if mimeData.hasText():
             # Extract the necessary information from the MIME data
@@ -198,7 +198,7 @@ class Canvas(QGraphicsView):
                 return
 
             # Start drawing a new line from this port
-            self.logger.info("Start drawing a new line from the port")
+            self.logger.debug("Start drawing a new line from the port")
 
             self.startPort = port
             self.startPoint = pos  # Always corresponds to the exit port
@@ -237,7 +237,7 @@ class Canvas(QGraphicsView):
             # do not connect two split icons with each other
             return
 
-        self.logger.info("End drawing a new line from the port")
+        self.logger.debug("End drawing a new line from the port")
 
         self.endPort = port
         self.endPoint = pos  # allways corresponds to the entry port
@@ -288,7 +288,7 @@ class Canvas(QGraphicsView):
         if sendingIconType == ProcessType.INPUT:
             unitDTOReceiving.updateProcessDTO(field=UpdateField.INPUT_FLOW,
                                               value=unitDTOSending.uid)
-            self.logger.info("Input {} given to unit {}:".format(unitDTOSending.uid, unitDTOReceiving.uid))
+            self.logger.debug("Input {} given to unit {}:".format(unitDTOSending.uid, unitDTOReceiving.uid))
             self.logger.debug("The inputs going into Unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
 
         elif (sendingIconType.value in [1, 2, 3, 4, 5, 6] and
@@ -327,7 +327,7 @@ class Canvas(QGraphicsView):
                                       "are: {}".format(receivingID, receivingDTO.incomingUnitFlows))
 
 
-            self.logger.info("Distribution Connection between {} and {} established".format(ownerDTO.uid,
+            self.logger.debug("Distribution Connection between {} and {} established".format(ownerDTO.uid,
                                                                                             self.endPort.iconID))
             self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
             self.logger.debug("The stream classification is: {}".format(ownerDTO.classificationStreams))
@@ -350,7 +350,7 @@ class Canvas(QGraphicsView):
                 updateValue = (self.endPort.iconID, ownerStream)
                 ownerDTO.updateProcessDTO(field=UpdateField.DISTRIBUTION_CONNECTION, value=updateValue)
 
-                self.logger.info("Distribution Connection between {} and {} established".format(ownerID,
+                self.logger.debug("Distribution Connection between {} and {} established".format(ownerID,
                                                                                                 self.endPort.iconID))
                 self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
                 self.logger.debug("The stream classification is: {}".format(ownerDTO.classificationStreams))
@@ -366,7 +366,7 @@ class Canvas(QGraphicsView):
                     return errorFlag
 
                 else:
-                    self.logger.info("Incoming unit Flow id {} given to the receiving "
+                    self.logger.debug("Incoming unit Flow id {} given to the receiving "
                                      "UnitDTO {}".format(ownerID, unitDTOReceiving.uid))
                     self.logger.debug("Incoming flow ids for the receiving unitDTO "
                                       "are: ".format(unitDTOReceiving.incomingUnitFlows))
@@ -377,19 +377,19 @@ class Canvas(QGraphicsView):
             unitDTOSending.updateProcessDTO(field=UpdateField.CONNECTION,
                                             value=(self.startPort, self.endPort))
 
-            self.logger.info("Connection between {} and {} established".format(self.startPort.iconID, self.endPort.iconID))
+            self.logger.debug("Connection between {} and {} established".format(self.startPort.iconID, self.endPort.iconID))
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The stream classification is: {}".format(unitDTOSending.classificationStreams))
 
             errorFlag = unitDTOReceiving.updateProcessDTO(field=UpdateField.INCOMING_UNIT_FLOWS,
                                               value={unitDTOSending.uid: self.startPort.exitStream})
             if errorFlag:
-                self.logger.debug(
+                self.logger.warning(
                     f"Error Updating incoming unit flows for process {unitDTOReceiving.name} but the Unit {unitDTOSending.name} is already \n"
                     f"conected by another stream with a different boolean connector. ABORTING CONNECTION")
 
             else:
-                self.logger.info("Incoming unit Flow id {} given to the receiving "
+                self.logger.debug("Incoming unit Flow id {} given to the receiving "
                                  "unitDTO {}".format(unitDTOSending.uid, unitDTOReceiving.uid))
                 self.logger.debug("Incoming flow ids for the receiving unitDTO are: "
                                   "{}".format(unitDTOReceiving.incomingUnitFlows))
@@ -436,7 +436,7 @@ class Canvas(QGraphicsView):
         """
         if event.key() == Qt.Key_Backspace:
             for item in self.scene.selectedItems():
-                self.logger.info("Removing Item: {}".format(item))
+                self.logger.debug("Removing Item: {}".format(item))
                 if isinstance(item, MovableIcon):
                     # get the ID of the icon (to remove it from the centralDataManager)
                     iconID = item.iconID
@@ -451,7 +451,7 @@ class Canvas(QGraphicsView):
                     # updated
                     for port in item.ports:
                         #port.occupied = False
-                        self.logger.info("Before Port {} # connectionLines: {}".format(port, len(port.connectionLines)))
+                        self.logger.debug("Before Port {} # connectionLines: {}".format(port, len(port.connectionLines)))
                         connectionLines = port.connectionLines
                         for line in connectionLines:
                             # if the start port is not the port that is being deleted it is an outer port
@@ -493,7 +493,7 @@ class Canvas(QGraphicsView):
         elif event.key() == Qt.Key_Escape:
             if self.currentLine is not None:
                 # If currently drawing a line, cancel it
-                self.logger.info("Escape key pressed. Cancelling line drawing.")
+                self.logger.debug("Escape key pressed. Cancelling line drawing.")
                 self.scene.removeItem(self.currentLine)
 
                 # Reset the start and end points
@@ -524,7 +524,7 @@ class Canvas(QGraphicsView):
             for id in inputFlowsToUpdate:
                 unitDTOReceivingInput = self.centralDataManager.unitProcessData[id]
                 unitDTOReceivingInput.inputFlows.remove(icon2Delete.iconID)
-                self.logger.info("Input {} removed from the receiving unitDTO {}".format(icon2Delete.iconID,
+                self.logger.debug("Input {} removed from the receiving unitDTO {}".format(icon2Delete.iconID,
                                                                                          unitDTOReceivingInput.uid))
                 self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceivingInput.uid, unitDTOReceivingInput.inputFlows))
 
@@ -561,8 +561,8 @@ class Canvas(QGraphicsView):
             for id in outputFlowsToUpdate:
                 unitDTOSending = self.centralDataManager.unitProcessData[id]
                 unitDTOSending.removeFromMaterialFlow(outputID)
-                self.logger.info("Connection {} removed from the sending unitDTO".format(outputID))
-                self.logger.info("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
+                self.logger.debug("Connection {} removed from the sending unitDTO".format(outputID))
+                self.logger.debug("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
                 self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
                 self.logger.debug("The classification streams are: {}".format(unitDTOSending.classificationStreams))
 
@@ -611,8 +611,8 @@ class Canvas(QGraphicsView):
                         ownerDTO.removeFromMaterialFlow(icon2Delete.iconID)
 
                         # log the changes
-                        self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
-                        self.logger.info("The amount of connections is: {}".format(len(ownerDTO.materialFlow)))
+                        self.logger.debug("Connection {} removed from the sending unitDTO".format(ownerID))
+                        self.logger.debug("The amount of connections is: {}".format(len(ownerDTO.materialFlow)))
                         self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
                         self.logger.debug("The classification streams are: {}".format(ownerDTO.classificationStreams))
 
@@ -622,8 +622,8 @@ class Canvas(QGraphicsView):
                 else:  # if the sending unit is not a distributor, the connection to the receiving unit needs to be removed
                     # remove the connection from the sending unitDTO (that is remove connection to current icon)
                     unitDTOSending.removeFromMaterialFlow(icon2Delete.iconID)  # remove the connection current Icon from the sending unitDTO
-                    self.logger.info("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
-                    self.logger.info("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
+                    self.logger.debug("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
+                    self.logger.debug("The amount of connections is: {}".format(len(unitDTOSending.materialFlow)))
                     self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
                     self.logger.debug("The classification streams are: {}".format(unitDTOSending.classificationStreams))
 
@@ -632,11 +632,11 @@ class Canvas(QGraphicsView):
                 if unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR:
                     pass
                     # unitDTOReceiving.distributionContainer.remove(icon2Delete.iconID)
-                    # self.logger.info("Connection {} removed from the distribution container".format(icon2Delete.iconID))
+                    # self.logger.debug("Connection {} removed from the distribution container".format(icon2Delete.iconID))
                 else:
                     unitDTOReceiving.incomingUnitFlows.pop(icon2Delete.iconID)
-                    self.logger.info("Incoming Flow id {} removed from the receiving unitDTO".format(icon2Delete.iconID))
-                    self.logger.info("Incoming flow UIDs for unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
+                    self.logger.debug("Incoming Flow id {} removed from the receiving unitDTO".format(icon2Delete.iconID))
+                    self.logger.debug("Incoming flow UIDs for unit {} are: {}".format(unitDTOReceiving.uid, unitDTOReceiving.inputFlows))
 
     def mousePressEvent(self, event):
         """
@@ -1135,12 +1135,12 @@ class MovableIcon(QGraphicsObject):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        self.logger.info("Icon {} released. Current position: {}".format(self.iconID, self.pos()))
+        self.logger.debug("Icon {} released. Current position: {}".format(self.iconID, self.pos()))
         # update the position of the icon in the centralDataManager
         self.centralDataManager.unitProcessData[self.iconID].positionOnCanvas = self.pos()
         # get the scene items
         sceneItems = self.scene().items()
-        self.logger.info("Scene items: {}".format(len(sceneItems)))
+        self.logger.debug("Scene items: {}".format(len(sceneItems)))
         self.setCursor(Qt.OpenHandCursor)
         self.dragStartPosition = None
         super().mouseReleaseEvent(event)  # Ensure the event is propagated
@@ -1228,9 +1228,9 @@ class MovableIcon(QGraphicsObject):
             unitDTO.updateProcessDTO(field=UpdateField.MATERIALFLOW, value=None)
 
 
-            self.logger.info("{} Dialog accepted".format(self.icon_type))
+            self.logger.debug("{} Dialog accepted".format(self.icon_type))
         else:
-            self.logger.info("{} Dialog canceled".format(self.icon_type))
+            self.logger.debug("{} Dialog canceled".format(self.icon_type))
 
     def updateIconExitPorts(self, ports2Active:list, processDTO:ProcessDTO):
         """
@@ -1390,7 +1390,7 @@ class InteractiveLine(QGraphicsPathItem):
     def keyPressEvent(self, event):
         # terminate drawing is in the canvas class, this is to delete established lines
         if (event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete) and self.selected:
-            self.logger.info("Delete key pressed. Deleting line with start port {} and end port {}".format(
+            self.logger.debug("Delete key pressed. Deleting line with start port {} and end port {}".format(
                 self.startPort.iconID, self.endPort.iconID if self.endPort else "None"
             ))
 
@@ -1410,10 +1410,10 @@ class InteractiveLine(QGraphicsPathItem):
 
             # Delete the line if the Backspace key is pressed while the line is selected
             self.setSelectedLine(False)
-            #self.logger.info("The scene is: {}".format(self.scene()))
+            #self.logger.debug("The scene is: {}".format(self.scene()))
             self._findFoucs("The focus BEFORE deleting the line")
             print('')
-            self.logger.info("Scene items before deletion: {}".format(len(self.scene().items())))
+            self.logger.debug("Scene items before deletion: {}".format(len(self.scene().items())))
             self.scene().removeItem(self)
 
             # revisit this part of the code
@@ -1422,10 +1422,10 @@ class InteractiveLine(QGraphicsPathItem):
             except:
                 sceneItems =None
 
-            self.logger.info("Scene items after deletion: {}".format(sceneItems))
+            self.logger.debug("Scene items after deletion: {}".format(sceneItems))
             # it's strange no items are found in the scene after deleting the line...
 
-            #self.logger.info("The scene after deleting is: {}".format(self.scene()))
+            #self.logger.debug("The scene after deleting is: {}".format(self.scene()))
             #self._findFoucs("The focus AFTER deleting the line")
 
 
@@ -1446,7 +1446,7 @@ class InteractiveLine(QGraphicsPathItem):
         if unitDTOSending.type == ProcessType.INPUT:
             # update the input flow of the receiving unit
             unitDTOReceiving.inputFlows.remove(self.startPort.iconID)
-            self.logger.info("Input {} removed from the receiving unitDTO {}".format(unitDTOSending.uid,
+            self.logger.debug("Input {} removed from the receiving unitDTO {}".format(unitDTOSending.uid,
                                                                                      unitDTOReceiving.uid))
             self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceiving.uid,
                                                                        unitDTOReceiving.inputFlows))
@@ -1474,7 +1474,7 @@ class InteractiveLine(QGraphicsPathItem):
             # reset the ownership of the distribution unit
             unitDTOReceiving.distributionOwner = None
 
-            self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
+            self.logger.debug("Connection {} removed from the sending unitDTO".format(ownerID))
             self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
             self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
@@ -1488,7 +1488,7 @@ class InteractiveLine(QGraphicsPathItem):
                 ownerID = unitDTOSending.distributionOwner[0]
                 ownerDTO = self.centralDataManager.unitProcessData[ownerID]
                 ownerDTO.removeFromMaterialFlow(id2Delete)
-                self.logger.info("Connection {} removed from the sending unitDTO".format(ownerID))
+                self.logger.debug("Connection {} removed from the sending unitDTO".format(ownerID))
                 self.logger.debug("The connections are: {}".format(ownerDTO.materialFlow))
                 self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
@@ -1503,7 +1503,7 @@ class InteractiveLine(QGraphicsPathItem):
             # remove the connection from the sending unitDTO
             # remove the connection from the receiving unitDTO
             unitDTOSending.removeFromMaterialFlow(self.endPort.iconID)
-            self.logger.info("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
+            self.logger.debug("Connection {} removed from the sending unitDTO".format(self.endPort.iconID))
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The classification of streams are: {}".format(unitDTOSending.classificationStreams))
 
@@ -1515,9 +1515,9 @@ class InteractiveLine(QGraphicsPathItem):
     def _findFoucs(self, text):
         focused_widget = QApplication.focusWidget()
         if focused_widget:
-            self.logger.info("{}: {}".format(text, focused_widget))
+            self.logger.debug("{}: {}".format(text, focused_widget))
         else:
-            self.logger.info("No widget currently has focus.")
+            self.logger.debug("No widget currently has focus.")
 
     def updateAppearance(self):
         path = QPainterPath(self.startPoint)

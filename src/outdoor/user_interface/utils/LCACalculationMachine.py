@@ -46,7 +46,7 @@ class LCACalculationMachine:
                 try:
                     inventory.append({self.outd.get(component.uid): 1})
                 except Exception as e:
-                    self.logger.debug(f"Looks like component {component.name} hasn't been saved to BW yet. Try reopening the LCA dialog and clicking the 'Persist' button.")
+                    self.logger.warning(f"Looks like component {component.name} hasn't been saved to BW yet. Try reopening the LCA dialog and clicking the 'Persist' button.")
                     incomplete_count += 1
                     if component.__class__.__name__ in incomplete:
                         incomplete[component.__class__.__name__].append(component.name)
