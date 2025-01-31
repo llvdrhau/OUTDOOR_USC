@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             print("Editing configs concluded.")
         self.initTabs()
 
-    def initTabs(self):
+    def initTabs(self, index=None):
         # Create a QTabWidget and set it as the central widget
         tabWidget = QTabWidget()
         self.setCentralWidget(tabWidget)
@@ -269,16 +269,6 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                                             signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
-        # add the tabs to the tabManager
-        self.tabManager.addTab(welcomeTab, "WelcomeTab")
-        self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
-        self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
-        self.tabManager.addTab(componentsTab, "ComponentsTab")
-        self.tabManager.addTab(reactionsTab, "ReactionsTab")
-        self.tabManager.addTab(utilityTab, "UtilityTab")
-        self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
-        self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
-
         # Add tabs to the QTabWidget
         tabWidget.addTab(welcomeTab, "Welcome")
         tabWidget.addTab(projectDescriptionTab, "Project Description")
@@ -290,6 +280,8 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         tabWidget.addTab(uncertaintyTab, "Uncertainty")
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
+        if index is not None:
+            tabWidget.setCurrentIndex(index)
 
     def generateSuperstructureObject(self):
         """
@@ -322,9 +314,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return:
         """
         calculator = LCACalculationMachine(self.centralDataManager)
-        calculator.possibleToCalculate()
-        if True in calculator.possibleLCAs.values():
-            calculator.calculate(write=True)
+        calculator.calculateAllLCAs(True)
+
+        self.initTabs()
 
 def checkFocus():
     """
