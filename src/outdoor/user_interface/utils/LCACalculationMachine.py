@@ -42,6 +42,7 @@ class LCACalculationMachine:
         incomplete = {}
         incomplete_count = 0
         for component in biglist:
+            component.LCA['Results'] = {}
             if len(component.LCA['exchanges']) >0:
                 try:
                     inventory.append({self.outd.get(component.uid): 1})

@@ -1,4 +1,6 @@
 import difflib
+import hashlib
+import json
 import logging
 import sys
 from types import TracebackType
@@ -25,7 +27,6 @@ class LCADialog(QDialog):
     def __init__(self, initialData: OutdoorDTO):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
         self.logger.debug(f"Initializing LCADialog for {initialData.name} with UID {initialData.uid}")
         self.setStyleSheet("""
                                     QDialog {
@@ -65,7 +66,7 @@ class LCADialog(QDialog):
                                 """)
         self.setWindowTitle("LCA Lookup")
         self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
-
+        self.lca_checksum = ""
         # TODO: Better initialization and handling of BW integration.
         # TODO: I saw this todo literally months later and it's become a spaghetti problem please future mias fix it
         bw.projects.set_current("superstructure")
@@ -234,9 +235,10 @@ class LCADialog(QDialog):
             for key, value in self.dto.LCA['exchanges'].items():
                 self.addRowToTable(Demand=value["Demand"], Unit=value["Unit"], Region=value["Region"], Reference=value["Reference"], ID=key,
                                    Table="LCA")
+            self.lca_checksum = hashlib.sha256(json.dumps(self.dto.LCA['exchanges'],sort_keys=True).encode()).hexdigest()
         except KeyError as e:
             self.logger.debug("No initial data.")
-
+        self.logger.debug("LCA checksum is: " + self.lca_checksum)
     def persistLCA(self):
         try:
             exist = len([m for m in self.outd if m["code"] == self.dto.uid]) > 0
@@ -278,6 +280,7 @@ class LCADialog(QDialog):
                 ).save()
             act.save()
             self.logger.info("Inventory saved.")
+
         except Exception as e:
             if type(e) is IndexError:
                 self.logger.warning("Define the name for the chemical first before saving for Uuid:", self.dto.uid)
@@ -299,7 +302,6 @@ class LCADialog(QDialog):
             mlca = bc.MultiLCA("setup")
             indic = []
             for f in mlca.func_units:
-                print(str(f).split('\'')[1])
                 indic.append(str(f).split('\'')[1])
 
             cols = []
@@ -319,4 +321,15 @@ class LCADialog(QDialog):
             self.logger.error(e, e.with_traceback(sys.exc_info()[2]))
             if type(e) is IndexError:
                 self.logger.warning("Didn't find the uuid in bw:", self.dto.uid)
+            self.dto.calculated = False
+
+    def close(self):
+        #TODO add a popup that says "woah honey you got a mismatch between this and brightway"
+        #or like... automagically write to brightway on close? I dunno.
+        test_sum = hashlib.sha256(json.dumps(self.dto.LCA['exchanges'], sort_keys=True).encode()).hexdigest()
+        self.logger.debug(f"Testsum: {test_sum}")
+        if test_sum != self.lca_checksum:
+            self.logger.debug(
+                f"Original LCA checksum: {self.lca_checksum} and new checksum: {test_sum} do not match, deleting impacts.")
+            self.dto.LCA['Results'] = {}
             self.dto.calculated = False
