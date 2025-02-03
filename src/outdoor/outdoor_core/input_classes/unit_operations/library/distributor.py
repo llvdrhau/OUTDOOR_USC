@@ -43,7 +43,7 @@ class Distributor (VirtualProcess):
         super().__init__(Name, UnitNumber,  Parent)
 
         self.Type = "Distributor"
-        self.decimal_numbers = {'Decimal_numbers': {}}
+        self.decimal_numbers = {'decimal_numbers': {}}
         self.decimal_set = []
         self.decimal_place = self.set_decimalPlace(Decimal_place)
         self.targets = []
@@ -61,7 +61,7 @@ class Distributor (VirtualProcess):
     def calc_decimalNumbers(self):
         X = [1, 2, 4 ,8]
         XO = 0
-        self.decimal_numbers['Decimal_numbers'][self.Number,0] = XO
+        self.decimal_numbers['decimal_numbers'][self.Number,0] = XO
         self.decimal_set.append((self.Number,0))
 
         for i in range(1,self.decimal_place+1):
@@ -70,7 +70,7 @@ class Distributor (VirtualProcess):
                 idx = idx + (i-1) * 4
                 entr = j / (10**i)
 
-                self.decimal_numbers['Decimal_numbers'][self.Number,idx] = entr
+                self.decimal_numbers['decimal_numbers'][self.Number,idx] = entr
                 self.decimal_set.append((self.Number,idx))
 
 
@@ -80,28 +80,28 @@ class Distributor (VirtualProcess):
         super().fill_unitOperationsList(superstructure)
 
         if not hasattr(superstructure, 'distributor_list'):
-            setattr(superstructure, 'distributor_subset', {'U_DIST_SUB': []})
-            setattr(superstructure, 'distributor_list', {'U_DIST': []})
+            setattr(superstructure, 'distributor_subset', {'PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS': []})
+            setattr(superstructure, 'distributor_list', {'DISTRIBUTORS': []})
             setattr(superstructure, 'decimal_vector', {'D_VEC': []})
-            setattr(superstructure, 'decimal_set', {'DC_SET': []})
-            setattr(superstructure, 'distributor_subset2', {'U_DIST_SUB2': []})
+            setattr(superstructure, 'decimal_set', {'DISTRIBUTOR_DECIMAL_SET': []})
+            setattr(superstructure, 'distributor_subset2', {'DISTRIBUTOR_DECIMAL_SUBSET': []})
 
 
-        superstructure.distributor_list['U_DIST'].append(self.Number)
-        superstructure.decimal_set['DC_SET'].extend(self.decimal_set)
+        superstructure.distributor_list['DISTRIBUTORS'].append(self.Number)
+        superstructure.decimal_set['DISTRIBUTOR_DECIMAL_SET'].extend(self.decimal_set)
 
 
         for i in self.targets:
             combi = (self.Number,i)
 
-            if i not in superstructure.distributor_subset['U_DIST_SUB']:
-                superstructure.distributor_subset['U_DIST_SUB'].append(combi)
+            if i not in superstructure.distributor_subset['PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS']:
+                superstructure.distributor_subset['PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS'].append(combi)
 
         for i in self.targets:
-            for j in self.decimal_numbers['Decimal_numbers'].keys():
+            for j in self.decimal_numbers['decimal_numbers'].keys():
                 combi2 = (self.Number,i,self.Number,j[1])
 
-                superstructure.distributor_subset2['U_DIST_SUB2'].append(combi2)
+                superstructure.distributor_subset2['DISTRIBUTOR_DECIMAL_SUBSET'].append(combi2)
 
 
     def fill_parameterList(self):

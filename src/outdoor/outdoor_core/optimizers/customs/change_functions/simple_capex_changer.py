@@ -24,7 +24,7 @@ def change_simple_capex(Instance, Parameter, Value, Index = None, Superstructure
                   + unit_operation.DC_factor['DC'][unit_operation.Number]
                   + unit_operation.IDC_factor['IDC'][unit_operation.Number]
                   )
-            flh = unit_operation.FLH['flh'][unit_operation.Number]
+            flh = unit_operation.FLH['full_load_hours'][unit_operation.Number]
 
 
             eq_c = Value * flh / ( crf * cf ) / 10**6

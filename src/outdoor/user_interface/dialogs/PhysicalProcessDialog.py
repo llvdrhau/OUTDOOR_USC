@@ -85,12 +85,12 @@ class PhysicalProcessesDialog(QDialog):
         if calc_types['Concentration'] == 'True':
             tabWidget.addTab(self._createConcentrationTab(), "Concentration Factors")
 
-        # todo, ask Mias to add this to the config file! I don't know how to do it
+        # todo, ask Mias to add this to the config file! COMPONENTS don't know how to do it
         # @ Mias, please add this to the config files
         # if calc_types['Separation'] == 'True':
         #     tabWidget.addTab(self._createSeparationEfficiencyTab(), "Separation Efficiency")
 
-        # for now, I will add it manually to the dialog
+        # for now, COMPONENTS will add it manually to the dialog
         tabWidget.addTab(self._createSeparationEfficiencyTab(), "Separation Efficiency")
 
         if calc_types['LCA'] == 'True':
@@ -762,7 +762,7 @@ class PhysicalProcessesDialog(QDialog):
         # Create a title for the tab
         self._createSectionTitle(text="Concentration Factors", layout=layout)
 
-        # create me a text box where I can explain what this tab does
+        # create me a text box where COMPONENTS can explain what this tab does
         self.concentrationFactorDescription = QLabel(self)
         self.concentrationFactorDescription.setText("The concentration factor is the ratio of the mass of FLOW1 to "
                                                     "the mass of FLOW2: "
@@ -1442,7 +1442,7 @@ class PhysicalProcessesDialog(QDialog):
             'TemperatureOut1':                  self._getWidgetData(self.temperatureLeavingProcess, "float", returnAlternative=None),
             'TemperatureIn2':                   self._getWidgetData(self.temperatureEnteringUnitProcess2, "float", returnAlternative=None),
             'TemperatureOut2':                  self._getWidgetData(self.temperatureLeavingUnitProcess2, "float", returnAlternative=None),
-            'O&M':                              self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
+            'O&REACTANTS':                              self._getWidgetData(self.operatingAndMaintenanceCost, "float"),
             'Direct Cost Factor':               self._getWidgetData(self.directCostFactor, "float"),
             'Indirect Cost Factor':             self._getWidgetData(self.indirectCostFactor, "float"),
 
@@ -1968,7 +1968,7 @@ class PhysicalProcessesDialog(QDialog):
         :return: true or false depending on the flag
         """
         errorMessage = ""
-        # check if the first colunm contains names of the components I.E. is not ''
+        # check if the first colunm contains names of the components COMPONENTS.E. is not ''
         for row in range(self.separationEfficiencyTable.rowCount()):
             if self.separationEfficiencyTable.cellWidget(row, 0).currentText() == '':
                 errorMessage = "The component name in the separation efficiency table is not set"

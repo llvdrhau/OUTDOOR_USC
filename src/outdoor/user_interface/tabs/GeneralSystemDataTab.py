@@ -119,7 +119,7 @@ class GeneralSystemDataTab(QWidget):
         # reference: p251 Table 6-9 of the book "Plant Design and Economics for Chemical Engineers, fith edition"
 
         # self.omFactorLineEdit = QLineEdit("0.04")
-        # self.layout.addRow(QLabel("O&M Factor:"), self.omFactorLineEdit)
+        # self.layout.addRow(QLabel("O&REACTANTS Factor:"), self.omFactorLineEdit)
 
         # Heat pump parameters
         # Title for the Heat pump parameters section

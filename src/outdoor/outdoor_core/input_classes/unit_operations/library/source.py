@@ -34,10 +34,10 @@ class Source(VirtualProcess):
         super().__init__(Name, UnitNumber, Parent)
 
         self.Type = 'Source'
-        self.Composition = {'phi': {}}
-        self.MaterialCosts = {'materialcosts': {self.Number: 0}}
-        self.LowerLimit = {'ll': {self.Number: 0}}
-        self.UpperLimit = {'ul': {self.Number: None}}
+        self.Composition = {'component_concentration': {}}
+        self.MaterialCosts = {'material_costs': {self.Number: 0}}
+        self.LowerLimit = {'raw_materials_lower_bound': {self.Number: 0}}
+        self.UpperLimit = {'raw_materials_upper_bound': {self.Number: None}}
         self.EmissionFactor = {'em_fac_source': {self.Number: 0}}
         self.FreshWaterFactor = {'fw_fac_source': {self.Number: 0}}
         self.StochasticFlag = stochasticFlag
@@ -46,7 +46,7 @@ class Source(VirtualProcess):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.SourceList['U_S'].append(self.Number)
+        superstructure.SourceList['RAW_MATERIAL_SOURCES'].append(self.Number)
 
     def set_sourceData(self,
                         Costs,
@@ -65,24 +65,24 @@ class Source(VirtualProcess):
 
 
     def __set_materialCosts(self, Costs):
-        self.MaterialCosts['materialcosts'][self.Number] = Costs
+        self.MaterialCosts['material_costs'][self.Number] = Costs
 
 
     def __set_composition(self, composition_dic):
         for i in composition_dic:
-            self.Composition['phi'][(self.Number, i)] = composition_dic[i]
+            self.Composition['component_concentration'][(self.Number, i)] = composition_dic[i]
         # if self.StochasticFlag == True:
         #     for i in composition_dic:
-        #         self.Composition['phi'][(self.Number,i)] = composition_dic[i]
+        #         self.Composition['component_concentration'][(self.Number,i)] = composition_dic[i]
         # else:
         #     for i in composition_dic:
-        #         self.Composition['phi'][(self.Number,i)] = composition_dic[i]
+        #         self.Composition['component_concentration'][(self.Number,i)] = composition_dic[i]
 
     def __set_lowerlimit(self, LowerLimit):
-        self.LowerLimit['ll'][self.Number] = LowerLimit
+        self.LowerLimit['raw_materials_lower_bound'][self.Number] = LowerLimit
 
     def __set_upperlimit(self, UpperLimit):
-        self.UpperLimit['ul'][self.Number] = UpperLimit
+        self.UpperLimit['raw_materials_upper_bound'][self.Number] = UpperLimit
 
     def __set_sourceEmissionFactor(self, EmissionFactor):
         self.EmissionFactor['em_fac_source'][self.Number] = EmissionFactor

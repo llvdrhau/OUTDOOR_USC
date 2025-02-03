@@ -55,13 +55,13 @@ def create_superstructure_flowsheet(superstructure, path, saveName=None):
             for j in i.Possible_Sources:
                 data.append((j, i.Number))
 
-        if i.Number in superstructure.distributor_list['U_DIST']:
+        if i.Number in superstructure.distributor_list['DISTRIBUTORS']:
 
             for j in i.targets:
                 data.append((i.Number, j))
 
-        if i.myu['myu']:
-            for j in i.myu['myu'].keys():
+        if i.split_factor['split_factor']:
+            for j in i.split_factor['split_factor'].keys():
                 data.append((j[0], j[1][0]))
 
         data = list(dict.fromkeys(data))
@@ -78,38 +78,38 @@ def create_superstructure_flowsheet(superstructure, path, saveName=None):
         for v in i:
             if v not in nodes.keys():
 
-                if v in superstructure.SourceList['U_S']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                if v in superstructure.SourceList['RAW_MATERIAL_SOURCES']:
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                             'ellipse', color='green')
 
-                elif v in superstructure.StoichRNumberList['U_STOICH_REACTOR']:
+                elif v in superstructure.StoichRNumberList['STOICH_REACTORS']:
 
-                    if v in superstructure.ElectricityGeneratorList['U_TUR']:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                    if v in superstructure.ElectricityGeneratorList['TURBINES']:
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                         'doubleoctagon')
 
-                    elif v in superstructure.HeatGeneratorList['U_FUR']:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                    elif v in superstructure.HeatGeneratorList['FURNACES']:
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                         'doubleoctagon')
 
                     else:
-                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                        nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                              'octagon')
 
-                elif v in superstructure.YieldRNumberList['U_YIELD_REACTOR']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                elif v in superstructure.YieldRNumberList['YIELD_REACTORS']:
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                         'octagon')
 
-                elif v in superstructure.ProductPoolList['U_PP']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                elif v in superstructure.ProductPoolList['PRODUCT_POOLS']:
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                         shape='house', color='blue', orientation= 270)
 
-                elif v in superstructure.distributor_list['U_DIST']:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v],
+                elif v in superstructure.distributor_list['DISTRIBUTORS']:
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v],
                                         shape='triangle', orientation= 270)
 
                 else:
-                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['Names'][v], 'box')
+                    nodes[v] = make_node(flowchart, superstructure.UnitNames2['names'][v], 'box')
 
 
 

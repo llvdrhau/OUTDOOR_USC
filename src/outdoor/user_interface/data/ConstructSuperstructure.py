@@ -144,7 +144,7 @@ class ConstructSuperstructure:
         reactionNumberIds = [dto.uid for dto in self.centralDataManager.reactionData]
         obj.add_reactions(reactionNumberIds)
 
-        # todo this seems redundant I don't know why this is done, must optimize this in the future
+        # todo this seems redundant COMPONENTS don't know why this is done, must optimize this in the future
         reactantsList = []
         for dto in self.centralDataManager.reactionData:
             key = list(dto.reactants.keys())[0]
@@ -553,7 +553,7 @@ class ConstructSuperstructure:
         else:
             emissions = 0
 
-        maintenance_factor = dto.dialogData['O&M']
+        maintenance_factor = dto.dialogData['O&REACTANTS']
         if maintenance_factor:
             maintenance_factor = None
 
@@ -651,7 +651,7 @@ class ConstructSuperstructure:
         if not req_concentration:
             req_concentration = 0 # set to 0 if not provided
 
-        # the myu dictionary is where the split fractions are stored and defined
+        # the split_factor dictionary is where the split fractions are stored and defined
         # {(unitNr_that_receives, component), Fraction}
         materialFlow = dto.materialFlow
         myu_dict = {}

@@ -28,13 +28,13 @@ class CombinedHeatAndPower(StoichReactor):
         # https://doi.org/10.1016/j.apenergy.2018.06.013
         self.Eff_tur = Eff_tur # Efficiency of the turbine to generate electricity 30-40%
         self.Eff_fur = Eff_fur # Efficiency of the furnace to generate heat 50-60%
-        self.Efficiency_FUR = {'Efficiency_FUR': {self.Number: self.Eff_fur}}
-        self.Efficiency_TUR = {'Efficiency_TUR': {self.Number: self.Eff_tur}}
+        self.Efficiency_FUR = {'furnace_efficiency': {self.Number: self.Eff_fur}}
+        self.Efficiency_TUR = {'turbine_efficiency': {self.Number: self.Eff_tur}}
 
     def fill_unitOperationsList(self, superstructure):
         super().fill_unitOperationsList(superstructure)
-        superstructure.HeatGeneratorList['U_FUR'].append(self.Number)
-        superstructure.ElectricityGeneratorList['U_TUR'].append(self.Number)
+        superstructure.HeatGeneratorList['FURNACES'].append(self.Number)
+        superstructure.ElectricityGeneratorList['TURBINES'].append(self.Number)
 
 
     def set_efficiency(self, Efficiency):
@@ -45,8 +45,8 @@ class CombinedHeatAndPower(StoichReactor):
             Sets efficiency of the furnace process between 0 and 1
         """
 
-        self.Efficiency_FUR['Efficiency_FUR'][self.Number] = self.Eff_fur
-        self.Efficiency_TUR['Efficiency_TUR'][self.Number] = self.Eff_tur
+        self.Efficiency_FUR['furnace_efficiency'][self.Number] = self.Eff_fur
+        self.Efficiency_TUR['turbine_efficiency'][self.Number] = self.Eff_tur
 
     def fill_parameterList(self):
         super().fill_parameterList()

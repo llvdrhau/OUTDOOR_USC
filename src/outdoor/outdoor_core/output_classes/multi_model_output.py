@@ -275,13 +275,13 @@ class MultiModelOutput(ModelOutput):
         if flagDataFormat == 'object':
             for i, j in self._results_data.items():
                 objectiveFunctionList.append(j._data[objectiveFunctionName])
-                # todo really bad what I'm doing now but it's a patch
+                # todo really bad what COMPONENTS'm doing now but it's a patch
                 # Need to find wich scenarios were not run and delleet from the parameterArray
                 scenarioControl.append(i)
         elif flagDataFormat == 'dictionary':
             for i, j in self._results_data.items():
                 objectiveFunctionList.append(j[objectiveFunctionName])
-                # todo really bad what I'm doing now but it's a patch
+                # todo really bad what COMPONENTS'm doing now but it's a patch
                 # Need to find wich scenarios were not run and delleet from the parameterArray
                 scenarioControl.append(i)
 
@@ -325,7 +325,7 @@ class MultiModelOutput(ModelOutput):
             #print(f"SRC for parameter {parameterName}: {src}")
 
 
-        # Obtain R-squared value
+        # Obtain REACTIONS-squared value
         RSquared = reg.score(parametersStandardized, resultsStandardized)
 
 
@@ -333,7 +333,7 @@ class MultiModelOutput(ModelOutput):
         print('')
         print('-----------------------------------')
         print('Sum of SRC squared: ', squareSumSRC)
-        print('R squared: ', RSquared)
+        print('REACTIONS squared: ', RSquared)
         print('-----------------------------------\n')
         self.SRC = srcDict
         # sort the SRCs and print them in descending order

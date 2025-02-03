@@ -61,7 +61,7 @@ model.profit=Constraint(expr= model.money ==
 
 
 
-# Big M method for handling conditional constraints
+# Big REACTANTS method for handling conditional constraints
 BigM = 1000  # Adjust this value as necessary
 
 # Ensure inputs are used according to the choice

@@ -44,8 +44,8 @@ class ProductPool(VirtualProcess):
         self.ProductPrice = {'ProductPrice': {self.Number: ProductPrice}}
         self.em_credits = {'em_fac_prod': {self.Number: 0}}
         self.fw_credits = {'fw_fac_prod': {self.Number: 0}}
-        self.min_production = {'MinProduction': {self.Number: 0}}
-        self.max_production = {'MaxProduction': {self.Number: 10000000}}
+        self.min_production = {'min_production': {self.Number: 0}}
+        self.max_production = {'max_production': {self.Number: 10000000}}
 
         if ProductType == 'MainProduct':
             self.ProductType = ProductType
@@ -57,7 +57,7 @@ class ProductPool(VirtualProcess):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.ProductPoolList['U_PP'].append(self.Number)
+        superstructure.ProductPoolList['PRODUCT_POOLS'].append(self.Number)
 
     def set_emissionCredits(self, emissionfactor):
         self.em_credits['em_fac_prod'][self.Number] = emissionfactor
@@ -69,8 +69,8 @@ class ProductPool(VirtualProcess):
         self.ProductPrice['ProductPrice'][self.Number] = Price
 
     def set_productionLimits(self, MinProduction=0, MaxProduction=10000000):
-        self.min_production['MinProduction'][self.Number] = MinProduction
-        self.max_production['MaxProduction'][self.Number] = MaxProduction
+        self.min_production['min_production'][self.Number] = MinProduction
+        self.max_production['max_production'][self.Number] = MaxProduction
 
     def fill_parameterList(self):
         super().fill_parameterList()

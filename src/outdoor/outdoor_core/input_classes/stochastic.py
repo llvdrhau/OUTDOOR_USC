@@ -46,15 +46,15 @@ class StochasticObject():
         self.LableDict = {}
 
         # don't need to perse define all the keys in the dictionary, they will be added later
-        # self.LableDict = {'phi': {},
-        #                   'theta': {},
-        #                   'myu': {},
-        #                   'gamma': {},
-        #                   'xi': {},
+        # self.LableDict = {'component_concentration': {},
+        #                   'stoich_conversion_factor': {},
+        #                   'split_factor': {},
+        #                   'stoich_reaction_coefficient': {},
+        #                   'yield_factor_unit_operation': {},
         #                   'ProductPrice': {},
-        #                   'materialcosts': {},
+        #                   'material_costs': {},
         #                   'delta_ut': {},
-        #                   'Decimal_numbers': {}
+        #                   'decimal_numbers': {}
         #                   }
 
     def set_general_data(self, GeneralDataFrame, customLevelDataFrame, sampleSize=None):
@@ -194,29 +194,29 @@ class StochasticObject():
                 # Each parameter is indexed in a slightly different way so the data refering to the parameter also
                 # needs to be formated in the same way as in the model.For adding new uncertain parameters, check the
                 # model to see how it needs to be indexed.
-                if parameterName == 'gamma':
+                if parameterName == 'stoich_reaction_coefficient':
                     component = row.Component
                     reactionNr = row.Reaction_Number
                     nrComponentTuple = (unitNr, (component, reactionNr))
 
-                elif parameterName == 'theta':
+                elif parameterName == 'stoich_conversion_factor':
                     component = row.Component
                     reactionNr = row.Reaction_Number
                     nrComponentTuple = (unitNr, (reactionNr, component))
 
-                elif parameterName == 'myu':
+                elif parameterName == 'split_factor':
                     component = row.Component
                     targetUnit = row.Target_Unit
                     nrComponentTuple = (unitNr, (targetUnit, component))
 
-                elif parameterName == 'phi' or parameterName == 'xi':
+                elif parameterName == 'component_concentration' or parameterName == 'yield_factor_unit_operation':
                     component = row.Component
                     nrComponentTuple = (unitNr, component)
 
-                elif parameterName == 'ProductPrice' or parameterName == 'materialcosts' or parameterName == 'Decimal_numbers':
+                elif parameterName == 'ProductPrice' or parameterName == 'material_costs' or parameterName == 'decimal_numbers':
                     nrComponentTuple = (unitNr)
 
-                elif parameterName == 'tau_h':
+                elif parameterName == 'specific_heat_demand':
                     nrComponentTuple = ('Heat', unitNr)
 
                 elif parameterName == 'delta_ut':

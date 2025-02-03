@@ -39,7 +39,7 @@ class BasicModelAnalyzer:
 
     """
     def __init__(self, model_output=None, deepcopy=True):
-        # todo: DO I need a deepcopy here?
+        # todo: DO COMPONENTS need a deepcopy here?
         if deepcopy:
             self.model_output = copy.deepcopy(model_output)
         elif deepcopy is False:
@@ -74,7 +74,7 @@ class BasicModelAnalyzer:
 
         for i, j in model_data["ACC"].items():
             if j >= 1e-3:
-                index_name = model_data["Names"][i]
+                index_name = model_data["names"][i]
                 capitalcost_shares["Capital costs shares"][index_name] = round(
                     (j + model_data.get("TO_CAPEX", 0).get(i, 0)) / total_costs * 100, 2
                 )
@@ -178,9 +178,9 @@ class BasicModelAnalyzer:
 
         total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and j >= 1e-05:
-                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+                total_el += j * model_data.get("full_load_hours", 0).get(i[0], 0)
 
         electricity_shares["Electricity demand shares"][
             "Heatpump electricity share"
@@ -189,11 +189,11 @@ class BasicModelAnalyzer:
             2,
         )
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and j >= 1e-05:
-                index_name = model_data["Names"][i[0]]
+                index_name = model_data["names"][i[0]]
                 electricity_shares["Electricity demand shares"][index_name] = round(
-                    j * model_data.get("flh", 0).get(i[0], 0) / total_el * 100, 2
+                    j * model_data.get("full_load_hours", 0).get(i[0], 0) / total_el * 100, 2
                 )
 
         return electricity_shares
@@ -386,9 +386,9 @@ class BasicModelAnalyzer:
 
         total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and abs(j) >= 1e-05:
-                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+                total_el += j * model_data.get("full_load_hours", 0).get(i[0], 0)
 
         energy_data["Energy data"]["heat"] = heat_demand
         energy_data["Energy data"]["cooling"] = cool_demand
@@ -408,18 +408,18 @@ class BasicModelAnalyzer:
 
         if list(model_data.keys())[0] == 'sc1':
             scenarioKeys = list(model_data.keys())
-            for key in model_data['sc1']["FLOW_FT"].keys():
+            for key in model_data['sc1']["Total_Flows"].keys():
                 scFT = []
                 for sc in scenarioKeys:
-                    flow = model_data[sc]["FLOW_FT"][key]
+                    flow = model_data[sc]["Total_Flows"][key]
                     scFT.append(flow)
                 if max(scFT) > 1e-04:
                     mass_flow_data["Mass flows"].update({key+('sc' + '{}'.format(i+1),): round(value, nDecimals) for i, value in enumerate(scFT)})
 
-            for key in model_data['sc1']["FLOW_ADD"].keys():
+            for key in model_data['sc1']["Raw_Material_Input"].keys():
                 scAdd = []
                 for sc in scenarioKeys:
-                    flow = model_data[sc]["FLOW_ADD"][key]
+                    flow = model_data[sc]["Raw_Material_Input"][key]
                     scAdd.append(flow)
                 if max(scAdd) > 1e-04:
                     mass_flow_data["Mass flows"].update({key+('sc' + '{}'.format(i+1),): round(value, nDecimals) for i, value in enumerate(scAdd)})
@@ -429,8 +429,8 @@ class BasicModelAnalyzer:
             step = len(model_data['SC'])
             pointerStart = 0
             pointerEnd = step
-            for _ in range(0, len(model_data["FLOW_FT"]), step):
-                selectionDict = itertools.islice(model_data["FLOW_FT"].items(), pointerStart, pointerEnd)
+            for _ in range(0, len(model_data["Total_Flows"]), step):
+                selectionDict = itertools.islice(model_data["Total_Flows"].items(), pointerStart, pointerEnd)
                 # the parameters per scenario are grouped together in the data structure,
                 # hence the pointer is moved up to get the appropriate data
                 pointerStart += step
@@ -444,8 +444,8 @@ class BasicModelAnalyzer:
 
             pointerStart = 0
             pointerEnd = step
-            for _ in range(0, len(model_data["FLOW_ADD"]), step):
-                selectionDict = itertools.islice(model_data["FLOW_ADD"].items(), pointerStart, pointerEnd)
+            for _ in range(0, len(model_data["Raw_Material_Input"]), step):
+                selectionDict = itertools.islice(model_data["Raw_Material_Input"].items(), pointerStart, pointerEnd)
                 # the parameters per scenario are grouped together in the data structure,
                 # hence the pointer is moved up to get the appropriate data
                 pointerStart += step
@@ -458,11 +458,11 @@ class BasicModelAnalyzer:
                         mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
         else: # for single run optimization
-            for i, j in model_data["FLOW_FT"].items():
+            for i, j in model_data["Total_Flows"].items():
                 if j > 1e-05:
                     mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
-            for i, j in model_data["FLOW_ADD"].items():
+            for i, j in model_data["Raw_Material_Input"].items():
                 if j > 1e-05:
                     mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
@@ -471,11 +471,11 @@ class BasicModelAnalyzer:
     def _collect_mass_flows_stochastic(self, model_data, nDecimals=2):
         mass_flow_data = {"Mass flows": {}}
 
-        for i, j in model_data["FLOW_FT"].items():
+        for i, j in model_data["Total_Flows"].items():
             if j > 1e-06:
                 mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
-        for i, j in model_data["FLOW_ADD"].items():
+        for i, j in model_data["Raw_Material_Input"].items():
             if j > 1e-06:
                 mass_flow_data["Mass flows"][i] = round(j, nDecimals)
 
@@ -803,7 +803,7 @@ class BasicModelAnalyzer:
 
         # Save input file if save statement = True
         if save is True:
-            date_time_now = datetime.datetime.now().strftime("%Y_%m_%d__%H-%M-%S")
+            date_time_now = datetime.datetime.now().strftime("%Y_%m_%d__%H-%REACTANTS-%S")
 
             if Path is None:
                 my_path = os.path.abspath(__file__)
@@ -925,53 +925,53 @@ class BasicModelAnalyzer:
 
                 if v not in nodes.keys():
 
-                    if isinstance(list(model_data["Names"].keys())[0], str):
+                    if isinstance(list(model_data["names"].keys())[0], str):
 
                         # stupid fix for the case where the names are strings
-                        # (when loading from json the keys of model_data["Names"] are strings for some reason)
+                        # (when loading from json the keys of model_data["names"] are strings for some reason)
                         # transform the keys to integers to be able to compare them with the unit numbers
                         try:
-                            model_data["Names"] = {int(k): v for k, v in model_data["Names"].items()}
+                            model_data["names"] = {int(k): v for k, v in model_data["names"].items()}
                         except:
-                            model_data["Names"] = {k: v for k, v in model_data["Names"].items()} # if the keys are already integers or are UIDs
+                            model_data["names"] = {k: v for k, v in model_data["names"].items()} # if the keys are already integers or are UIDs
 
-                    if v in model_data["U_S"]:
+                    if v in model_data["RAW_MATERIAL_SOURCES"]:
                         nodes[v] = make_node(
-                            flowchart, model_data["Names"][v], shape="ellipse", color='green'
+                            flowchart, model_data["names"][v], shape="ellipse", color='green'
                         )
 
-                    elif v in model_data["U_STOICH_REACTOR"]:
+                    elif v in model_data["STOICH_REACTORS"]:
 
-                        if v in model_data["U_TUR"]:
+                        if v in model_data["TURBINES"]:
                             nodes[v] = make_node(
-                                flowchart, model_data["Names"][v], "doubleoctagon"
+                                flowchart, model_data["names"][v], "doubleoctagon"
                             )
 
-                        elif v in model_data["U_FUR"]:
+                        elif v in model_data["FURNACES"]:
                             nodes[v] = make_node(
-                                flowchart, model_data["Names"][v], "doubleoctagon"
+                                flowchart, model_data["names"][v], "doubleoctagon"
                             )
 
                         else:
                             nodes[v] = make_node(
-                                flowchart, model_data["Names"][v], "octagon"
+                                flowchart, model_data["names"][v], "octagon"
                             )
 
-                    elif v in model_data["U_YIELD_REACTOR"]:
+                    elif v in model_data["YIELD_REACTORS"]:
                         nodes[v] = make_node(
-                            flowchart, model_data["Names"][v], "octagon"
+                            flowchart, model_data["names"][v], "octagon"
                         )
 
-                    elif v in model_data["U_PP"]:
-                        nodes[v] = make_node(flowchart, model_data["Names"][v], "house", orientation=270, color= 'blue')
+                    elif v in model_data["PRODUCT_POOLS"]:
+                        nodes[v] = make_node(flowchart, model_data["names"][v], "house", orientation=270, color= 'blue')
 
-                    elif v in model_data["U_DIST"]:
+                    elif v in model_data["DISTRIBUTORS"]:
                         nodes[v] = make_node(
-                            flowchart, model_data["Names"][v], shape="triangle", orientation=270
+                            flowchart, model_data["names"][v], shape="triangle", orientation=270
                         )
 
                     else:
-                        nodes[v] = make_node(flowchart, model_data["Names"][v], "box")
+                        nodes[v] = make_node(flowchart, model_data["names"][v], "box")
 
         # if we're dealing with a Stochastic model, we need to create a new dictionary where the labels are the min,
         # mean and max values. For this we to transform the stream data to get the right labels
@@ -1038,8 +1038,8 @@ class BasicModelAnalyzer:
             scenario_values = list(self.model_output._data.keys())
             model_output = self.model_output._data[scenario_values[0]]
 
-        #units = self.model_output._data['U']
-        unitConnestors = model_output['U_CONNECTORS'] + model_output['U_SU']
+        #units = self.model_output._data['UNIT_PROCESSES']
+        unitConnestors = model_output['UNIT_CONNECTIONS'] + model_output['CONNECTED_RAW_MATERIAL_UNIT_OPERATION']
 
         unitDict = {}
         colorCode = 'black'
@@ -1135,28 +1135,28 @@ class BasicModelAnalyzer:
         # get the data of each selected unit
         for u in chosenUnits:
             dfUnit = pd.DataFrame(index=[
-                self.model_output._data['Names'][u]])  # create a new dataframe for each unit with unit name as index
+                self.model_output._data['names'][u]])  # create a new dataframe for each unit with unit name as index
 
-            if u in self.model_output._data['U_C']:  # if the unit is not an input or output
+            if u in self.model_output._data['COSTED_UNIT_OPERATIONS']:  # if the unit is not an input or output
                 # get the CAPEX of the unit
                 capexUnit = self.model_output._data['EC'][u]
                 dfUnit['CAPEX (M€/y)'] = round(capexUnit, 3)  # M€
                 # get Operating and Maintenance
                 oAndM = self.model_output._data['K_OM'][u] * self.model_output._data['FCI'][u]
-                dfUnit['O&M (M€/y)'] = round(oAndM, 3)  # M€
+                dfUnit['O&REACTANTS (M€/y)'] = round(oAndM, 3)  # M€
                 # get the raw material flow and cost
-                for key, flow in self.model_output._data['FLOW_ADD'].items():
+                for key, flow in self.model_output._data['Raw_Material_Input'].items():
                     if key[1] == u:
                         addedFlow = flow
-                        inputName = self.model_output._data['Names'][key[0]]
-                        costAddedMaterial = self.model_output._data['materialcosts'][key[0]] * addedFlow
+                        inputName = self.model_output._data['names'][key[0]]
+                        costAddedMaterial = self.model_output._data['material_costs'][key[0]] * addedFlow
 
                         dfUnit[inputName + ' (t/h)'] = round(addedFlow, 3)
                         dfUnit[inputName + ' cost (€/y)'] = round(costAddedMaterial, 3)
 
                 # electricity consumption + cost
-                electricityDemand = self.model_output._data['ENERGY_DEMAND'][(u, 'Electricity')] * \
-                                    self.model_output._data['flh'][u]  # kWh
+                electricityDemand = self.model_output._data['Energy_Demand'][(u, 'Electricity')] * \
+                                    self.model_output._data['full_load_hours'][u]  # kWh
                 costElectricity = electricityDemand * self.model_output._data['delta_ut']['Electricity']  # €
                 dfUnit['Electricity Demand (MWh/y)'] = round(electricityDemand, 3)
                 dfUnit['Electricity cost (k€/y)'] = round(costElectricity/1000, 3)

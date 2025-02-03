@@ -11,7 +11,7 @@ levels = 20
 
 # define parameters for the cross sensitivity analysis
 cross_sensitivity_parameters_1 = {
-    "Parameter_Type": ["Stoichiometric factor (gamma)", "Split factors (myu)"],
+    "Parameter_Type": ["Stoichiometric factor (stoich_reaction_coefficient)", "Split factors (split_factor)"],
     "Unit_Number": [435, 438],
     "Component": ["PHA", "PHA"],
     "Target_Unit": ["n.a.", 440],
@@ -23,7 +23,7 @@ cross_sensitivity_parameters_1 = {
 
 # define parameters for the cross sensitivity analysis
 cross_sensitivity_parameters_2 = {
-    "Parameter_Type": ["Price (ProductPrice)", "Split factors (myu)"],
+    "Parameter_Type": ["Price (ProductPrice)", "Split factors (split_factor)"],
     "Unit_Number": [6000, 438],
     "Component": ["n.a.", "PHA"],
     "Target_Unit": ["n.a.", 440],
@@ -34,7 +34,7 @@ cross_sensitivity_parameters_2 = {
 }
 
 cross_sensitivity_parameters_3 = {
-    "Parameter_Type": ["Price (ProductPrice)", "Stoichiometric factor (gamma)"],
+    "Parameter_Type": ["Price (ProductPrice)", "Stoichiometric factor (stoich_reaction_coefficient)"],
     "Unit_Number": [6000, 435],
     "Component": ["n.a.", "PHA"],
     "Target_Unit": ["n.a.", "n.a."],

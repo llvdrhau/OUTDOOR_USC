@@ -28,11 +28,11 @@ class HeatGenerator(StoichReactor):
 
         # Non-Indexed Parameters
         self.Type = "HeatGenerator"
-        self.Efficiency_FUR = {'Efficiency_FUR': {self.Number: Efficiency}}
+        self.Efficiency_FUR = {'furnace_efficiency': {self.Number: Efficiency}}
 
     def fill_unitOperationsList(self, superstructure):
         super().fill_unitOperationsList(superstructure)
-        superstructure.HeatGeneratorList['U_FUR'].append(self.Number)
+        superstructure.HeatGeneratorList['FURNACES'].append(self.Number)
 
     def set_efficiency(self, Efficiency):
         """
@@ -41,7 +41,7 @@ class HeatGenerator(StoichReactor):
         Efficiency : Float
             Sets efficiency of the furnace process between 0 and 1
         """
-        self.Efficiency_FUR['Efficiency_FUR'][self.Number]  = Efficiency
+        self.Efficiency_FUR['furnace_efficiency'][self.Number]  = Efficiency
 
     def fill_parameterList(self):
         super().fill_parameterList()

@@ -10,7 +10,7 @@ Created on Tue Jun 15 11:54:16 2021
 
 def change_source_costs(Instance, Parameter, Value, Index = None, Superstructure = None):
 
-    Instance.materialcosts[Index] = Value
+    Instance.material_costs[Index] = Value
 
     return Instance
 

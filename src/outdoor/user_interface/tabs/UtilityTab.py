@@ -323,7 +323,7 @@ class UtilityTab(QWidget):
                 self._addTemperatureRow(self.temperatureData[n], n)
             # it only gets here if there aren't any saved rows, like in a new project
         except Exception as e:
-            self.logger.info("Honestly I can't fathom how it would get to this error. Congartulations.", e)
+            self.logger.info("Honestly COMPONENTS can't fathom how it would get to this error. Congartulations.", e)
         try:
             rows = len(self.wasteData)
             for n in range(rows):

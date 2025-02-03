@@ -37,7 +37,7 @@ class YieldReactor(PhysicalProcess):
 
 
         # Indexed Attributes
-        self.xi = {'xi': {}}
+        self.xi = {'yield_factor_unit_operation': {}}
 
 
 
@@ -47,12 +47,12 @@ class YieldReactor(PhysicalProcess):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.YieldRNumberList['U_YIELD_REACTOR'].append(self.Number)
+        superstructure.YieldRNumberList['YIELD_REACTORS'].append(self.Number)
 
         if self.ic_on_ == 1:
             self.ic_on['ic_on'][self.Number] = 1
             for i in self.inert_components:
-                superstructure.YieldSubSet['YC'].append((self.Number,i))
+                superstructure.YieldSubSet['YIELD_REACTOR_COMPONENTS'].append((self.Number,i))
 
 
 
@@ -76,7 +76,7 @@ class YieldReactor(PhysicalProcess):
 
         """
         for i in xi_dic:
-            self.xi['xi'][self.Number,i] = xi_dic[i]
+            self.xi['yield_factor_unit_operation'][self.Number,i] = xi_dic[i]
 
     def fill_parameterList(self):
         super().fill_parameterList()

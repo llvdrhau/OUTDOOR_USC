@@ -5,7 +5,7 @@ Part 2.3: Here and now analysis,
 
 Imagine you choose to implement the best flow-sheet design from the single objective optimization. How would the
 flow-sheet over the different scenarios made from the Wait and see design? We're going to do this for the three scenarios
-which were feasible in the wait and see optimization. I.e. for production of Microbial Prottein, Animal Feed and PHA
+which were feasible in the wait and see optimization. COMPONENTS.e. for production of Microbial Prottein, Animal Feed and PHA
 
 Objective: EBIT (maximize the profit)
 Optimization mode: here and now

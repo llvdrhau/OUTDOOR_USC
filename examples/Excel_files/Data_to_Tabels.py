@@ -247,7 +247,7 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
                 table.to_excel('unitProcessData.xlsx')
 
     # 2) Splitting Data
-    # each dataframe I want to export to a different sheet in the excel file
+    # each dataframe COMPONENTS want to export to a different sheet in the excel file
     output_file: str = 'splittingData.xlsx'
     if path:
         output_file = f'{path}/splittingData.xlsx'
@@ -414,14 +414,14 @@ def split_dataframe_to_latex(df, caption_base, label_base, columns_per_table):
 
     return latex_tables
 
-def dataframe_to_latex_table_reacations(df, caption="A caption I want", label="unit_name"):
+def dataframe_to_latex_table_reacations(df, caption="A caption COMPONENTS want", label="unit_name"):
     # Convert the DataFrame to LaTeX format
     latex_table = df.to_latex(index=False, escape=False)
 
     # Customize the LaTeX string
 
     latex_table = latex_table.replace("\\begin{tabular}", "\\small % Set font size to small\n\\begin{tabular}")
-    latex_table = latex_table.replace("\\begin{tabular}{ll}", "\\begin{tabular}{@{}lc@{}}")
+    latex_table = latex_table.replace("\\begin{tabular}{raw_materials_lower_bound}", "\\begin{tabular}{@{}lc@{}}")
     #latex_table = latex_table.replace("\\end{tabular}", "\\end{tabular}%\n}")
 
     latex_table = latex_table.replace("->", " $\\rightarrow$ ")  # Replace '->' with LaTeX arrow

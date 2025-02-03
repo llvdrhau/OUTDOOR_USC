@@ -44,10 +44,10 @@ def wrapp_processUnits(dfi):
 
     # Set the Excel Ranges
     GeneralDataRange = WF.convert_total('E', 10, 'E', 27)
-    EnergyDataRange = WF.convert_total('M', 10, 'Q', 27)
-    KappaUtRange = WF.convert_total('M', 10, 'Q', 27)
-    BalanceDataRange = WF.convert_total('S', 10, 'U', 27)
-    EconomicDataRange = WF.convert_total('H', 11, 'I', 27)
+    EnergyDataRange = WF.convert_total('REACTANTS', 10, 'Q', 27)
+    KappaUtRange = WF.convert_total('REACTANTS', 10, 'Q', 27)
+    BalanceDataRange = WF.convert_total('S', 10, 'UNIT_PROCESSES', 27)
+    EconomicDataRange = WF.convert_total('H', 11, 'COMPONENTS', 27)
 
     PossibleSourcesRange = WF.convert_total('W', 10, 'Z', 27)
 

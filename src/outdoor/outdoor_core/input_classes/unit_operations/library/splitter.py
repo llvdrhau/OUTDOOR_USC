@@ -25,6 +25,6 @@ class Splitter(PhysicalProcess):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.SplitterNumberList['U_SPLITTER'].append(self.Number)
+        superstructure.SplitterNumberList['SPLITTERS'].append(self.Number)
 
 

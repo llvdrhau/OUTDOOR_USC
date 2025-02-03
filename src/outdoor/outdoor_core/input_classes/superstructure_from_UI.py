@@ -70,19 +70,19 @@ class Superstructure_from_UI():
                                       'wait and see',
                                       'here and now'}
 
-        self.SENSITIVE_PARAMETERS_SET = {"Split factors (myu)",
-                                         "Feed Composition (phi)",
-                                         "Conversion factor (theta)",
-                                         "Stoichiometric factor (gamma)",
-                                         "Yield factor (xi)",
-                                         "Costs (materialcosts)",
+        self.SENSITIVE_PARAMETERS_SET = {"Split factors (split_factor)",
+                                         "Feed Composition (component_concentration)",
+                                         "Conversion factor (stoich_conversion_factor)",
+                                         "Stoichiometric factor (stoich_reaction_coefficient)",
+                                         "Yield factor (yield_factor_unit_operation)",
+                                         "Costs (material_costs)",
                                          "Price (ProductPrice)",
                                          "Electricity price (delta_ut)",
                                          "Chilling price (delta_ut)",
-                                         "Heating demand (tau_h)",
-                                         "Electricity demand (tau)",
+                                         "Heating demand (specific_heat_demand)",
+                                         "Electricity demand (specific_utility_demand)",
                                          "Reference Capital costs (C_Ref)",
-                                         "Component concentration (conc)",
+                                         "Component concentration (concentration)",
                                          "Operating and maintenance (K_OM)"}
 
         self.CECPI_SET = {1994: 368.1, 1995: 381.1, 1996: 381.7, 1997: 386.5,
@@ -138,7 +138,7 @@ class Superstructure_from_UI():
                 raise Exception('No Main Product was chosen, please select a main product in the Sheet "Systemblatt"')
 
         self.MainProduct = MainProduct
-        self.ProductLoad = {'ProductLoad': ProductLoad}
+        self.ProductLoad = {'product_load': ProductLoad}
 
         # Lists for sets
         # -----
@@ -146,24 +146,24 @@ class Superstructure_from_UI():
         # Unit Operations
         # ----------------
         self.UnitsList = []
-        self.UnitsNumberList = {'U': []}  #All units
+        self.UnitsNumberList = {'UNIT_PROCESSES': []}  #All units
         self.UnitsNumberList2 = {'UU': []}  #All units minus inputs
-        self.StoichRNumberList = {'U_STOICH_REACTOR': []}
-        self.YieldRNumberList = {'U_YIELD_REACTOR': []}
-        self.SplitterNumberList = {'U_SPLITTER': []}
-        self.HeatGeneratorList = {'U_FUR': []}
-        self.ElectricityGeneratorList = {'U_TUR': []}
-        self.ProductPoolList = {'U_PP': []}  #Outputs
-        self.CostUnitsList = {'U_C': []}  #Costs of your inputs
-        self.SourceList = {'U_S': []}  #Sources
-        self.SourceSet = {'U_SU': []}  #
-        self.YieldSubSet = {'YC': []}  #
-        self.distributor_subset = {'U_DIST_SUB': []}
-        self.distributor_list = {'U_DIST': []}
-        self.decimal_set = {'DC_SET': []}
-        self.distributor_subset2 = {'U_DIST_SUB2': []}
+        self.StoichRNumberList = {'STOICH_REACTORS': []}
+        self.YieldRNumberList = {'YIELD_REACTORS': []}
+        self.SplitterNumberList = {'SPLITTERS': []}
+        self.HeatGeneratorList = {'FURNACES': []}
+        self.ElectricityGeneratorList = {'TURBINES': []}
+        self.ProductPoolList = {'PRODUCT_POOLS': []}  #Outputs
+        self.CostUnitsList = {'COSTED_UNIT_OPERATIONS': []}  #Costs of your inputs
+        self.SourceList = {'RAW_MATERIAL_SOURCES': []}  #Sources
+        self.SourceSet = {'CONNECTED_RAW_MATERIAL_UNIT_OPERATION': []}  #
+        self.YieldSubSet = {'YIELD_REACTOR_COMPONENTS': []}  #
+        self.distributor_subset = {'PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS': []}
+        self.distributor_list = {'DISTRIBUTORS': []}
+        self.decimal_set = {'DISTRIBUTOR_DECIMAL_SET': []}
+        self.distributor_subset2 = {'DISTRIBUTOR_DECIMAL_SUBSET': []}
 
-        self.connections_set = {'U_CONNECTORS': []}
+        self.connections_set = {'UNIT_CONNECTIONS': []}
         self.Scenarios = {'SC': []}  #Stochastic, maybe redundant
         self.Odds = {'odds': []}  #Prolly stochastic modeling too
 
@@ -171,24 +171,24 @@ class Superstructure_from_UI():
 
         # Heat Balance and Utilities
         # --------------------------
-        self.HeatIntervalList = {'HI': []}
-        self.HeatUtilitiesList = {'H_UT': []}
+        self.HeatIntervalList = {'HEAT_INTERVALS': []}
+        self.HeatUtilitiesList = {'HEATING_COOLING_UTILITIES': []}
         self.Heat_Temperatures = []
         self.HeatIntervals = {}
-        self.UtilitiesList = {'UT': []}
-        self.OtherUtilitiesList = {'U_UT': []}
+        self.UtilitiesList = {'UTILITIES': []}
+        self.OtherUtilitiesList = {'ENERGY_UTILITIES': []}
         # ---------------------------
 
         # Others
         # ----------
-        self.ComponentsList = {'I': []}
-        self.ReactionsList = {'R': []}
-        self.ReactantsList = {'M': []}
+        self.ComponentsList = {'COMPONENTS': []}
+        self.ReactionsList = {'REACTIONS': []}
+        self.ReactantsList = {'REACTANTS': []}
 
         self.LinPointsList = {'J': []}
         self.LinIntervalsList = {'JI': []}
-        self.UnitNames = {'Names': {}}
-        self.UnitNames2 = {'Names': {}}  # for the grafical representation
+        self.UnitNames = {'names': {}}
+        self.UnitNames2 = {'names': {}}  # for the grafical representation
         # --------------
 
         self.groups = dict()
@@ -202,7 +202,7 @@ class Superstructure_from_UI():
         # -------------------
         self.HP_Costs = {'HP_Costs': 0}
         self.HP_ACC_Factor = {'HP_ACC_Factor': 0}
-        self.COP_HP = {'COP_HP': 3}
+        self.COP_HP = {'heat_pump_performance_coefficient': 3}
         self.HP_LT = None
         self.HP_T_IN = {}
         self.HP_T_OUT = {}
@@ -237,7 +237,7 @@ class Superstructure_from_UI():
 
         # Additional data
         # ---------------
-        self.lhv = {'LHV': {}}
+        self.lhv = {'lower_heating_value': {}}
         self.mw = {'MW': {}}
         self.cp = {'CP': {}}
         self.em_fac_ut = {'em_fac_ut': {}}
@@ -341,7 +341,7 @@ class Superstructure_from_UI():
         try:
             self.HP_active = True
             self.HP_Costs['HP_Costs'] = SpecificCosts
-            self.COP_HP['COP_HP'] = COP
+            self.COP_HP['heat_pump_performance_coefficient'] = COP
             self.HP_LT = LifeTime
             self.HP_T_IN['Temperature'] = T_IN
             self.HP_T_OUT['Temperature'] = T_OUT
@@ -390,7 +390,7 @@ class Superstructure_from_UI():
             if type(i) == list:
                 for j in i:
                     if j not in self.UnitsList:
-                        self.UnitNames2['Names'][j.Number] = j.Name
+                        self.UnitNames2['names'][j.Number] = j.Name
                         j.fill_unitOperationsList(self)
 
 
@@ -400,7 +400,7 @@ class Superstructure_from_UI():
 
     def __set_unitNames(self):
         for i in self.UnitsList:
-            self.UnitNames['Names'][i.Number] = i.Name
+            self.UnitNames['names'][i.Number] = i.Name
 
     def add_components(self, *args):
         """
@@ -413,11 +413,11 @@ class Superstructure_from_UI():
         for i in args:
             if type(i) == list:
                 for j in i:
-                    if j not in self.ComponentsList['I']:
-                        self.ComponentsList['I'].append(j)
+                    if j not in self.ComponentsList['COMPONENTS']:
+                        self.ComponentsList['COMPONENTS'].append(j)
             else:
-                if i not in self.ComponentsList['I']:
-                    self.ComponentsList['I'].append(i)
+                if i not in self.ComponentsList['COMPONENTS']:
+                    self.ComponentsList['COMPONENTS'].append(i)
 
     def add_reactions(self, *args):
         """
@@ -429,11 +429,11 @@ class Superstructure_from_UI():
         for i in args:
             if type(i) == list:
                 for j in i:
-                    if j not in self.ReactionsList['R']:
-                        self.ReactionsList['R'].append(j)
+                    if j not in self.ReactionsList['REACTIONS']:
+                        self.ReactionsList['REACTIONS'].append(j)
             else:
-                if i not in self.ReactionsList['R']:
-                    self.ReactionsList['R'].append(i)
+                if i not in self.ReactionsList['REACTIONS']:
+                    self.ReactionsList['REACTIONS'].append(i)
 
     def add_reactants(self, *args):
 
@@ -446,11 +446,11 @@ class Superstructure_from_UI():
         for i in args:
             if type(i) == list:
                 for j in i:
-                    if j not in self.ReactantsList['M']:
-                        self.ReactantsList['M'].append(j)
+                    if j not in self.ReactantsList['REACTANTS']:
+                        self.ReactantsList['REACTANTS'].append(j)
             else:
-                if i not in self.ReactantsList['M']:
-                    self.ReactantsList['M'].append(i)
+                if i not in self.ReactantsList['REACTANTS']:
+                    self.ReactantsList['REACTANTS'].append(i)
 
     def add_utilities(self, *args):
         """
@@ -463,23 +463,23 @@ class Superstructure_from_UI():
         for i in args:
             if type(i) == list:
                 for j in i:
-                    if j not in self.UtilitiesList['UT']:
-                        self.UtilitiesList['UT'].append(j)
+                    if j not in self.UtilitiesList['UTILITIES']:
+                        self.UtilitiesList['UTILITIES'].append(j)
                         if j == 'Heat':
-                            self.HeatUtilitiesList['H_UT'].append('Heat2')
-                            self.HeatUtilitiesList['H_UT'].append(j)
-                            self.UtilitiesList['UT'].append('Heat2')
+                            self.HeatUtilitiesList['HEATING_COOLING_UTILITIES'].append('Heat2')
+                            self.HeatUtilitiesList['HEATING_COOLING_UTILITIES'].append(j)
+                            self.UtilitiesList['UTILITIES'].append('Heat2')
                         else:
-                            self.OtherUtilitiesList['U_UT'].append(j)
+                            self.OtherUtilitiesList['ENERGY_UTILITIES'].append(j)
             else:
-                if i not in self.UtilitiesList['UT']:
-                    self.UtilitiesList['UT'].append(i)
+                if i not in self.UtilitiesList['UTILITIES']:
+                    self.UtilitiesList['UTILITIES'].append(i)
                     if i == 'Heat':
-                        self.HeatUtilitiesList['H_UT'].append(i)
-                        self.HeatUtilitiesList['H_UT'].append('Heat2')
-                        self.UtilitiesList['UT'].append('Heat2')
+                        self.HeatUtilitiesList['HEATING_COOLING_UTILITIES'].append(i)
+                        self.HeatUtilitiesList['HEATING_COOLING_UTILITIES'].append('Heat2')
+                        self.UtilitiesList['UTILITIES'].append('Heat2')
                     else:
-                        self.OtherUtilitiesList['U_UT'].append(i)
+                        self.OtherUtilitiesList['ENERGY_UTILITIES'].append(i)
 
     def set_lhv(self, lhv_dic):
         """
@@ -490,7 +490,7 @@ class Superstructure_from_UI():
 
         """
         for i, j in lhv_dic.items():
-            self.lhv['LHV'][i] = j
+            self.lhv['lower_heating_value'][i] = j
 
     def set_mw(self, mw_dic):
         """
@@ -587,7 +587,7 @@ class Superstructure_from_UI():
         for i in self.Heat_Temperatures:
             self.HeatIntervals[k] = i
             if k != 0:
-                self.HeatIntervalList['HI'].append(k)
+                self.HeatIntervalList['HEAT_INTERVALS'].append(k)
             k -= 1
 
     def add_sensi_parameters(self,
@@ -675,7 +675,7 @@ class Superstructure_from_UI():
         dictTempPrices = {'super': 0, 'high': 0, 'medium': 0, 'low': 0}
 
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C']:
+            if i.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS']:
                 for j in i.T_IN.values():
                     if j != {}:
                         self.__set_heatTemperatures(j)
@@ -786,7 +786,7 @@ class Superstructure_from_UI():
         else:
             self.HP_ACC_Factor['HP_ACC_Factor'] = 0
             self.HP_Costs['HP_Costs'] = 0
-            self.COP_HP['COP_HP'] = 3
+            self.COP_HP['heat_pump_performance_coefficient'] = 3
 
     def __fill_betaParameters(self):
         """
@@ -798,13 +798,13 @@ class Superstructure_from_UI():
             - self.UnitsList
             - Process Objects of UnitsList
             - self.HeatIntervals       (holding Data on T-Grid)
-            - Process.HeatData        (holding Data on tau, TIN and TOUT)
+            - Process.HeatData        (holding Data on specific_utility_demand, TIN and TOUT)
 
         Sets Attributes:
 
-            - Process.beta       (holding Data on partitioned Temperature Flow)
-            - Process.tau_h      (holds Data on specific Heating Demand)
-            - Process.tau_c      (holds Data on specific Cooling Demand)
+            - Process.energy_demand_ration       (holding Data on partitioned Temperature Flow)
+            - Process.specific_heat_demand      (holds Data on specific Heating Demand)
+            - Process.specific_cooling_demand      (holds Data on specific Cooling Demand)
 
 
         Description
@@ -812,62 +812,62 @@ class Superstructure_from_UI():
 
         Takes specific Energy Demand (H/C) as well as Tempertures for every Process
         and checks:
-                1. If 0 < tau < 0  -- > If tau > 0 : tau_h , else tau_c
+                1. If 0 < specific_utility_demand < 0  -- > If specific_utility_demand > 0 : specific_heat_demand , else specific_cooling_demand
                 2. Cross references TIN and TOUT as well as DeltaT with T-Grid
                     and calculates the Split (Portion) of TGrid(k) - TGrid(k-1)
                     based on DeltaT
-                3. Sets Splits as beta Attributes
-                4. If TIN = TOUT and tau != 0  --> Process is isothermal, beta is
+                3. Sets Splits as energy_demand_ration Attributes
+                4. If TIN = TOUT and specific_utility_demand != 0  --> Process is isothermal, energy_demand_ration is
                     1 for on specific Heat Interval
-                5. Appends beta to Process ParameterList
+                5. Appends energy_demand_ration to Process ParameterList
 
         """
 
         r = len(self.Heat_Temperatures)
 
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C'] and i.Number not in self.HeatGeneratorList[
-                "U_FUR"] and i.Number not in self.ElectricityGeneratorList['U_TUR']:
+            if i.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS'] and i.Number not in self.HeatGeneratorList[
+                "FURNACES"] and i.Number not in self.ElectricityGeneratorList['TURBINES']:
                 for k, j in i.HeatData.items():
-                    tau = j['tau']
+                    tau = j['specific_utility_demand']
                     if tau is not None:
                         t_in = j['TIN']
                         t_out = j['TOUT']
                         if tau > 0:
                             DeltaT = t_out - t_in
-                            i.tau_h['tau_h'][k, i.Number] = tau
-                            i.tau_c['tau_c'][k, i.Number] = 0
+                            i.specific_heat_demand['specific_heat_demand'][k, i.Number] = tau
+                            i.specific_cooling_demand['specific_cooling_demand'][k, i.Number] = 0
                             for t, s in self.HeatIntervals.items():
                                 if t_in > s:
-                                    i.beta['beta'][i.Number, k, t] = 0
+                                    i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = 0
                                 else:
                                     if t_out == s and t_out == t_in:
-                                        i.beta['beta'][i.Number, k, t] = 1
+                                        i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = 1
                                     else:
                                         if t != 0:
                                             if t_out >= self.HeatIntervals[t - 1]:
-                                                i.beta['beta'][i.Number, k, t] = (self.HeatIntervals[
+                                                i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = (self.HeatIntervals[
                                                                                       t - 1] - s) / DeltaT
                                             else:
-                                                i.beta['beta'][i.Number, k, t] = 0
+                                                i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = 0
                         else:
                             DeltaT = t_in - t_out
-                            i.tau_h['tau_h'][k, i.Number] = 0
-                            i.tau_c['tau_c'][k, i.Number] = -tau
+                            i.specific_heat_demand['specific_heat_demand'][k, i.Number] = 0
+                            i.specific_cooling_demand['specific_cooling_demand'][k, i.Number] = -tau
                             for t, s in self.HeatIntervals.items():
                                 if t_out > s:
-                                    i.beta['beta'][i.Number, k, t] = 0
+                                    i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = 0
                                 else:
                                     if t_out == s and t_out == t_in:
-                                        i.beta['beta'][i.Number, k, t + 1] = 1
+                                        i.energy_demand_ration['energy_demand_ration'][i.Number, k, t + 1] = 1
                                     else:
                                         if t != 0:
                                             if t_in >= self.HeatIntervals[t - 1]:
-                                                i.beta['beta'][i.Number, k, t] = (self.HeatIntervals[
+                                                i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = (self.HeatIntervals[
                                                                                       t - 1] - s) / DeltaT
                                             else:
-                                                i.beta['beta'][i.Number, k, t] = 0
-                i.ParameterList.append(i.beta)
+                                                i.energy_demand_ration['energy_demand_ration'][i.Number, k, t] = 0
+                i.ParameterList.append(i.energy_demand_ration)
 
     def __calc_capexLinearizationParameters(self):
         """
@@ -883,7 +883,7 @@ class Superstructure_from_UI():
 
         """
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C']:
+            if i.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS']:
                 aa = i.Number
                 (i.lin_CAPEX_x, i.lin_CAPEX_y) = capex_calculator(i, self.CECPI, Detail=self.linearizationDetail)
 
@@ -896,40 +896,40 @@ class Superstructure_from_UI():
 
         """
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C']:
+            if i.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS']:
                 i.ACC_Factor['ACC_Factor'][i.Number] = i.calc_ACCFactor(self.IR)
 
     def __set_turnoverParameter(self):
 
         for i in self.UnitsList:
-            if i.Number in self.CostUnitsList['U_C']:
+            if i.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS']:
                 i.turn_over_acc['to_acc'][i.Number] = i.calc_turnoverACC(self.IR)
 
     def __set_optionalFLH(self):
         for x in self.UnitsList:
-            if x.FLH['flh'][x.Number] is None:
-                x.FLH['flh'][x.Number] = self.H['H']
+            if x.FLH['full_load_hours'][x.Number] is None:
+                x.FLH['full_load_hours'][x.Number] = self.H['H']
 
     def __set_optionalKOM(self):
         for x in self.UnitsList:
-            if x.Number in self.CostUnitsList['U_C']:
+            if x.Number in self.CostUnitsList['COSTED_UNIT_OPERATIONS']:
                 if x.K_OM['K_OM'][x.Number] is None:
                     x.K_OM['K_OM'][x.Number] = self.K_OM
 
     def __scan_unit_connections(self):
 
         data_file = self.Data_File[None]
-        connector_data = data_file['myu']
+        connector_data = data_file['split_factor']
 
         for i in connector_data.keys():
             connection = (i[0], i[1][0])
 
-            if connection not in self.connections_set['U_CONNECTORS']:
-                self.connections_set['U_CONNECTORS'].append(connection)
+            if connection not in self.connections_set['UNIT_CONNECTIONS']:
+                self.connections_set['UNIT_CONNECTIONS'].append(connection)
 
-        for i in self.distributor_subset['U_DIST_SUB']:
-            if i not in self.connections_set['U_CONNECTORS']:
-                self.connections_set['U_CONNECTORS'].append(i)
+        for i in self.distributor_subset['PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS']:
+            if i not in self.connections_set['UNIT_CONNECTIONS']:
+                self.connections_set['UNIT_CONNECTIONS'].append(i)
 
     #------------------------------------------------------------------------------
     #------------------------------------------------------------------------------
@@ -1212,7 +1212,7 @@ class Superstructure_from_UI():
 
                     # set the new value of the parameter
                     newValue = value + value * uncertaintySeries[i]
-                    if (('myu' in parameterName or 'theta' in parameterName or 'xi' in parameterName)
+                    if (('split_factor' in parameterName or 'stoich_conversion_factor' in parameterName or 'yield_factor_unit_operation' in parameterName)
                         and newValue > 1):
                         newCompostionDict[parameterName][new_tuple] = 1  # split factors can not be greater than 1
                     else:
@@ -1250,8 +1250,8 @@ class Superstructure_from_UI():
         changeDict = {}
         ScenarioNames = uncertaintyObject.ScenarioNames
         PhiExclusionList = uncertaintyObject.PhiExclusionList
-        newDictUnpacked = newDict['phi']
-        oldDict = oldDict['phi']
+        newDictUnpacked = newDict['component_concentration']
+        oldDict = oldDict['component_concentration']
         for sc in ScenarioNames:
             compositionSum = sum(newDictUnpacked[(key[0], key[1], sc)] for key in oldDict.keys())
             if compositionSum != 1:
@@ -1278,7 +1278,7 @@ class Superstructure_from_UI():
 
         # update the newDict with the changeDict values
         for keys in changeDict.keys():
-            newDict['phi'][keys] = changeDict[keys]
+            newDict['component_concentration'][keys] = changeDict[keys]
 
         return newDict
 
@@ -1309,7 +1309,7 @@ class Superstructure_from_UI():
 
                 # update the composition
                 newCompostionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                              parameterName='phi',
+                                                              parameterName='component_concentration',
                                                               oldDict=unit.Composition)
 
                 # update the composition to keep the sum of the fractions equal to 1
@@ -1321,74 +1321,74 @@ class Superstructure_from_UI():
 
                 # update the material cost prices
                 newPriceDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='materialcosts',
+                                                         parameterName='material_costs',
                                                          oldDict=unit.MaterialCosts)
                 unit.MaterialCosts = newPriceDict
 
             elif unit.Type == "Distributor":
                 newDistributionDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                                parameterName='Decimal_numbers',
+                                                                parameterName='decimal_numbers',
                                                                 oldDict=unit.decimal_numbers)
                 unit.decimal_numbers = newDistributionDict
 
             elif unit.Type == "PhysicalProcess":
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='myu',
-                                                         oldDict=unit.myu)
-                unit.myu = newSplitDict
+                                                         parameterName='split_factor',
+                                                         oldDict=unit.split_factor)
+                unit.split_factor = newSplitDict
 
 
             elif unit.Type == "Stoich-Reactor":
                 # here we need to change 3 paramerter:
-                # 1) myu (splitfactor)
+                # 1) split_factor (splitfactor)
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='myu',
-                                                         oldDict=unit.myu)
-                unit.myu = newSplitDict
+                                                         parameterName='split_factor',
+                                                         oldDict=unit.split_factor)
+                unit.split_factor = newSplitDict
 
-                # 2) gamma (stoichiometry)
+                # 2) stoich_reaction_coefficient (stoichiometry)
                 newGammaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='gamma',
-                                                         oldDict=unit.gamma)
-                unit.gamma = newGammaDict
+                                                         parameterName='stoich_reaction_coefficient',
+                                                         oldDict=unit.stoich_reaction_coefficient)
+                unit.stoich_reaction_coefficient = newGammaDict
 
-                # 3) theta (conversion)
+                # 3) stoich_conversion_factor (conversion)
                 newThetaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='theta',
-                                                         oldDict=unit.theta)
-                unit.theta = newThetaDict
+                                                         parameterName='stoich_conversion_factor',
+                                                         oldDict=unit.stoich_conversion_factor)
+                unit.stoich_conversion_factor = newThetaDict
 
             elif unit.Type == "Yield-Reactor":
                 # modify the split factor
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='myu',
-                                                         oldDict=unit.myu)
-                unit.myu = newSplitDict
+                                                         parameterName='split_factor',
+                                                         oldDict=unit.split_factor)
+                unit.split_factor = newSplitDict
 
-                # 2) modify the xi (yield)
+                # 2) modify the yield_factor_unit_operation (yield)
                 newXiDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                      parameterName='xi',
-                                                      oldDict=unit.xi)
-                unit.xi = newXiDict
+                                                      parameterName='yield_factor_unit_operation',
+                                                      oldDict=unit.yield_factor_unit_operation)
+                unit.yield_factor_unit_operation = newXiDict
 
             elif unit.Type == "HeatGenerator" or unit.Type == "ElectricityGenerator" or unit.Type == "CombinedHeatAndPower":
                 # update the split factors
                 newSplitDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='myu',
-                                                         oldDict=unit.myu)
-                unit.myu = newSplitDict
+                                                         parameterName='split_factor',
+                                                         oldDict=unit.split_factor)
+                unit.split_factor = newSplitDict
 
-                # update the gamma
+                # update the stoich_reaction_coefficient
                 newGammaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='gamma',
-                                                         oldDict=unit.gamma)
-                unit.gamma = newGammaDict
+                                                         parameterName='stoich_reaction_coefficient',
+                                                         oldDict=unit.stoich_reaction_coefficient)
+                unit.stoich_reaction_coefficient = newGammaDict
 
-                # update the theta
+                # update the stoich_conversion_factor
                 newThetaDict = self.set_unit_uncertainty(uncertaintyObject=uncertaintyObject,
-                                                         parameterName='theta',
-                                                         oldDict=unit.theta)
-                unit.theta = newThetaDict
+                                                         parameterName='stoich_conversion_factor',
+                                                         oldDict=unit.stoich_conversion_factor)
+                unit.stoich_conversion_factor = newThetaDict
 
             else:
                 raise ValueError("The unit type {} is not recognized".format(unit.Type))
@@ -1419,7 +1419,7 @@ class Superstructure_from_UI():
 
         # make the base case data_file of the model
         baseCaseDataFile = self.create_DataFile()
-        unitNames = baseCaseDataFile[None]['Names']
+        unitNames = baseCaseDataFile[None]['names']
 
         scenarioDataFiles = {}
         newUncertaintyMatrix = pd.DataFrame()
@@ -1442,13 +1442,13 @@ class Superstructure_from_UI():
                 newValue = currentValue * (1 + value)
 
                 # constrain to be equal to 1, otherwise mass balance problems will occur
-                constrained_parameters = ('myu', 'theta', 'gamma', 'phi', 'xi')
+                constrained_parameters = ('split_factor', 'stoich_conversion_factor', 'stoich_reaction_coefficient', 'component_concentration', 'yield_factor_unit_operation')
                 if parameterName in constrained_parameters:
                     if newValue > 1:
                         newValue = 1  # constrain to be equal to 1, otherwise mass balance problems will occur
 
                 # make a new column name, depending on the parameter name
-                if parameterName == 'tau_h':
+                if parameterName == 'specific_heat_demand':
                     unitNumber = index[1]  # unit number is the second element of the index tuple
                     columnName = parameterName + ' ' + str(unitNames[unitNumber])
 
@@ -1470,7 +1470,7 @@ class Superstructure_from_UI():
                 dataFileScenario[None][parameterName][index] = newValue
                 # keep a dictionary of the compostition of the source units, so later the other fractions can be updated
                 # so the sum of the fractions is equal to 1
-                if parameterName == 'phi':  # phi being the parameter name for the composition of the source units
+                if parameterName == 'component_concentration':  # component_concentration being the parameter name for the composition of the source units
                     adjustedPhiDict[index] = newValue
 
                 # update the composition of the source units to keep the sum of the fractions equal to 1, do this for each scenario
@@ -1519,8 +1519,8 @@ class Superstructure_from_UI():
            Parameters:
            ----------
            adjustedPhiDict : dict
-               A dictionary containing the new values of the parameter `phi` for each source unit.
-               The keys are the source unit identifiers, and the values are the new `phi` values.
+               A dictionary containing the new values of the parameter `component_concentration` for each source unit.
+               The keys are the source unit identifiers, and the values are the new `component_concentration` values.
 
            dataFile : dict
                The data file of the model that will be adjusted.
@@ -1641,7 +1641,7 @@ class Superstructure_from_UI():
         # -------------------------------------------------------------------------------------------
 
         # get the original source dictionary
-        originalSourceDict = baseCaseDataFile[None]['phi']
+        originalSourceDict = baseCaseDataFile[None]['component_concentration']
         sourceDict = split_dictionary(originalSourceDict)
 
         # get the adjusted source dictionary and split it
@@ -1656,7 +1656,7 @@ class Superstructure_from_UI():
                                                   toAdjustDict=adjustedPhiDict)
 
         for key in dictNewCompositions:
-            dataFile[None]['phi'][key] = dictNewCompositions[key]
+            dataFile[None]['component_concentration'][key] = dictNewCompositions[key]
 
         return dataFile
 

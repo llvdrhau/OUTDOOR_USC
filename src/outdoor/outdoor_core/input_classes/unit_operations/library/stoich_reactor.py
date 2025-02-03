@@ -30,8 +30,8 @@ class StoichReactor(PhysicalProcess):
         self.Type = "Stoich-Reactor"
 
         # Indexed Attrubutes
-        self.gamma = {'gamma': {}}
-        self.theta = {'theta': {}}
+        self.gamma = {'stoich_reaction_coefficient': {}}
+        self.theta = {'stoich_conversion_factor': {}}
 
 
     # REACTION SETTING METHODS
@@ -40,7 +40,7 @@ class StoichReactor(PhysicalProcess):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.StoichRNumberList['U_STOICH_REACTOR'].append(self.Number)
+        superstructure.StoichRNumberList['STOICH_REACTORS'].append(self.Number)
 
     def set_gammaFactors(self, gamma_dic):
 
@@ -54,7 +54,7 @@ class StoichReactor(PhysicalProcess):
 
         """
         for i in gamma_dic:
-            self.gamma['gamma'][self.Number, i]  = gamma_dic[i]
+            self.gamma['stoich_reaction_coefficient'][self.Number, i]  = gamma_dic[i]
 
 
 
@@ -67,7 +67,7 @@ class StoichReactor(PhysicalProcess):
             Example:  dict= {(r1,m1): value1}
         """
         for i in theta_dic:
-            self.theta['theta'][self.Number, i] = theta_dic[i]
+            self.theta['stoich_conversion_factor'][self.Number, i] = theta_dic[i]
 
 
     def set_reactionData(self,

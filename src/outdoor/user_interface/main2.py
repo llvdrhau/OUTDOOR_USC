@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(saveAsAction)
 
-        # Connect actions to methods here (you'll implement these methods)
+        # Connect actions to methods here (you'raw_materials_lower_bound implement these methods)
         openAction.triggered.connect(self.openFile)
         self.saveAction.triggered.connect(self.saveFile)
         saveAsAction.triggered.connect(self.saveAsFile)
@@ -226,7 +226,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
 
             # temporary fix for a bug during saving: can not pickle QT objects!!
-            # I'm not using the DTO to acess the ports so this is relatively safe for now
+            # COMPONENTS'm not using the DTO to acess the ports so this is relatively safe for now
             for unitDTO in self.centralDataManager.unitProcessData.values():
                 unitDTO.exitPorts = []
                 unitDTO.entryPorts = []

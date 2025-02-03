@@ -178,7 +178,7 @@ class ModelOutput:
             data = self._data
 
         temp = dict()
-        exeptions = ["Y", "Y_DIST", "lin_CAPEX_z", "Y_HEX"]
+        exeptions = ["y", "y_distribution", "lin_CAPEX_z", "y_heat_exchange_network"]
         for i, j in data.items():
             if "index" not in i:
                 if type(j) == dict:
@@ -222,30 +222,30 @@ class ModelOutput:
         basic_results["Basic results"]["Objective Function"] = self._objective_function
         basic_results["units"]["Objective Function"] = 'aa'
 
-        basic_results["Basic results"]["Yearly product load"] = self._data['sourceOrProductLoad']
+        basic_results["Basic results"]["Yearly product load"] = self._data['source_or_product_load']
 
         basic_results["Basic results"]["Solver run time"] = '{} seconds'.format(round(self._run_time,2))
 
         basic_results["Basic results"]["Solver name"] = self._solver
 
-        if self._data['sourceOrProductLoad'] == 1:
+        if self._data['source_or_product_load'] == 1:
             basic_results["Basic results"]["Earnings Before Tax income"] = "{} Mil. Euro".format(
                 round(self._data["EBIT"], 3))
         else:
             basic_results["Basic results"]["Earnings Before Tax income"] = "{} €/ton".format(
                 round(self._data["EBIT"], 3))
 
-        if self._data['sourceOrProductLoad'] >= 1:
+        if self._data['source_or_product_load'] >= 1:
             basic_results["Basic results"]["Net production costs"] = "{} euro/ton".format(round(self._data["NPC"], 2))
         else:
             basic_results["Basic results"]["Net production costs"] = "{} euro/ton".format(round(self._data["NPC"]/ self._data['SumOfProductFlows'], 2))
 
-        if self._data['sourceOrProductLoad'] >= 1:
+        if self._data['source_or_product_load'] >= 1:
             basic_results["Basic results"]["Net production GHG emissions"] = "{} CO2-eq/ton".format(round(self._data["NPE"], 2))
         else:
             basic_results["Basic results"]["Net production GHG emissions"] = "{} CO2-eq/ton".format(round(self._data["NPE"] / self._data['SumOfProductFlows'], 2))
 
-        if self._data['sourceOrProductLoad'] >= 1:
+        if self._data['source_or_product_load'] >= 1:
             basic_results["Basic results"]["Net present FWD"] = "{} H2O-eq/ton".format(round(self._data["NPFWD"], 2))
         else:
             basic_results["Basic results"]["Net production FWD"] = "{} H2O-eq/ton".format(round(self._data["NPFWD"]/ self._data['SumOfProductFlows'], 2))
@@ -282,7 +282,7 @@ class ModelOutput:
 
         for i, j in model_data["ACC"].items():
             if j >= 1e-3:
-                index_name = model_data["Names"][i]
+                index_name = model_data["names"][i]
                 capitalcost_shares["Capital costs shares"][index_name] = round(
                     (j + model_data.get("TO_CAPEX", 0).get(i, 0)) / total_costs * 100, 2
                 )
@@ -412,9 +412,9 @@ class ModelOutput:
 
         total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and j >= 1e-05:
-                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+                total_el += j * model_data.get("full_load_hours", 0).get(i[0], 0)
 
         electricity_shares["Electricity demand shares"]["Heatpump electricity share"] \
             = round(
@@ -422,11 +422,11 @@ class ModelOutput:
             2,
             )
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and j >= 1e-05:
-                index_name = model_data["Names"][i[0]]
+                index_name = model_data["names"][i[0]]
                 electricity_shares["Electricity demand shares"][index_name] = round(
-                    j * model_data.get("flh", 0).get(i[0], 0) / total_el * 100, 2
+                    j * model_data.get("full_load_hours", 0).get(i[0], 0) / total_el * 100, 2
                 )
 
         return electricity_shares
@@ -629,9 +629,9 @@ class ModelOutput:
 
         total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
 
-        for i, j in model_data["ENERGY_DEMAND"].items():
+        for i, j in model_data["Energy_Demand"].items():
             if i[1] == "Electricity" and abs(j) >= 1e-05:
-                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+                total_el += j * model_data.get("full_load_hours", 0).get(i[0], 0)
 
         energy_data["Energy data"]["heat"] = heat_demand
         energy_data["Energy data"]["cooling"] = cool_demand
@@ -644,11 +644,11 @@ class ModelOutput:
         model_data = self._data
         mass_flow_data = {"Mass flows": {}}
 
-        for i, j in model_data["FLOW_FT"].items():
+        for i, j in model_data["Total_Flows"].items():
             if j > 1e-04:
                 mass_flow_data["Mass flows"][i] = round(j, 2)
 
-        for i, j in model_data["FLOW_ADD"].items():
+        for i, j in model_data["Raw_Material_Input"].items():
             if j > 1e-04:
                 mass_flow_data["Mass flows"][i] = round(j, 2)
 
@@ -864,22 +864,22 @@ class ModelOutput:
         """
 
         if data is None:
-            flow = self._data["FLOW_SUM"]
-            flow_s = self._data["FLOW_SOURCE"]
+            flow = self._data["Flow_Sum"]
+            flow_s = self._data["Raw_Material_Input_Source"]
             data = self._data
         else:
-            flow = data["FLOW_SUM"]
-            flow_s = data["FLOW_SOURCE"]
+            flow = data["Flow_Sum"]
+            flow_s = data["Raw_Material_Input_Source"]
 
         # if the key of flow is a tuple then the solution id from the stochastic model
         # Extract the maximum value of the flows for each scenario
         if isinstance(list(flow.keys())[0], tuple):
-            flow = self.find_max_value_of_scenarios(dict=flow, unitNr=data['U'])
-            flow_s = self.find_max_value_of_scenarios(dict=flow_s, unitNr=data['U_S'])
+            flow = self.find_max_value_of_scenarios(dict=flow, unitNr=data['UNIT_PROCESSES'])
+            flow_s = self.find_max_value_of_scenarios(dict=flow_s, unitNr=data['RAW_MATERIAL_SOURCES'])
 
 
-        y = data["Y"]
-        names = data["Names"]
+        y = data["y"]
+        names = data["names"]
         chosen = {}
 
         for i, j in y.items():
@@ -907,7 +907,7 @@ class ModelOutput:
         scenario_values = self._data['SC']
 
         if unitNr is  None:
-            units = self._data['U']
+            units = self._data['UNIT_PROCESSES']
         else:
             units = unitNr
 

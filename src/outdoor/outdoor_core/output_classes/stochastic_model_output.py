@@ -240,7 +240,7 @@ class StochasticModelOutput(ModelOutput):
         uncertaintyDict = self.uncertaintyDict  # get the uncertainty dictionary
 
         if uncertainParameterList is None:
-            uncertainParameterList = ['phi', 'myu', 'xi', 'materialcosts', 'ProductPrice', 'gamma', 'theta']
+            uncertainParameterList = ['component_concentration', 'split_factor', 'yield_factor_unit_operation', 'material_costs', 'ProductPrice', 'stoich_reaction_coefficient', 'stoich_conversion_factor']
 
 
         for parameter in uncertainParameterList:
@@ -282,7 +282,7 @@ class StochasticModelOutput(ModelOutput):
 
     def upack_tuples(self, tupleKeys):
         """"
-        unpacks the tuples in a list, this is the case for theta parameter where the keys are a nested tuples but the
+        unpacks the tuples in a list, this is the case for stoich_conversion_factor parameter where the keys are a nested tuples but the
         output is a smooth list of tuples
         """
         if tupleKeys: # make sure the list is not empty
@@ -318,7 +318,7 @@ class StochasticModelOutput(ModelOutput):
         :return: The plot of the distribution of the parameter over the scenarios.
         """
 
-        VariablePermission = ["ENERGY_DEMAND_TOT", "OPEX", "EBIT", "NPC", "NPE", "NPFWD"]
+        VariablePermission = ["Total_Energy_Demand", "OPEX", "EBIT", "NPC", "NPE", "NPFWD"]
         EnergyDemandPermission = ["Electricity", "Cooling"]
 
         # Handling variable input
@@ -332,11 +332,11 @@ class StochasticModelOutput(ModelOutput):
             raise ValueError(f"The variable {variableName} cannot be plotted at the moment. "
                              f"Possible parameters to plot are: {VariablePermission}")
 
-        # Handle ENERGY_DEMAND_TOT
-        elif variableName == "ENERGY_DEMAND_TOT":
-            UT = variable['UT']
+        # Handle Total_Energy_Demand
+        elif variableName == "Total_Energy_Demand":
+            UT = variable['UTILITIES']
             if UT not in EnergyDemandPermission:
-                raise ValueError("Please specify the Utility parameter UT as either 'Electricity' or 'Cooling'")
+                raise ValueError("Please specify the Utility parameter UTILITIES as either 'Electricity' or 'Cooling'")
             variableData = [value for key, value in self._data[variableName].items() if key[0] == UT]
         else:
             variableData = list(self._data[variableName].values())
@@ -530,7 +530,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
         for scenarioName, scenarioInstance in self.ph.local_scenarios.items():
             if not self.warningVariables[scenarioName]: # if the de warning scenario is epmty then fill the data
                 dataScenario = self._fill_data(scenarioInstance)
-                # todo should I tidy the data or not??????
+                # todo should COMPONENTS tidy the data or not??????
                 # dataScenario = self._tidy_data(dataScenario)
                 self._dataStochastic.update({scenarioName: dataScenario})
                 scenarioProbabilities[scenarioName] = scenarioInstance._mpisppy_probability
@@ -586,7 +586,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
     # Calculate EVPI  ------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------
-    # I should maybe put this methode in a different analyzer class and not in the Basic one idk
+    # COMPONENTS should maybe put this methode in a different analyzer class and not in the Basic one idk
     def calculate_EVPI(self, WaitAndSeeOutputObject):
         """
         Calculate the Expected Value of Perfect Information (EVPI) of the given objective function.
@@ -626,7 +626,7 @@ class StochasticModelOutput_mpi_sppy(ModelOutput):
 
     # Calculate VSS  ------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------
-    # I should maybe put this methode in a different analyzer class and not in the Basic one idk
+    # COMPONENTS should maybe put this methode in a different analyzer class and not in the Basic one idk
     def calculate_VSS(self, WaitAndSeeOutputObject):
         """
         Calculate the Value of the Stochastic Solution (VSS) of the given objective function.

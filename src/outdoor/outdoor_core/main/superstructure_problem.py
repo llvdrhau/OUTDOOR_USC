@@ -498,10 +498,10 @@ class SuperstructureProblem:
         :param infeasibleScenarios: a list with the scenarios which are infeasible
         :return: the curated data file
         """
-        # we need to go over the following parameters: phi, myu, xi, materialcosts, ProductPrice, gamma and theta
+        # we need to go over the following parameters: component_concentration, split_factor, yield_factor_unit_operation, material_costs, ProductPrice, stoich_reaction_coefficient and stoich_conversion_factor
 
         if parameterList is None:
-            parameterList = ['phi', 'myu', 'xi', 'materialcosts', 'ProductPrice', 'gamma', 'theta', 'Decimal_numbers']
+            parameterList = ['component_concentration', 'split_factor', 'yield_factor_unit_operation', 'material_costs', 'ProductPrice', 'stoich_reaction_coefficient', 'stoich_conversion_factor', 'decimal_numbers']
 
         for sc in infeasibleScenarios:
             data_file[None]['SC'][None].remove(sc)  # remove the scenario from the list of scenarios
@@ -557,7 +557,7 @@ class SuperstructureProblem:
     #                              # the first stage variables, which are non-anticipative constraints.
     #                              # i.e., do not change across scenarios. In this case, the binary variables responsible
     #                              # for the selection of the technology
-    #                              [modelInstance.Y]) # todo add?  ,modelInstance.Y_DIST
+    #                              [modelInstance.y]) # todo add?  ,modelInstance.y_distribution
     #
     #     modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
     #

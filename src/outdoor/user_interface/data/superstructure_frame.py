@@ -5,7 +5,7 @@ class SuperstructureFrame():
     def __init__(self):
 
         self.MainProduct = ""
-        self.ProductLoad = {'ProductLoad': 0}
+        self.ProductLoad = {'product_load': 0}
         self.objective = ""
         self.productDriver = "no"
         self.OptimimizationMode = ""
@@ -25,24 +25,24 @@ class SuperstructureFrame():
         # Unit Operations
         # ----------------
         self.UnitsList = []
-        self.UnitsNumberList = {'U': []}  # All units
+        self.UnitsNumberList = {'UNIT_PROCESSES': []}  # All units
         self.UnitsNumberList2 = {'UU': []}  # All units minus inputs
-        self.StoichRNumberList = {'U_STOICH_REACTOR': []}
-        self.YieldRNumberList = {'U_YIELD_REACTOR': []}
-        self.SplitterNumberList = {'U_SPLITTER': []}
-        self.HeatGeneratorList = {'U_FUR': []}
-        self.ElectricityGeneratorList = {'U_TUR': []}
-        self.ProductPoolList = {'U_PP': []}  # Outputs
-        self.CostUnitsList = {'U_C': []}  # Costs of your inputs
-        self.SourceList = {'U_S': []}  # Sources
-        self.SourceSet = {'U_SU': []}  #
-        self.YieldSubSet = {'YC': []}  #
-        self.distributor_subset = {'U_DIST_SUB': []}
-        self.distributor_list = {'U_DIST': []}
-        self.decimal_set = {'DC_SET': []}
-        self.distributor_subset2 = {'U_DIST_SUB2': []}
+        self.StoichRNumberList = {'STOICH_REACTORS': []}
+        self.YieldRNumberList = {'YIELD_REACTORS': []}
+        self.SplitterNumberList = {'SPLITTERS': []}
+        self.HeatGeneratorList = {'FURNACES': []}
+        self.ElectricityGeneratorList = {'TURBINES': []}
+        self.ProductPoolList = {'PRODUCT_POOLS': []}  # Outputs
+        self.CostUnitsList = {'COSTED_UNIT_OPERATIONS': []}  # Costs of your inputs
+        self.SourceList = {'RAW_MATERIAL_SOURCES': []}  # Sources
+        self.SourceSet = {'CONNECTED_RAW_MATERIAL_UNIT_OPERATION': []}  #
+        self.YieldSubSet = {'YIELD_REACTOR_COMPONENTS': []}  #
+        self.distributor_subset = {'PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS': []}
+        self.distributor_list = {'DISTRIBUTORS': []}
+        self.decimal_set = {'DISTRIBUTOR_DECIMAL_SET': []}
+        self.distributor_subset2 = {'DISTRIBUTOR_DECIMAL_SUBSET': []}
 
-        self.connections_set = {'U_CONNECTORS': []}
+        self.connections_set = {'UNIT_CONNECTIONS': []}
         self.Scenarios = {'SC': []}  # Stochastic, maybe redundant
         self.Odds = {'odds': []}  # Prolly stochastic modeling too
 
@@ -50,24 +50,24 @@ class SuperstructureFrame():
 
         # Heat Balance and Utilities
         # --------------------------
-        self.HeatIntervalList = {'HI': []}
-        self.HeatUtilitiesList = {'H_UT': []}
+        self.HeatIntervalList = {'HEAT_INTERVALS': []}
+        self.HeatUtilitiesList = {'HEATING_COOLING_UTILITIES': []}
         self.Heat_Temperatures = []
         self.HeatIntervals = {}
-        self.UtilitiesList = {'UT': []}
-        self.OtherUtilitiesList = {'U_UT': []}
+        self.UtilitiesList = {'UTILITIES': []}
+        self.OtherUtilitiesList = {'ENERGY_UTILITIES': []}
         # ---------------------------
 
         # Others
         # ----------
-        self.ComponentsList = {'I': []}
-        self.ReactionsList = {'R': []}
-        self.ReactantsList = {'M': []}
+        self.ComponentsList = {'COMPONENTS': []}
+        self.ReactionsList = {'REACTIONS': []}
+        self.ReactantsList = {'REACTANTS': []}
 
         self.LinPointsList = {'J': []}
         self.LinIntervalsList = {'JI': []}
-        self.UnitNames = {'Names': {}}
-        self.UnitNames2 = {'Names': {}}  # for the grafical representation
+        self.UnitNames = {'names': {}}
+        self.UnitNames2 = {'names': {}}  # for the grafical representation
         # --------------
 
         self.groups = dict()
@@ -81,7 +81,7 @@ class SuperstructureFrame():
         # -------------------
         self.HP_Costs = {'HP_Costs': 0}
         self.HP_ACC_Factor = {'HP_ACC_Factor': 0}
-        self.COP_HP = {'COP_HP': 3}
+        self.COP_HP = {'heat_pump_performance_coefficient': 3}
         self.HP_LT = None
         self.HP_T_IN = {}
         self.HP_T_OUT = {}
@@ -116,7 +116,7 @@ class SuperstructureFrame():
 
         # Additional data
         # ---------------
-        self.lhv = {'LHV': {}}
+        self.lhv = {'lower_heating_value': {}}
         self.mw = {'MW': {}}
         self.cp = {'CP': {}}
         self.em_fac_ut = {'em_fac_ut': {}}

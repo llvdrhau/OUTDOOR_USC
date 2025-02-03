@@ -63,14 +63,14 @@ class PhysicalProcess(Process):
         # -----------------
 
         # Indexed Attributes
-        self.tau = {'tau': {}}
+        self.tau = {'specific_utility_demand': {}}
 
-        self.tau_h = {'tau_h':{}}
-        self.tau_c = {'tau_c': {}}
+        self.tau_h = {'specific_heat_demand':{}}
+        self.tau_c = {'specific_cooling_demand': {}}
 
-        self.kappa_1_ut = {'kappa_1_ut': {}}
+        self.kappa_1_ut = {'heat_calculation_slack_param': {}}
         self.kappa_2_ut = {'kappa_2_ut': {}}
-        self.beta = {'beta': {}}
+        self.beta = {'energy_demand_ration': {}}
 
 
         self.HeatData = {'Heat': {}, 'Heat2': {}}
@@ -94,7 +94,7 @@ class PhysicalProcess(Process):
     def fill_unitOperationsList(self, superstructure):
 
         super().fill_unitOperationsList(superstructure)
-        superstructure.CostUnitsList['U_C'].append(self.Number)
+        superstructure.CostUnitsList['COSTED_UNIT_OPERATIONS'].append(self.Number)
 
     # ECONOMIC DATA SETTING
     # ---------------------
@@ -247,7 +247,7 @@ class PhysicalProcess(Process):
 
 
     def calc_turnoverACC(self, IR):
-        h = self.FLH['flh'][self.Number]
+        h = self.FLH['full_load_hours'][self.Number]
         lt = self.LT['LT'][self.Number]
 
 
@@ -332,7 +332,7 @@ class PhysicalProcess(Process):
         """
 
         for i in tau_dic:
-            self.tau['tau'][self.Number,i] = tau_dic[i]
+            self.tau['specific_utility_demand'][self.Number,i] = tau_dic[i]
 
 
 
@@ -346,7 +346,7 @@ class PhysicalProcess(Process):
         """
         for i in kappa_1_ut_dic:
             for j in kappa_1_ut_dic[i]:
-                self.kappa_1_ut['kappa_1_ut'][self.Number,i,j] = 1
+                self.kappa_1_ut['heat_calculation_slack_param'][self.Number,i,j] = 1
 
 
 
@@ -387,8 +387,8 @@ class PhysicalProcess(Process):
         self.HeatData['Heat']['TOUT'] = T_OUT_1
         self.HeatData['Heat2']['TIN'] = T_IN_2
         self.HeatData['Heat2']['TOUT'] = T_OUT_2
-        self.HeatData['Heat']['tau'] = tau1
-        self.HeatData['Heat2']['tau'] = tau2
+        self.HeatData['Heat']['specific_utility_demand'] = tau1
+        self.HeatData['Heat2']['specific_utility_demand'] = tau2
         self.T_IN['Heat'] = T_IN_1
         self.T_IN['Heat2'] = T_IN_2
         self.T_OUT['Heat'] = T_OUT_1

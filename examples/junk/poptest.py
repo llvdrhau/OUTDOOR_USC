@@ -1,7 +1,7 @@
 # Example dictionary where the key is a tuple
 my_dict = {
     (1, 'a', 'X'): 'value1',
-    (2, 'b', 'Y'): 'value2',
+    (2, 'b', 'y'): 'value2',
     (3, 'c', 'X'): 'value3',
     (4, 'd', 'Z'): 'value4',
     (5, 'e', 'X'): 'value5',

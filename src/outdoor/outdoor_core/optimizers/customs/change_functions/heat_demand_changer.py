@@ -11,11 +11,11 @@ def change_heat_demand(Instance, Parameter, Value, Index = None, Superstructure 
     '# currently not working in excel wrapper'
     if Value > 0:
         tau_h = Value
-        Instance.tau_h[Index] = tau_h
+        Instance.specific_heat_demand[Index] = tau_h
 
     else:
         tau_c = Value
-        Instance.tau_c[Index] = tau_c
+        Instance.specific_cooling_demand[Index] = tau_c
 
     return Instance
 

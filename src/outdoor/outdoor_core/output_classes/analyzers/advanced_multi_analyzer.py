@@ -374,7 +374,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
         #keysSelectedProcesses = list(dic.keys())
 
-        #sourceFlow = process_design._data['FLOW_SOURCE']
+        #sourceFlow = process_design._data['Raw_Material_Input_Source']
         #processFlows = process_design.results['Mass flows'] #is a dictionary with the mass flows of the processes
         #processesWithFlows = []
 
@@ -485,7 +485,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         -------
         X : Numpy array
             x-axis values
-        Y : Numpy array
+        y : Numpy array
             y-axis values
         Z : Two-dimensional Numpy array
             Net production costs of x and y
@@ -739,7 +739,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
             # Label the contour lines with larger fonts
             # get the right contour label
-            loadAmount = list(self.model_output._results_data.values())[0]._data['sourceOrProductLoad']
+            loadAmount = list(self.model_output._results_data.values())[0]._data['source_or_product_load']
             if loadAmount >= 1:
                 fmt = '%1.2f €/t'
             else:
@@ -834,7 +834,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
     def _reorder_labels(self, labels, labelDict):
         """
-        I now want the labels to go from 0 to n, where n is the number of unique labels. I have to remap the labels and
+        COMPONENTS now want the labels to go from 0 to n, where n is the number of unique labels. COMPONENTS have to remap the labels and
         correct/update the label_dict accordingly.
         :param labels: nd.array
         :param label_dict: dict
@@ -859,7 +859,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
         Parameters:
         x (array-like): X-axis values
-        y (array-like): Y-axis values
+        y (array-like): y-axis values
         z (2D array-like): Z-axis values
         labels (2D array-like): Label values corresponding to each (x, y) point
         label_dict (dict): Dictionary mapping labels to their corresponding descriptions
@@ -1042,17 +1042,17 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         :return: productsPerFlowsheet: list
         """
         if hasattr(self.model_output._results_data['sc1'], '_data'):
-            productIDs = self.model_output._results_data['sc1']._data['U_PP']
-            generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
-                                    self.model_output._results_data['sc1']._data['U_FUR']))
+            productIDs = self.model_output._results_data['sc1']._data['PRODUCT_POOLS']
+            generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['TURBINES'] +
+                                    self.model_output._results_data['sc1']._data['FURNACES']))
         else:
-            productIDs = self.model_output._results_data['sc1']['U_PP']
-            generatorIDs = tuple(set(self.model_output._results_data['sc1']['U_TUR'] +
-                                    self.model_output._results_data['sc1']['U_FUR']))
+            productIDs = self.model_output._results_data['sc1']['PRODUCT_POOLS']
+            generatorIDs = tuple(set(self.model_output._results_data['sc1']['TURBINES'] +
+                                    self.model_output._results_data['sc1']['FURNACES']))
 
-        # productIDs = self.model_output._results_data['sc1']._data['U_PP']
-        # generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['U_TUR'] +
-        #                          self.model_output._results_data['sc1']._data['U_FUR']))
+        # productIDs = self.model_output._results_data['sc1']._data['PRODUCT_POOLS']
+        # generatorIDs = tuple(set(self.model_output._results_data['sc1']._data['TURBINES'] +
+        #                          self.model_output._results_data['sc1']._data['FURNACES']))
 
         productIDs = productIDs + generatorIDs
 

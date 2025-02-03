@@ -13,7 +13,7 @@ from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboB
 
 class UncertaintyTab(QWidget):
     """
-    This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
+    This class creates a tab for the chemical components and related data (e.g., molar weight, lower_heating_value, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
     #todo save function
@@ -139,12 +139,12 @@ class UncertaintyTab(QWidget):
             if key in self.columnsShortnames:
                 index = self.columnsShortnames.index(key)
                 if key == 'parameterType':
-                    parameterNames = ["Split factors (myu)",
-                                      "Feed Composition (phi)",
-                                      "Conversion factor (theta)",
-                                      "Stoichiometric factor (gamma)",
-                                      "Yield factor (xi)",
-                                      "Costs (materialcosts)",
+                    parameterNames = ["Split factors (split_factor)",
+                                      "Feed Composition (component_concentration)",
+                                      "Conversion factor (stoich_conversion_factor)",
+                                      "Stoichiometric factor (stoich_reaction_coefficient)",
+                                      "Yield factor (yield_factor_unit_operation)",
+                                      "Costs (material_costs)",
                                       "Price (ProductPrice)",
                                       "electricity_price",
                                       "heat_price"]
@@ -261,11 +261,11 @@ class UncertaintyTab(QWidget):
             # get the parameter type
             paramType = self.uncertaintyTable.cellWidget(row, 0).currentText()
 
-            if paramType == "Split factors (myu)": # or paramType == "electricity_price" or paramType == "heat_price":
+            if paramType == "Split factors (split_factor)": # or paramType == "electricity_price" or paramType == "heat_price":
                 # the reactionUID column is not editable and in gray
                 self._updateColumnEditability(row, [4])
 
-            elif paramType == "Costs (materialcosts)" or paramType == "Price (ProductPrice)" or paramType == "heat_price":
+            elif paramType == "Costs (material_costs)" or paramType == "Price (ProductPrice)" or paramType == "heat_price":
                 # set the reactionUID component and the target Unit UID un-editable, gray and have a value of n.a.
                 self._updateColumnEditability(row, [2, 3, 4])
 
@@ -274,11 +274,11 @@ class UncertaintyTab(QWidget):
                 self._updateColumnEditability(row, [1, 2, 3, 4])
 
 
-            elif paramType == "Feed Composition (phi)" or paramType == "Yield factor (xi)":
+            elif paramType == "Feed Composition (component_concentration)" or paramType == "Yield factor (yield_factor_unit_operation)":
                 # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
                 self._updateColumnEditability(row, [3, 4])
 
-            elif paramType == "Conversion factor (theta)" or paramType == "Stoichiometric factor (gamma)":
+            elif paramType == "Conversion factor (stoich_conversion_factor)" or paramType == "Stoichiometric factor (stoich_reaction_coefficient)":
                 # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a.
                 self._updateColumnEditability(row, [3])
 

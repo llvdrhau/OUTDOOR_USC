@@ -50,20 +50,20 @@ class Process():
 
 
 
-        # FLOW ATTRIBUTES
+        # Flow ATTRIBUTES
         # ---------------
 
         # Indexed Attributes
-        self.myu ={'myu': {}}
-        self.conc  ={'conc': {self.Number: 0}}
+        self.myu ={'split_factor': {}}
+        self.conc  ={'concentration': {self.Number: 0}}
 
 
-        self.kappa_1_lhs_conc = {'kappa_1_lhs_conc': {}}
-        self.kappa_2_lhs_conc = {'kappa_2_lhs_conc': {}}
-        self.kappa_1_rhs_conc = {'kappa_1_rhs_conc': {}}
-        self.kappa_2_rhs_conc = {'kappa_2_rhs_conc': {}}
+        self.kappa_1_lhs_conc = {'lhs_concentration_bool': {}}
+        self.kappa_2_lhs_conc = {'lhs_concentration_calc_mode': {}}
+        self.kappa_1_rhs_conc = {'rhs_concentration_bool': {}}
+        self.kappa_2_rhs_conc = {'rhs_concentration_calc_mode': {}}
 
-        self.FLH = {'flh': {self.Number: None}}
+        self.FLH = {'full_load_hours': {self.Number: None}}
 
         if Parent is not None:
             Parent.add_UnitOperations(self)
@@ -75,12 +75,12 @@ class Process():
 
     def fill_unitOperationsList(self, superstructure):
         superstructure.UnitsList.append(self)
-        superstructure.UnitsNumberList['U'].append(self.Number)
+        superstructure.UnitsNumberList['UNIT_PROCESSES'].append(self.Number)
         superstructure.UnitsNumberList2['UU'].append(self.Number)
 
         for i in self.Possible_Sources:
             if i is not self.Number:
-                superstructure.SourceSet['U_SU'].append((i,self.Number))
+                superstructure.SourceSet['CONNECTED_RAW_MATERIAL_UNIT_OPERATION'].append((i,self.Number))
 
 
         if self.Group is not None:
@@ -130,7 +130,7 @@ class Process():
         self.Group = processgroup
 
     def set_full_load_hours(self, full_load_hours = None):
-        self.FLH['flh'][self.Number] = full_load_hours
+        self.FLH['full_load_hours'][self.Number] = full_load_hours
 
 
     def set_connections(self, units_dict):
@@ -140,7 +140,7 @@ class Process():
         self.WasteDisposalType = WasteDisposalType
 
 
-    # FLOW DATA SETTING
+    # Flow DATA SETTING
     # -----------------
 
     def set_flowData(self,
@@ -164,7 +164,7 @@ class Process():
 
 
     def __set_conc(self, concentration):
-        self.conc['conc'][self.Number] = concentration
+        self.conc['concentration'][self.Number] = concentration
 
 
     def __set_myuFactors(self, myu_dic):
@@ -177,7 +177,7 @@ class Process():
 
         """
         for i in myu_dic:
-            self.myu['myu'][self.Number,i] = myu_dic[i]
+            self.myu['split_factor'][self.Number,i] = myu_dic[i]
 
 
     def __set_kappa_1_lhs_conc(self, kappa_1_lhs_conc_list):
@@ -191,9 +191,9 @@ class Process():
         for i in kappa_1_lhs_conc_list:
             if type(i) == list:
                 for j in i:
-                    self.kappa_1_lhs_conc['kappa_1_lhs_conc'][self.Number,j] = 1
+                    self.kappa_1_lhs_conc['lhs_concentration_bool'][self.Number,j] = 1
             else:
-                self.kappa_1_lhs_conc['kappa_1_lhs_conc'][self.Number,i] = 1
+                self.kappa_1_lhs_conc['lhs_concentration_bool'][self.Number,i] = 1
 
 
 
@@ -208,9 +208,9 @@ class Process():
         for i in kappa_1_rhs_conc_list:
             if type(i) == list:
                 for j in i:
-                    self.kappa_1_rhs_conc['kappa_1_rhs_conc'][self.Number,j] = 1
+                    self.kappa_1_rhs_conc['rhs_concentration_bool'][self.Number,j] = 1
             else:
-                self.kappa_1_rhs_conc['kappa_1_rhs_conc'][self.Number,i] = 1
+                self.kappa_1_rhs_conc['rhs_concentration_bool'][self.Number,i] = 1
 
 
 
@@ -224,11 +224,11 @@ class Process():
         """
 
         if kappa_2_lhs_conc_string  == 'FIN':
-            self.kappa_2_lhs_conc['kappa_2_lhs_conc'][self.Number]  = 1
+            self.kappa_2_lhs_conc['lhs_concentration_calc_mode'][self.Number]  = 1
         elif kappa_2_lhs_conc_string  == 'FOUT':
-            self.kappa_2_lhs_conc['kappa_2_lhs_conc'][self.Number]  = 0
+            self.kappa_2_lhs_conc['lhs_concentration_calc_mode'][self.Number]  = 0
         else:
-            self.kappa_2_lhs_conc['kappa_2_lhs_conc'][self.Number]  = 3
+            self.kappa_2_lhs_conc['lhs_concentration_calc_mode'][self.Number]  = 3
 
 
 
@@ -241,11 +241,11 @@ class Process():
 
         """
         if kappa_2_rhs_conc_string  == 'FIN':
-            self.kappa_2_rhs_conc['kappa_2_rhs_conc'][self.Number]  = 1
+            self.kappa_2_rhs_conc['rhs_concentration_calc_mode'][self.Number]  = 1
         elif kappa_2_rhs_conc_string  == 'FOUT':
-            self.kappa_2_rhs_conc['kappa_2_rhs_conc'][self.Number]  = 0
+            self.kappa_2_rhs_conc['rhs_concentration_calc_mode'][self.Number]  = 0
         else:
-            self.kappa_2_rhs_conc['kappa_2_rhs_conc'][self.Number]  = 3
+            self.kappa_2_rhs_conc['rhs_concentration_calc_mode'][self.Number]  = 3
 
 
     def set_possibleSources(self, SourceList):

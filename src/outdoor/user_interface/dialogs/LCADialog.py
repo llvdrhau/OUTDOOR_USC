@@ -67,7 +67,7 @@ class LCADialog(QDialog):
         self.setGeometry(100, 100, 600, 900)  # Adjust size as needed
 
         # TODO: Better initialization and handling of BW integration.
-        # TODO: I saw this todo literally months later and it's become a spaghetti problem please future mias fix it
+        # TODO: COMPONENTS saw this todo literally months later and it's become a spaghetti problem please future mias fix it
         bw.projects.set_current("superstructure")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')

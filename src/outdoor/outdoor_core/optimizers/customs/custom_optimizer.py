@@ -425,7 +425,7 @@ class TwoWaySensitivityOptimizer(SingleOptimizer):
 
 class StochasticRecourseOptimizer(SingleOptimizer):
     # NOT USED ANYMORE IN THE NEW VERSION, SEE StochasticOptimizer_mpi_sppy!!
-    # keep it for now, just in case I need code snippets from it
+    # keep it for now, just in case COMPONENTS need code snippets from it
     def __init__(
         self,
         solver_name,
@@ -675,47 +675,47 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         """
 
         def MassBalance_3_rule(self, u_s, u):
-            return self.FLOW_ADD[u_s, u] <= self.alpha[u] * self.Y[u]  # Big M constraint
+            return self.Raw_Material_Input[u_s, u] <= self.big_m_upper_bound[u] * self.y[u]  # Big REACTANTS constraint
 
         def MassBalance_6_rule(self, u, uu, i):
-            if (u, uu) not in self.U_DIST_SUB:
-                    if (u, uu) in self.U_CONNECTORS:
-                        return self.FLOW[u, uu, i] <= self.myu[u, uu, i] * self.FLOW_OUT[
+            if (u, uu) not in self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS:
+                    if (u, uu) in self.UNIT_CONNECTIONS:
+                        return self.Flow[u, uu, i] <= self.split_factor[u, uu, i] * self.Outlet[
                             u, i
-                            ] + self.alpha[u] * (1 - self.Y[uu])
+                            ] + self.big_m_upper_bound[u] * (1 - self.y[uu])
                     else:
                         return Constraint.Skip
 
             else:
-                return self.FLOW[u, uu, i] <= sum(
-                    self.FLOW_DIST[u, uu, uk, k, i]
-                    for (uk, k) in self.DC_SET
-                    if (u, uu, uk, k) in self.U_DIST_SUB2
-                ) + self.alpha[u] * (1 - self.Y[uu])
+                return self.Flow[u, uu, i] <= sum(
+                    self.Flow_Distributor_Decimal[u, uu, uk, k, i]
+                    for (uk, k) in self.DISTRIBUTOR_DECIMAL_SET
+                    if (u, uu, uk, k) in self.DISTRIBUTOR_DECIMAL_SUBSET
+                ) + self.big_m_upper_bound[u] * (1 - self.y[uu])
 
         def MassBalance_7_rule(self, u, uu, i):
-            if (u,uu) in self.U_CONNECTORS:
-                return self.FLOW[u, uu, i] <= self.alpha[u] * self.Y[uu]
+            if (u,uu) in self.UNIT_CONNECTIONS:
+                return self.Flow[u, uu, i] <= self.big_m_upper_bound[u] * self.y[uu]
             else:
                 return Constraint.Skip
 
         def MassBalance_8_rule(self, u, uu, i):
-            if (u, uu) not in self.U_DIST_SUB:
-                if (u, uu) in self.U_CONNECTORS:
-                    return self.FLOW[u, uu, i] >= self.myu[u, uu, i] * self.FLOW_OUT[
+            if (u, uu) not in self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS:
+                if (u, uu) in self.UNIT_CONNECTIONS:
+                    return self.Flow[u, uu, i] >= self.split_factor[u, uu, i] * self.Outlet[
                         u, i
-                        ] - self.alpha[u] * (1 - self.Y[uu])
+                        ] - self.big_m_upper_bound[u] * (1 - self.y[uu])
                 else:
                     return Constraint.Skip
             else:
-                return self.FLOW[u, uu, i] >= sum(
-                    self.FLOW_DIST[u, uu, uk, k, i]
-                    for (uk, k) in self.DC_SET
-                    if (u, uu, uk, k) in self.U_DIST_SUB2
-                ) - self.alpha[u] * (1 - self.Y[uu])
+                return self.Flow[u, uu, i] >= sum(
+                    self.Flow_Distributor_Decimal[u, uu, uk, k, i]
+                    for (uk, k) in self.DISTRIBUTOR_DECIMAL_SET
+                    if (u, uu, uk, k) in self.DISTRIBUTOR_DECIMAL_SUBSET
+                ) - self.big_m_upper_bound[u] * (1 - self.y[uu])
 
         def GWP_6_rule(self, u):
-            return self.GWP_UNITS[u] == self.em_fac_unit[u] / self.LT[u] * self.Y[u]
+            return self.GWP_UNITS[u] == self.em_fac_unit[u] / self.LT[u] * self.y[u]
 
         def ProcessGroup_logic_1_rule(self, u, uu):
 
@@ -724,7 +724,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             for i, j in self.groups.items():
 
                 if u in j and uu in j:
-                    return self.Y[u] == self.Y[uu]
+                    return self.y[u] == self.y[uu]
                     ind = True
 
             if ind == False:
@@ -737,7 +737,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             for i, j in self.connections.items():
                 if u == i:
                     if j[k]:
-                        return sum(self.Y[uu] for uu in j[k]) >= self.Y[u]
+                        return sum(self.y[uu] for uu in j[k]) >= self.y[u]
                         ind = True
 
             if ind == False:
@@ -769,7 +769,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
             raise Exception("The model to calculate the VSS is infeasible, please check the input data for the single optimisation problem is correct ")
 
         # extract the first stage decisions from the model output, i.e. the boolean variables
-        BooleanVariables = model_output_VSS_average._data['Y']
+        BooleanVariables = model_output_VSS_average._data['y']
 
         # STEP 2: make the model instance for the VSS calculation with 1st stage decisions fixed
         # -------------------------------------------------------------------------------------------------
@@ -780,8 +780,8 @@ class StochasticRecourseOptimizer(SingleOptimizer):
                 BooleanVariables[key] = abs(value)
 
         # change the model instance copy and fix the boolean variables as parameters
-        model_instance_variable_params.del_component(model_instance_variable_params.Y)
-        model_instance_variable_params.Y = Param(model_instance_variable_params.U, initialize=BooleanVariables,
+        model_instance_variable_params.del_component(model_instance_variable_params.y)
+        model_instance_variable_params.y = Param(model_instance_variable_params.UNIT_PROCESSES, initialize=BooleanVariables,
                                                  mutable=True, within=Any)
 
         # delete and redefine the constraints which are affected by the boolean variables
@@ -794,14 +794,14 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         model_instance_variable_params.del_component(model_instance_variable_params.ProcessGroup_logic_2)
 
         # define the constraints again
-        model_instance_variable_params.MassBalance_33 = Constraint(model_instance_variable_params.U_SU, rule=MassBalance_3_rule)
-        model_instance_variable_params.MassBalance_66 = Constraint(model_instance_variable_params.U, model_instance_variable_params.UU, model_instance_variable_params.I, rule=MassBalance_6_rule)
-        model_instance_variable_params.MassBalance_77 = Constraint(model_instance_variable_params.U, model_instance_variable_params.UU, model_instance_variable_params.I, rule=MassBalance_7_rule)
-        model_instance_variable_params.MassBalance_88 = Constraint(model_instance_variable_params.U, model_instance_variable_params.UU, model_instance_variable_params.I, rule=MassBalance_8_rule)
-        model_instance_variable_params.EnvironmentalEquation66 = Constraint(model_instance_variable_params.U_C, rule=GWP_6_rule)
-        model_instance_variable_params.ProcessGroup_logic_11 = Constraint(model_instance_variable_params.U, model_instance_variable_params.UU, rule=ProcessGroup_logic_1_rule)
+        model_instance_variable_params.MassBalance_33 = Constraint(model_instance_variable_params.CONNECTED_RAW_MATERIAL_UNIT_OPERATION, rule=MassBalance_3_rule)
+        model_instance_variable_params.MassBalance_66 = Constraint(model_instance_variable_params.UNIT_PROCESSES, model_instance_variable_params.UU, model_instance_variable_params.COMPONENTS, rule=MassBalance_6_rule)
+        model_instance_variable_params.MassBalance_77 = Constraint(model_instance_variable_params.UNIT_PROCESSES, model_instance_variable_params.UU, model_instance_variable_params.COMPONENTS, rule=MassBalance_7_rule)
+        model_instance_variable_params.MassBalance_88 = Constraint(model_instance_variable_params.UNIT_PROCESSES, model_instance_variable_params.UU, model_instance_variable_params.COMPONENTS, rule=MassBalance_8_rule)
+        model_instance_variable_params.EnvironmentalEquation66 = Constraint(model_instance_variable_params.COSTED_UNIT_OPERATIONS, rule=GWP_6_rule)
+        model_instance_variable_params.ProcessGroup_logic_11 = Constraint(model_instance_variable_params.UNIT_PROCESSES, model_instance_variable_params.UU, rule=ProcessGroup_logic_1_rule)
         numbers = [1, 2, 3]
-        model_instance_variable_params.ProcessGroup_logic_22 = Constraint(model_instance_variable_params.U, numbers, rule=ProcessGroup_logic_2_rule)
+        model_instance_variable_params.ProcessGroup_logic_22 = Constraint(model_instance_variable_params.UNIT_PROCESSES, numbers, rule=ProcessGroup_logic_2_rule)
 
 
         # STEP 3: loop over all scenarios and solve the model for each scenario save the results in a list
@@ -868,7 +868,7 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         """"
         The curation of the list of EEV is need because scenarios can exist where |Determinist value| > |Stochastic value|
         which should not be possible. This is due to the fact that the stochastic optimization takes into account the MAXIMUM
-        reference flow rate to calculate the CAPEX. if this happens we'll assume that the deterministic value is equal to the stochastic value
+        reference flow rate to calculate the CAPEX. if this happens we'raw_materials_lower_bound assume that the deterministic value is equal to the stochastic value
         :param EEV: list of EEV
         :param expectedValueStochastic: expected value of the stochastic optimisation
         :return: EEV: mean of the EEV list
@@ -899,9 +899,9 @@ class StochasticRecourseOptimizer(SingleOptimizer):
         # set the parameters of the stochastic run optimisation
         stochasticDataFile = stochasticInput.Data_File
 
-        # need to go over the following parameters: phi, myu, xi, materialcosts, ProductPrice, gamma and theta
+        # need to go over the following parameters: component_concentration, split_factor, yield_factor_unit_operation, material_costs, ProductPrice, stoich_reaction_coefficient and stoich_conversion_factor
         # make a list of the parameters
-        parameterList = ['phi', 'myu', 'xi', 'materialcosts', 'ProductPrice', 'gamma', 'theta']
+        parameterList = ['component_concentration', 'split_factor', 'yield_factor_unit_operation', 'material_costs', 'ProductPrice', 'stoich_reaction_coefficient', 'stoich_conversion_factor']
 
         for parameter in parameterList:
             # first check if the parameter is in the single run optimization data
@@ -1015,9 +1015,9 @@ class HereAndNowOptimizer(SingleOptimizer):
             # create the model equations
             model.create_ModelEquations()
 
-            # you need to modify the data file to include the design space parameters Y_Dist and Y
-            dataFile[None]['Y'] = self.designSpaceFile['Y']
-            dataFile[None]['Y_DIST'] = self.designSpaceFile['Y_DIST']
+            # you need to modify the data file to include the design space parameters Y_Dist and y
+            dataFile[None]['y'] = self.designSpaceFile['y']
+            dataFile[None]['y_distribution'] = self.designSpaceFile['y_distribution']
 
             # populate the model instance
             modelInstance = model.populateModel(dataFile)
@@ -1223,7 +1223,7 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
                                  # the first stage variables, which are non-anticipative constraints.
                                  # i.e., do not change across scenarios. In this case, the binary variables responsible
                                  # for the selection of the technology
-                                 [modelInstance.Y, modelInstance.DistFraction])  # todo add?  ,modelInstance.Y_DIST OR modelInstance.DistFraction
+                                 [modelInstance.y, modelInstance.Distributor_Fraction])  # todo add?  ,modelInstance.y_distribution OR modelInstance.Distributor_Fraction
 
         modelInstance._mpisppy_probability = 1.0 / len(scenarioDataFile)
 

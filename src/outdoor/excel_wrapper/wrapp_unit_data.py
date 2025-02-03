@@ -216,8 +216,8 @@ def wrapp_Temperatures(obj, df1, df2):
     """
     Description
     -----------
-    Set Process Temperatures and specific energy demand (tau) from Excel file
-    If no Temperatures and tau are defined everything is set to None
+    Set Process Temperatures and specific energy demand (specific_utility_demand) from Excel file
+    If no Temperatures and specific_utility_demand are defined everything is set to None
 
     Sets Tau1 and Tau2 only if the values are really available, otherwise
     Temperatures and Tau values are set to None

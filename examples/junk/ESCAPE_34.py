@@ -104,8 +104,8 @@ elif model_output._optimization_mode == "2-stage-recourse":  # stochastic optimi
     print(prob)
     #
     # # probabilty density function of the energy demand of the drying unit
-    # variable = {"Variable":"ENERGY_DEMAND_TOT",
-    #            "UT": "Electricity",} # Drying of pulp
+    # variable = {"Variable":"Total_Energy_Demand",
+    #            "UTILITIES": "Electricity",} # Drying of pulp
     #
     # kde2 = model_output.plot_scenario_analysis_PDF(variable=variable, savePath=savePathPLots, xlabel="EBIT (M€/a)")
 

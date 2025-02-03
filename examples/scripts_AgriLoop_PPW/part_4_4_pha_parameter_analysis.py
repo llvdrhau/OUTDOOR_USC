@@ -56,15 +56,15 @@ print('\033[92m' + '------sucess---------'+ '\033[0m')
 # -----------------------------------------------------------------------------
 
 # Calculate the parameter ranges where the objective value is larger then 0.759
-# listKeys = [('gamma',	(400,'VFA', 13)),
-#             ('gamma', (400,'VFA', 22)),
-#             ('xi', (420, 'Biomass_pha')),
-#             ('gamma',(435,'PHA',11)),
-#             ('phi',(11, 'Starch')),
-#             ('myu', (438, 440, 'PHA')),
-#             ('tau_h', ('Heat', 490)),
+# listKeys = [('stoich_reaction_coefficient',	(400,'VFA', 13)),
+#             ('stoich_reaction_coefficient', (400,'VFA', 22)),
+#             ('yield_factor_unit_operation', (420, 'Biomass_pha')),
+#             ('stoich_reaction_coefficient',(435,'PHA',11)),
+#             ('component_concentration',(11, 'Starch')),
+#             ('split_factor', (438, 440, 'PHA')),
+#             ('specific_heat_demand', ('Heat', 490)),
 #             ('delta_ut'),
-#             ('materialcosts', 44)
+#             ('material_costs', 44)
 #             ]
 
 # ranges = ModelOutput.calculate_parameter_ranges(objectiveValue=0.759, listKeys=listKeys, objectiveFunctionName='EBIT')

@@ -82,12 +82,12 @@ def change_parameter(Instance, parameter, value, metadata=None, superstructure=N
 
     function_dictionary = {
         # these are also parameters that can be changed in the stochastic mode
-        'Split factors (myu)': change_myu_parameter,
-        'Feed Composition (phi)': change_phi_parameter,
-        'Conversion factor (theta)': change_theta_parameter,
-        'Stoichiometric factor (gamma)': change_stoich_parameter,
-        'Yield factor (xi)': change_xi_parameter,
-        'Costs (materialcosts)': change_material_costs,
+        'Split factors (split_factor)': change_myu_parameter,
+        'Feed Composition (component_concentration)': change_phi_parameter,
+        'Conversion factor (stoich_conversion_factor)': change_theta_parameter,
+        'Stoichiometric factor (stoich_reaction_coefficient)': change_stoich_parameter,
+        'Yield factor (yield_factor_unit_operation)': change_xi_parameter,
+        'Costs (material_costs)': change_material_costs,
         'Price (ProductPrice)': change_product_price,
 
         "Electricity price (delta_ut)": change_utility_costs,
@@ -98,12 +98,12 @@ def change_parameter(Instance, parameter, value, metadata=None, superstructure=N
         "Heating price medium (delta_q)": change_heat_costs,
         "Heating price low (delta_q)": change_heat_costs,
 
-        'Heating demand 1 (tau_h)': change_heating_demand,
-        'Heating demand 2 (tau_h)': change_heating_demand,
-        'Electricity demand (tau)': change_utility_demand,
-        'Chilling demand (tau)': change_utility_demand,
+        'Heating demand 1 (specific_heat_demand)': change_heating_demand,
+        'Heating demand 2 (specific_heat_demand)': change_heating_demand,
+        'Electricity demand (specific_utility_demand)': change_utility_demand,
+        'Chilling demand (specific_utility_demand)': change_utility_demand,
 
-        'Component concentration (conc)': change_concentration_demand,
+        'Component concentration (concentration)': change_concentration_demand,
         'Reference Capital costs (C_Ref)': change_capital_costs,
         'Operating and maintenance (K_OM)': change_opex_factor,
 
@@ -126,15 +126,15 @@ def prepare_mutable_parameters(ModelInstance, input_data):
         if parameter == "Reference Capital costs (C_Ref)":
             instance.lin_CAPEX_x._mutable = True
             instance.lin_CAPEX_y._mutable = True
-        elif parameter == "Heating demand (tau_h)":
-            instance.tau_h._mutable = True
-            instance.tau_c._mutable = True
-            instance.tau._mutable = True
+        elif parameter == "Heating demand (specific_heat_demand)":
+            instance.specific_heat_demand._mutable = True
+            instance.specific_cooling_demand._mutable = True
+            instance.specific_utility_demand._mutable = True
 
 
     for i in input_data:
         param_name = i.iloc[0]
-        if param_name == "Reference Capital costs (C_Ref)" or param_name == "Heating demand (tau_h)":
+        if param_name == "Reference Capital costs (C_Ref)" or param_name == "Heating demand (specific_heat_demand)":
             # if more than one parameter is changed at the same time, we need to set them mutable using the
             # set_mutable function
             set_mutable(ModelInstance, param_name)

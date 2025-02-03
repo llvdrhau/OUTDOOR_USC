@@ -1,21 +1,13 @@
 from pyomo.environ import *
 
 
-
-class SuperstructureModel(AbstractModel):
+# noinspection PyAttributeOutsideInit
+class HumanstructureModel(AbstractModel):
     """
     Class description
     -----------------
 
-    This class holds the mathematical model equations to describe a superstructure
-    model. It defines classical modeling components like sets, parameter, variables
-    and constraints.
-
-    The model inlcudes mass balances, energy balances inlcuding detailed
-    heat intergration based on heat intervals, cost functions using piece-wise
-    linear capital costs and operational costs based on utilities, raw materials,
-    operating and maintenance and other aspects. Additionally GWP and fresh
-    water demand are calculated.
+    This is a literal copy of optimization_model.py but Mias is renaming every single variable and param to something human-readable.
 
     """
 
@@ -196,21 +188,20 @@ class SuperstructureModel(AbstractModel):
 
         # Piece-Wise Linear CAPEX
         # -----------------------
-        # TODO figure out what these are
         self.J = Set()
         self.JI = Set(within=self.J)
 
         # Distributor Set for decimal numbers
-        # TODO figure out why this is inconceivably cursed
+
         def iterator(x):
             nlist = []
             for i in range(x):
                 nlist.append(i)
             return nlist
 
-        self.DISTRIBUTOR_DECIMAL_SET = Set(within=self.DISTRIBUTORS * iterator(100))
-
-        self.DISTRIBUTOR_DECIMAL_SUBSET = Set(within=self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS * self.DISTRIBUTORS * iterator(100))
+        self.DC_SET = Set(within=self.DISTRIBUTORS * iterator(100))
+        #TODO What cursed thing happened such that this was the way to go?
+        self.U_DIST_SUB2 = Set(within=self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS * self.DISTRIBUTORS * iterator(100))
 
     # **** MASS BALANCES *****
     # -------------------------
@@ -227,9 +218,9 @@ class SuperstructureModel(AbstractModel):
 
         # Parameter
         # ---------
-        self.product_load = Param(initialize=1, mutable=True)
-        self.substrate_load = Param(initialize=1, mutable=True)
-        self.source_or_product_load = Param(initialize=1, mutable=True)
+        self.ProductLoad = Param(initialize=1, mutable=True)
+        self.SubstrateLoad = Param(initialize=1, mutable=True)
+        self.sourceOrProductLoad = Param(initialize=1, mutable=True)
 
         # Flow parameters (Split factor, concentrations, full load hours)
         self.split_factor = Param(self.UNIT_CONNECTIONS, self.COMPONENTS, initialize=0, mutable=True)
@@ -243,7 +234,7 @@ class SuperstructureModel(AbstractModel):
         self.stoich_reaction_coefficient = Param(self.STOICH_REACTORS, self.COMPONENTS, self.REACTIONS, initialize=0, mutable=True)
         self.stoich_conversion_factor = Param(self.STOICH_REACTORS, self.REACTIONS, self.REACTANTS, initialize=0, mutable=True)
         self.yield_factor_unit_operation = Param(self.YIELD_REACTORS, self.COMPONENTS, initialize=0, mutable=True)
-        self.ic_on = Param(self.YIELD_REACTORS, initialize=0) #TODO some sort of active bool?
+        self.ic_on = Param(self.YIELD_REACTORS, initialize=0) #TODO: Figure this one out
 
         # Additional slack parameters (Flow choice, upper bounds, )
         self.lhs_concentration_bool = Param(self.UNIT_PROCESSES, self.COMPONENTS, initialize=0)
@@ -251,7 +242,7 @@ class SuperstructureModel(AbstractModel):
         self.lhs_concentration_calc_mode = Param(self.UNIT_PROCESSES, initialize=3)
         self.rhs_concentration_calc_mode = Param(self.UNIT_PROCESSES, initialize=3)
         self.names = Param(self.UNIT_PROCESSES, within= Any)
-        self.big_m_upper_bound = Param(self.UNIT_PROCESSES, initialize=100000, mutable=True)
+        self.upper_bound_big_m_constraint = Param(self.UNIT_PROCESSES, initialize=100000, mutable=True)
 
         # upper and lower bounds for source flows
         self.raw_materials_upper_bound = Param(self.RAW_MATERIAL_SOURCES, initialize=100000, mutable=True)
@@ -265,43 +256,43 @@ class SuperstructureModel(AbstractModel):
 
         # decimal_numbers help to model the distributor equations
         # it sets the degree of "detail" for the distributor
-        self.decimal_numbers = Param(self.DISTRIBUTOR_DECIMAL_SET, mutable=True)
+        self.decimal_numbers = Param(self.DC_SET, mutable=True)
 
         # Variables
         # --------
-        # Todo flow distributor decimal - what is?
+
         self.Flow = Var(self.UNIT_CONNECTIONS, self.COMPONENTS, within=NonNegativeReals)
         self.Inlet = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
         self.Outlet = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
-        self.Waste_Flow = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
-        self.Total_Waste = Var(self.COMPONENTS, within=NonNegativeReals)
-        self.Raw_Material_Input = Var(self.CONNECTED_RAW_MATERIAL_UNIT_OPERATION, within=NonNegativeReals)
-        self.Total_Raw_Material_Input = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
-        self.Flow_Sum = Var(self.UNIT_PROCESSES, within=NonNegativeReals)
-        self.Raw_Material_Input_Source = Var(self.RAW_MATERIAL_SOURCES, within=NonNegativeReals)
-        self.Flow_Distributor_Decimal = Var(self.DISTRIBUTOR_DECIMAL_SUBSET, self.COMPONENTS, within=NonNegativeReals)
-        self.Total_Flows = Var(self.UNIT_CONNECTIONS, within=NonNegativeReals)
+        self.Waste = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
+        self.Waste_Total = Var(self.COMPONENTS, within=NonNegativeReals)
+        self.FLOW_ADD = Var(self.CONNECTED_RAW_MATERIAL_UNIT_OPERATION, within=NonNegativeReals)
+        self.FLOW_ADD_TOT = Var(self.UNIT_PROCESSES, self.COMPONENTS, within=NonNegativeReals)
+        self.FLOW_SUM = Var(self.UNIT_PROCESSES, within=NonNegativeReals)
+        self.FLOW_SOURCE = Var(self.RAW_MATERIAL_SOURCES, within=NonNegativeReals)
+        self.FLOW_DIST = Var(self.U_DIST_SUB2, self.COMPONENTS, within=NonNegativeReals)
+        self.FLOW_FT = Var(self.UNIT_CONNECTIONS, within=NonNegativeReals)
 
         # to get the fractions that the stream is split into for each DISTRIBUTORS to UNIT_PROCESSES (that is connected)
         # this is used as a variable for the second stage of the stochastic model to get the distribution factor
         # equal over all scenarios
-        self.Distributor_Fraction = Var(self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS, within=NonNegativeReals)
+        self.DistFraction = Var(self.PERMITTED_DISTRIBUTOR_UNIT_COMBINATIONS, within=NonNegativeReals)
 
         # Binary Variables for flow choice also 1ste Stage Variables of the stochastic models!
         if self._fixedDesign:
             # Binary but can be any value to avoid errors (for values which aren't exactly 0 or 1)
-            self.y = Param(self.UNIT_PROCESSES, within=AnyWithNone)
-            self.y_distribution = Param(self.DISTRIBUTOR_DECIMAL_SUBSET, within=AnyWithNone)
+            self.Y = Param(self.UNIT_PROCESSES, within=AnyWithNone)
+            self.Y_DIST = Param(self.U_DIST_SUB2, within=AnyWithNone)
         else:
-            self.y = Var(self.UNIT_PROCESSES, within=Binary)
-            self.y_distribution = Var(self.DISTRIBUTOR_DECIMAL_SUBSET, within=Binary)
+            self.Y = Var(self.UNIT_PROCESSES, within=Binary)
+            self.Y_DIST = Var(self.U_DIST_SUB2, within=Binary)
 
 
         # Constraints
         # -----------
 
-        def MassBalance_1_rule(self, unit_operation, component):
-            return self.Inlet[unit_operation, component] == self.Total_Raw_Material_Input[unit_operation, component] + sum(self.full_load_hours[utility] / self.full_load_hours[unit_operation] * self.Flow[utility, unit_operation, component] for utility in self.UTILITIES if (utility, unit_operation) in self.UNIT_CONNECTIONS)
+        def MassBalance_1_rule(self, u, i):
+            return self.Inlet[u, i] == self.Total_Raw_Material_Input[u, i] + sum(self.full_load_hours[uu] / self.full_load_hours[u] * self.Flow[uu, u, i] for uu in self.UU if (uu, u) in self.UNIT_CONNECTIONS)
 
         def MassBalance_2_rule(self, u, i):
             return self.Total_Raw_Material_Input[u, i] == sum(
@@ -311,7 +302,7 @@ class SuperstructureModel(AbstractModel):
             )
 
         def MassBalance_3_rule(self, u_s, u):
-            return self.Raw_Material_Input[u_s, u] <= self.big_m_upper_bound[u] * self.y[u]  # Big REACTANTS constraint
+            return self.Raw_Material_Input[u_s, u] <= self.upper_bound_big_m_constraint[u] * self.y[u]  # Big REACTANTS constraint
 
         def MassBalance_4_rule(self, u_s):
             return self.Raw_Material_Input_Source[u_s] == sum(
@@ -381,13 +372,13 @@ class SuperstructureModel(AbstractModel):
                 return self.Outlet[u, i] == self.Inlet[u, i]
 
         def MassBalance_9_rule(self, u, i):
-            return self.Waste_Flow[u, i] == self.Outlet[u, i] - sum(
-                self.Flow[u, uu, i] for uu in self.UTILITIES if (u, uu) in self.UNIT_CONNECTIONS
+            return self.Waste[u, i] == self.Outlet[u, i] - sum(
+                self.Flow[u, uu, i] for uu in self.UU if (u, uu) in self.UNIT_CONNECTIONS
             )
 
         def MassBalance_10_rule(self, i):
             return self.Total_Waste[i] == sum(
-                self.Waste_Flow[u, i] for u in self.UNIT_PROCESSES
+                self.Waste[u, i] for u in self.UNIT_PROCESSES
             )
 
         # concentration constraints
@@ -432,7 +423,7 @@ class SuperstructureModel(AbstractModel):
                     if (u, uu) in self.UNIT_CONNECTIONS:
                         return self.Flow[u, uu, i] <= self.split_factor[u, uu, i] * self.Outlet[
                             u, i
-                            ] + self.big_m_upper_bound[u] * (1 - self.y[uu])
+                            ] + self.upper_bound_big_m_constraint[u] * (1 - self.y[uu])
                     else:
                         return Constraint.Skip
 
@@ -441,11 +432,11 @@ class SuperstructureModel(AbstractModel):
                     self.Flow_Distributor_Decimal[u, uu, uk, k, i]
                     for (uk, k) in self.DISTRIBUTOR_DECIMAL_SET
                     if (u, uu, uk, k) in self.DISTRIBUTOR_DECIMAL_SUBSET
-                ) + self.big_m_upper_bound[u] * (1 - self.y[uu])
+                ) + self.upper_bound_big_m_constraint[u] * (1 - self.y[uu])
 
         def MassBalance_7_rule(self, u, uu, i):
             if (u,uu) in self.UNIT_CONNECTIONS:
-                return self.Flow[u, uu, i] <= self.big_m_upper_bound[u] * self.y[uu]
+                return self.Flow[u, uu, i] <= self.upper_bound_big_m_constraint[u] * self.y[uu]
             else:
                 return Constraint.Skip
 
@@ -455,7 +446,7 @@ class SuperstructureModel(AbstractModel):
                 if (u, uu) in self.UNIT_CONNECTIONS:
                     return self.Flow[u, uu, i] >= self.split_factor[u, uu, i] * self.Outlet[
                         u, i
-                        ] - self.big_m_upper_bound[u] * (1 - self.y[uu])
+                        ] - self.upper_bound_big_m_constraint[u] * (1 - self.y[uu])
                 else:
                     return Constraint.Skip
             else:
@@ -463,24 +454,24 @@ class SuperstructureModel(AbstractModel):
                     self.Flow_Distributor_Decimal[u, uu, uk, k, i]
                     for (uk, k) in self.DISTRIBUTOR_DECIMAL_SET
                     if (u, uu, uk, k) in self.DISTRIBUTOR_DECIMAL_SUBSET
-                ) - self.big_m_upper_bound[u] * (1 - self.y[uu])
+                ) - self.upper_bound_big_m_constraint[u] * (1 - self.y[uu])
 
         # Distributor Equations
 
         def MassBalance_15a_rule(self, u, uu, uk, k, i):
             return self.Flow_Distributor_Decimal[u, uu, uk, k, i] <= self.decimal_numbers[
                 u, k
-            ] * self.Outlet[u, i] + self.big_m_upper_bound[u] * (1 - self.y_distribution[u, uu, uk, k])
+            ] * self.Outlet[u, i] + self.upper_bound_big_m_constraint[u] * (1 - self.y_distribution[u, uu, uk, k])
 
         def MassBalance_15b_rule(self, u, uu, uk, k, i):
             return self.Flow_Distributor_Decimal[u, uu, uk, k, i] >= self.decimal_numbers[
                 u, k
-            ] * self.Outlet[u, i] - self.big_m_upper_bound[u] * (1 - self.y_distribution[u, uu, uk, k])
+            ] * self.Outlet[u, i] - self.upper_bound_big_m_constraint[u] * (1 - self.y_distribution[u, uu, uk, k])
 
         def MassBalance_15c_rule(self, u, uu, uk, k, i):
             return (
                 self.Flow_Distributor_Decimal[u, uu, uk, k, i]
-                <= self.big_m_upper_bound[u] * self.y_distribution[u, uu, uk, k]
+                <= self.upper_bound_big_m_constraint[u] * self.y_distribution[u, uu, uk, k]
             )
 
         def MassBalance_16_rule(self, u, i):
@@ -516,13 +507,13 @@ class SuperstructureModel(AbstractModel):
         self.MassBalance_14a = Constraint(self.PRODUCT_POOLS, rule=MassBalance_14a_rule)
         self.MassBalance_14b = Constraint(self.PRODUCT_POOLS, rule=MassBalance_14b_rule)
         self.MassBalance_15a = Constraint(
-            self.DISTRIBUTOR_DECIMAL_SUBSET, self.COMPONENTS, rule=MassBalance_15a_rule
+            self.U_DIST_SUB2, self.COMPONENTS, rule=MassBalance_15a_rule
         )
         self.MassBalance_15b = Constraint(
-            self.DISTRIBUTOR_DECIMAL_SUBSET, self.COMPONENTS, rule=MassBalance_15b_rule
+            self.U_DIST_SUB2, self.COMPONENTS, rule=MassBalance_15b_rule
         )
         self.MassBalance_15c = Constraint(
-            self.DISTRIBUTOR_DECIMAL_SUBSET, self.COMPONENTS, rule=MassBalance_15c_rule
+            self.U_DIST_SUB2, self.COMPONENTS, rule=MassBalance_15c_rule
         )
         self.MassBalance_16 = Constraint(self.DISTRIBUTORS, self.COMPONENTS, rule=MassBalance_16_rule)
         self.MassBalance_17 = Constraint(self.UNIT_CONNECTIONS, rule=MassBalance_17_rule)
@@ -549,39 +540,37 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         # Energy demand (El, Heating/Cooling, Interval H and C)
-        self.specific_utility_demand = Param(self.UNIT_PROCESSES, self.UTILITIES, initialize=0, within=Any, mutable=True)
-        self.specific_heat_demand = Param(self.HEATING_COOLING_UTILITIES, self.UNIT_PROCESSES, initialize=0, mutable=True)
-        self.specific_cooling_demand = Param(self.HEATING_COOLING_UTILITIES, self.UNIT_PROCESSES, initialize=0, mutable=True)
-        self.energy_demand_ration = Param(self.UNIT_PROCESSES, self.HEATING_COOLING_UTILITIES, self.HEAT_INTERVALS, initialize=0, mutable=True)
+        self.tau = Param(self.UNIT_PROCESSES, self.UTILITIES, initialize=0, within=Any, mutable=True)
+        self.tau_h = Param(self.HEATING_COOLING_UTILITIES, self.UNIT_PROCESSES, initialize=0, mutable=True)
+        self.tau_c = Param(self.HEATING_COOLING_UTILITIES, self.UNIT_PROCESSES, initialize=0, mutable=True)
+        self.beta = Param(self.UNIT_PROCESSES, self.HEATING_COOLING_UTILITIES, self.HEAT_INTERVALS, initialize=0, mutable=True)
 
         # Slack Parameters (Flow Choice, HEN, Upper bounds)
-        #todo hepl what are these kappas
-        self.heat_calculation_slack_param = Param(self.UNIT_PROCESSES, self.UTILITIES, self.COMPONENTS, initialize=0)
+        self.kappa_1_ut = Param(self.UNIT_PROCESSES, self.UTILITIES, self.COMPONENTS, initialize=0)
         self.kappa_2_ut = Param(self.UNIT_PROCESSES, self.UTILITIES, initialize=3)
         self.kappa_3_heat = Param(self.UNIT_PROCESSES, self.HEAT_INTERVALS, initialize=0)
         self.kappa_3_heat2 = Param(self.UNIT_PROCESSES, self.HEAT_INTERVALS, initialize=0)
-        self.big_m_upper_bound_hex = Param(initialize=100000)
+        self.alpha_hex = Param(initialize=100000)
 
-        self.y_heat_exchange_network = Var(self.HEAT_INTERVALS, within=Binary)
+        self.Y_HEX = Var(self.HEAT_INTERVALS, within=Binary)
 
         # Additional unit operations (Heat Pump, EL / Heat Generator)
-        self.heat_pump_performance_coefficient = Param(initialize=0, mutable=True)
-        self.turbine_efficiency = Param(self.TURBINES, initialize=0, mutable=True)
-        self.furnace_efficiency = Param(self.FURNACES, initialize=0, mutable=True)
-        self.lower_heating_value = Param(self.COMPONENTS, initialize=0, mutable=True)
+        self.COP_HP = Param(initialize=0, mutable=True)
+        self.Efficiency_TUR = Param(self.TURBINES, initialize=0, mutable=True)
+        self.Efficiency_FUR = Param(self.FURNACES, initialize=0, mutable=True)
+        self.LHV = Param(self.COMPONENTS, initialize=0, mutable=True)
         self.H = Param()
-        #TODO what is H?
 
         # Variables
         # ---------
 
         # Reference Flows for Demand calculation
-        self.Utility_Reference_Flow = Var(self.UNIT_PROCESSES, self.UTILITIES)
+        self.REF_FLOW_UT = Var(self.UNIT_PROCESSES, self.UTILITIES)
 
         # Electricity Demand and Production, Heat Pump
 
-        self.Energy_Demand = Var(self.UNIT_PROCESSES, self.ENERGY_UTILITIES)
-        self.Total_Energy_Demand = Var(self.ENERGY_UTILITIES)
+        self.ENERGY_DEMAND = Var(self.UNIT_PROCESSES, self.ENERGY_UTILITIES)
+        self.ENERGY_DEMAND_TOT = Var(self.ENERGY_UTILITIES)
         self.EL_PROD_1 = Var(self.TURBINES, within=NonNegativeReals)
         self.ENERGY_DEMAND_HP_EL = Var(within=NonNegativeReals)
 
@@ -939,7 +928,7 @@ class SuperstructureModel(AbstractModel):
         def Cost_Waste_rule(self, u):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_COST_U[u] == self.full_load_hours[u] *  # units WASTE_COST = k€/year
-                    sum(self.Waste_Flow[u, i] for i in self.COMPONENTS) * self.waste_cost_factor[wasteType])
+                    sum(self.Waste[u, i] for i in self.COMPONENTS) * self.waste_cost_factor[wasteType])
 
         def Cost_Waste_TOT(self):
             return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.UNIT_PROCESSES)/1000
@@ -1301,7 +1290,7 @@ class SuperstructureModel(AbstractModel):
 
         def GWP_1_rule(self, u):
             return self.GWP_U[u] == self.full_load_hours[u] * sum(
-                self.Waste_Flow[u, i] * self.em_fac_comp[i] for i in self.COMPONENTS
+                self.Waste[u, i] * self.em_fac_comp[i] for i in self.COMPONENTS
             )
 
         def GWP_2_rule(self, ut):
@@ -1480,7 +1469,7 @@ class SuperstructureModel(AbstractModel):
         self.WASTE_TOT = Var(self.IMPACT_CATEGORIES)
         def LCA_Waste_rule(self, u, impCat):
             wasteType = self.waste_type_U[u].value
-            return (self.WASTE_U[u, impCat] == self.full_load_hours[u] * sum(self.Waste_Flow[u, i] * self.waste_impact_fac[wasteType, impCat]
+            return (self.WASTE_U[u, impCat] == self.full_load_hours[u] * sum(self.Waste[u, i] * self.waste_impact_fac[wasteType, impCat]
                                                                              for i in self.COMPONENTS))
         def LCA_Waste_TOT_rule(self, impCat):
             return self.WASTE_TOT[impCat] == sum(self.WASTE_U[u, impCat] for u in self.UNIT_PROCESSES)

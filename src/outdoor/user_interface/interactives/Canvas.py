@@ -260,7 +260,7 @@ class Canvas(QGraphicsView):
             unitDTOReceiving = self.centralDataManager.unitProcessData[self.endPort.iconID]
 
             # if we are drawing lines from loaded data the dialog data is already loaded and established, so no need to
-            # establish the connection again, this we'll only lead to duplication errors
+            # establish the connection again, this we'raw_materials_lower_bound only lead to duplication errors
             if not loadingLinesFlag:
                 errorFlag = self._establishConnection(unitDTOSending, unitDTOReceiving)
                 if errorFlag:

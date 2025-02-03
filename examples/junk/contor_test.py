@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Define the range of values for X and Y
+# Define the range of values for X and y
 # These should be replaced with the actual ranges from your data
 x = np.linspace(0, 10, 100)
 y = np.linspace(0, 10, 100)
@@ -21,7 +21,7 @@ plt.colorbar()
 # Add labels and title if needed
 plt.title('Contour Plot')
 plt.xlabel('X axis')
-plt.ylabel('Y axis')
+plt.ylabel('y axis')
 
 # Show the plot
 plt.show()

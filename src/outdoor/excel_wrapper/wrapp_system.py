@@ -47,7 +47,7 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     TemperatureIntervals = WF.convert_total('B', 34, 'B', 39) # update range
     ReactionsListRange = WF.convert_total('N', 5, 'N', 30)  # update range
     ReactantsListRange = WF.convert_total ('P', 5,'P', 30) # update range
-    TemperaturePriceRange = WF.convert_total('T', 14, 'U',18 )
+    TemperaturePriceRange = WF.convert_total('T', 14, 'UNIT_PROCESSES',18 )
 
     #####
 
@@ -93,7 +93,7 @@ def wrapp_SystemData(dfi, optimization_mode=None):
     obj.set_linearizationDetail()
     #obj.add_linearisationIntervals()
 
-    obj.set_omFactor(df1.loc['O&M Factor'].iloc[0])
+    obj.set_omFactor(df1.loc['O&REACTANTS Factor'].iloc[0])
 
 
 
@@ -160,7 +160,7 @@ def wrapp_SystemData(dfi, optimization_mode=None):
 
     liste1 = WF.read_list(df8,0)
     liste2 = WF.read_list(df8,1)
-    #TODO: I think this dict shit here isn't used by anything. Please verify.
+    #TODO: COMPONENTS think this dict shit here isn't used by anything. Please verify.
     dictTemperaturePrices = {'super': df8.iloc[0,1],
                              'high': df8.iloc[1,1],
                              'medium': df8.iloc[2,1],

@@ -14,7 +14,7 @@ from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 class ComponentsTab(QWidget):
     """
-    This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
+    This class creates a tab for the chemical components and related data (e.g., molar weight, lower_heating_value, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
     """
 
