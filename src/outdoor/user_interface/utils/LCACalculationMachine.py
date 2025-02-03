@@ -62,9 +62,7 @@ class LCACalculationMachine:
         self.logger.warning(f"There are {len(incomplete)} DTOs that are not ready for calculation: {incomplete}")
         self.logger.info(f"Beginning calculations. This may take a while.")
 
-        midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
-        endpoints = [m for m in bw.methods if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
-        methodconfs = midpoint + endpoints
+        methodconfs = self.getImpactMethods()
         calc_setup = {"inv": inventory, "ia": methodconfs}
         bw.calculation_setups["set"] = calc_setup
         mlca = bw2calc.MultiLCA("set")
@@ -89,3 +87,18 @@ class LCACalculationMachine:
             import json
             out_file = open("mlca_dump.json", "w")
             json.dump(results, out_file, indent=4)
+
+    def getImpactMethods(self) -> list:
+        midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
+        endpoints = [m for m in bw.methods if
+                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
+        methodconfs = midpoint + endpoints
+        return methodconfs
+
+    def getImpactDict(self):
+        methods = self.getImpactMethods()
+        results = {}
+        for meth in methods:
+            results[meth[2]] = (meth[3].split("(")[1].split(")")[0] if "midpoint" in str(meth) else meth[3], bw.Method(meth).metadata.get("unit"))
+        return results
+
