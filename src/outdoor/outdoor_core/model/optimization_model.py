@@ -121,9 +121,9 @@ class SuperstructureModel(AbstractModel):
         self.create_EconomicEvaluation()
         self.create_EnvironmentalEvaluation()
         self.create_FreshwaterEvaluation()
+        self.create_LCAEquations()
         self.create_DecisionMaking()
         self.create_ObjectiveFunction()
-        self.create_LCAEquations()
 
     def populateModel(self, Data_file):
         """
@@ -530,7 +530,6 @@ class SuperstructureModel(AbstractModel):
         self.Distribution_Equations = Constraint(self.U_DIST_SUB, rule=MassBalance_Distribution_Factor)
 
 
-
     # **** ENERGY BALANCES *****
     # -------------------------
 
@@ -648,7 +647,7 @@ class SuperstructureModel(AbstractModel):
             return (self.ENERGY_DEMAND[u, ut] == self.REF_FLOW_UT[u, ut] * self.tau[u, ut])
 
         def UtilityBalance_3_rule(self, ut):
-            if ut == "Electricity":
+            if ut == "Electricity":  #
                 return self.ENERGY_DEMAND_TOT[ut] == sum(
                     self.ENERGY_DEMAND[u, ut] * self.flh[u] for u in self.U
                 ) - sum(self.EL_PROD_1[u] * self.flh[u] for u in self.U_TUR)
@@ -1435,7 +1434,9 @@ class SuperstructureModel(AbstractModel):
             return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i, ImpCat]
                                                 for i in self.I)
         def LCA_All_Inflow_rule(self, ImpCat):
-            return self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u, ImpCat] for u in self.U) * self.H
+            return (self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u, ImpCat] for u in self.U)
+                    * self.H /self.sourceOrProductLoad/1000) # to convert to impc/KG of product or source
+
 
         self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Inflow_U_rule)
         self.LCA_InFlow_Total_Per_Catagories = Constraint(self.IMPACT_CATEGORIES, rule=LCA_All_Inflow_rule)
@@ -1452,21 +1453,24 @@ class SuperstructureModel(AbstractModel):
         # set the constraints
         def LCA_Utility_rule(self, ut, impCat):
             if ut == "Electricity":
-                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut] * self.H + self.ENERGY_DEMAND_HP_EL * self.H)
+                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut]  + self.ENERGY_DEMAND_HP_EL * self.H)
                         * self.util_impact_factors[ut, impCat])
             elif ut == "Chilling":
-                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut]* self.H * self.util_impact_factors[ut, impCat]
+                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut]  * self.util_impact_factors[ut, impCat]
 
             elif ut == "Heat":
-                return (self.IMPACT_UTILITIES[ut, impCat] == self.H * self.util_impact_factors[ut]
-                    (sum(self.ENERGY_DEMAND_HEAT_DEFI[hi] for hi in self.HI) - self.ENERGY_DEMAND_HEAT_PROD_SELL))
+                return (self.IMPACT_UTILITIES[ut, impCat] == self.H * self.util_impact_factors[ut, impCat] *
+                        (sum(self.ENERGY_DEMAND_HEAT_DEFI[hi] for hi in self.HI) - self.ENERGY_DEMAND_HEAT_PROD_SELL))
             else:
                 # skip heat 2
                 return self.IMPACT_UTILITIES[ut, impCat] == 0
-        def LCA_Utility_TOT_rule(self, impCat):
-            return self.IMPACT_UTILITIES_PER_CAT[impCat] == sum(self.IMPACT_UTILITIES[ut, impCat] for ut in self.UT)
 
-        self.LCA_Utilities = Constraint(self.U_UT, self.IMPACT_CATEGORIES, rule=LCA_Utility_rule)
+        def LCA_Utility_TOT_rule(self, impCat):
+            return (self.IMPACT_UTILITIES_PER_CAT[impCat] == sum(self.IMPACT_UTILITIES[ut, impCat] for ut in self.UT)
+                    /self.sourceOrProductLoad/1000) # to convert to impc/KG of product or source
+
+
+        self.LCA_Utilities = Constraint(self.UT, self.IMPACT_CATEGORIES, rule=LCA_Utility_rule)
         self.LCA_Utilities_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Utility_TOT_rule)
 
         # impact of waste
@@ -1474,21 +1478,24 @@ class SuperstructureModel(AbstractModel):
         self.waste_impact_fac = Param(self.WASTE_MANAGEMENT_TYPES, self.IMPACT_CATEGORIES, initialize=0, mutable=True)
         # set the variables
         self.WASTE_U = Var(self.U, self.IMPACT_CATEGORIES)
-        self.WASTE_TOT = Var(self.IMPACT_CATEGORIES)
+        self.IMPACT_WASTE_PER_CAT = Var(self.IMPACT_CATEGORIES)
         def LCA_Waste_rule(self, u, impCat):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_U[u, impCat] == self.flh[u] * sum(self.FLOW_WASTE[u, i] * self.waste_impact_fac[wasteType, impCat]
                                                           for i in self.I))
         def LCA_Waste_TOT_rule(self, impCat):
-            return self.WASTE_TOT[impCat] == sum(self.WASTE_U[u, impCat] for u in self.U)
+            return (self.IMPACT_WASTE_PER_CAT[impCat] == sum(self.WASTE_U[u, impCat] for u in self.U)
+                    /self.sourceOrProductLoad/1000) # to convert to impc/KG of product or source
+
 
         self.LCA_Waste = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Waste_rule)
         self.LCA_Waste_TOT = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Waste_TOT_rule)
 
-        # totla impact per catagorie:  the the sum of all impacts, inflow, utilities and waste
+        # total impact per category: the sum of all impacts, inflow, utilities and waste
         self.IMPACT_TOT = Var(self.IMPACT_CATEGORIES)
         def LCA_Total_Impact_rule(self, impCat):
-            return self.IMPACT_TOT[impCat] == (self.IMPACT_INPUTS_PER_CAT[impCat] + self.IMPACT_UTILITIES_PER_CAT[impCat] + self.WASTE_TOT[impCat]) /self.sourceOrProductLoad
+            return self.IMPACT_TOT[impCat] == (self.IMPACT_INPUTS_PER_CAT[impCat] + self.IMPACT_UTILITIES_PER_CAT[impCat]
+                                               + self.IMPACT_WASTE_PER_CAT[impCat])
 
         self.LCA_Total_Impact = Constraint(self.IMPACT_CATEGORIES, rule=LCA_Total_Impact_rule)
 
@@ -1575,6 +1582,8 @@ class SuperstructureModel(AbstractModel):
         # ---------
 
         self.ObjectiveFunctionName = Param(within=Any, initialize=self.objective_name)
+        # creat a set of the objective name
+        self.ObjectiveFunctionSet = Set(initialize=[self.objective_name])
 
 
         # Variables
@@ -1666,14 +1675,20 @@ class SuperstructureModel(AbstractModel):
                     return self.EBIT
 
         elif self.objective_name in self.impact_categories_list:
-            def Objective_rule(self):
-                return self.IMPACT_TOT[self.objective_name]
+            def Objective_rule(self, objectiveName):
+                return self.IMPACT_TOT[objectiveName]
+
         else:
             def Objective_rule(self):
                 return self.NPC
 
+
+        # define the objective function and the sense of the objective function
         if self.objective_name == "EBIT":
             self.Objective = Objective(rule=Objective_rule, sense=maximize)
+
+        elif self.objective_name in self.impact_categories_list:
+            self.Objective = Objective(self.ObjectiveFunctionSet, rule=Objective_rule, sense=minimize)
 
         else: # want to minimise the other objective functions
             self.Objective = Objective(rule=Objective_rule, sense=minimize)

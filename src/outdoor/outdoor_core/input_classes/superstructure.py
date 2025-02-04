@@ -67,7 +67,29 @@ class Superstructure:
         # CONSTANT SETS
         # -------------
 
-        self.OBJECTIVE_SET = {'EBIT', 'NPE', 'NPC', 'FWD'}
+        self.OBJECTIVE_SET = {'EBIT', 'NPE', 'NPC', 'FWD',
+                              'GWP',
+                              'terrestrial acidification potential (TAP)',
+                              'global warming potential (GWP100)',
+                              'freshwater ecotoxicity potential (FETP)',
+                              'marine ecotoxicity potential (METP)',
+                              'terrestrial ecotoxicity potential (TETP)',
+                              'fossil fuel potential (FFP)',
+                              'freshwater eutrophication potential (FEP)',
+                              'marine eutrophication potential (MEP)',
+                              'human toxicity potential (HTPc)',
+                              'human toxicity potential (HTPnc)',
+                              'ionising radiation potential (IRP)',
+                              'agricultural land occupation (LOP)',
+                              'surplus ore potential (SOP)',
+                              'ozone depletion potential (ODPinfinite)',
+                              'particulate matter formation potential (PMFP)',
+                              'photochemical oxidant formation potential: humans (HOFP)',
+                              'photochemical oxidant formation potential: ecosystems (EOFP)',
+                              'water consumption potential (WCP)',
+                              'ecosystem quality',
+                              'human health',
+                              'natural resources' }
 
         self.OPTIMIZATION_MODE_SET = {'single',
                                       'multi-objective',

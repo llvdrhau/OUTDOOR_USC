@@ -67,7 +67,10 @@ class ConstructSuperstructure:
                         "NPE: Net Produced CO2 Emissions": "NPE",
                         "FWD: Freshwater Demand": "FWD"}
 
-        objective = objectiveMap[objectiveFull]
+        if objectiveFull in objectiveMap:
+            objective = objectiveMap[objectiveFull]
+        else:  # the LCA objectives are not abbreviated, so they need not be mapped
+            objective = objectiveFull
 
         productDriven = self.centralDataManager.generalData['productDriver']
 
@@ -221,6 +224,10 @@ class ConstructSuperstructure:
 
         # set the impact inflow components
         obj._set_component_impact_factors(self.centralDataManager.componentData)
+
+        # for debugging porpuses
+        # a = obj.ImpactInflowComponents['impact_inFlow_components']
+        # print(a)
 
         # set the impact of utility factors
         obj._set_utility_impact_factors(self.centralDataManager.utilityData)

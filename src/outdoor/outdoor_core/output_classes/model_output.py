@@ -25,6 +25,7 @@ import random as rnd
 import cloudpickle as pic
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from tabulate import tabulate
 
 
@@ -80,6 +81,53 @@ class ModelOutput:
 
         # stochastic mode None unless otherwise specified
         self.stochastic_mode = None
+
+        # LCA UNITS:
+
+        self.LCA_units = {"terrestrial acidification potential (TAP)":"kg SO2-Eq",
+                          "global warming potential (GWP100)":"kg CO2-Eq",
+                          "freshwater ecotoxicity potential (FETP)":"kg 1,4-DCB-Eq",
+                          "marine ecotoxicity potential (METP)":"kg 1,4-DCB-Eq",
+                          "terrestrial ecotoxicity potential (TETP)":"kg 1,4-DCB-Eq",
+                          "fossil fuel potential (FFP)":"kg oil-Eq",
+                          "freshwater eutrophication potential (FEP)":"kg P-Eq",
+                          "marine eutrophication potential (MEP)":"kg N-Eq",
+                          "human toxicity potential (HTPc)":"kg 1,4-DCB-Eq",
+                          "human toxicity potential (HTPnc)":"kg 1,4-DCB-Eq",
+                          "ionising radiation potential (IRP)":"kBq Co-60-Eq",
+                          "agricultural land occupation (LOP)":"m2*a crop-Eq",
+                          "surplus ore potential (SOP)":"kg Cu-Eq",
+                          "ozone depletion potential (ODPinfinite)":"kg CFC-11-Eq",
+                          "particulate matter formation potential (PMFP)":"kg PM2.5-Eq",
+                          "photochemical oxidant formation potential: humans (HOFP)":"kg NOx-Eq",
+                          "photochemical oxidant formation potential: ecosystems (EOFP)":"kg NOx-Eq",
+                          "water consumption potential (WCP)":"m3",
+                          "acidification: terrestrial":"species.yr",
+                          "climate change: freshwater ecosystems":"species.yr",
+                          "climate change: terrestrial ecosystems":"species.yr",
+                          "ecotoxicity: freshwater":"species.yr",
+                          "ecotoxicity: marine":"species.yr",
+                          "ecotoxicity: terrestrial":"species.yr",
+                          "eutrophication: freshwater":"species.yr",
+                          "eutrophication: marine":"species.yr",
+                          "land use":"species.yr",
+                          "photochemical oxidant formation: terrestrial ecosystems":"species.yr",
+                          "water use: aquatic ecosystems":"species.yr",
+                          "water use: terrestrial ecosystems":"species.yr",
+                          "climate change: human health":"DALYs",
+                          "human toxicity: carcinogenic":"DALYs",
+                          "human toxicity: non-carcinogenic":"DALYs",
+                          "ionising radiation":"DALYs",
+                          "ozone depletion":"DALYs",
+                          "particulate matter formation":"DALYs",
+                          "photochemical oxidant formation: human health":"DALYs",
+                          "water use: human health":"DALYs",
+                          "energy resources: non-renewable, fossil":"USD 2013",
+                          "material resources: metals/minerals":"USD 2013",
+                          "ecosystem quality":"species.yr",
+                          "human health":"DALYs",
+                          "natural resources":"USD 2013",
+}
 
 # -----------------------------------------------------------------------------
 # -------------------------Private methods ------------------------------------
@@ -158,7 +206,7 @@ class ModelOutput:
         self._meta_data['Solver name'] = solver_name
         self._meta_data['Run time'] = run_time
         self._meta_data['Optimality gap'] = gap
-        self._meta_data['Objective function'] = self._data['Objective Function']
+        self._meta_data['Objective function'] = self._data['ObjectiveFunctionName']
         self._meta_data['Case identifier'] = str(self._case_number)
 
 
@@ -296,13 +344,61 @@ class ModelOutput:
         """
 
         model_data = self._data
-        lca_results_utilities = {"LCA Utilities": {}}
+        lca_results_utilities = {"LCA Results": {}}
         impact_cat = model_data['IMPACT_CATEGORIES']
 
         for i in impact_cat:
-            lca_results_utilities["LCA Utilities"][i] = model_data['IMPACT_TOT'][i]
+            value = round(model_data['IMPACT_TOT'][i], 3) # impact are per ton of product or input material
+            try:
+                unit = self.LCA_units[i] + '/kg' # all impacts are per kg of product /1000
+            except:
+                unit = 'NO unit found'
+
+            lca_results_utilities["LCA Results"][i] = str(value) + ' ' + unit
         return lca_results_utilities
 
+    def get_detailed_LCA_results(self):
+
+        model_data = self._data
+        # make a dataFrame with colums: Utility, Materials and Waste
+        # rows: all impact categories
+        # values: the impact values
+
+        lca_results = dict()
+        lca_results['Utilities'] = dict()
+        lca_results['Materials'] = dict()
+        lca_results['Waste'] = dict()
+
+        # impacts in kg_CO2_eq / kg of product or input material
+        for impCat in model_data['IMPACT_INPUTS_PER_CAT']:
+            lca_results['Materials'][impCat] = round( model_data['IMPACT_INPUTS_PER_CAT'][impCat], 3)
+
+        for impCat in model_data['IMPACT_UTILITIES_PER_CAT']:
+            lca_results['Utilities'][impCat] = round(model_data['IMPACT_UTILITIES_PER_CAT'][impCat], 3)
+
+        for impCat in model_data['IMPACT_WASTE_PER_CAT']:
+            lca_results['Waste'][impCat] = round(model_data['IMPACT_WASTE_PER_CAT'][impCat], 3)
+
+        # create a DF
+        df_lca = pd.DataFrame(lca_results)
+
+        # Show all rows
+        pd.set_option('display.max_rows', None)
+
+        # Show all columns
+        pd.set_option('display.max_columns', None)
+
+        # Optionally, ensure the display width is wide enough
+        pd.set_option('display.width', None)
+
+        return df_lca
+
+    def get_impact_factors_waste(self):
+        model_data = self._data
+        impactFactors = model_data['waste_impact_fac']
+
+        df_impactFactors = pd.DataFrame.from_dict(impactFactors, orient='index')
+        return df_impactFactors
 
     def _collect_economic_results(self):
         """

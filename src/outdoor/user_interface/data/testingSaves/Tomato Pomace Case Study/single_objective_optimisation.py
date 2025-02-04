@@ -38,3 +38,13 @@ analyzer = outdoor.BasicModelAnalyzer(model_output)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePath,
                           saveName='Figure_flowsheet')
+
+DF_LCA = model_output.get_detailed_LCA_results()
+print(DF_LCA)
+
+print('')
+impactFac = model_output.get_impact_factors_waste()
+print(impactFac)
+typeImp = isinstance(impactFac, dict)
+if typeImp:
+    print('Impact factors are dictionaries')
