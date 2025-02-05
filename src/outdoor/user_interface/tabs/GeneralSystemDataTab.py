@@ -42,9 +42,36 @@ class GeneralSystemDataTab(QWidget):
 
         # Combo box for the objective function
         self.objective_combo = QComboBox(self)
+
+
+
         self.objective_combo.addItems(
             ["EBIT: Earnings Before Income Taxes", "NPC: Net Production Costs", "NPE: Net Produced CO2 Emissions",
-             "FWD: Freshwater Demand"])
+             "FWD: Freshwater Demand"]
+            + ['GWP',
+               'terrestrial acidification potential (TAP)',
+               'global warming potential (GWP100)',
+               'freshwater ecotoxicity potential (FETP)',
+               'marine ecotoxicity potential (METP)',
+               'terrestrial ecotoxicity potential (TETP)',
+               'fossil fuel potential (FFP)',
+               'freshwater eutrophication potential (FEP)',
+               'marine eutrophication potential (MEP)',
+               'human toxicity potential (HTPc)',
+               'human toxicity potential (HTPnc)',
+               'ionising radiation potential (IRP)',
+               'agricultural land occupation (LOP)',
+               'surplus ore potential (SOP)',
+               'ozone depletion potential (ODPinfinite)',
+               'particulate matter formation potential (PMFP)',
+               'photochemical oxidant formation potential: humans (HOFP)',
+               'photochemical oxidant formation potential: ecosystems (EOFP)',
+               'water consumption potential (WCP)',
+               'ecosystem quality',
+               'human health',
+               'natural resources'
+        ]
+        )
         self.layout.addRow(QLabel("Objective Function:"), self.objective_combo)
         self.objective_combo.currentIndexChanged.connect(self.saveData)
 

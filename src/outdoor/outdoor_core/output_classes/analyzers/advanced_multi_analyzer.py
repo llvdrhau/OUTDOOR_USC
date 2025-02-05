@@ -1099,8 +1099,16 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
                 color_map[flowSheetTuple] = color_index
                 color_index += 1
 
-            x.append(scData[objectiveFunctionName1])
-            y.append(scData[objectiveFunctionName2])
+            if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
+                x.append(scData['IMPACT_TOT'][objectiveFunctionName1])
+            else:
+                x.append(scData[objectiveFunctionName1])
+
+            if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+                y.append(scData['IMPACT_TOT'][objectiveFunctionName2])
+            else:
+                y.append(scData[objectiveFunctionName2])
+
             colors.append(color_map[flowSheetTuple])
 
         # Normalize colors to the range [0, 1]
