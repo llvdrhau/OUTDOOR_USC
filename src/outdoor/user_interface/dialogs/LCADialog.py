@@ -262,6 +262,9 @@ class LCADialog(QDialog):
                 demand = self.selectedProcessesTable.item(row, 0).text()
                 id = self.selectedProcessesTable.item(row, 4).text()
                 self.dto.LCA['exchanges'][id]["Demand"] = demand
+            for ex in act.exchanges():
+                if ex["type"] != "production":
+                    ex.delete()
             for id, dic in self.dto.LCA['exchanges'].items():
                 if "process" in dic["Type"]:
                     ex = [m for m in self.eidb if m['code'] == id][0]

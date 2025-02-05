@@ -1,5 +1,6 @@
 import logging
 import sys
+import uuid
 from types import TracebackType
 
 import bw2calc
@@ -34,9 +35,6 @@ class LCACalculationMachine:
         ready.
         """
         self.logger.info("Collecting calculation-ready DTOs...")
-        required_components = len(self.centralDataManager.componentData)
-        valid_components = 0
-        missing_components = []
         biglist = self.centralDataManager.componentData + self.centralDataManager.wasteData + self.centralDataManager.utilityData
         inventory = []
         incomplete = {}
@@ -46,6 +44,7 @@ class LCACalculationMachine:
             if len(component.LCA['exchanges']) >0:
                 try:
                     inventory.append({self.outd.get(component.uid): 1})
+                    self.logger.debug(f"Component {component.uid} has exchanges:{component.LCA['exchanges']}")
                 except Exception as e:
                     self.logger.warning(f"Looks like component {component.name} hasn't been saved to BW yet. Try reopening the LCA dialog and clicking the 'Persist' button.")
                     incomplete_count += 1
@@ -62,11 +61,11 @@ class LCACalculationMachine:
         self.logger.info(f"Identified {len(inventory)} DTOs ready for calculation")
         self.logger.warning(f"There are {len(incomplete)} DTOs that are not ready for calculation: {incomplete}")
         self.logger.info(f"Beginning calculations. This may take a while.")
-
+        execution = uuid.uuid4().__str__()
         methodconfs = self.getImpactMethods()
         calc_setup = {"inv": inventory, "ia": methodconfs}
-        bw.calculation_setups["set"] = calc_setup
-        mlca = bw2calc.MultiLCA("set")
+        bw.calculation_setups[execution] = calc_setup
+        mlca = bw2calc.MultiLCA(execution)
         indic = []
         for f in mlca.func_units:
             for k in f:
@@ -78,6 +77,7 @@ class LCACalculationMachine:
         results = pd.DataFrame(mlca.results, columns=cols, index=indic).transpose().to_dict()
         biglist = self.centralDataManager.componentData + self.centralDataManager.wasteData + self.centralDataManager.utilityData
         for k, v in results.items():
+            self.logger.debug(f"Calculation results for {k}: {v}")
             for item in biglist:
                 if k == item.uid:
                     item.LCA['Results'] = v
