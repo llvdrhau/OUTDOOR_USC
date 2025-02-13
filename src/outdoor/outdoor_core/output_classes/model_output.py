@@ -70,7 +70,7 @@ class ModelOutput:
         if optimization_mode in self._optimization_mode_set:
             self._optimization_mode = optimization_mode
         else:
-            raise Exception("Optimization mode not supported")
+            raise Exception("Optimization mode: '{}' not supported".format(optimization_mode))
 
 
 
@@ -298,6 +298,24 @@ class ModelOutput:
         else:
             basic_results["Basic results"]["Net production FWD"] = "{} H2O-eq/ton".format(round(self._data["NPFWD"]/ self._data['SumOfProductFlows'], 2))
 
+        # electricity demand and production
+        basic_results["Basic results"]["-------"] = ""
+        basic_results["Basic results"]["Electricity Demand"] = "{} MW".format(round(self._data["TOTAL_ELECTRICITY_DEMAND"], 2))
+        basic_results["Basic results"]["Electricity Purchased"] = "{} MW".format(round(self._data["ENERGY_DEMAND_TOT"]['Electricity']/self._data['H'], 2))
+        basic_results["Basic results"]["Electricity Produced"] = "{} MW".format(round(self._data["ELECTRICITY_PRODUCED"], 2))
+
+        # heat demand and production
+        basic_results["Basic results"]["------"] = ""
+        basic_results["Basic results"]["Total Heat Demand"] = "{} MW".format(round(self._data["TOTAL_HEAT_DEMAND"], 2))
+        basic_results["Basic results"]["Total Cooling Demand"] = "{} MW".format(round(self._data["TOTAL_COOLING_DEMAND"], 2))
+
+        basic_results["Basic results"]["Heat Produced"] = "{} MW".format(round(self._data["TOTAL_HEAT_PRODUCED"], 2))
+        basic_results["Basic results"]["Heat Sold"] = "{} MW".format(round(self._data["ENERGY_DEMAND_HEAT_PROD_SELL"], 2))
+        basic_results["Basic results"]["Heat Exchanged"] = "{} MW".format(round(self._data["EXCHANGE_TOT"], 2))
+        basic_results["Basic results"]["Heat Deficit"] = "{} MW".format(round(self._data["ENERGY_DEMAND_DEFICIT"], 2))
+        basic_results["Basic results"]["Heat Residual"] = "{} MW".format(round(self._data["ENERGY_DEMAND_RESIDUAL"], 2))
+
+
         model_results.update(basic_results)
 
         chosen_technologies = {"Chosen technologies": self.return_chosen()}
@@ -305,7 +323,7 @@ class ModelOutput:
 
         return model_results
 
-    def _collect_capitalcost_shares(self):
+    def collect_capital_cost_shares(self):
         """
         Decription
         ----------
@@ -357,6 +375,53 @@ class ModelOutput:
             lca_results_utilities["LCA Results"][i] = str(value) + ' ' + unit
         return lca_results_utilities
 
+    def heat_balance_analysis(self):
+        model_data = self._data
+
+        heatBalanceDict = {}
+        coolingBalanceDict ={}
+
+        n = len(model_data['HI'])
+        for hi in model_data['HI']:
+            Q_cool_Heat = sum(model_data['ENERGY_DEMAND_HEAT'][u,hi] for u in model_data['U'])
+            Q_heat_produced_used = model_data['ENERGY_DEMAND_HEAT_PROD_USE']
+            Q_residual = model_data['ENERGY_DEMAND_HEAT_RESI'][hi]
+            Q_exchange = model_data['ENERGY_EXCHANGE'][hi]
+
+            heatBalanceDict[hi] = {'COOLING demand': round(Q_cool_Heat,4),
+                                   'Heat produced and used': Q_heat_produced_used,
+                                   'Heat residual': Q_residual,
+                                   'heat exchanged': Q_exchange,}
+            if hi == n:
+                heatBalanceDict[hi].update({'required cooling': model_data['ENERGY_DEMAND_COOLING']})
+
+            if hi == 1:
+                heatBalanceDict[hi].update({'required cooling': model_data['ENERGY_DEMAND_HEAT_PROD_USE']})
+
+            if hi > 1:
+                Q_residual_hi_1 = model_data['ENERGY_DEMAND_HEAT_RESI'][hi-1]
+                heatBalanceDict[hi].update({'Residual hi -1': Q_residual_hi_1})
+
+            # i know should be revered but philip switch them and now it's a horrid feature
+            Q_Demand_heating = sum(model_data['ENERGY_DEMAND_COOL'][u,hi] for u in model_data['U'])
+            Q_deficit = model_data['ENERGY_DEMAND_HEAT_DEFI'][hi]
+            coolingBalanceDict[hi] = {'HEATING demand': Q_Demand_heating,
+                                      'Deficit': Q_deficit,
+                                      'Exchaned': Q_exchange}
+
+        for interval, dictHeat in heatBalanceDict.items():
+            if sum(dictHeat.values()) != 0:
+                print('Heat interval:', interval)
+                print(dictHeat)
+                # self._print_results(dictHeat)
+                print('')
+
+        for interval, dictCooling in coolingBalanceDict.items():
+            if sum(dictCooling.values()) != 0:
+                print('interval',interval)
+                print(dictCooling)
+
+
     def get_detailed_LCA_results(self):
 
         model_data = self._data
@@ -393,12 +458,36 @@ class ModelOutput:
 
         return df_lca
 
-    def get_impact_factors_waste(self):
+    def get_impact_factors(self):
         model_data = self._data
-        impactFactors = model_data['waste_impact_fac']
+        impactIndexes = ['waste_impact_fac', 'impact_inFlow_components', 'util_impact_factors']
+        impactDict = {}
+        for i in impactIndexes:
+            df_impactFactors = pd.DataFrame.from_dict(model_data[i], orient='index')
+            impactDict[i] = df_impactFactors
 
-        df_impactFactors = pd.DataFrame.from_dict(impactFactors, orient='index')
-        return df_impactFactors
+        return impactDict
+
+    def find_negative_impacts(self):
+        model_data = self._data
+        impactFactorsMaterials = model_data['impact_inFlow_components']
+        impactFactorsUtilities = model_data['util_impact_factors']
+        impactFactorsWaste = model_data['waste_impact_fac']
+
+        print('------ Negative impacts from materials are:')
+        for i in impactFactorsMaterials:
+            if impactFactorsMaterials[i] < 0:
+                print(i, impactFactorsMaterials[i])
+        print("")
+        print('----- Negative impacts from Utilities are:')
+        for i in impactFactorsUtilities:
+            if impactFactorsUtilities[i] < 0:
+                print(i, impactFactorsUtilities[i])
+        print("")
+        print('------ Negative impacts from waste are:')
+        for i in impactFactorsWaste:
+            if impactFactorsWaste[i] < 0:
+                print(i, impactFactorsWaste[i])
 
     def _collect_economic_results(self):
         """
@@ -762,7 +851,7 @@ class ModelOutput:
         self.results.update(chosen_technologies)
 
         self.results.update(self._collect_economic_results(model_data))
-        self.results.update(self._collect_capitalcost_shares(model_data))
+        self.results.update(self.collect_capital_cost_shares(model_data))
         self.results.update(self._collect_electricity_shares(model_data))
         self.results.update(self._collect_heatintegration_results(model_data))
         self.results.update(self._collect_energy_data(model_data))
@@ -800,7 +889,7 @@ class ModelOutput:
         self.results.update(chosen_technologies)
 
         self.results.update(self._collect_economic_results())
-        self.results.update(self._collect_capitalcost_shares())
+        self.results.update(self.collect_capital_cost_shares())
         self.results.update(self._collect_electricity_shares())
         self.results.update(self._collect_heatintegration_results())
         self.results.update(self._collect_GHG_results())
@@ -1019,7 +1108,7 @@ class ModelOutput:
         """
         :return: A pie chart of the capital costs of the chosen flow sheet
         """
-        CT = self._collect_capitalcost_shares()
+        CT = self.collect_capital_cost_shares()
         capexShares = CT['Capital costs shares']
 
         # create the pie chart

@@ -39,12 +39,20 @@ analyzer = outdoor.BasicModelAnalyzer(model_output)
 analyzer.create_flowsheet(path=savePath,
                           saveName='Figure_flowsheet')
 
+#
 DF_LCA = model_output.get_detailed_LCA_results()
 print(DF_LCA)
 
-print('')
-impactFac = model_output.get_impact_factors_waste()
-print(impactFac)
-typeImp = isinstance(impactFac, dict)
-if typeImp:
-    print('Impact factors are dictionaries')
+# print('')
+# model_output.heat_balance_analysis()
+
+# possible keys ['waste_impact_fac', 'impact_inFlow_components', 'util_impact_factors']
+# impactFacDict = model_output.get_impact_factors()
+# for key in impactFacDict.keys():
+#     print('----------', key)
+#     print(impactFacDict[key])
+#     print('')
+#
+# model_output.find_negative_impacts()
+
+#model_output.model_instance.HeatBalance_3.pprint()

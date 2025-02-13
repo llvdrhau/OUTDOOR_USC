@@ -1190,7 +1190,7 @@ class MovableIcon(QGraphicsObject):
             dialog = YieldReactorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
                                         iconID=self.iconID)
 
-        elif self.icon_type == ProcessType.GEN_ELEC or self.icon_type == ProcessType.GEN_HEAT:
+        elif self.icon_type == ProcessType.GEN_ELEC or self.icon_type == ProcessType.GEN_HEAT or self.icon_type == ProcessType.GEN_CHP:
              dialog = GeneratorDialog(initialData=existingData, centralDataManager=self.centralDataManager,
                                       iconID=self.iconID)
 

@@ -647,7 +647,7 @@ class SuperstructureModel(AbstractModel):
             return (self.ENERGY_DEMAND[u, ut] == self.REF_FLOW_UT[u, ut] * self.tau[u, ut])
 
         def UtilityBalance_3_rule(self, ut):
-            if ut == "Electricity":  #
+            if ut == "Electricity":  # in MWh !!
                 return self.ENERGY_DEMAND_TOT[ut] == sum(
                     self.ENERGY_DEMAND[u, ut] * self.flh[u] for u in self.U
                 ) - sum(self.EL_PROD_1[u] * self.flh[u] for u in self.U_TUR)
@@ -659,9 +659,8 @@ class SuperstructureModel(AbstractModel):
         # Electrictiy Balance for Production from Turbines
 
         def ElectricityBalance_1_rule(self, u):
-            return self.EL_PROD_1[u] == self.Efficiency_TUR[u] * sum(
-                self.LHV[i] * self.FLOW_IN[u, i] for i in self.I
-            )
+            # in MW
+            return self.EL_PROD_1[u] == self.Efficiency_TUR[u] * sum(self.LHV[i] * self.FLOW_IN[u, i] for i in self.I)
 
         self.ElectricityBalance_1 = Constraint(
             self.U_TUR, rule=ElectricityBalance_1_rule
@@ -673,7 +672,8 @@ class SuperstructureModel(AbstractModel):
         self.UtilityBalance_3 = Constraint(self.U_UT, rule=UtilityBalance_3_rule)
 
         # Heat and Cooling Balance (Demand)
-
+        # fixme: Energy and cooling demand got mixed up, but are correctly implemented in the code
+        #  (where heat should be, cooling is used and visa versa. Not great for readability!! sloppy
         def HeatBalance_1_rule(self, u, hi):
             return self.ENERGY_DEMAND_HEAT[u, hi] == sum(
                 self.beta[u, ut, hi] * self.tau_c[ut, u] * self.REF_FLOW_UT[u, ut]
@@ -878,8 +878,7 @@ class SuperstructureModel(AbstractModel):
 
         def HeatBalance_13_rule(self, u):
             return self.ENERGY_DEMAND_HEAT_PROD[u] == self.Efficiency_FUR[u] * sum(
-                self.LHV[i] * self.FLOW_IN[u, i] for i in self.I
-            )
+                self.LHV[i] * self.FLOW_IN[u, i] for i in self.I)
 
         def HeatBalance_14_rule(self, u):
             return self.ENERGY_DEMAND_HEAT_UNIT[u] == sum(
@@ -914,6 +913,50 @@ class SuperstructureModel(AbstractModel):
         self.HeatBalance_14 = Constraint(self.U, rule=HeatBalance_14_rule)
         self.HeatBalance_15 = Constraint(self.U, rule=HeatBalance_15_rule)
         self.HeatBalance_16 = Constraint(rule=HeatBalance_16_rule)
+
+        ### extra constraints to print out the energy and heat demand for each unit
+        # elec
+        self.ELECTRICITY_PRODUCED = Var()
+        self.TOTAL_ELECTRICITY_DEMAND = Var()
+        # heat
+        self.TOTAL_HEAT_DEMAND = Var()
+        self.TOTAL_COOLING_DEMAND = Var()
+        self.TOTAL_HEAT_PRODUCED = Var()
+        self.ENERGY_DEMAND_DEFICIT = Var()
+        self.ENERGY_DEMAND_RESIDUAL = Var()
+
+        def Total_Electricity_Demand(self):
+            return self.TOTAL_ELECTRICITY_DEMAND == sum(self.ENERGY_DEMAND[u, "Electricity"] for u in self.U)
+
+        def UtilityBalance_Produced_electricity(self):
+            return self.ELECTRICITY_PRODUCED == sum(self.EL_PROD_1[u] for u in self.U_TUR)
+
+        # Total heat demand
+
+        def Heat_demand_total(self):
+            return self.TOTAL_HEAT_DEMAND == sum(self.ENERGY_DEMAND_HEAT_UNIT[u] for u in self.U)
+
+        def Cooling_demand_total(self):
+            return self.TOTAL_COOLING_DEMAND == sum(self.ENERGY_DEMAND_COOL_UNIT[u] for u in self.U)
+
+        def HeatBalance_deficit_heat(self):
+            return self.ENERGY_DEMAND_DEFICIT == sum(self.ENERGY_DEMAND_HEAT_DEFI[hi]  for hi in self.HI)
+
+        def HeatBalance_residual_heat(self):
+            return self.ENERGY_DEMAND_RESIDUAL == sum(self.ENERGY_DEMAND_HEAT_RESI[hi]  for hi in self.HI)
+
+        def Total_heat_production(self):
+            return self.TOTAL_HEAT_PRODUCED == sum(self.ENERGY_DEMAND_HEAT_PROD[u] for u in self.U_FUR)
+
+        # add to constraints
+        self.Total_Electricity_Demand = Constraint(rule=Total_Electricity_Demand)
+        self.UtilityBalance_Produced_electricity = Constraint(rule=UtilityBalance_Produced_electricity)
+
+        self.Heat_Demand_Total = Constraint(rule=Heat_demand_total)
+        self.Cooling_Demand_Total = Constraint(rule=Cooling_demand_total)
+        self.HeatBalance_Deficit_Heat = Constraint(rule=HeatBalance_deficit_heat)
+        self.HeatBalance_Residual_Heat = Constraint(rule=HeatBalance_residual_heat)
+        self.Total_heat_production = Constraint(rule=Total_heat_production)
 
     # *** Waste Costs ****
     # --------------------
@@ -1168,7 +1211,7 @@ class SuperstructureModel(AbstractModel):
         def HEN_CostBalance_2_rule(self):
             return self.UtCosts == (
                 sum(self.HEATCOST[hi] for hi in self.HI)
-                - self.ENERGY_DEMAND_HEAT_PROD_SELL * self.H * self.delta_q[1] * 0.7
+                 - self.ENERGY_DEMAND_HEAT_PROD_SELL * self.H * self.delta_q[1] * 0.7
                 + self.ENERGY_DEMAND_COOLING * self.H * self.delta_cool
             )
 
@@ -1452,7 +1495,7 @@ class SuperstructureModel(AbstractModel):
 
         # set the constraints
         def LCA_Utility_rule(self, ut, impCat):
-            if ut == "Electricity":
+            if ut == "Electricity":  # ENERGY_DEMAND_TOT is in MWh! util_impact_factors in kg_CO2/MWh
                 return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut]  + self.ENERGY_DEMAND_HP_EL * self.H)
                         * self.util_impact_factors[ut, impCat])
             elif ut == "Chilling":

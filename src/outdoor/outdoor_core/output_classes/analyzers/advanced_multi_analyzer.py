@@ -869,7 +869,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         Returns:
         None
         """
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 8))
 
         # Number of discrete colors needed
         num_colors = len(label_dict.keys())
@@ -1067,18 +1067,25 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
         return productsPerFlowsheet
 
+
     def _print_warning(self):
         orange_color = "\033[33m"
         reset_color = "\033[0m"
         print(f"{orange_color}-------WARNING-------{reset_color}")
 
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib.patches import Patch
 
-    def plot_pareto_front(self, path, saveName, flowTreshold=1e-5):
+    def plot_pareto_front(self, path, saveName, flowTreshold=1e-6):
         """
-        Plot the pareto front of the multi-objective optimization, the dots have different colors depending on the
-        flow sheet design. The x-axis is the first objective function and the y-axis is the second objective function.
-        :return:
+        Plot the pareto front of the multi-objective optimization, with dots
+        colored by flowsheet design. The x-axis is the first objective function
+        and the y-axis is the second objective function.
         """
+
+        # Create a new figure with enough width for the legend on the right
+        plt.figure(figsize=(12, 8))
 
         data = self.model_output._results_data
         objectiveFunctionName1 = self.model_output.multi_data['objective1']
@@ -1086,6 +1093,8 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
         x = []
         y = []
+        x_pareto = []
+        y_pareto = []
         colors = []
         color_map = {}
         color_index = 0
@@ -1093,11 +1102,119 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         for sc in data:
             scData = data[sc]._data
             flowSheet = self.model_output.return_chosen(scData, flowTreshold)
-            flowSheetTuple = tuple(flowSheet.items())
 
-            if flowSheetTuple not in color_map:
-                color_map[flowSheetTuple] = color_index
+            outputsFlowSheet = self.find_outputs_flowsheet(flowSheet, scData)
+            # Combine flowsheet names into a single key
+            outputKey = ", ".join(outputsFlowSheet)
+            if outputKey not in color_map:
+                color_map[outputKey] = color_index
                 color_index += 1
+
+            if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
+                x_val = scData['IMPACT_TOT'][objectiveFunctionName1]
+
+            else:
+                x_val = scData[objectiveFunctionName1]
+
+            # add to x_pareto if the scenario is a pareto bound
+            if "pareto_bound_" in sc:
+                x_pareto.append(x_val)
+            x.append(x_val)
+
+            if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+                y_val = scData['IMPACT_TOT'][objectiveFunctionName2]
+            else:
+                y_val = scData[objectiveFunctionName2]
+
+            # add to y_pareto if the scenario is a pareto bound
+            if "pareto_bound_" in sc:
+                y_pareto.append(y_val)
+            y.append(y_val)
+
+            colors.append(color_map[outputKey])
+
+        # Avoid division by zero if there's only one color
+        if len(colors) == 1:
+            colors = [1]
+
+        # Normalize colors to [0, 1] for colormap
+        norm_colors = np.array(colors) / max(colors)
+
+        # Scatter plot
+        plt.scatter(x, y, c=norm_colors, cmap='viridis')
+        plt.plot(x_pareto, y_pareto, color='black', linewidth= 1.2)
+        plt.xlabel(objectiveFunctionName1)
+        plt.ylabel(objectiveFunctionName2)
+
+        # Build a patch for each flowsheet → color
+        patches = []
+        cmap = plt.cm.get_cmap('viridis')
+        for flowsheet_name, index in color_map.items():
+            color_value = index / max(color_map.values())  # normalized
+            patch_color = cmap(color_value)
+            patch = Patch(color=patch_color, label=str(flowsheet_name))
+            patches.append(patch)
+
+        # Create legend and place it outside to the right
+        plt.legend(
+            handles=patches,
+            title="Flowsheets",
+            loc="upper left",
+            bbox_to_anchor=(1.02, 1),
+            borderaxespad=0.0
+        )
+
+        # Shrink the plot area to leave space for the legend on the right
+        plt.subplots_adjust(right=0.7)
+
+        # Construct the save path
+        if saveName:
+            if 'png' not in saveName:
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/pareto_front.png"
+
+        # Save with bbox_inches='tight' to ensure legend is fully in the image
+        #plt.savefig(savePath)
+        plt.savefig(savePath, bbox_inches='tight')
+        # plt.show()  # Uncomment if you also want to display
+
+    def find_outputs_flowsheet(self, flowsheet, data):
+        """
+        Returns a list with the products for each flow sheet design.
+        :param flowsheetDict: dict
+        :return: productsPerFlowsheet: list
+        """
+        outputIDs = list(data['U_PP'])
+        generatorIDs = list(set(data['U_TUR'] + data['U_FUR'])) # consider generators as outputs
+        endIDs = outputIDs + generatorIDs
+
+        productsPerFlowsheet = []
+        for id, name in flowsheet.items():
+            if id in endIDs:
+                productsPerFlowsheet.append(name)
+
+        return productsPerFlowsheet
+
+    def get_data_multi_objective(self, flowTreshold=1e-5):
+        data = self.model_output._results_data
+        objectiveFunctionName1 = self.model_output.multi_data['objective1']
+        objectiveFunctionName2 = self.model_output.multi_data['objective2']
+
+        x = []
+        y = []
+        design = []
+
+        # Clear the current figure
+        plt.clf()
+
+        for sc in data:
+            scData = data[sc]._data
+            flowSheet = self.model_output.return_chosen(scData, flowTreshold)
+            flowSheetTuple = tuple(flowSheet.items())
+            design.append(flowSheetTuple)
 
             if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
                 x.append(scData['IMPACT_TOT'][objectiveFunctionName1])
@@ -1109,26 +1226,29 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
             else:
                 y.append(scData[objectiveFunctionName2])
 
+        return x, y, design
+
+    def plot_pareto_front_aggregated(self, path, saveName, flowTreshold=1e-5):
+        """
+        Plot the pareto front of multiple multi-objective optimization, the dots have different colors depending on the
+        flow sheet design. The x-axis is the first objective function and the y-axis is the second objective function.
+        :return:
+        """
+        x, y, design = self._get_data_multi_objective_aggregated()
+
+        colors = []
+        color_map = {}
+        color_index = 0
+
+        for flowSheetTuple in design:
+            if flowSheetTuple not in color_map:
+                color_map[flowSheetTuple] = color_index
+                color_index += 1
+
             colors.append(color_map[flowSheetTuple])
 
-        # Normalize colors to the range [0, 1]
-        norm_colors = np.array(colors) / max(colors)
 
-        plt.scatter(x, y, c=norm_colors, cmap='viridis')
-        plt.xlabel(objectiveFunctionName1)
-        plt.ylabel(objectiveFunctionName2)
-
-        # save the plot
-        if saveName:
-            if 'png' not in saveName:
-                savePath = f"{path}/{saveName}.png"
-            else:
-                savePath = f"{path}/{saveName}"
-        else:
-            savePath = f"{path}/pareto_front.png"
-        plt.savefig(savePath)
-
-    def create_all_flowsheets(self, path=None, saveName=None):
+    def create_all_flow_sheets_multi_objectives(self, path=None, saveName=None):
         """
         This methode finds the different flow sheet designs of the multi objective optimisation and returns
         a png of each flow sheet design,
@@ -1139,19 +1259,30 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         flowTreshold = 1e-5
         data = self.model_output._results_data
         designDict = {}
+        groupResultsDict = {}
+        counter = 0
         for scenario in data:
             scData = data[scenario]._data
             flowSheet = self.model_output.return_chosen(scData, flowTreshold)
             flowSheetTuple = tuple(flowSheet.items())
+            counter += 1
 
             if flowSheetTuple not in designDict:
                 designDict[flowSheetTuple] = scenario
+                groupResultsDict[flowSheetTuple] = {}
+
+            if not groupResultsDict[flowSheetTuple]:
+                scKey = 'sc1' # first key needs to be sc1
+            else:
+                scKey = 'sc{}'.format(counter)
+
+            groupResultsDict[flowSheetTuple].update({scKey:scData})
 
         # make and save the flow sheet designs
         if not saveName:
             saveName = 'Flowsheet Design '
 
-        for i, scenario in enumerate(designDict.values()):
-            dataScenario = data[scenario]._data
+        for i, dataFlowsheet in enumerate(groupResultsDict.values()):
             saveName = saveName + str(i)
-            self.create_flowsheet(path=path, saveName=saveName, dataScenario=dataScenario)
+            self.create_flowsheet(path=path, saveName=saveName, multiObjectiveData=dataFlowsheet)
+

@@ -17,6 +17,8 @@ import pyomo.environ as pyo
 from mpisppy.opt.ef import ExtensiveForm
 from mpisppy.opt.ph import PH
 from pyomo.environ import *
+from shapely.geometry import MultiPoint, Point
+import random
 
 from .change_objective import change_objective_function
 from .change_params import (
@@ -87,135 +89,425 @@ class MultiObjectiveOptimizer(SingleOptimizer):
                          solver_path=None,
                          options=None,
                          count_variables_constraints=False,
-
                          ):
-        timer = time_printer(programm_step="Multi-objective optimization")
-        model_output = MultiModelOutput(optimization_mode="multi-objective")
-        model_output.multi_data = self.multi_data
 
+        # set up:
+        model_instance_original = copy.deepcopy(model_instance)
+        model_output = MultiModelOutput(optimization_mode="multi-objective")
+        model_output.multi_data = self.multi_data  # multi_data is actually the options of the multi-objective optimization
         objective1 = self.multi_data["objective1"]
         objective2 = self.multi_data["objective2"]
         paretoPoints = self.multi_data["paretoPoints"]
 
+        # get the bounds of the first objective function
+        manualBoundsObjective1 = self.multi_data["bounds_objective1"]
+        # start the timer
+        timer = time_printer(programm_step="Multi-objective optimization")
         # run the optimization for the first objective
         self.change_model_objective(model_instance, objective1)
         single_solved_obj1 = self.single_optimizer.run_optimization(model_instance)
         single_solved_obj1._tidy_data()
-        model_output.add_process("maxObjective1", single_solved_obj1)
-
+        # model_output.add_process("maxObjective1", single_solved_obj1)
         # run the optimization for the second objective
         self.change_model_objective(model_instance, objective2)
         single_solved_obj2 = self.single_optimizer.run_optimization(model_instance)
         single_solved_obj2._tidy_data()
-        model_output.add_process("maxObjective2", single_solved_obj2)
-
+        # model_output.add_process("maxObjective2", single_solved_obj2)
         # get the result of the first objective from the second optimization problem
-        bound_1 = single_solved_obj1._data[objective1] # upper bound of the first objective
-        bound_2 = single_solved_obj2._data[objective1] # lower bound of the second objective
-
-
+        if objective1 in single_solved_obj1._data["IMPACT_CATEGORIES"]:
+            bound_1 = single_solved_obj1._data["IMPACT_TOT"][objective1]
+            bound_2 = single_solved_obj2._data["IMPACT_TOT"][objective1]
+        else:
+            bound_1 = single_solved_obj1._data[objective1] # upper bound of the first objective
+            bound_2 = single_solved_obj2._data[objective1] # lower bound of the second objective
+        if bound_1 == bound_2:
+            # print in Green:
+            print("\033[1;32m" + "The two objectives {} and {} are not conflicting \n "
+                                 "The results of the single optimization problem is returned".format(objective1, objective2) + "\033[0m")
+            model_output.add_process("maxObjective1", single_solved_obj1)
+            return model_output
+        lowerBound = manualBoundsObjective1[0]
+        upperBound = manualBoundsObjective1[1]
+        if lowerBound is not None:
+            if lowerBound > bound_1:
+                bound_1 = lowerBound
+                # model_output._results_data.pop("maxObjective1")
+        if upperBound is not None:
+            if upperBound < bound_2:
+                bound_2 = upperBound
+                # model_output._results_data.pop("maxObjective2")
         bounds = np.linspace(bound_1, bound_2, paretoPoints)
+        unfeasibleBounds = []
+        # change the objective function to the second objective
+        self.change_model_objective(model_instance, objective2)
+        count = 0
         for bound in bounds:
-            outputName = "bound_" + str(round(bound, 2))
-            # change the objective function to the first objective
+            count += 1
+            outputName = "pareto_bound_" + str(count)
+            # change the bounds of the first objective
             self.bound_objective(model_instance, objective1, bound)
-            single_solved = self.single_optimizer.run_optimization(model_instance)
-            single_solved._tidy_data()
-            model_output.add_process(outputName, single_solved)
+            try:
+                single_solved = self.single_optimizer.run_optimization(model_instance, runFeasibilityAnalysis=False,
+                                                                       tee=False)
+                single_solved._tidy_data()
+                model_output.add_process(outputName, single_solved)
+            except:
+                # print the error message in orange
+                unfeasibleBounds.append(bound)
+                print("\033[93m" + "The optimization problem is infeasible for the bound: {}"
+                                   " \n of objective {}".format(bound, objective1) + "\033[0m")
+        print('the bounds are:', bounds)
+        print("\033[93m" + "The infeasible for the bounds are: {}"
+                           " \n for objective {}".format(unfeasibleBounds, objective1) + "\033[0m")
 
+        # see if we want to do design space exploration
+        if 'design_space_mode' in self.multi_data.keys():
+            if self.multi_data['design_space_mode'] == True:
+                design_space_mode = True
+            else:
+                design_space_mode = False
+        else:
+            design_space_mode = False
+
+        if design_space_mode:
+            # run 4 single optimizations to get the design space
+            timer = time_printer(programm_step="Design space exploration")
+
+            # get the bounds
+            if 'design_space_bounds' not in self.multi_data.keys():
+                design_space_bounds = {}
+                design_space_bounds['min_obj1'] = None
+                design_space_bounds['max_obj1'] = None
+                design_space_bounds['min_obj2'] = None
+                design_space_bounds['max_obj2'] = None
+            else:
+                design_space_bounds = self.multi_data['design_space_bounds']
+
+            # create an instance that is bound by the design space options
+            bound_instance = self.create_bounded_design_space(model_instance_original, design_space_bounds)
+
+            # get the 4 corners of the trapezoid
+            self.change_model_objective(bound_instance, objective1)
+            opt_1 = self.single_optimizer.run_optimization(bound_instance)
+            opt_1._tidy_data()
+
+            self.change_model_objective(bound_instance, objective1, flipSense=True)
+            opt_2 = self.single_optimizer.run_optimization(bound_instance)
+            opt_2._tidy_data()
+
+            self.change_model_objective(bound_instance, objective2)
+            opt_3 = self.single_optimizer.run_optimization(bound_instance)
+            opt_3._tidy_data()
+
+            self.change_model_objective(bound_instance, objective2, flipSense=True)
+            opt_4 = self.single_optimizer.run_optimization(bound_instance)
+            opt_4._tidy_data()
+
+            # Determine the x points for objective1
+            x_points_obj_1 = [
+                opt_1._data["IMPACT_TOT"][objective1] if objective1 in opt_1._data[
+                    "IMPACT_CATEGORIES"] else opt_1._data[objective1],
+                opt_2._data["IMPACT_TOT"][objective1] if objective1 in opt_2._data[
+                    "IMPACT_CATEGORIES"] else opt_2._data[objective1],
+                opt_3._data["IMPACT_TOT"][objective1] if objective1 in opt_3._data[
+                    "IMPACT_CATEGORIES"] else opt_3._data[objective1],
+                opt_4._data["IMPACT_TOT"][objective1] if objective1 in opt_4._data[
+                    "IMPACT_CATEGORIES"] else opt_4._data[objective1]
+            ]
+
+            # Determine the y points for objective2
+            y_points_obj_2 = [
+                opt_1._data["IMPACT_TOT"][objective2] if objective2 in opt_1._data[
+                    "IMPACT_CATEGORIES"] else opt_1._data[objective2],
+                opt_2._data["IMPACT_TOT"][objective2] if objective2 in opt_2._data[
+                    "IMPACT_CATEGORIES"] else opt_2._data[objective2],
+                opt_3._data["IMPACT_TOT"][objective2] if objective2 in opt_3._data[
+                    "IMPACT_CATEGORIES"] else opt_3._data[objective2],
+                opt_4._data["IMPACT_TOT"][objective2] if objective2 in opt_4._data[
+                    "IMPACT_CATEGORIES"] else opt_4._data[objective2]
+            ]
+
+            # in the sample points: x = objective1, y = objective2
+            point1 = (x_points_obj_1[0], y_points_obj_2[0])
+            point2 = (x_points_obj_1[1], y_points_obj_2[1])
+            point3 = (x_points_obj_1[2], y_points_obj_2[2])
+            point4 = (x_points_obj_1[3], y_points_obj_2[3])
+
+            # If the points are in correct trapezoid order:
+            # OR if the order is unknown (and you want a convex hull):
+            polygon = MultiPoint([point1, point2, point3, point4]).convex_hull
+            #  get the sample size from the options
+            if 'sample_size' in self.multi_data.keys():
+                sample_size = self.multi_data["sample_size"]
+            else:
+                sample_size = 100
+                print("\033[93m" + "The 'sample_size' is not defined in the options, defaulted to 100" + "\033[0m")
+
+            samplePoints = self.sample_uniform_in_polygon(polygon, n_samples=sample_size)
+            count = 0
+            nEnd = len(samplePoints)
+
+            for point in samplePoints:
+                count += 1
+                objective1_bound = point[0]
+                objective2_bound = point[1]
+
+                # make a deep copy of the model made by the design space exploration : bound_instance
+                model_instance = copy.deepcopy(bound_instance)
+                # bound both objectives
+                self.bound_objective(model_instance, objective1, objective1_bound, flipped=True)
+                self.bound_objective(model_instance, objective2, objective2_bound, flipped=True)
+                # set the objective to the second objective
+                self.change_model_objective(model_instance, objective2)
+                try:
+                    single_opt_solved = self.single_optimizer.run_optimization(model_instance, tee=False)
+                    single_opt_solved._tidy_data()
+                    model_output.add_process("sc{}".format(count), single_opt_solved)
+                except:
+                    pass # if the optimization is infeasible, we just skip it
 
         return model_output
 
-    def change_model_objective(self, model_instance, objective):
+    def change_model_objective(self, model_instance, objective, flipSense=False):
         """
         This function is used to change the objective function of the model instance
         :param model_instance: the model instance to change the objective function
         :param objective: the new objective function
         :return: model_instance with the new objective function
         """
+
+        # Determine the sense of the objective
+        if flipSense:
+            if objective == "EBIT":
+                objective_sense = minimize
+            else:
+                objective_sense = maximize
+        else:
+            if objective == "EBIT":
+                objective_sense = maximize
+            else:
+                objective_sense = minimize
+
         model_instance.del_component(model_instance.Objective)
         if objective == "NPC":
             def Objective_rule(Instance):
                 return Instance.NPC
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+            model_instance.Objective = Objective(rule=Objective_rule, sense=objective_sense)
 
         elif objective == "EBIT":
             def Objective_rule(Instance):
                 return Instance.EBIT
-            model_instance.Objective = Objective(rule=Objective_rule, sense=maximize)
+            model_instance.Objective = Objective(rule=Objective_rule, sense=objective_sense)
 
         elif objective == "NPE":
             def Objective_rule(Instance):
                 return Instance.NPE
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+            model_instance.Objective = Objective(rule=Objective_rule, sense=objective_sense)
 
         elif objective == "FWD":
             def Objective_rule(Instance):
                 return Instance.NPFWD
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+            model_instance.Objective = Objective(rule=Objective_rule, sense=objective_sense)
 
         else:
             if objective in list(model_instance.IMPACT_CATEGORIES):
                 def Objective_rule(Instance):
                     return Instance.IMPACT_TOT[objective]
-                model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+                model_instance.Objective = Objective(rule=Objective_rule, sense=objective_sense)
 
             else:
                 raise Exception("The objective function {} is not defined in the model instance".format(objective))
 
-    def bound_objective(self, model_instance, objective, bound):
+        return objective_sense # -1 if maximize, 1 if minimize
+
+    def bound_objective(self, model_instance, objective, bound, flipped=False):
         """
         This function is used to bound the objective function of the model instance
         :param model_instance: the model instance to change the objective function
-        :param objective: the new objective function
+        :param objective: the objective function restricted by the bound
+        :param bound: the bound value for the objective function
+        :param flipped: boolean to switch the default >= or <= in the constraint
         :return: model_instance with the new objective function
         """
-        model_instance.del_component(model_instance.Objective)
+
+        # Determine the constraint operator based on the flipped parameter
+        if flipped:
+            if objective == "EBIT":
+                operator = lambda x, y: x <= y
+            else:
+                operator = lambda x, y: x >= y
+        else:
+            if objective == "EBIT":
+                operator = lambda x, y: x >= y
+            else:
+                operator = lambda x, y: x <= y
+
+        # Create a new objective function and bounds
         if objective == "NPC":
             def bound_objective_rule(Instance):
-                return Instance.NPC >= bound
-            model_instance.Constraint = Constraint(rule=bound_objective_rule)
-            def Objective_rule(Instance):
-                return Instance.NPC
+                return operator(Instance.NPC, bound)
 
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+            model_instance.Constraint = Constraint(rule=bound_objective_rule)
 
         elif objective == "EBIT":
             def bound_objective_rule(Instance):
-                return Instance.EBIT <= bound
+                return operator(Instance.EBIT, bound)
+
             model_instance.Constraint = Constraint(rule=bound_objective_rule)
-            def Objective_rule(Instance):
-                return Instance.EBIT
-            model_instance.Objective = Objective(rule=Objective_rule, sense=maximize)
 
         elif objective == "NPE":
             def bound_objective_rule(Instance):
-                return Instance.NPE >= bound
+                return operator(Instance.NPE, bound)
+
             model_instance.Constraint = Constraint(rule=bound_objective_rule)
-            def Objective_rule(Instance):
-                return Instance.NPE
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
 
         elif objective == "FWD":
             def bound_objective_rule(Instance):
-                return Instance.NPFWD >= bound
+                return operator(Instance.NPFWD, bound)
+
             model_instance.Constraint = Constraint(rule=bound_objective_rule)
-            def Objective_rule(Instance):
-                return Instance.NPFWD
-            model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
 
         else:
-            if objective in Instance.impact_categories_list:
+            if objective in model_instance.impact_categories_list:
                 def bound_objective_rule(Instance):
-                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name] >= bound
+                    return operator(Instance.IMPACT_TOT[objective], bound)
+
                 model_instance.Constraint = Constraint(rule=bound_objective_rule)
-                def Objective_rule(Instance):
-                    return Instance.IMPACT_UTILITIES_PER_CAT[Instance.objective_name]
-                model_instance.Objective = Objective(rule=Objective_rule, sense=minimize)
+
             else:
                 raise Exception("The objective function {} is not defined in the model instance".format(objective))
 
+    def sample_uniform_in_polygon(self, poly, n_samples=1000):
+        """
+        Sample n_samples points uniformly in the 2D polygon poly.
+        Returns a list of (x, y) coordinates.
+        """
+        minx, miny, maxx, maxy = poly.bounds
+        samples = []
 
+        while len(samples) < n_samples:
+            # 1. Sample a random point in the bounding box
+            x_rand = random.uniform(minx, maxx)
+            y_rand = random.uniform(miny, maxy)
+
+            # 2. Check if it lies within the polygon
+            p = Point(x_rand, y_rand)
+            if poly.contains(p):
+                samples.append((x_rand, y_rand))
+
+        return samples
+
+    def create_bounded_design_space(self, model_instance, bounds_design_space):
+
+        # deep copy the model instance so that the original model instance is not changed
+        model_instance_copy = copy.deepcopy(model_instance)
+
+        objective1 = self.multi_data["objective1"]
+        objective2 = self.multi_data["objective2"]
+
+        # get the bounds of the objective functions
+        min_obj_1 = bounds_design_space['min_obj1']
+        max_obj_1 = bounds_design_space['max_obj1']
+        min_obj_2 = bounds_design_space['min_obj2']
+        max_obj_2 = bounds_design_space['max_obj2']
+
+        if min_obj_1 is not None:
+            self.bound_objective(model_instance_copy, objective1, min_obj_1, flipped=True)
+        if max_obj_1 is not None:
+            self.bound_objective(model_instance_copy, objective1, max_obj_1,)
+        if min_obj_2 is not None:
+            self.bound_objective(model_instance_copy, objective2, min_obj_2, flipped= True)
+        if max_obj_2 is not None:
+            self.bound_objective(model_instance_copy, objective2, max_obj_2)
+
+        return model_instance_copy
+
+
+    def _create_model_bounded_old(self, model_output, model_instance_original, objective, bounds, saveName,
+                              flipSenseObjective):
+        """
+        This function is used to create a model instance with the same structure as the original model instance,
+        but bounded according to the options of the multi-objective optimization for the design space exploration
+
+        :param model_output: the model output object to store the results
+        :param model_instance_original: the original unmodified model instance
+        :param objective: the objective function to bound
+        :param bounds: the bounds for the objective function tuple
+        :param saveName: the name to save the results in the model output object
+        :param flipSense: boolean to switch the default >= or <= in the constraint of ma
+
+        :return: model_instance
+        """
+        min_obj = bounds[0]
+        max_obj = bounds[1]
+
+        # deep copy the model instance so that the original model instance is not changed
+        model_instance = copy.deepcopy(model_instance_original)
+
+        # get the sense of the objective function
+        sense_opt = self.change_model_objective(model_instance, objective, flipSense=flipSenseObjective)
+
+        if sense_opt == -1 and max_obj is not None:  # maximize
+            self.bound_objective(model_instance, objective, max_obj)
+
+        elif sense_opt == 1 and min_obj is not None:  # minimize
+            self.bound_objective(model_instance, objective, min_obj, flipped=True)
+
+        try:
+            optimized_instance = self.single_optimizer.run_optimization(model_instance)
+            optimized_instance._tidy_data()
+            model_output.add_process(saveName, optimized_instance)
+        except:
+            if min_obj is not None and max_obj is not None:
+                raise Exception("The optimization problem is infeasible for the bound: {}"
+                                " \n of objective {}, please choose another".format((min_obj, max_obj), objective))
+            else:
+                raise Exception("The optimization problem is infeasible, check for model "
+                                "inconsistencies".format((min_obj, max_obj), objective))
+
+        return optimized_instance
+
+    def _create_model_bounded(self, model_output, model_instance_original,
+                              objective2bound, bound, flipBound,
+                              objective2Change, flipObjective,
+                              saveName):
+        """
+        This function is used to create a model instance with the same structure as the original model instance,
+        but bounded according to the options of the multi-objective optimization for the design space exploration
+
+        :param model_output: the model output object to store the results
+        :param model_instance_original: the original unmodified model instance
+        :param objective2Change: the objective function to change
+        :param objective2bound: the objective function to bound
+        :param bounds: the bound for the objective function float
+        :param saveName: the name to save the results in the model output object
+        :param flipSense: boolean to switch the default >= or <= in the constraint
+
+        :return: optimized_instance, a single optimization model output object
+        """
+
+        # deep copy the model instance so that the original model instance is not changed
+        model_instance = copy.deepcopy(model_instance_original)
+
+        # get the sense of the objective function
+        self.change_model_objective(model_instance, objective2Change, flipSense=flipObjective)
+
+        if bound is not None:  # maximize
+            self.bound_objective(model_instance, objective2bound, bound, flipped=flipBound)
+
+        try:
+            optimized_instance = self.single_optimizer.run_optimization(model_instance)
+            optimized_instance._tidy_data()
+            model_output.add_process(saveName, optimized_instance)
+        except:
+            if bound is not None:
+                raise Exception("The optimization problem is infeasible for the bound: {}"
+                                " \n of objective {}, please choose another".format(bound, objective))
+            else:
+                raise Exception("The optimization problem is infeasible, check for model "
+                                "inconsistencies")
+
+        return optimized_instance
 
 class SensitivityOptimizer(SingleOptimizer):
     def __init__(

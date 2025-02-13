@@ -124,7 +124,7 @@ class GeneratorDialog(StoichiometricReactorDialog):
         dialogData = super().collectData()
         # Add the data from the energy tab
         dialogData['energyType'] = self.energyType.currentText()
-
+        dialogData['Type'] = self.UnitType
         if self.electricalEfficiency.text() == '':
             elecEff = 0.0
         else:
@@ -138,6 +138,7 @@ class GeneratorDialog(StoichiometricReactorDialog):
         dialogData['heatEfficiency'] = heatEff
 
         return dialogData
+
     def _populateEnergyTab(self, dialogData):
         # populate the energy tab with the data from the dialogData
         self.energyType.setCurrentText(dialogData['energyType'])

@@ -43,13 +43,10 @@ class GeneralSystemDataTab(QWidget):
         # Combo box for the objective function
         self.objective_combo = QComboBox(self)
 
-
-
         self.objective_combo.addItems(
             ["EBIT: Earnings Before Income Taxes", "NPC: Net Production Costs", "NPE: Net Produced CO2 Emissions",
              "FWD: Freshwater Demand"]
-            + ['GWP',
-               'terrestrial acidification potential (TAP)',
+            + ['terrestrial acidification potential (TAP)',
                'global warming potential (GWP100)',
                'freshwater ecotoxicity potential (FETP)',
                'marine ecotoxicity potential (METP)',

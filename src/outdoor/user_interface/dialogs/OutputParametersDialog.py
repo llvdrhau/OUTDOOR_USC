@@ -81,13 +81,13 @@ class OutputParametersDialog(QDialog):
         self.minProduction = QLineEdit(self)
         layout.addLayout(self._formRow("Minimum production (t/h):", self.minProduction))
         # Set validator to restrict to floating-point numbers
-        self.minProduction.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.minProduction.setValidator(QDoubleValidator(0.00, 999999.99, 4))
 
         # maximum production
         self.maxProduction = QLineEdit(self)
         layout.addLayout(self._formRow("Maximum production (t/h):", self.maxProduction))
         # set validator to restrict to floating-point numbers
-        self.maxProduction.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.maxProduction.setValidator(QDoubleValidator(0.0000, 999999.9999, 4))
 
         # define if the product is a main product or a byproduct with a dropdown menu
         self.productType = QComboBox(self)

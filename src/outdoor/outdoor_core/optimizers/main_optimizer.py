@@ -91,7 +91,8 @@ class SingleOptimizer:
                          keepfiles = True,
                          printTimer=True,
                          VSS_EVPI_mode=False,
-                         stochastic_optimisation=False):
+                         stochastic_optimisation=False,
+                         runFeasibilityAnalysis=True):
 
 
         """
@@ -127,23 +128,23 @@ class SingleOptimizer:
                 # log_infeasible_constraints(model_instance)
                 # print('')
 
-                print("Model is infeasible. Running IIS analysis...")
+                print("Model is infeasible. Running IIS analysis if flag runFeasibilityAnalysis is set to true.")
+                if runFeasibilityAnalysis:
+                    # Enable IIS computation
+                    self.solver.options['ResultFile'] = "iis.ilp"  # Save IIS to a file (optional)
+                    self.solver.solve(model_instance, tee=True, options={'IISMethod': 1}, symbolic_solver_labels=True)
+                    #results = solver.solve(model_instance, tee=True, options={'IISMethod': 1})
 
-                # Enable IIS computation
-                self.solver.options['ResultFile'] = "iis.ilp"  # Save IIS to a file (optional)
-                self.solver.solve(model_instance, tee=True, options={'IISMethod': 1}, symbolic_solver_labels=True)
-                #results = solver.solve(model_instance, tee=True, options={'IISMethod': 1})
+                    # Mark constraints that are part of the IIS
+                    #for c in model_instance.component_objects(pyo.Constraint, active=True):
+                    #    for index in c:
+                    #        if c[index].active:
+                    #            print(f"Constraint {c.name} at index {index} is in the IIS.")
 
-                # Mark constraints that are part of the IIS
-                #for c in model_instance.component_objects(pyo.Constraint, active=True):
-                #    for index in c:
-                #        if c[index].active:
-                #            print(f"Constraint {c.name} at index {index} is in the IIS.")
-
-                raise Exception("The model is infeasible, please check the input data is correct. \n"
-                                " TIP check: 1) the minimum and maximum pool/source fluxes \n"
-                                "2) Split fractions of unit processes \n"
-                                "3) The Product load if active")
+                    raise Exception("The model is infeasible, please check the input data is correct. \n"
+                                    " TIP check: 1) the minimum and maximum pool/source fluxes \n"
+                                    "2) Split fractions of unit processes \n"
+                                    "3) The Product load if active")
 
             else:
                 return 'infeasible' # so we can save the conditions where the solution is infeasible in the VSS_EVPI mode
@@ -160,7 +161,7 @@ class SingleOptimizer:
 
         gap = (
             (results["Problem"][0]["Upper bound"] - results["Problem"][0]["Lower bound"])
-            / results["Problem"][0]["Upper bound"]) * 100
+            / (results["Problem"][0]["Upper bound"] + 1e-9)) * 100
 
         if printTimer:
             timer = time_printer(timer, 'Single optimization run', printTimer=printTimer)

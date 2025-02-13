@@ -224,7 +224,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 pickle.dump(self.centralDataManager, file)
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
-            self.logger.debug("Saved File: ", self.ProjectPath)
+            self.logger.debug("Saved File: {}".format(self.ProjectPath))
             self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
 
         except Exception as e:

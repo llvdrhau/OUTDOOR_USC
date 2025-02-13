@@ -1898,6 +1898,14 @@ class PhysicalProcessesDialog(QDialog):
         dtoProcess = self.centralDataManager.unitProcessData[self.iconID]
         dtoProcess.updateProcessDTO(field= UpdateField.NAME, value=dialogData['Name'])
 
+        # fixme: this is a patch, post processing of the Generator units so the type is correctly set if changed:
+        try:
+            if dialogData["Type"].value in [4, 5, 6]: # the 3 different generator units
+                dtoProcess.type = dialogData["Type"]
+        except:
+            # not an error just dialogData["Type"].value is formated differently for different units, fix in the future
+            pass
+
         # add the dialog data to the processDTO
         dtoProcess.addDialogData(dialogData)
         # add the processDTO to the centralDataManager

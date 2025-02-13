@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 import pandas as pd
+from numpy.ma.core import negative
 
 from ..utils.linearizer import capex_calculator
 
@@ -631,7 +632,7 @@ class Superstructure:
                 self.sensitive_parameters.append(
                     (parameter_name, min_value, max_value, steps, metadata))
         else:
-            raise ValueError('Parameter Name {} is not valid for sensitivity analyis'.format(parameter_name))
+            raise ValueError('Parameter Name {} is not valid for sensitivity analysis'.format(parameter_name))
 
     #------------------------------------------------------------------------------
     #------------------------------------------------------------------------------
@@ -979,7 +980,7 @@ class Superstructure:
         """
         Description
         :param wasteDTOs: list witht the wasteData dto objects
-        :return:
+        :return: nothing, updated object (self)
         """
         for dto in wasteDTOs:
             impactFactorsDict = dto.getLCAImpacts()

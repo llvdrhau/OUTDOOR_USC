@@ -20,8 +20,7 @@ class CombinedHeatAndPower(StoichReactor):
     which is defined for the Superstructure-Class (boundary conditions).
     """
 
-    def __init__(self, Name, UnitNumber, Efficiency=None, Parent=None,
-                 *args, **kwargs):
+    def __init__(self, Name, UnitNumber, Efficiency=None, Parent=None, *args, **kwargs):
         super().__init__(Name, UnitNumber, Parent)
         """
         Efficiency : is a tuple, with the first element being the electrical efficiency

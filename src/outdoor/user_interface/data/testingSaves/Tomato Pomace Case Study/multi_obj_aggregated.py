@@ -6,15 +6,13 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 # Load the data from the file
 # get current working directory
 current_path = os.getcwd()
-# add the file name Aurelie_peptide_production_superstructure.pkl to the current working directory
+# add the file name to the current working directory
 path = os.path.join(current_path, "TP_case_study_superstructure.pkl")
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
-savePath = current_path
-# outdoor.create_superstructure_flowsheet(superstructure=superstructureObj,
-#                                         path=savePath,
-#                                         saveName='Figure_superstructure')
+#savePath = current_path
+savePath = os.path.join(current_path, "aggreated_test")
 
 
 # solve the optimization problem
@@ -23,7 +21,7 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
                  "NumericFocus": 0}   # 0: balanced, 1: feasibility, 2: optimality, 3: feasibility and optimality
 
 objectivePairs = {
-    'GWP_NPC':('global warming potential (GWP100)', 'NPC'),
+    'GWP_NPC_aggregated':('global warming potential (GWP100)', 'NPC'),
     # 'NPC_GWP':('NPC', 'global warming potential (GWP100)'),
     # 'TETP_NPC':('terrestrial ecotoxicity potential (TETP)', 'NPC'),
     # 'FETP_NPC':('freshwater ecotoxicity potential (FETP)', 'NPC'),
@@ -37,12 +35,20 @@ objectivePairs = {
     # 'FETP_HTPc':('freshwater ecotoxicity potential (FETP)', 'human toxicity potential (HTPc)')
 }
 
-for fileKey, objectivePair in objectivePairs.items():
 
+for fileKey, objectivePair in objectivePairs.items():
     multi_objective_options = { "objective1": objectivePair[0],
                                 'bounds_objective1': [None, None], # [lower_bound, upper_bound]
                                 "objective2": objectivePair[1],
-                                "paretoPoints": 5}
+                                "paretoPoints": 5,
+                                # options for the design space if applicable
+                                "design_space_mode": True,
+                                "sample_size": 200,
+                                "design_space_bounds": {'min_obj1': None,
+                                                        'max_obj1': 65,
+                                                        'min_obj2': None,
+                                                        'max_obj2': 400},
+                                }
 
     model_output = solverObject.solve_optimization_problem(input_data=superstructureObj,
                                                            optimization_mode='multi-objective',
@@ -53,14 +59,11 @@ for fileKey, objectivePair in objectivePairs.items():
                                                            calculation_EVPI=False,
                                                            options=solverOptions,)
 
-    # nSim = len(model_output._results_data)
-    # print('Number of simulations: ', nSim)
-    # get the analyzer
-    # get the correct path to save the results
-    savePath = os.path.join(current_path, fileKey)
-
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
-    analyzer.create_all_flow_sheets_multi_objectives(path=savePath)
-    analyzer.plot_pareto_front(path=savePath,
-                               saveName=fileKey + '_pareto_front')
+    #savePath = os.path.join(current_path, fileKey)
+    analyzer.plot_pareto_front(path=savePath, saveName=fileKey + '_pareto_front', flowTreshold=1e-5)
+
+
+
+
 

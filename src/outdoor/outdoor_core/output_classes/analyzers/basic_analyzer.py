@@ -832,7 +832,7 @@ class BasicModelAnalyzer:
 
         return fig
 
-    def create_flowsheet(self, path, saveName=None, dataScenario=None):
+    def create_flowsheet(self, path, saveName=None, dataScenario=None, multiObjectiveData=None):
 
         """
         Parameters
@@ -907,7 +907,13 @@ class BasicModelAnalyzer:
             # if we want to plot a specific scenario (e.g. for the wait and see approach or multi-objective
             # optimization)
             model_data = dataScenario
-        else:
+
+        elif multiObjectiveData:
+            model_data = multiObjectiveData
+            # todo, skechy fix, we need to update the model data to the multi-objective data elsewere in the code
+            self.model_output._data = model_data # we need to update the model data to the multi-objective data
+
+        else: # otherwise we plot the nominal scenario for the single-objective optimization or mpi-sppy optimization
             # otherwise we plot the nominal scenario for the single-objective optimization
             model_data = self.model_output._data
 
@@ -916,7 +922,7 @@ class BasicModelAnalyzer:
             "flowchart", rankdir="LR", ratio="compress", size="15!,1", dpi="500"
         )
 
-        if self.model_output.stochastic_mode == "mpi-sppy":
+        if self.model_output.stochastic_mode == "mpi-sppy" or multiObjectiveData:
             model_data = model_data['sc1']
 
         for i, j in data.items():

@@ -225,7 +225,7 @@ class ConstructSuperstructure:
         # set the impact inflow components
         obj._set_component_impact_factors(self.centralDataManager.componentData)
 
-        # for debugging porpuses
+        # for debugging purposes
         # a = obj.ImpactInflowComponents['impact_inFlow_components']
         # print(a)
 
