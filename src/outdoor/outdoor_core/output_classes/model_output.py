@@ -26,6 +26,7 @@ import cloudpickle as pic
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.pyplot import legend
 from tabulate import tabulate
 
 
@@ -456,7 +457,155 @@ class ModelOutput:
         # Optionally, ensure the display width is wide enough
         pd.set_option('display.width', None)
 
-        return df_lca
+        return df_lca, lca_results
+
+    def get_detailed_LCA_results_per_unit(self, impCat, exclude_units=None, data=None):
+
+        if data is None:
+            model_data = self._data
+        else:
+            model_data = data
+
+        # make a dataFrame with colums: Utility, Materials and Waste
+        # rows: all impact categories
+        # values: the impact values
+
+        if not exclude_units:
+            exclude_units = []
+
+        # check if imp.cat in lis t
+        if impCat not in model_data['IMPACT_INPUTS_PER_CAT']:
+            raise Exception('Impact category not found in the model chose one of the following:\n '
+                            '{}'.format(model_data['IMPACT_INPUTS_PER_CAT'].keys()))
+        lca_results = dict()
+
+
+        # get the flow sheet with selected units
+        units = self.return_chosen(data= model_data, threshold=1e-5)
+
+        for u, name in units.items():
+            if (u not in model_data['U_PP'] and u not in model_data['U_S']
+                and u not in model_data['U_DIST'] and name not in exclude_units): # not a product or source unit
+                rawMaterialImpact = model_data['IMPACT_INPUTS_U_CAT'][u, impCat]/model_data['sourceOrProductLoad']/1000
+                wasteDisposalImpact = model_data['WASTE_U'][u, impCat]/model_data['sourceOrProductLoad']/1000
+                electricity, heat = self.utility_impact(u, impCat, data)
+
+                lca_results[name] = {'Raw material': rawMaterialImpact,
+                                     'Waste disposal': wasteDisposalImpact,
+                                     'Electricity': electricity/model_data['sourceOrProductLoad']/1000,
+                                     'Heat': heat/model_data['sourceOrProductLoad']/1000}
+
+        return lca_results
+
+    def utility_impact(self, u, impCat, data=None):
+        """
+        Description: Returns the utility impact of a unit depening on if it is a generator or a normal Unit
+
+        :param u:
+        :param impCat:
+        :param data:
+        :return:
+        """
+        if data is None:
+            model_data = self._data
+        else:
+            model_data = data
+
+        if u in model_data['U_FUR'] or u in model_data['U_TUR']:
+
+            electricity = ((model_data['ENERGY_DEMAND'][u,'Electricity'] * model_data['flh'][u] -
+                           model_data['EL_PROD_1'][u] * model_data['flh'][u]) *
+                           model_data['util_impact_factors']['Electricity', impCat])
+
+
+            heat = ((model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] -
+                    model_data['ENERGY_DEMAND_HEAT_PROD'][u] * model_data['flh'][u])
+                    * model_data['util_impact_factors']['Heat', impCat])
+
+
+        else:
+            electricity = (model_data['ENERGY_DEMAND'][u,'Electricity'] * model_data['flh'][u] *
+                            model_data['util_impact_factors']['Electricity', impCat])
+
+            heat = (model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] *
+                     model_data['util_impact_factors']['Heat', impCat])
+
+        # utilityImpact = electricity + heat
+        return electricity, heat
+
+    def plot_impacts_per_unit(self, impact_category, path, barWidth=0.8,
+                              sources=None,
+                              exclude_units=None, data=None, saveName=None):
+        """
+        Given a dictionary of form:
+            lca_results = {
+                "unit1": {"Raw material": val1, "Waste disposal": val2, "Utility": val3},
+                "unit2": {...},
+                ...
+            }
+        Create a bar chart with each unit on the x-axis,
+        and three side-by-side bars for Raw material, Waste disposal, and Utility.
+        """
+        # lca_results[name] = {'Raw material': rawMaterialImpact,
+        #                      'Waste disposal': wasteDisposalImpact,
+        #                      'Utility': utilityImpact}
+
+        # Convert dictionary to DataFrame with units as rows, categories as columns
+        #    unit1  Raw material     X
+        #           Waste disposal   Y
+        #           Utility          Z
+        #    unit2  Raw material     ...
+
+        if not exclude_units:
+            exclude_units = []
+
+        if not sources:
+            sources = ['Heat', 'Electricity', 'Waste disposal', 'Raw material']
+
+        lca_results = self.get_detailed_LCA_results_per_unit(impact_category, exclude_units, data)
+
+        # Filter the dictionary
+        for s in sources:
+            if s not in lca_results[list(lca_results.keys())[0]]:
+                raise ValueError(f"Source '{s}' not found in the LCA results. \n "
+                                 f"choose between: {list(lca_results[list(lca_results.keys())[0]].keys())}")
+
+        filtered_lca_dict = {outer_key: {key: value for key, value in inner_dict.items() if key in sources}
+                         for outer_key, inner_dict in lca_results.items()}
+
+        df = pd.DataFrame.from_dict(filtered_lca_dict, orient='index')
+
+        # Create the bar plot, side by side
+        ax = df.plot(
+            kind='bar',
+            figsize=(8, 5),
+            stacked=False,
+            edgecolor='black',
+            # title=f"Impacts by Source for {impact_category}"
+            legend=False,
+            width=barWidth
+        )
+
+        # Adjust x-axis labels & add other niceties
+        unit = self.LCA_units[impact_category]
+        ax.set_ylabel(unit + '/kg')
+
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+
+        # Construct the save path
+        if saveName:
+            if 'png' not in saveName:
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/LCA_impacts_per_unit.png"
+
+        # Save with bbox_inches='tight' to ensure legend is fully in the image
+        # plt.savefig(savePath)
+        plt.savefig(savePath, bbox_inches='tight')
+        plt.show()
 
     def get_impact_factors(self):
         model_data = self._data

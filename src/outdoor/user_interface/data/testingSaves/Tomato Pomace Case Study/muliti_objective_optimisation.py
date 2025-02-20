@@ -1,3 +1,4 @@
+import copy
 import pickle
 import os
 import outdoor
@@ -24,10 +25,11 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
 
 objectivePairs = {
     'GWP_NPC':('global warming potential (GWP100)', 'NPC'),
+    'TETP_NPC':('terrestrial ecotoxicity potential (TETP)', 'NPC'),
+    'FETP_NPC':('freshwater ecotoxicity potential (FETP)', 'NPC'),
+    'HTPc_NPC':('human toxicity potential (HTPc)', 'NPC'),
+
     # 'NPC_GWP':('NPC', 'global warming potential (GWP100)'),
-    # 'TETP_NPC':('terrestrial ecotoxicity potential (TETP)', 'NPC'),
-    # 'FETP_NPC':('freshwater ecotoxicity potential (FETP)', 'NPC'),
-    # 'HTPc_NPC':('human toxicity potential (HTPc)', 'NPC'),
     # 'NPC_HTPc':('NPC', 'human toxicity potential (HTPc)'),
     # 'GWP_TETP':('global warming potential (GWP100)', 'terrestrial ecotoxicity potential (TETP)'),
     # 'GWP_FETP':('global warming potential (GWP100)', 'freshwater ecotoxicity potential (FETP)'),
@@ -36,9 +38,15 @@ objectivePairs = {
     # 'TETP_HTPc':('terrestrial ecotoxicity potential (TETP)', 'human toxicity potential (HTPc)'),
     # 'FETP_HTPc':('freshwater ecotoxicity potential (FETP)', 'human toxicity potential (HTPc)')
 }
-
+modelOutputList = []
+xLabels=['Global warming potential (kg_CO2_eq/kg)',
+                                        'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq)',
+                                        'freshwater ecotoxicity potential (kg 1,4-DCB-Eq)',
+                                        'human toxicity potential (kg 1,4-DCB-Eq)']
+counter = 0
 for fileKey, objectivePair in objectivePairs.items():
-
+    xlab = xLabels[counter]
+    counter += 1
     multi_objective_options = { "objective1": objectivePair[0],
                                 'bounds_objective1': [None, None], # [lower_bound, upper_bound]
                                 "objective2": objectivePair[1],
@@ -53,14 +61,38 @@ for fileKey, objectivePair in objectivePairs.items():
                                                            calculation_EVPI=False,
                                                            options=solverOptions,)
 
+
     # nSim = len(model_output._results_data)
     # print('Number of simulations: ', nSim)
     # get the analyzer
     # get the correct path to save the results
     savePath = os.path.join(current_path, fileKey)
+    model_output.get_results(savePath=savePath, pprint=False, saveName=fileKey + '_results')
 
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
     analyzer.create_all_flow_sheets_multi_objectives(path=savePath)
     analyzer.plot_pareto_front(path=savePath,
-                               saveName=fileKey + '_pareto_front')
+                               saveName=fileKey + '_pareto_front', xLabel=xlab,
+                               yLabel='Earning Before Income Taxes (€/ton)', flowTreshold=1e-5)
+
+    modelOutputList.append(copy.deepcopy(model_output))
+
+
+# make a subplot of all the pareto fronts in one figure
+# get the correct path to save the results
+savePath = os.path.join(current_path, 'pareto_fronts_sub_plot')
+analyzer.sub_plot_pareto_fronts(modelOutputList, path=current_path, saveName= 'pareto_fronts_sub_plot',
+
+                                xLabel=['Global warming potential (kg_CO2_eq/kg)',
+                                        'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq)',
+                                        'freshwater ecotoxicity potential (kg 1,4-DCB-Eq)',
+                                        'human toxicity potential (kg 1,4-DCB-Eq)'],
+
+                                yLabel=['Earning Before Income Taxes (€/ton)',
+                                        'Earning Before Income Taxes (€/ton)',
+                                        'Earning Before Income Taxes (€/ton)',
+                                        'Earning Before Income Taxes (€/ton)'],
+
+                                flowTreshold=1e-5)
+
 

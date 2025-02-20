@@ -675,6 +675,71 @@ class BasicModelAnalyzer:
             suffix = "/environmental_results"
             self._save_results(data=data, path=save, suffix=suffix)
 
+    def LCA_analysis_plot(self, impactCategory, saveName, log_scale=False):
+        """
+        Description
+        -----------
+        Calls the LCA analysis method from the ModelOutput class
+        and plots the results on a bar chart so you can see the effects
+        of a chosen impact category. Bars are placed side by side in viridis colors.
+
+        Parameters
+        ----------
+        impactCategory : str
+            Name of the impact category to analyze.
+        saveName : str
+            File name (without extension) to which the plot is saved.
+        log_scale : bool, optional
+            If True, y-axis is in log scale. If False (default), uses a linear scale.
+        """
+
+        # 1) Collect data
+        _, resultsDict = self.model_output.get_detailed_LCA_results()
+        keysImpacts = list(resultsDict.keys())
+        resultsImpactCategory = {
+            key: resultsDict[key][impactCategory] for key in keysImpacts
+        }
+
+        # 2) Convert to a Pandas Series, then to DataFrame
+        series = pd.Series(
+            data=resultsImpactCategory,
+            index=resultsImpactCategory.keys(),
+            name="Values"
+        )
+        df = pd.DataFrame(series)  # shape: (nKeys, 1)
+        df_t = df.T  # shape: (1, nKeys)
+
+        # 3) Plot side-by-side bars
+        fig, ax = plt.subplots(figsize=(6, 4), dpi=160)
+
+        # Use the viridis colormap
+        my_colors = plt.cm.viridis(np.linspace(0.0, 1.0, df_t.shape[1]))
+
+        df_t.plot(
+            kind="bar",
+            stacked=False,  # side by side bars
+            rot=0,  # no rotation on x-axis labels (only one row)
+            color=my_colors,
+            edgecolor="k",
+            legend=False,
+            ax=ax,
+            title=f"{impactCategory}"
+        )
+
+        # 4) Final touches
+        # Switch to log scale if requested
+        if log_scale:
+            ax.set_yscale("symlog")
+            #ax.set_yscale("log")
+
+        ax.set_xlabel("")
+        ax.set_ylabel("Value")
+        plt.tight_layout()
+
+        # 5) Save the plot
+        plt.savefig(saveName + ".png", dpi=160, bbox_inches="tight")
+        plt.show()
+
     def create_plot_bar(self, user_input, save=False, Path=None, gui=False):
         """
 
@@ -1127,7 +1192,6 @@ class BasicModelAnalyzer:
 
         return unitDict
 
-
     def export_results_to_excel(self, savePath=None, saveName=None):
         """
         Description
@@ -1192,5 +1256,56 @@ class BasicModelAnalyzer:
 
         final_df.to_excel(savePath + '/' + saveName)
 
+    def create_bar_plot_opex(self, path, saveName=None, barColor=None, barwidth=None, modelData=None):
+        """
+        Creates a bar plot of the operational costs of the entire system
+        :param path:
+        :param saveName:
+        :return:
+        """
+
+        # set up optionals if not provided
+        if modelData is None:
+            model_data = self.model_output._data
+        else:
+            model_data = modelData
+
+        if barColor is None:
+            barColor = 'green'
+        if barwidth is None:
+            barwidth = 0.3
+
+        # get the operational costs from the model data
+        #self.OPEX
+        #== self.M_COST_TOT  # operating and maintenance costs
+        #+ self.RM_COST_TOT / 1000  # raw material costs
+        #+ sum(self.ENERGY_COST[ut] for ut in self.U_UT) / 1000  # utility costs energy
+        #+ self.C_TOT / 1000  # selling or buying of energy (from HEN)
+        #+ self.ELCOST / 1000  # electricity costs for heat pump
+        #+ self.WASTE_COST_TOT / 1000  # waste costs
+
+
+        rawMaterialCost = model_data['RM_COST_TOT']
+        utilityCost = sum(model_data['ENERGY_COST'][ut] for ut in model_data['U_UT'])
+        wasteCosts = model_data['WASTE_COST_TOT']
+
+        # make a bar plot of the operational costs
+        labels = ['Raw material costs', 'Utility costs', 'Waste costs']
+        costs = [rawMaterialCost, utilityCost, wasteCosts]
+        #costs = [round(c/1000, 3) for c in costs]
+        plt.bar(labels, costs, color=barColor, width=barwidth)
+        plt.ylabel('Costs (k€/y)')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        #plt.title('Operational costs')
+
+        if saveName is None:
+            path = path + '/opex_plot' + '.png'
+        else:
+            path = path + '/' + saveName + '.png'
+
+        # plt.savefig(path)
+        plt.savefig(path, bbox_inches='tight')
+        plt.show()
 
 

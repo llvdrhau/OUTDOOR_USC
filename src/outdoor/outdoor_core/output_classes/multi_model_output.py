@@ -181,9 +181,9 @@ class MultiModelOutput(ModelOutput):
             if not os.path.exists(savePath):
                 os.makedirs(savePath)
             if saveName is not None:
-                save = savePath + "/" + saveName + self._case_time[0:13] + ".txt"
+                save = savePath + "/" + saveName + ".txt"
             else:
-                save = savePath + "/" + "basic_results_file" + self._case_time[0:13] + ".txt"
+                save = savePath + "/" + "basic_results_file" + ".txt"
 
             self._save_results(results, save)
 

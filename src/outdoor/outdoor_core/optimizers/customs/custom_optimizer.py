@@ -102,17 +102,30 @@ class MultiObjectiveOptimizer(SingleOptimizer):
         # get the bounds of the first objective function
         manualBoundsObjective1 = self.multi_data["bounds_objective1"]
         # start the timer
-        timer = time_printer(programm_step="Multi-objective optimization")
+        time_printer(programm_step="Multi-objective optimization")
+
+        # if there are bounds set them:
+        lowerBound = manualBoundsObjective1[0]
+        upperBound = manualBoundsObjective1[1]
+
+        if lowerBound is not None:
+            self.bound_region_objective(model_instance, objective1, lowerBound, "lower")
+        if upperBound is not None:
+            self.bound_region_objective(model_instance, objective1, upperBound, "upper")
+
+
         # run the optimization for the first objective
         self.change_model_objective(model_instance, objective1)
         single_solved_obj1 = self.single_optimizer.run_optimization(model_instance)
         single_solved_obj1._tidy_data()
         # model_output.add_process("maxObjective1", single_solved_obj1)
+
         # run the optimization for the second objective
         self.change_model_objective(model_instance, objective2)
         single_solved_obj2 = self.single_optimizer.run_optimization(model_instance)
         single_solved_obj2._tidy_data()
         # model_output.add_process("maxObjective2", single_solved_obj2)
+
         # get the result of the first objective from the second optimization problem
         if objective1 in single_solved_obj1._data["IMPACT_CATEGORIES"]:
             bound_1 = single_solved_obj1._data["IMPACT_TOT"][objective1]
@@ -120,22 +133,15 @@ class MultiObjectiveOptimizer(SingleOptimizer):
         else:
             bound_1 = single_solved_obj1._data[objective1] # upper bound of the first objective
             bound_2 = single_solved_obj2._data[objective1] # lower bound of the second objective
+
         if bound_1 == bound_2:
             # print in Green:
             print("\033[1;32m" + "The two objectives {} and {} are not conflicting \n "
                                  "The results of the single optimization problem is returned".format(objective1, objective2) + "\033[0m")
             model_output.add_process("maxObjective1", single_solved_obj1)
             return model_output
-        lowerBound = manualBoundsObjective1[0]
-        upperBound = manualBoundsObjective1[1]
-        if lowerBound is not None:
-            if lowerBound > bound_1:
-                bound_1 = lowerBound
-                # model_output._results_data.pop("maxObjective1")
-        if upperBound is not None:
-            if upperBound < bound_2:
-                bound_2 = upperBound
-                # model_output._results_data.pop("maxObjective2")
+
+        # now divide the bounds into pareto points and run the optimization for each bound
         bounds = np.linspace(bound_1, bound_2, paretoPoints)
         unfeasibleBounds = []
         # change the objective function to the second objective
@@ -144,7 +150,8 @@ class MultiObjectiveOptimizer(SingleOptimizer):
         for bound in bounds:
             count += 1
             outputName = "pareto_bound_" + str(count)
-            # change the bounds of the first objective
+            # change the bounds of the first objective,
+            # DON'T MAKE THE CONSTRAINT NAME -> need to be replaced each iteration
             self.bound_objective(model_instance, objective1, bound)
             try:
                 single_solved = self.single_optimizer.run_optimization(model_instance, runFeasibilityAnalysis=False,
@@ -247,18 +254,33 @@ class MultiObjectiveOptimizer(SingleOptimizer):
             count = 0
             nEnd = len(samplePoints)
 
+
             for point in samplePoints:
+                objectiveSwitch = random.choice([1, 0]) # randomly switch the objective function
                 count += 1
                 objective1_bound = point[0]
                 objective2_bound = point[1]
 
                 # make a deep copy of the model made by the design space exploration : bound_instance
-                model_instance = copy.deepcopy(bound_instance)
+                model_instance = bound_instance # copy.deepcopy(bound_instance) I don't think this is necessary
                 # bound both objectives
-                self.bound_objective(model_instance, objective1, objective1_bound, flipped=True)
-                self.bound_objective(model_instance, objective2, objective2_bound, flipped=True)
-                # set the objective to the second objective
+                self.bound_objective(model_instance, objective1, objective1_bound,
+                                     flipped=True, constraint_name="bound_Objective1")
+
+                self.bound_objective(model_instance, objective2, objective2_bound,
+                                     flipped=True, constraint_name="bound_Objective2")
+
+                # bound will be constantly overwritten to the name of the constraint, SO should not overwrite the space
+                # bounds of the feasible region
+
+                # set the objective to the according to the randomized swich objective
                 self.change_model_objective(model_instance, objective2)
+                # deactivating this part for now
+                # if objectiveSwitch:
+                #     self.change_model_objective(model_instance, objective2)
+                # else:
+                #     self.change_model_objective(model_instance, objective1)
+
                 try:
                     single_opt_solved = self.single_optimizer.run_optimization(model_instance, tee=False)
                     single_opt_solved._tidy_data()
@@ -289,6 +311,7 @@ class MultiObjectiveOptimizer(SingleOptimizer):
                 objective_sense = minimize
 
         model_instance.del_component(model_instance.Objective)
+
         if objective == "NPC":
             def Objective_rule(Instance):
                 return Instance.NPC
@@ -320,7 +343,8 @@ class MultiObjectiveOptimizer(SingleOptimizer):
 
         return objective_sense # -1 if maximize, 1 if minimize
 
-    def bound_objective(self, model_instance, objective, bound, flipped=False):
+
+    def bound_objective(self, model_instance, objective, bound, flipped=False, constraint_name = "boundObjective"):
         """
         This function is used to bound the objective function of the model instance
         :param model_instance: the model instance to change the objective function
@@ -347,32 +371,89 @@ class MultiObjectiveOptimizer(SingleOptimizer):
             def bound_objective_rule(Instance):
                 return operator(Instance.NPC, bound)
 
-            model_instance.Constraint = Constraint(rule=bound_objective_rule)
-
         elif objective == "EBIT":
             def bound_objective_rule(Instance):
                 return operator(Instance.EBIT, bound)
-
-            model_instance.Constraint = Constraint(rule=bound_objective_rule)
 
         elif objective == "NPE":
             def bound_objective_rule(Instance):
                 return operator(Instance.NPE, bound)
 
-            model_instance.Constraint = Constraint(rule=bound_objective_rule)
-
         elif objective == "FWD":
             def bound_objective_rule(Instance):
                 return operator(Instance.NPFWD, bound)
-
-            model_instance.Constraint = Constraint(rule=bound_objective_rule)
-
         else:
             if objective in model_instance.impact_categories_list:
                 def bound_objective_rule(Instance):
                     return operator(Instance.IMPACT_TOT[objective], bound)
+            else:
+                raise Exception("The objective function {} is not defined in the model instance".format(objective))
 
-                model_instance.Constraint = Constraint(rule=bound_objective_rule)
+        # set the bound constraint
+        setattr(model_instance, constraint_name, Constraint(rule=bound_objective_rule))
+
+    def bound_region_objective(self, model_instance, objective, bound, boundType):
+        """
+        This function is used to bound the objective function to a predetermined region!
+        :param model_instance: the model instance to change the objective function
+        :param objective: the objective function restricted by the bound
+        :param bound: the bound value for the objective function
+        :param flipped: boolean to switch the default >= or <= in the constraint
+        :return: model_instance with the new objective function
+        """
+
+
+        # Create a new objective function and bounds
+        if objective == "NPC" and boundType == "upper":
+            def bound_objective_rule_NPC_upper(Instance):
+                return Instance.NPC <= bound
+            setattr(model_instance, "bound_NPC_upper", Constraint(rule=bound_objective_rule_NPC_upper))
+
+        elif objective == "NPC" and boundType == "lower":
+            def bound_objective_rule_NPC_lower(Instance):
+                return Instance.NPC >= bound
+            setattr(model_instance, "bound_NPC_lower", Constraint(rule=bound_objective_rule_NPC_lower))
+
+        elif objective == "EBIT" and boundType == "upper":
+            def bound_objective_rule_EBIT_upper(Instance):
+                return Instance.EBIT <= bound
+            setattr(model_instance, "bound_EBIT_upper", Constraint(rule=bound_objective_rule_EBIT_upper))
+
+        elif objective == "EBIT" and boundType == "lower":
+            def bound_objective_rule_EBIT_lower(Instance):
+                return Instance.EBIT >= bound
+            setattr(model_instance, "bound_EBIT_lower", Constraint(rule=bound_objective_rule_EBIT_lower))
+
+        elif objective == "NPE" and boundType == "upper":
+            def bound_objective_rule_NPE_upper(Instance):
+                return Instance.NPE <= bound
+            setattr(model_instance, "bound_NPE_upper", Constraint(rule=bound_objective_rule_NPE_upper))
+
+        elif objective == "NPE" and boundType == "lower":
+            def bound_objective_rule_NPE_lower(Instance):
+                return Instance.NPE >= bound
+            setattr(model_instance, "bound_NPE_lower", Constraint(rule=bound_objective_rule_NPE_lower))
+
+        elif objective == "FWD" and boundType == "upper":
+            def bound_objective_rule_FWD_upper(Instance):
+                return Instance.NPFWD <= bound
+            setattr(model_instance, "bound_FWD_upper", Constraint(rule=bound_objective_rule_FWD_upper))
+
+        elif objective == "FWD" and boundType == "lower":
+            def bound_objective_rule_FWD_lower(Instance):
+                return Instance.NPFWD >= bound
+            setattr(model_instance, "bound_FWD_lower", Constraint(rule=bound_objective_rule_FWD_lower))
+
+        else:
+            if objective in model_instance.impact_categories_list and boundType == "upper":
+                def bound_objective_rule_impact_upper(Instance):
+                    return Instance.IMPACT_TOT[objective] <= bound
+                setattr(model_instance, "bound_impact_upper", Constraint(rule=bound_objective_rule_impact_upper))
+
+            elif objective in model_instance.impact_categories_list and boundType == "lower":
+                def bound_objective_rule_impact_lower(Instance):
+                    return Instance.IMPACT_TOT[objective] >= bound
+                setattr(model_instance, "bound_impact_lower", Constraint(rule=bound_objective_rule_impact_lower))
 
             else:
                 raise Exception("The objective function {} is not defined in the model instance".format(objective))
@@ -384,6 +465,7 @@ class MultiObjectiveOptimizer(SingleOptimizer):
         """
         minx, miny, maxx, maxy = poly.bounds
         samples = []
+        random.seed(42)
 
         while len(samples) < n_samples:
             # 1. Sample a random point in the bounding box
@@ -412,13 +494,13 @@ class MultiObjectiveOptimizer(SingleOptimizer):
         max_obj_2 = bounds_design_space['max_obj2']
 
         if min_obj_1 is not None:
-            self.bound_objective(model_instance_copy, objective1, min_obj_1, flipped=True)
+            self.bound_region_objective(model_instance_copy, objective1, min_obj_1, "lower")
         if max_obj_1 is not None:
-            self.bound_objective(model_instance_copy, objective1, max_obj_1,)
+            self.bound_region_objective(model_instance_copy, objective1, max_obj_1, "upper")
         if min_obj_2 is not None:
-            self.bound_objective(model_instance_copy, objective2, min_obj_2, flipped= True)
+            self.bound_region_objective(model_instance_copy, objective2, min_obj_2, "lower")
         if max_obj_2 is not None:
-            self.bound_objective(model_instance_copy, objective2, max_obj_2)
+            self.bound_region_objective(model_instance_copy, objective2, max_obj_2, "upper")
 
         return model_instance_copy
 

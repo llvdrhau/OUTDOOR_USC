@@ -10,7 +10,7 @@ path = os.path.join(current_path, "TP_case_study_superstructure.pkl") # TP_case_
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
-savePath = current_path
+savePath = os.path.join(current_path, "singleOpt")
 outdoor.create_superstructure_flowsheet(superstructure=superstructureObj,
                                         path=savePath,
                                         saveName='Figure_superstructure')
@@ -32,16 +32,22 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 
 # save the results as a txt file, you have to specify the path
 model_output.get_results(path=savePath,
-                         saveName='txt_results')
+                         saveName='txt_results_AD')
 # save and analyze the new results
 analyzer = outdoor.BasicModelAnalyzer(model_output)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePath,
-                          saveName='Figure_flowsheet')
+                          saveName='Figure_flowsheet_AD')
 
+analyzer.create_bar_plot_opex(path=savePath, barwidth=0.1, saveName='opex_AD')
 #
-DF_LCA = model_output.get_detailed_LCA_results()
+DF_LCA, _ = model_output.get_detailed_LCA_results()
 print(DF_LCA)
+
+# analyzer.LCA_analysis_plot('global warming potential (GWP100)', saveName='LCA_test', log_scale=True)
+model_output.plot_impacts_per_unit(impact_category='global warming potential (GWP100)',
+                                   exclude_units = ['Collector', 'Passing Unit'], path=savePath,
+                                   saveName='contribution_analysis_AD', barWidth=0.3, sources=['Electricity', 'Heat'])
 
 # print('')
 # model_output.heat_balance_analysis()

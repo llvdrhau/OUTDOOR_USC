@@ -516,7 +516,7 @@ class ConstructSuperstructure:
             inertList = dto.dialogData['Inert Components']
             processObject.set_inertComponents(inertList)
 
-        elif dto.type == ProcessType.STOICHIOMETRIC:
+        elif dto.type in [ProcessType.STOICHIOMETRIC, ProcessType.GEN_CHP, ProcessType.GEN_ELEC, ProcessType.GEN_HEAT]:
             reactions = dto.dialogData['Reactions']
             conversionRateDict = {}
             reactionStoichiometryDict = {}

@@ -66,7 +66,6 @@ def makeTabels(excel, roundTo: int =3, format: str = 'print', path: str = 'examp
                     number = DFselect[col].iloc[1]
                     unitNumberDict.update({number: name})
 
-
             continue
 
         elif i == "Sources":
@@ -444,7 +443,6 @@ def dataframe_to_latex_table_reacations(df, caption="A caption I want", label="u
 
     return latex_code
 
-
 def dataframe_to_latex_table_splitting(df, caption="Caption input", label="label_input"):
     """
     Converts a DataFrame to a LaTeX table format with a specified caption and label.
@@ -494,7 +492,9 @@ def dataframe_to_latex_table_splitting(df, caption="Caption input", label="label
 
     return latex_code
 
+
 if __name__ == '__main__':
-    makeTabels('Excel_files\potato_peel_case_study.xlsm',
+
+    makeTabels('potato_peel_case_study.xlsm',
                format='latex',
                path= r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\examples\Excel_files\excel_4_latex')

@@ -1522,6 +1522,7 @@ class SuperstructureModel(AbstractModel):
         # set the variables
         self.WASTE_U = Var(self.U, self.IMPACT_CATEGORIES)
         self.IMPACT_WASTE_PER_CAT = Var(self.IMPACT_CATEGORIES)
+
         def LCA_Waste_rule(self, u, impCat):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_U[u, impCat] == self.flh[u] * sum(self.FLOW_WASTE[u, i] * self.waste_impact_fac[wasteType, impCat]

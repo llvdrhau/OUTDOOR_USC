@@ -11,6 +11,7 @@ import datetime
 # import sys
 # import pickle5 as pic5
 import time
+import math
 
 import cloudpickle as pic
 import matplotlib
@@ -1077,7 +1078,8 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
     import numpy as np
     from matplotlib.patches import Patch
 
-    def plot_pareto_front(self, path, saveName, flowTreshold=1e-6):
+    def plot_pareto_front(self, path, saveName, flowTreshold=1e-6, nProductLimit=None, xLabel=None, yLabel=None,
+                          productExclusionList= None, productLabels=None):
         """
         Plot the pareto front of the multi-objective optimization, with dots
         colored by flowsheet design. The x-axis is the first objective function
@@ -1095,9 +1097,18 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         y = []
         x_pareto = []
         y_pareto = []
+        x_small = []
+        y_small = []
         colors = []
         color_map = {}
         color_index = 0
+
+        if not nProductLimit:
+            nProductLimit = 50
+        if not productExclusionList:
+            productExclusionList = []
+        if not productLabels:
+            productLabels = []
 
         for sc in data:
             scData = data[sc]._data
@@ -1105,46 +1116,118 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
             outputsFlowSheet = self.find_outputs_flowsheet(flowSheet, scData)
             # Combine flowsheet names into a single key
+
+            if len(outputsFlowSheet) > nProductLimit:
+                # Skip scenarios with too many products, otherwise you get a very crowded plot with too many colors
+                # and nonsensical results
+                continue
+            if any(product in outputsFlowSheet for product in productExclusionList):
+                # Skip scenarios with excluded products
+                continue
+
             outputKey = ", ".join(outputsFlowSheet)
             if outputKey not in color_map:
                 color_map[outputKey] = color_index
                 color_index += 1
 
-            if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
-                x_val = scData['IMPACT_TOT'][objectiveFunctionName1]
+            # ------------------------------------------
+            # Place the x value in the right container
+            # ------------------------------------------
+
+            if outputKey not in productLabels and productLabels:
+                # if the product is not in the list of labels and there are labels then add it to the dots that
+                # are printed small
+                if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
+                    x_small.append(scData['IMPACT_TOT'][objectiveFunctionName1])
+                else:
+                    x_small.append(scData[objectiveFunctionName1])
 
             else:
-                x_val = scData[objectiveFunctionName1]
+                if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
+                    x_val = scData['IMPACT_TOT'][objectiveFunctionName1]
+                else:
+                    x_val = scData[objectiveFunctionName1]
+                # add to x_pareto if the scenario is a pareto bound
+                if "pareto_bound_" in sc:
+                    x_pareto.append(x_val)
+                x.append(x_val)
 
-            # add to x_pareto if the scenario is a pareto bound
-            if "pareto_bound_" in sc:
-                x_pareto.append(x_val)
-            x.append(x_val)
+            # ------------------------------------------
+            # Place the y value in the right container
+            # ------------------------------------------
+            if outputKey not in productLabels and productLabels:
+                # if the product is not in the list of labels and there are labels then add it to the dots that
+                # are printed small
+                if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+                    y_small.append(scData['IMPACT_TOT'][objectiveFunctionName2])
+                else:
+                    y_small.append(scData[objectiveFunctionName2])
 
-            if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
-                y_val = scData['IMPACT_TOT'][objectiveFunctionName2]
             else:
-                y_val = scData[objectiveFunctionName2]
+                if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+                    y_val = scData['IMPACT_TOT'][objectiveFunctionName2]
+                else:
+                    y_val = scData[objectiveFunctionName2]
+                # add to x_pareto if the scenario is a pareto bound
+                if "pareto_bound_" in sc:
+                    y_pareto.append(y_val)
+                y.append(y_val)
 
-            # add to y_pareto if the scenario is a pareto bound
-            if "pareto_bound_" in sc:
-                y_pareto.append(y_val)
-            y.append(y_val)
-
+            # ------------------------------------------
+            # Place the color in the right container, will be overwritten if the productLabels exists
             colors.append(color_map[outputKey])
+
+
+            # if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+            #     y_val = scData['IMPACT_TOT'][objectiveFunctionName2]
+            # else:
+            #     y_val = scData[objectiveFunctionName2]
+            #
+            # # add to y_pareto if the scenario is a pareto bound
+            # if "pareto_bound_" in sc:
+            #     y_pareto.append(y_val)
+            # y.append(y_val)
 
         # Avoid division by zero if there's only one color
         if len(colors) == 1:
             colors = [1]
 
+        # ----------------------------------------------------------------------------------------
+        # reset the keys of the color_map if there are product labels that are of specific interest
+        # ----------------------------------------------------------------------------------------
+        # get the keys, make sure the give product labels are in the color_map, if nnot delete them from productLabels
+        if productLabels:
+            for label in productLabels:
+                if label not in color_map.keys():
+                    productLabels.remove(label)
+            # now reset the color_map
+            color_index = 0
+            for i, label in enumerate(productLabels):
+                color_map[label] = color_index
+                color_index += 1
+                colors.append(color_map[label])
+
         # Normalize colors to [0, 1] for colormap
         norm_colors = np.array(colors) / max(colors)
 
         # Scatter plot
-        plt.scatter(x, y, c=norm_colors, cmap='viridis')
+        plt.scatter(x, y, c=norm_colors, cmap='viridis', s=85)
+        plt.scatter(x_small, y_small, c='black', s=20)
         plt.plot(x_pareto, y_pareto, color='black', linewidth= 1.2)
-        plt.xlabel(objectiveFunctionName1)
-        plt.ylabel(objectiveFunctionName2)
+
+        # Set the size of tick labels
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+
+        # Set the labels of the axes
+        if xLabel:
+            plt.xlabel(xLabel, fontsize=14)
+        else:
+            plt.xlabel(objectiveFunctionName1, fontsize=14)
+        if yLabel:
+            plt.ylabel(yLabel, fontsize=14)
+        else:
+            plt.ylabel(objectiveFunctionName2, fontsize=14)
 
         # Build a patch for each flowsheet → color
         patches = []
@@ -1158,7 +1241,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         # Create legend and place it outside to the right
         plt.legend(
             handles=patches,
-            title="Flowsheets",
+            title="Targeted Products",
             loc="upper left",
             bbox_to_anchor=(1.02, 1),
             borderaxespad=0.0
@@ -1180,6 +1263,247 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         #plt.savefig(savePath)
         plt.savefig(savePath, bbox_inches='tight')
         # plt.show()  # Uncomment if you also want to display
+
+    def sub_plot_pareto_fronts(self, modelOutputList, path, saveName,
+                               flowTreshold=1e-6, nProductLimit=None,
+                               xLabel=None, yLabel=None, productExclusionList=None,
+                               productLabels=None):
+        """
+        Creates a single figure with multiple subplots (one per modelOutput),
+        each displaying a Pareto front of the multi-objective optimization.
+        """
+
+        if nProductLimit is None:
+            nProductLimit = 50
+        if productExclusionList is None:
+            productExclusionList = []
+
+        # Decide how many rows/cols for subplots.
+        # Example: 2 columns, enough rows to fit all model outputs.
+        n = len(modelOutputList)
+        ncols = 2
+        nrows = math.ceil(n / ncols)
+
+        fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12, 8))
+
+        # If there's more than one subplot, axs is a 2D array; flatten for easy indexing.
+        # If there's only one subplot, make it a list of length 1.
+        if n > 1:
+            axs = axs.ravel()
+        else:
+            axs = [axs]
+
+        # Loop over each modelOutput and make a subplot
+        for idx, mo in enumerate(modelOutputList):
+            # Temporarily replace self.model_output with the current modelOutput
+            old_model_output = self.model_output
+            self.model_output = mo
+
+            # For convenience, refer to the current Axes
+            ax = axs[idx]
+
+            # ---------------------------------------------------------------------
+            # 1) Extract data from the current model_output
+            #    (Adapted from your existing logic, but using ax instead of plt.)
+            # ---------------------------------------------------------------------
+            data = self.model_output._results_data
+            objectiveFunctionName1 = self.model_output.multi_data['objective1']
+            objectiveFunctionName2 = self.model_output.multi_data['objective2']
+
+            x = []
+            y = []
+            x_pareto = []
+            y_pareto = []
+            x_small = []
+            y_small = []
+            colors = []
+            color_map = {}
+            color_index = 0
+
+            for sc in data:
+                scData = data[sc]._data
+                flowSheet = self.model_output.return_chosen(scData, flowTreshold)
+                outputsFlowSheet = self.find_outputs_flowsheet(flowSheet, scData)
+
+                if len(outputsFlowSheet) > nProductLimit:
+                    continue
+                if any(product in outputsFlowSheet for product in productExclusionList):
+                    continue
+
+                outputKey = ", ".join(outputsFlowSheet)
+                if outputKey not in color_map:
+                    color_map[outputKey] = color_index
+                    color_index += 1
+
+                # -----------------------------
+                # X-value
+                # -----------------------------
+                if objectiveFunctionName1 in scData['IMPACT_CATEGORIES']:
+                    val_x = scData['IMPACT_TOT'][objectiveFunctionName1]
+                else:
+                    val_x = scData[objectiveFunctionName1]
+
+                if productLabels and (outputKey not in productLabels):
+                    # Goes to 'small' points
+                    x_small.append(val_x)
+                else:
+                    x.append(val_x)
+                    # If it's on the Pareto frontier
+                    if "pareto_bound_" in sc:
+                        x_pareto.append(val_x)
+
+                # -----------------------------
+                # Y-value
+                # -----------------------------
+                if objectiveFunctionName2 in scData['IMPACT_CATEGORIES']:
+                    val_y = scData['IMPACT_TOT'][objectiveFunctionName2]
+                else:
+                    val_y = scData[objectiveFunctionName2]
+
+                if productLabels and (outputKey not in productLabels):
+                    # Goes to 'small' points
+                    y_small.append(val_y)
+                else:
+                    y.append(val_y)
+                    if "pareto_bound_" in sc:
+                        y_pareto.append(val_y)
+
+                # Color index for all points
+                colors.append(color_map[outputKey])
+
+            # Avoid division by zero if there's only one color
+            if len(colors) == 1:
+                colors = [1]
+
+            # If we have a smaller subset of productLabels, reset color_map
+            # so those interesting labels get a distinct color palette.
+            if productLabels:
+                color_index = 0
+                for i, label in enumerate(productLabels):
+                    color_map[label] = color_index
+                    color_index += 1
+
+            # Normalize color indices for plotting
+            if len(colors) > 0:
+                norm_colors = np.array(colors) / max(colors)
+            else:
+                norm_colors = []
+
+            # ---------------------------------------------------------------------
+            # 2) Make the scatter plot on this Axes
+            # ---------------------------------------------------------------------
+            scatter_main = ax.scatter(x, y, c=norm_colors, cmap='viridis', s=85)
+            ax.scatter(x_small, y_small, c='black', s=20)
+            if x_pareto and y_pareto:
+                ax.plot(x_pareto, y_pareto, color='black', linewidth=1.2)
+
+            # Adjust labels, ticks
+            ax.tick_params(axis='x', labelsize=10)
+            ax.tick_params(axis='y', labelsize=10)
+
+            if xLabel:
+                ax.set_xlabel(xLabel[idx], fontsize=12)
+            else:
+                ax.set_xlabel(objectiveFunctionName1, fontsize=12)
+            if yLabel:
+                ax.set_ylabel(yLabel[idx], fontsize=12)
+            else:
+                ax.set_ylabel(objectiveFunctionName2, fontsize=12)
+
+            # ---------------------------------------------------------------------
+            # 3) Build legend for this subplot
+            # ---------------------------------------------------------------------
+            patches = []
+            cmap = plt.cm.get_cmap('viridis', max(color_map.values()) + 1 if color_map else 1)
+            for flowsheet_name, index in color_map.items():
+                color_value = index / (max(color_map.values()) if color_map.values() else 1)
+                patch_color = cmap(color_value)
+                patch = Patch(facecolor=patch_color, label=str(flowsheet_name))
+                patches.append(patch)
+
+            # ax.legend(
+            #     handles=patches,
+            #     title="Flowsheets",
+            #     loc="upper left",
+            #     bbox_to_anchor=(1.02, 1),
+            #     borderaxespad=0.0
+            # )
+
+            # Restore original model output
+            self.model_output = old_model_output
+
+        # If we have leftover Axes (because subplots > number of items), remove them
+        for j in range(idx + 1, len(axs)):
+            fig.delaxes(axs[j])
+
+        # Make sure subplots don’t overlap
+        fig.tight_layout()
+
+        # Construct the save path
+        if saveName:
+            if 'png' not in saveName:
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/pareto_fronts.png"
+
+        # Save once at the end (the entire figure with subplots)
+        fig.savefig(savePath, bbox_inches='tight')
+        # plt.show()  # If you want to display instead
+
+    def plot_LCA_correlations(self, path, saveName, catagories=None):
+        """
+        Plots the correlation between the different impact categories from all
+        the results of the model output. Only the subplots above the diagonal
+        (i < j) are shown.
+
+        :param path: str, directory path
+        :param saveName: str, file name to save as
+        :param catagories: list of impact category names, optional
+        """
+
+        key1 = list(self.model_output._results_data.keys())[0]  # get the first key
+        if not catagories:
+            catagories = self.model_output._results_data[key1]._data['IMPACT_CATEGORIES']
+
+        data = self.model_output._results_data
+        n = len(catagories)
+        fig, axs = plt.subplots(nrows=n, ncols=n, figsize=(12, 12))
+
+        # Loop over all pairs (i, j)
+        for i, cat1 in enumerate(catagories):
+            for j, cat2 in enumerate(catagories):
+                # If we are on the diagonal or below (j <= i), remove that subplot
+                if j <= i:
+                    fig.delaxes(axs[i, j])
+                    continue
+
+                # This is the "above-diagonal" region (i < j)
+                # Plot scatter of cat1 vs cat2
+                xs = [data[sc]._data['IMPACT_TOT'][cat1] for sc in data]
+                ys = [data[sc]._data['IMPACT_TOT'][cat2] for sc in data]
+
+                axs[i, j].scatter(xs, ys, alpha=0.7)
+                # remove (xx) from cat1 and 2
+                xlab = cat1.split(' (')[0]
+                ylab = cat2.split(' (')[0]
+                axs[i, j].set_xlabel(xlab)
+                axs[i, j].set_ylabel(ylab)
+
+        plt.tight_layout()
+
+        # Construct the save path
+        if saveName:
+            if 'png' not in saveName:
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/LCA_Correlations.png"
+
+        plt.savefig(savePath, bbox_inches='tight')
+        # plt.show()  # Uncomment if desired
 
     def find_outputs_flowsheet(self, flowsheet, data):
         """
@@ -1285,4 +1609,3 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         for i, dataFlowsheet in enumerate(groupResultsDict.values()):
             saveName = saveName + str(i)
             self.create_flowsheet(path=path, saveName=saveName, multiObjectiveData=dataFlowsheet)
-
