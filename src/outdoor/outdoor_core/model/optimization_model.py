@@ -978,7 +978,7 @@ class SuperstructureModel(AbstractModel):
         def Cost_Waste_rule(self, u):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_COST_U[u] == self.flh[u] *   # units WASTE_COST = k€/year
-                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType] )
+                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType])
 
         def Cost_Waste_TOT(self):
             return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.U)/1000
@@ -1159,7 +1159,7 @@ class SuperstructureModel(AbstractModel):
         # --------------------------------
 
         # the three equations below are for the HEN CAPITAL COSTS (CAPEX)
-        # not realted to the operating costs of HEN
+        # not realted to the operating costs of HEN, COSTHEX IN k€ !!!! /1000 to get into M€
         # --------------------------------------------------------------------
         def HEN_CostBalance_4_rule(self, hi):
             return self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[
@@ -1179,7 +1179,7 @@ class SuperstructureModel(AbstractModel):
                 == sum(self.ACC[u] for u in self.U_C)      # annual capital costs
                 + self.ACC_HP/1000                         # heat pump capital costs
                 + self.TO_CAPEX_TOT                        # reoccurring costs of equipment
-                + sum(self.HENCOST[hi] for hi in self.HI)  # HEN capital costs
+                + sum(self.HENCOST[hi] for hi in self.HI)/1000  # HEN capital costs
             )
 
         self.CapexEquation_1 = Constraint(self.U_C, rule=CapexEquation_1_rule)
