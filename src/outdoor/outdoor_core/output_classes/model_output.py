@@ -354,6 +354,11 @@ class ModelOutput:
                     (j + model_data.get("TO_CAPEX", 0).get(i, 0)) / total_costs * 100, 2
                 )
 
+        heat_exchange_cost = sum(model_data['HENCOST'][hi] for hi in model_data['HI'])/1000
+        if heat_exchange_cost > 0:
+            capitalcost_shares["Capital costs shares"]['Heat Exchangers'] = (
+                round(heat_exchange_cost / total_costs * 100, 2))
+
         return capitalcost_shares
 
     def _collect_LCA_results(self):
