@@ -1206,6 +1206,7 @@ class PhysicalProcessesDialog(QDialog):
         # get the DTO of the current unit
         unitDTO = self.centralDataManager.unitProcessData[self.iconID]
         chemicals = []
+
         # first check if there is any inputs flows entering the current unit
         inputFlows = unitDTO.inputFlows
         for id in inputFlows:
