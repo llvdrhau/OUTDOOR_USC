@@ -255,6 +255,16 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                                             signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
+        # add tabs to the tab manager
+        # self.tabManager.addTab(welcomeTab, "WelcomeTab")
+        # self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
+        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
+        # self.tabManager.addTab(componentsTab, "ComponentsTab")
+        self.tabManager.addTab(reactionsTab, "ReactionsTab")
+        # self.tabManager.addTab(utilityTab, "UtilityTab")
+        # self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
+        # self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
+
         # Add tabs to the QTabWidget
         tabWidget.addTab(welcomeTab, "Welcome")
         tabWidget.addTab(projectDescriptionTab, "Project Description")

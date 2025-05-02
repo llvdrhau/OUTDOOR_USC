@@ -21,7 +21,7 @@ Function list:
 import datetime
 import os
 import random as rnd
-
+import math
 import cloudpickle as pic
 import matplotlib.pyplot as plt
 import numpy as np
@@ -488,17 +488,73 @@ class ModelOutput:
         # get the flow sheet with selected units
         units = self.return_chosen(data= model_data, threshold=1e-5)
 
+        counterHeat = 0
+        counterElec = 0
+        counterWaste = 0
+        counterRM = 0
         for u, name in units.items():
             if (u not in model_data['U_PP'] and u not in model_data['U_S']
-                and u not in model_data['U_DIST'] and name not in exclude_units): # not a product or source unit
+                and u not in model_data['U_DIST'] and name not in exclude_units): # not a product, source or distribution units
                 rawMaterialImpact = model_data['IMPACT_INPUTS_U_CAT'][u, impCat]/model_data['sourceOrProductLoad']/1000
                 wasteDisposalImpact = model_data['WASTE_U'][u, impCat]/model_data['sourceOrProductLoad']/1000
                 electricity, heat = self.utility_impact(u, impCat, data)
-
                 lca_results[name] = {'Raw material': rawMaterialImpact,
                                      'Waste disposal': wasteDisposalImpact,
                                      'Electricity': electricity/model_data['sourceOrProductLoad']/1000,
                                      'Heat': heat/model_data['sourceOrProductLoad']/1000}
+
+                counterHeat += heat/model_data['sourceOrProductLoad']/1000
+                counterElec += electricity/model_data['sourceOrProductLoad']/1000
+                counterWaste += wasteDisposalImpact
+                counterRM += rawMaterialImpact
+
+        cumulativeImpact = counterRM + counterWaste + counterElec + counterHeat
+        modelImpact = model_data['IMPACT_TOT'][impCat]
+
+        if round(cumulativeImpact, 3) != round(modelImpact, 3):
+            print("")
+            print('The impact category is:', impCat)
+            print('cumulative impacts calculation:', cumulativeImpact)
+            print('model impact:', modelImpact)
+
+        # get the total heat and electricity impact calulated by the model
+        modelCalculatedElec = model_data['IMPACT_UTILITIES']['Electricity', impCat]/model_data['sourceOrProductLoad']/1000
+        modelCalculatedHeat = (model_data['IMPACT_UTILITIES']['Heat', impCat] + model_data['IMPACT_UTILITIES']['Heat2', impCat])//model_data['sourceOrProductLoad']/1000
+
+        modelCalculatedWaste = model_data['IMPACT_WASTE_PER_CAT'][impCat]
+        modelCalculatedRawMaterial = model_data['IMPACT_INPUTS_PER_CAT'][impCat]
+
+        if round(modelCalculatedHeat, 3) != round(counterHeat, 3):
+            print('')
+            print("Heat", impCat)
+            print('The Model heat contribution: {} '
+                  '\n post calculated heat contribution: {}'.format(modelCalculatedHeat, counterHeat))
+
+        if round(modelCalculatedElec,3) != round(counterElec,3):
+            print('')
+            print('Electricity', impCat)
+            print('The Model Electricity contribution: {} '
+                  '\n post calculated Electricity contribution: {}'.format(modelCalculatedElec, counterElec))
+
+        if round(modelCalculatedWaste, 3) != round(counterWaste, 3):
+            print('')
+            print('WASTE:', impCat)
+            print('The Model Waste contribution: {} '
+                  '\n post calculated Electricity contribution: {}'.format(modelCalculatedWaste, counterWaste))
+
+        if round(modelCalculatedRawMaterial, 3) != round(counterRM, 3):
+            print('')
+            print('Raw material:', impCat)
+            print('The Model Waste contribution: {} '
+                  '\n post calculated Electricity contribution: {}'.format(modelCalculatedRawMaterial, counterRM))
+
+
+        for unit, impactDict in lca_results.items():
+            sumImpactU = sum(impactDict.values())
+            percent = sumImpactU/modelImpact* 100
+            print('Unit:{} conributes {} %'.format(unit, percent))
+            print('')
+
 
         return lca_results
 
@@ -518,27 +574,37 @@ class ModelOutput:
 
         if u in model_data['U_FUR'] or u in model_data['U_TUR']:
 
-            electricity = ((model_data['ENERGY_DEMAND'][u,'Electricity'] * model_data['flh'][u] -
-                           model_data['EL_PROD_1'][u] * model_data['flh'][u]) *
+            electricity = ((model_data['ENERGY_DEMAND'][u,'Electricity'] * model_data['flh'][u]
+                           - model_data['EL_PROD_1'][u] * model_data['flh'][u]) *
                            model_data['util_impact_factors']['Electricity', impCat])
 
 
-            heat = ((model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] -
+            heat1 = ((model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] -
                     model_data['ENERGY_DEMAND_HEAT_PROD'][u] * model_data['flh'][u])
                     * model_data['util_impact_factors']['Heat', impCat])
 
+            cool = ((model_data['ENERGY_DEMAND_COOL_UNIT'][u] * model_data['flh'][u] -
+                    model_data['ENERGY_DEMAND_HEAT_PROD'][u] * model_data['flh'][u])
+                    * model_data['util_impact_factors']['Heat', impCat])
+
+            heat = heat1 + cool
 
         else:
-            electricity = (model_data['ENERGY_DEMAND'][u,'Electricity'] * model_data['flh'][u] *
+            electricity = ((model_data['ENERGY_DEMAND'][u,'Electricity'] + model_data['ENERGY_DEMAND'][u,'Chilling'] ) * model_data['flh'][u] *
                             model_data['util_impact_factors']['Electricity', impCat])
 
-            heat = (model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] *
+            heat1 = (model_data['ENERGY_DEMAND_HEAT_UNIT'][u] * model_data['flh'][u] *
                      model_data['util_impact_factors']['Heat', impCat])
+
+            cool = (model_data['ENERGY_DEMAND_COOL_UNIT'][u] * model_data['flh'][u] *
+                     model_data['util_impact_factors']['Heat', impCat])
+
+            heat = heat1 + cool
 
         # utilityImpact = electricity + heat
         return electricity, heat
 
-    def plot_impacts_per_unit(self, impact_category, path, barWidth=0.8,
+    def plot_impacts_per_unit(self, impact_category, path, bar_width=0.8,
                               sources=None,
                               exclude_units=None, data=None, saveName=None):
         """
@@ -584,11 +650,11 @@ class ModelOutput:
         ax = df.plot(
             kind='bar',
             figsize=(8, 5),
-            stacked=False,
+            stacked=True,
             edgecolor='black',
             # title=f"Impacts by Source for {impact_category}"
             legend=False,
-            width=barWidth
+            width=bar_width
         )
 
         # Adjust x-axis labels & add other niceties
@@ -610,7 +676,238 @@ class ModelOutput:
         # Save with bbox_inches='tight' to ensure legend is fully in the image
         # plt.savefig(savePath)
         plt.savefig(savePath, bbox_inches='tight')
-        plt.show()
+        #plt.show()
+
+    def sub_plots_stacked_impacts_per_category(
+        self,
+        impact_categories,
+        path,
+        bar_width=0.8,
+        sources=None,
+        exclude_units=None,
+        data=None,
+        saveName=None,
+        stack_mode_units=True,
+    ):
+        """
+        Plot stacked contributions for each impact category in its own subplot (2 columns).
+        Each subplot shows a single stacked bar per category, where the segments are the contributions.
+        A single legend is added to the first subplot only.
+
+        :param impact_categories: A list of impact categories to include
+        :param path: Directory in which to save the figure
+        :param bar_width: Width of each bar in the chart
+        :param sources: Which LCA sources to include (e.g. ["Heat","Electricity","Waste disposal","Raw material"])
+        :param exclude_units: List of process units to exclude from LCA results
+        :param data: Additional data passed to self.get_detailed_LCA_results_per_unit (if your method needs it)
+        :param saveName: File name (png) for saved figure
+        :param stack_mode_units: Whether to plot the sums of each unit or the sums of each source
+        """
+
+        # Fallbacks
+        if not exclude_units:
+            exclude_units = []
+        if not sources:
+            sources = ["Heat", "Electricity", "Waste disposal", "Raw material"]
+
+        # --- Gather data ---
+        cat_data = {}
+        cat_data_units = {}
+
+        for category in impact_categories:
+            # Grab the detailed results for this category
+            lca_results = self.get_detailed_LCA_results_per_unit(
+                category, exclude_units=exclude_units, data=data
+            )
+            process_units = lca_results.keys()
+
+            # Initialize sums
+            summed_sources = {s: 0.0 for s in sources}
+            summed_units = {unit: 0.0 for unit in lca_results.keys()}
+
+            # Accumulate across units
+            for unit_name, source_dict in lca_results.items():
+                summed_units[unit_name] += sum(source_dict.values())
+                for s in sources:
+                    summed_sources[s] += source_dict.get(s, 0.0)
+
+            cat_data[category] = summed_sources
+            cat_data_units[category] = summed_units
+
+        # Convert to DataFrame with categories as index
+        df = pd.DataFrame.from_dict(cat_data, orient="index", columns=sources)
+        df_units = pd.DataFrame.from_dict(cat_data_units, orient="index")
+
+
+        # Decide which DataFrame to use
+        if stack_mode_units:
+            df_norm = df_units
+        else:
+            df_norm = df
+
+        # --- Set up subplots in 2 columns ---
+        num_categories = len(df_norm)
+        ncols = 2
+        nrows = math.ceil(num_categories / ncols)
+
+        fig, axes = plt.subplots(
+            nrows=nrows,
+            ncols=ncols,
+            figsize=(12, 4 * nrows),  # Adjust width & height as needed
+            sharex=False
+        )
+        # Flatten axes for easy indexing
+        axes = axes.flatten()
+
+        # --- Plot each category ---
+        for i, (category, row_data) in enumerate(df_norm.iterrows()):
+            ax = axes[i]
+            # row_data is a Series -> Convert to single-row DataFrame for stacking
+            single_row_df = row_data.to_frame().T  # columns = contribution segments
+            # single_row_df.index = [category]
+
+            # Plot a stacked bar (only one bar, with stacked segments for each column)
+            single_row_df.plot(
+                kind="bar",
+                stacked=True,
+                ax=ax,
+                width=bar_width,
+                edgecolor="black",
+                legend=(i == 0)  # Show legend only on the first subplot
+            )
+
+            # ax.set_title(category)
+            ax.set_ylabel(self.LCA_units[category])
+            ax.set_xlabel(category)
+
+            # Remove the x-axis tick label (since it's just one bar labeled "category" or "0")
+            ax.set_xticks([])
+
+            # If you prefer to remove gridlines:
+            ax.grid(False)
+
+        # Hide any unused subplots if the number of categories is odd
+        if num_categories < len(axes):
+            for j in range(num_categories, len(axes)):
+                axes[j].set_visible(False)
+
+        plt.tight_layout()
+
+        # --- Save the figure ---
+        if saveName:
+            if not saveName.lower().endswith(".png"):
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/Stacked_LCA_impacts_per_category.png"
+
+        plt.savefig(savePath, bbox_inches='tight')
+
+
+    def plot_stacked_impacts_per_category(
+        self,
+        impact_categories,
+        path,
+        bar_width=0.8,
+        sources=None,
+        exclude_units=None,
+        data=None,
+        saveName=None,
+        stack_mode_units=True,
+    ):
+        """
+        Plot stacked contributions (summed across all units) for each
+        impact category in `impact_categories`. Each bar is normalized
+        by the average across sources for that category.
+
+        :param impact_categories: A list of impact categories to include
+        :param path: Directory in which to save the figure
+        :param barWidth: Width of each bar in the chart
+        :param sources: Which LCA sources to include (e.g. ["Heat","Electricity","Waste disposal","Raw material"])
+        :param exclude_units: List of process units to exclude from LCA results
+        :param data: Additional data passed to self.get_detailed_LCA_results_per_unit (if your method needs it)
+        :param saveName: File name (png) for saved figure
+        """
+        # Fallbacks
+        if not exclude_units:
+            exclude_units = []
+        if not sources:
+            sources = ["Heat", "Electricity", "Waste disposal", "Raw material"]
+
+        # For each category, get a dict of {unit: {source: value, ...}}.
+        # Sum over units so we get total contribution per source for that category.
+        cat_data = {}
+        cat_data_units = {}
+        for category in impact_categories:
+            # Grab the detailed results for the category
+            lca_results = self.get_detailed_LCA_results_per_unit(
+                category,
+                exclude_units=exclude_units,
+                data=data
+            )
+            process_units = lca_results.keys()
+
+            # Initialize sums for each source
+            summed_sources = {s: 0.0 for s in sources}
+            summed_units = {unit: 0.0 for unit in lca_results.keys()}
+            # Accumulate across all units
+            for unit_name, source_dict in lca_results.items():
+                summed_units[unit_name] += sum(source_dict.values())
+                for s in sources:
+                    summed_sources[s] += source_dict.get(s, 0.0)
+
+            cat_data[category] = summed_sources
+            cat_data_units[category] = summed_units
+
+        # Convert to a DataFrame with impact categories as rows, sources as columns
+        df = pd.DataFrame.from_dict(cat_data, orient="index", columns=sources)
+        df_units = pd.DataFrame.from_dict(cat_data_units, orient="index", columns=process_units)
+
+        # Normalize each category’s row by that row’s average
+        if stack_mode_units:
+            # # Get the global mean (of absolute values, if you need those)
+            # global_mean = df_units.abs().values.mean()
+            # # Divide the entire DataFrame by that single factor
+            # df_norm = df_units / global_mean
+
+            df_norm = df_units
+
+            # row_averages = abs(df_units.mean(axis=1))
+            # df_norm = df_units.div(row_averages, axis=0)
+        else:
+            # row_averages = abs(df.mean(axis=1))
+            # df_norm = df.div(row_averages, axis=0)
+            df_norm = df
+
+        # Create stacked bar chart
+        ax = df_norm.plot(
+            kind="bar",
+            stacked=True,
+            figsize=(8, 5),
+            edgecolor="black",
+            width=bar_width
+        )
+
+        # Because it’s normalized, label accordingly (dimensionless)
+        ax.set_ylabel("Normalized impact")
+
+        # Improve layout
+        plt.xticks(rotation=45, ha="right")
+        plt.tight_layout()
+
+        # Build path for saving
+        if saveName:
+            if not saveName.lower().endswith(".png"):
+                savePath = f"{path}/{saveName}.png"
+            else:
+                savePath = f"{path}/{saveName}"
+        else:
+            savePath = f"{path}/Stacked_LCA_impacts_per_category.png"
+
+        # Save and show
+        plt.savefig(savePath, bbox_inches='tight')
+        # plt.show()
 
     def get_impact_factors(self):
         model_data = self._data
@@ -1318,10 +1615,11 @@ class ModelOutput:
         Analyzer-Object on another machine or at a different time.
         """
         # check if the option is valid
-        if option not in ['raw', 'tidy', 'small']:
-            raise ValueError('option must be either "raw", "tidy" or "small"')
+        options = ['raw', 'tidy', 'small']
+        if option not in options:
+            raise ValueError('option must be either:', options)
 
-        # if the attribute self.ph exists deleete it
+        # if the attribute self.ph exists delete it
         if hasattr(self, 'ph'):
             del self.ph
 

@@ -214,7 +214,7 @@ class ComponentsTab(QWidget):
                         reactionDTO.makeStringEquation()
                         # now update the reaction tab by calling the editReaction method without opening the dialog
                         # so the correct reaction equations are shown
-                        self.tabManager.reactionsTab.editReaction(row=reactionDTO.rowPosition, executeDialog=False)
+                        # self.tabManager.reactionsTab.editReaction(row=reactionDTO.rowPosition, executeDialog=False)
 
             # go over the unit data
             for dto in self.centralDataManager.unitProcessData.values():

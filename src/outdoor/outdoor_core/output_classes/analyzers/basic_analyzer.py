@@ -1306,6 +1306,6 @@ class BasicModelAnalyzer:
 
         # plt.savefig(path)
         plt.savefig(path, bbox_inches='tight')
-        plt.show()
+        #plt.show()
 
 

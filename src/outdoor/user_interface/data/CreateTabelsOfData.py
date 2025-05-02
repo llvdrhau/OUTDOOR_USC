@@ -56,7 +56,7 @@ class LatTexTableCreator:
     def _add_equipment_cost(self, unit, name, uuid):
         CAPEX_dict = unit.CAPEX_factors
         self.dictionary_unit_processes[name].update({
-            'Reference Equipment Cost (M€)': round(CAPEX_dict['CECPI_ref'][uuid], self.round_to),
+            'Reference Equipment Cost (M€)': round(CAPEX_dict['C_Ref'][uuid], self.round_to),
             'Reference Capacity (t/h)': round(CAPEX_dict['m_Ref'][uuid], self.round_to),
             'Scale Parameter (-)': round(CAPEX_dict['f'][uuid], self.round_to),
             'Chemical Plant Index': CAPEX_dict['CECPI_ref'][uuid],
@@ -185,7 +185,8 @@ class LatTexTableCreator:
         for name, df in self.splitting_data_frames.items():
             df = df.fillna(0)
             # df = df.rename(columns= unitNumberDict)
-            latexCode = self._dataframe_to_latex_separation_tables(df, caption=f'Splitting of Unit {name}', label=name + '_splitting')
+            latexCode = self._dataframe_to_latex_separation_tables(df, caption=f'Separation of components in Unit: {name}',
+                                                                   label=name + '_splitting')
             print(latexCode)
             print("")
             print("% -------------------")
