@@ -3,7 +3,7 @@ Basic results--------
 ----------------------------  ---------------
 Objective Function            EBIT
 Yearly product load           8000.0
-Solver run time               0.66 seconds
+Solver run time               0.8 seconds
 Solver name                   gurobi
 Earnings Before Tax income    -110.959 €/ton
 Net production costs          110.96 euro/ton
