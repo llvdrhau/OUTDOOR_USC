@@ -3,19 +3,15 @@ import os
 import pickle
 import sys
 import pandas as pd
-
 import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 from pyparsing import empty
-
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
 from outdoor.user_interface.data.SignalManager import SignalManager
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.ConstructSuperstructure import ConstructSuperstructure
 from outdoor.user_interface.data.TabManager import TabManager
-
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
-
 from outdoor.user_interface.WelcomeTab import WelcomeTab
 from outdoor.user_interface.utils.LCACalculationMachine import LCACalculationMachine
 from outdoor.user_interface.tabs.ComponentsTab import ComponentsTab

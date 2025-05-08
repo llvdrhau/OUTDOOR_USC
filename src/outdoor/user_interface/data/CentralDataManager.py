@@ -172,17 +172,13 @@ class CentralDataManager:
 
     def _loadDefaults(self):
         # Get the absolute path to the directory where the script resides
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Construct the correct path
-        csv_path = os.path.join(script_dir, 'data/configs/defaults/*.csv')
-        print(glob.glob(csv_path))
-        glob.glob(r'C:\Users\Lucas\PycharmProjects\OUTDOOR_USC\src\outdoor\user_interface\data\configs\defaults\*.csv')
+        moduleDir = os.path.dirname(os.path.abspath(__file__))
+        # Go to the path where the csv files are and
+        # Correct relative path: going deeper into subfolders
+        csvDir = os.path.join(moduleDir, 'configs', 'defaults', '*.csv')
+        csvDir = os.path.normpath(csvDir)
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        pattern = os.path.join(module_dir, '../../data/configs/defaults/*.csv')
-        pattern = os.path.normpath(pattern)  # Normalize path (important on Windows)
-
-        for file in glob.glob(f'data/configs/defaults/*.csv'): # glob.glob(f'src/outdoor/user_interface/data/configs/defaults/*.csv')
+        for file in glob.glob(csvDir):  # glob.glob(f'src/outdoor/user_interface/data/configs/defaults/*.csv')
             with open(file) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
                 if file.split('\\')[-1].split('.')[0] == 'calcConfigs':
