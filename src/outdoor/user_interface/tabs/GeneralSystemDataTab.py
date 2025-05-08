@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDoubleValidator, QFont
 from PyQt5.QtWidgets import QFormLayout, QComboBox, QFrame, QWidget, QLineEdit, QPushButton, QLabel
 
 # add the looger
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class GeneralSystemDataTab(QWidget):

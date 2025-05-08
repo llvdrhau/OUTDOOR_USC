@@ -1,15 +1,15 @@
 import logging
-from src.outdoor.outdoor_core.input_classes.superstructure import Superstructure
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.pool import ProductPool
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.source import Source
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.stoich_reactor import StoichReactor
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.yield_reactor import YieldReactor
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.distributor import Distributor
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.splitter import Splitter
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.turbine import ElectricityGenerator
-from src.outdoor.outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
-from src.outdoor.outdoor_core.input_classes.unit_operations.superclasses.physical_process import PhysicalProcess
+from outdoor.outdoor_core.input_classes.superstructure import Superstructure
+from outdoor.outdoor_core.input_classes.unit_operations.library.pool import ProductPool
+from outdoor.outdoor_core.input_classes.unit_operations.library.source import Source
+from outdoor.outdoor_core.input_classes.unit_operations.library.stoich_reactor import StoichReactor
+from outdoor.outdoor_core.input_classes.unit_operations.library.yield_reactor import YieldReactor
+from outdoor.outdoor_core.input_classes.unit_operations.library.distributor import Distributor
+from outdoor.outdoor_core.input_classes.unit_operations.library.splitter import Splitter
+from outdoor.outdoor_core.input_classes.unit_operations.library.furnace import HeatGenerator
+from outdoor.outdoor_core.input_classes.unit_operations.library.turbine import ElectricityGenerator
+from outdoor.outdoor_core.input_classes.unit_operations.library.CHP import CombinedHeatAndPower
+from outdoor.outdoor_core.input_classes.unit_operations.superclasses.physical_process import PhysicalProcess
 from outdoor.user_interface.data.ProcessDTO import ProcessType
 import pandas as pd
 
