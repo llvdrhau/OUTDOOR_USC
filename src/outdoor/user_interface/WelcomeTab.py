@@ -10,9 +10,12 @@ class WelcomeTab(QWidget):
         self.layout = QVBoxLayout(self)
 
         # Add a custom font from a file
-        self.fontId = QFontDatabase.addApplicationFont("Merienda-VariableFont_wght.ttf")
-        self.fontFamily = QFontDatabase.applicationFontFamilies(self.fontId)[0]
-        self.titleFont = QFont(self.fontFamily, 44, QFont.Bold)
+        try:
+            self.fontId = QFontDatabase.addApplicationFont("Merienda-VariableFont_wght.ttf")
+            self.fontFamily = QFontDatabase.applicationFontFamilies(self.fontId)[0]
+            self.titleFont = QFont(self.fontFamily, 44, QFont.Bold)
+        except:
+            self.titleFont = QFont('Arial', 44, QFont.Bold)
 
         # Set the title with a larger font
         self.titleLabel = QLabel("OUTDOOR")

@@ -8,24 +8,24 @@ import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 from pyparsing import empty
 
-from data.CentralDataManager import CentralDataManager
-from data.SignalManager import SignalManager
-from data.superstructure_frame import SuperstructureFrame
-from data.ConstructSuperstructure import ConstructSuperstructure
-from data.TabManager import TabManager
+from outdoor.user_interface.data.CentralDataManager import CentralDataManager
+from outdoor.user_interface.data.SignalManager import SignalManager
+from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
+from outdoor.user_interface.data.ConstructSuperstructure import ConstructSuperstructure
+from outdoor.user_interface.data.TabManager import TabManager
 
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
 
 from outdoor.user_interface.WelcomeTab import WelcomeTab
 from outdoor.user_interface.utils.LCACalculationMachine import LCACalculationMachine
-from tabs.ComponentsTab import ComponentsTab
-from tabs.GeneralSystemDataTab import GeneralSystemDataTab
-from tabs.UtilityTab import UtilityTab
-from tabs.SuperstructureMappingTab import SuperstructureMappingTab
-from tabs.ReactionTab import ReactionsTab
-from tabs.ProjectDescriptionTab import ProjectDescriptionTab
-from tabs.UncertaintyTab import UncertaintyTab
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.tabs.ComponentsTab import ComponentsTab
+from outdoor.user_interface.tabs.GeneralSystemDataTab import GeneralSystemDataTab
+from outdoor.user_interface.tabs.UtilityTab import UtilityTab
+from outdoor.user_interface.tabs.SuperstructureMappingTab import SuperstructureMappingTab
+from outdoor.user_interface.tabs.ReactionTab import ReactionsTab
+from outdoor.user_interface.tabs.ProjectDescriptionTab import ProjectDescriptionTab
+from outdoor.user_interface.tabs.UncertaintyTab import UncertaintyTab
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 from outdoor.user_interface.data.ProcessDTO import ProcessType
 
 import logging
@@ -254,6 +254,16 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
                                                             signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
+
+        # add tabs to the tab manager
+        # self.tabManager.addTab(welcomeTab, "WelcomeTab")
+        # self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
+        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
+        # self.tabManager.addTab(componentsTab, "ComponentsTab")
+        self.tabManager.addTab(reactionsTab, "ReactionsTab")
+        # self.tabManager.addTab(utilityTab, "UtilityTab")
+        # self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
+        # self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(welcomeTab, "Welcome")

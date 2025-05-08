@@ -24,3 +24,6 @@ Impact_UT = consumption (MW) * Impact_factor (kg_co2/kWh) * 1000 (to get MW) * 8
 
 
 # deleting previous Calculate LCA's? (yes/no) how?
+
+
+# test multiple outputs can only one be selected to go to one unit. Check if model breaks yes or no!

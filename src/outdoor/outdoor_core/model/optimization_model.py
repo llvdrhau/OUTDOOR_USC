@@ -651,7 +651,7 @@ class SuperstructureModel(AbstractModel):
                 return self.ENERGY_DEMAND_TOT[ut] == sum(
                     self.ENERGY_DEMAND[u, ut] * self.flh[u] for u in self.U
                 ) - sum(self.EL_PROD_1[u] * self.flh[u] for u in self.U_TUR)
-            else:
+            else: # for chilling
                 return self.ENERGY_DEMAND_TOT[ut] == sum(
                     self.ENERGY_DEMAND[u, ut] * self.flh[u] for u in self.U
                 )
@@ -978,7 +978,7 @@ class SuperstructureModel(AbstractModel):
         def Cost_Waste_rule(self, u):
             wasteType = self.waste_type_U[u].value
             return (self.WASTE_COST_U[u] == self.flh[u] *   # units WASTE_COST = k€/year
-                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType] )
+                    sum(self.FLOW_WASTE[u, i] for i in self.I) * self.waste_cost_factor[wasteType])
 
         def Cost_Waste_TOT(self):
             return self.WASTE_COST_TOT == sum(self.WASTE_COST_U[u] for u in self.U)/1000
@@ -1159,7 +1159,7 @@ class SuperstructureModel(AbstractModel):
         # --------------------------------
 
         # the three equations below are for the HEN CAPITAL COSTS (CAPEX)
-        # not realted to the operating costs of HEN
+        # not realted to the operating costs of HEN, COSTHEX IN k€ !!!! /1000 to get into M€
         # --------------------------------------------------------------------
         def HEN_CostBalance_4_rule(self, hi):
             return self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[
@@ -1179,7 +1179,7 @@ class SuperstructureModel(AbstractModel):
                 == sum(self.ACC[u] for u in self.U_C)      # annual capital costs
                 + self.ACC_HP/1000                         # heat pump capital costs
                 + self.TO_CAPEX_TOT                        # reoccurring costs of equipment
-                + sum(self.HENCOST[hi] for hi in self.HI)  # HEN capital costs
+                + sum(self.HENCOST[hi] for hi in self.HI)/1000  # HEN capital costs
             )
 
         self.CapexEquation_1 = Constraint(self.U_C, rule=CapexEquation_1_rule)
@@ -1474,11 +1474,11 @@ class SuperstructureModel(AbstractModel):
         self.IMPACT_INPUTS_PER_CAT = Var(self.IMPACT_CATEGORIES)
 
         def LCA_Inflow_U_rule(self, u, ImpCat):
-            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i, ImpCat]
+            return self.IMPACT_INPUTS_U_CAT[u, ImpCat] == sum(self.FLOW_ADD_TOT[u, i] * self.impact_inFlow_components[i, ImpCat] * self.flh[u]
                                                 for i in self.I)
         def LCA_All_Inflow_rule(self, ImpCat):
             return (self.IMPACT_INPUTS_PER_CAT[ImpCat] == sum(self.IMPACT_INPUTS_U_CAT[u, ImpCat] for u in self.U)
-                    * self.H /self.sourceOrProductLoad/1000) # to convert to impc/KG of product or source
+                    /self.sourceOrProductLoad/1000)  # to convert to impc/KG of product or source
 
 
         self.LCA_InFlow_Units = Constraint(self.U, self.IMPACT_CATEGORIES, rule=LCA_Inflow_U_rule)
@@ -1496,12 +1496,12 @@ class SuperstructureModel(AbstractModel):
         # set the constraints
         def LCA_Utility_rule(self, ut, impCat):
             if ut == "Electricity":  # ENERGY_DEMAND_TOT is in MWh! util_impact_factors in kg_CO2/MWh
-                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut]  + self.ENERGY_DEMAND_HP_EL * self.H)
+                return (self.IMPACT_UTILITIES[ut, impCat] == (self.ENERGY_DEMAND_TOT[ut] + self.ENERGY_DEMAND_HP_EL * self.H)
                         * self.util_impact_factors[ut, impCat])
             elif ut == "Chilling":
-                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut]  * self.util_impact_factors[ut, impCat]
+                return self.IMPACT_UTILITIES[ut, impCat] == self.ENERGY_DEMAND_TOT[ut] * self.util_impact_factors[ut, impCat]
 
-            elif ut == "Heat":
+            elif ut == "Heat": # or ut == "Heat2": # not including heat because already included in "ENERGY_DEMAND_HEAT_DEFI"
                 return (self.IMPACT_UTILITIES[ut, impCat] == self.H * self.util_impact_factors[ut, impCat] *
                         (sum(self.ENERGY_DEMAND_HEAT_DEFI[hi] for hi in self.HI) - self.ENERGY_DEMAND_HEAT_PROD_SELL))
             else:

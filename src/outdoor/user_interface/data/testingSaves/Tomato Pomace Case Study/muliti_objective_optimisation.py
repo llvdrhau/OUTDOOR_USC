@@ -12,7 +12,9 @@ path = os.path.join(current_path, "TP_case_study_superstructure.pkl")
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
-savePath = current_path
+mainFolder = os.path.join(current_path, "multiObj")
+
+
 # outdoor.create_superstructure_flowsheet(superstructure=superstructureObj,
 #                                         path=savePath,
 #                                         saveName='Figure_superstructure')
@@ -27,7 +29,7 @@ objectivePairs = {
     'GWP_NPC':('global warming potential (GWP100)', 'NPC'),
     'TETP_NPC':('terrestrial ecotoxicity potential (TETP)', 'NPC'),
     'FETP_NPC':('freshwater ecotoxicity potential (FETP)', 'NPC'),
-    'HTPc_NPC':('human toxicity potential (HTPc)', 'NPC'),
+    'HTPnc_NPC':('human toxicity potential (HTPnc)', 'NPC'),
 
     # 'NPC_GWP':('NPC', 'global warming potential (GWP100)'),
     # 'NPC_HTPc':('NPC', 'human toxicity potential (HTPc)'),
@@ -39,18 +41,19 @@ objectivePairs = {
     # 'FETP_HTPc':('freshwater ecotoxicity potential (FETP)', 'human toxicity potential (HTPc)')
 }
 modelOutputList = []
-xLabels=['Global warming potential (kg_CO2_eq/kg)',
-                                        'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq)',
-                                        'freshwater ecotoxicity potential (kg 1,4-DCB-Eq)',
-                                        'human toxicity potential (kg 1,4-DCB-Eq)']
+xLabels = ['Global warming potential (kg_CO2_Eq/kg_TP)',
+           'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq/kg_TP)',
+           'freshwater ecotoxicity potential (kg 1,4-DCB-Eq/kg_TP)',
+           'human toxicity potential (kg 1,4-DCB-Eq/kg_TP)']
+
 counter = 0
 for fileKey, objectivePair in objectivePairs.items():
     xlab = xLabels[counter]
     counter += 1
     multi_objective_options = { "objective1": objectivePair[0],
-                                'bounds_objective1': [None, None], # [lower_bound, upper_bound]
+                                'bounds_objective1': [None, None],  # [lower_bound, upper_bound]
                                 "objective2": objectivePair[1],
-                                "paretoPoints": 5}
+                                "paretoPoints": 25}
 
     model_output = solverObject.solve_optimization_problem(input_data=superstructureObj,
                                                            optimization_mode='multi-objective',
@@ -66,7 +69,7 @@ for fileKey, objectivePair in objectivePairs.items():
     # print('Number of simulations: ', nSim)
     # get the analyzer
     # get the correct path to save the results
-    savePath = os.path.join(current_path, fileKey)
+    savePath = os.path.join(mainFolder, fileKey)
     model_output.get_results(savePath=savePath, pprint=False, saveName=fileKey + '_results')
 
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
@@ -80,19 +83,13 @@ for fileKey, objectivePair in objectivePairs.items():
 
 # make a subplot of all the pareto fronts in one figure
 # get the correct path to save the results
-savePath = os.path.join(current_path, 'pareto_fronts_sub_plot')
-analyzer.sub_plot_pareto_fronts(modelOutputList, path=current_path, saveName= 'pareto_fronts_sub_plot',
-
-                                xLabel=['Global warming potential (kg_CO2_eq/kg)',
-                                        'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq)',
-                                        'freshwater ecotoxicity potential (kg 1,4-DCB-Eq)',
-                                        'human toxicity potential (kg 1,4-DCB-Eq)'],
-
+#savePath = os.path.join(mainFolder, 'pareto_fronts_sub_plot')
+analyzer.sub_plot_pareto_fronts(modelOutputList, path=mainFolder,
+                                saveName='pareto_fronts_sub_plot', xLabel=xLabels,
                                 yLabel=['Earning Before Income Taxes (€/ton)',
                                         'Earning Before Income Taxes (€/ton)',
                                         'Earning Before Income Taxes (€/ton)',
                                         'Earning Before Income Taxes (€/ton)'],
-
                                 flowTreshold=1e-5)
 
 

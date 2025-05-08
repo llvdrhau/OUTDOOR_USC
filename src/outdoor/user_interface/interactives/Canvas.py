@@ -214,7 +214,7 @@ class Canvas(QGraphicsView):
         :param pos: Position of the mouse click
         :return:
         """
-        # Do not start a new line if the startPort is not set error has occured
+        # Do not start a new line if the startPort is not set, This signals an error has occurred
         if self.startPort is None:
             return
 
@@ -227,14 +227,20 @@ class Canvas(QGraphicsView):
 
         if (port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
             port.portType == 'entry' and len(port.connectionLines) > 0):
-
             port.occupied = True
+            # you can not multiple units to the input of a distribution block
             # stop the line drawing process with return statement
             return
 
         if (self.startPort.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
             port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]):
             # do not connect two split icons with each other
+            return
+
+        if (port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]
+            and self.startPort.icon_type == ProcessType.INPUT):
+            # you can not connect the input icon with a distributor Icon! Splits are done automatically if the in put is
+            # connected to various unit processes
             return
 
         self.logger.debug("End drawing a new line from the port")
@@ -630,7 +636,18 @@ class Canvas(QGraphicsView):
             for id in inputFlowsToUpdate:
                 unitDTOReceiving = self.centralDataManager.unitProcessData[id]
                 if unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR:
-                    pass
+                    # if the unit is connected to a distributor, the distributor is no longer owned by any unit.
+                    unitDTOReceiving.distributionOwner = None
+
+                    # all the units that were previously linked to the deleted unit trough the distributor must be updated
+                    if unitDTOReceiving.distributionContainer:
+                        for id in unitDTOReceiving.distributionContainer:
+                            unitConnectedToDistributor = self.centralDataManager.unitProcessData[id]
+                            if icon2Delete.iconID in unitConnectedToDistributor.incomingUnitFlows:
+                                unitConnectedToDistributor.incomingUnitFlows.pop(icon2Delete.iconID)
+
+
+                    #pass
                     # unitDTOReceiving.distributionContainer.remove(icon2Delete.iconID)
                     # self.logger.debug("Connection {} removed from the distribution container".format(icon2Delete.iconID))
                 else:

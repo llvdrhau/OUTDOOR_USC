@@ -1287,7 +1287,7 @@ class BasicModelAnalyzer:
 
         rawMaterialCost = model_data['RM_COST_TOT']
         utilityCost = sum(model_data['ENERGY_COST'][ut] for ut in model_data['U_UT'])
-        wasteCosts = model_data['WASTE_COST_TOT']
+        wasteCosts = model_data['WASTE_COST_TOT'] # WASTE_COST_TOT
 
         # make a bar plot of the operational costs
         labels = ['Raw material costs', 'Utility costs', 'Waste costs']
@@ -1306,6 +1306,6 @@ class BasicModelAnalyzer:
 
         # plt.savefig(path)
         plt.savefig(path, bbox_inches='tight')
-        plt.show()
+        #plt.show()
 
 

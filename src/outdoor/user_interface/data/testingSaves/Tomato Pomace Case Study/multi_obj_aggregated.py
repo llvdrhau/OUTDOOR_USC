@@ -12,7 +12,7 @@ with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
 #savePath = current_path
-savePath = os.path.join(current_path, "aggreated_test")
+savePath = os.path.join(current_path, "multiObj_aggregated")
 
 
 # solve the optimization problem
@@ -27,7 +27,7 @@ objectivePairs = {
 
 for fileKey, objectivePair in objectivePairs.items():
     multi_objective_options = { "objective1": objectivePair[0],
-                                'bounds_objective1': [None, None], # [lower_bound, upper_bound]
+                                'bounds_objective1': [None, None],  # [lower_bound, upper_bound]
                                 "objective2": objectivePair[1],
                                 "paretoPoints": 5,
                                 # options for the design space if applicable
@@ -51,16 +51,16 @@ for fileKey, objectivePair in objectivePairs.items():
     analyzer = outdoor.AdvancedMultiModelAnalyzer(model_output)
     #savePath = os.path.join(current_path, fileKey)
 
-    analyzer.plot_pareto_front(path=savePath, saveName=fileKey + '_pareto_front', flowTreshold=1e-5,
+    analyzer.plot_pareto_front_2(path=savePath, saveName=fileKey + '_pareto_front', flowTreshold=1e-5,
                                xLabel='Global warming potential (kg_CO2_eq/kg)',
                                yLabel='Earning Before Income Taxes (€/t)',
                                nProductLimit=3, productExclusionList=['Protein', 'Peptides', 'Cutin2'])
 
     analyzer.plot_LCA_correlations(path=savePath, saveName='LCA_correlations',
-                                   catagories=['global warming potential (GWP100)',
+                                   categories=['global warming potential (GWP100)',
                                                'terrestrial ecotoxicity potential (TETP)',
                                                'freshwater ecotoxicity potential (FETP)',
-                                               'human toxicity potential (HTPc)',
+                                               'human toxicity potential (HTPnc)',
                                                'fossil fuel potential (FFP)',])
 
 
@@ -69,7 +69,7 @@ for fileKey, objectivePair in objectivePairs.items():
 # find the data your interested in
 min = 0
 dataSelected = None
-excludedUnits = ['Collector', 'RO', 'Prot. Digest.', 'Passing Unit' ]
+excludedUnits = ['Collector', 'RO', 'Prot. Digest.', 'Passing Unit']
 
 for key, dataOutput in model_output._results_data.items():
     data = dataOutput._data
@@ -78,9 +78,9 @@ for key, dataOutput in model_output._results_data.items():
     # Combine flowsheet names into a single key so you get unique keys
     outputKey = "_".join(outputsFlowSheet)
 
-    if outputKey ==  'Compost_Pectin':
-        if (data['IMPACT_TOT']['global warming potential (GWP100)'] > 3 and
-           data['IMPACT_TOT']['global warming potential (GWP100)'] < 3.3):   #data['EBIT'] < min:
+    if outputKey == 'Compost_Pectin':
+        if (data['IMPACT_TOT']['global warming potential (GWP100)'] > 1.9 and
+           data['IMPACT_TOT']['global warming potential (GWP100)'] < 2.2):   #data['EBIT'] < min:
             dataSelected = data
             model_output_selected = dataOutput
         else:
@@ -88,24 +88,55 @@ for key, dataOutput in model_output._results_data.items():
     else:
         continue
 
+
+interestedCategories = ['global warming potential (GWP100)',
+                        'terrestrial ecotoxicity potential (TETP)',
+                        'freshwater ecotoxicity potential (FETP)',
+                        'human toxicity potential (HTPnc)'
+                        ]
+
 if dataSelected is None:
     # print red
     print('\033[91m' +
           'No data for specified outputs found'
           + '\033[0m')
 else:
+    # save the model output file:
+    # save the results in a pickle file for further analysis
+    model_output_selected.save_with_pickel(path=savePath,
+                                            saveName='model_selected.pkl',
+                                            option='raw')
+
     model_output_selected.get_results(path=savePath,
                              saveName='txt_results_selected')
 
-    model_output.plot_impacts_per_unit(impact_category='global warming potential (GWP100)',
-                                       data=dataSelected, path=savePath, saveName='contribution_analysis_Selected',
-                                       exclude_units=excludedUnits, sources=['Electricity', 'Heat'])
+    model_output_selected.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories, # data=dataSelected,
+                                                        exclude_units=[], path=savePath,
+                                                        saveName='contribution_analysis_stacked_units_selected',
+                                                        bar_width=0.3, )  # sources=['Electricity', 'Heat', 'Waste'])
+
+    model_output_selected.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories,
+                                                                 # data=dataSelected,
+                                                                 exclude_units=[], path=savePath,
+                                                                 saveName='contribution_analysis_stacked_streams',
+                                                                 bar_width=0.3, stack_mode_units=False)  # sources=['Electricity', 'Heat', 'Waste'])
+
+    # model_output.plot_stacked_impacts_per_category(impact_categories=interestedCategories, data=dataSelected,
+    #                                                exclude_units=['Collector', 'Passing Unit'], path=savePath,
+    #                                                saveName='contribution_analysis_AD_stacked_streams', bar_width=0.3,
+    #                                                stack_mode_units=False)  # sources=['Electricity', 'Heat', 'Waste'])
+
+    # model_output.plot_impacts_per_unit(impact_category='global warming potential (GWP100)',
+    #                                    data=dataSelected, path=savePath, saveName='contribution_analysis_Selected',
+    #                                    exclude_units=excludedUnits, sources=['Electricity', 'Heat', 'Raw material'])
+
+    # model_output_selected._data[]
 
     analyzer.create_flowsheet(path=savePath,
                               saveName='Figure_flowsheet_selected', dataScenario=dataSelected)
 
-    analyzer.create_bar_plot_opex(path=savePath, modelData=dataSelected,
-                                  saveName='bar_plot_opex_selected', barwidth=0.1)
+    # analyzer.create_bar_plot_opex(path=savePath, modelData=dataSelected,
+    #                               saveName='bar_plot_opex_selected', barwidth=0.1)
 
 
 
