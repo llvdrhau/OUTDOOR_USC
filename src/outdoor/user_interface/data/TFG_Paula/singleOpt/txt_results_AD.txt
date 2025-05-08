@@ -1,0 +1,162 @@
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           8000.0
+Solver run time               0.66 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -110.959 €/ton
+Net production costs          110.96 euro/ton
+Net production GHG emissions  0.0 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.28 MW
+Electricity Purchased         0.28 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.13 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.13 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ------------
+b593cc39-db2a-4c33-a676-0c492b1a97a2  BSG
+4647357a-ab47-48f8-8614-9b18fa9aa7fb  AD1
+ea6636e2-c0a2-48fc-afcb-b6897f0a5bf2  Biogupgrade1
+e4657fd6-1573-456f-a7f6-611b3263f71b  ...
+3f692774-7b25-4f56-9de3-e1398817ea6a  Digestato
+87fdca29-6010-4eb9-9d1e-022b07b60128  Biogas
+------------------------------------  ------------
+
+ 
+
+Economic results-------- 
+-------------------------------  -------
+CAPEX share                       138.15
+Raw material consumption share      0
+Operating and Maintanence share    68.87
+Electricity share                   0
+Chilling share                      0
+Heat integration share              3.43
+Waste treatment share               0
+Profits share                    -110.45
+-------------------------------  -------
+
+ 
+
+Capital costs shares-------- 
+------------  -----
+Heat pump      0
+AD1           87.42
+Biogupgrade1  12.58
+------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+AD1                         36.01
+Biogupgrade1                63.99
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  ----
+Total heating demand                    0.13
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0.13
+Net cooling demand                      0
+--------------------------------------  ----
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                      0
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'b593cc39-db2a-4c33-a676-0c492b1a97a2': 0.0, '4647357a-ab47-48f8-8614-9b18fa9aa7fb': 0.127, 'ea6636e2-c0a2-48fc-afcb-b6897f0a5bf2': 0.0, 'a24dbc3c-e079-41e9-ac45-dde7f9bb45fa': 0.0, 'fd09e5cb-4fef-48d3-bfaa-ced7edc27a8f': 0.0, '8f102d88-4e4e-46b8-843a-a64fb45e703b': 0.0, 'e4657fd6-1573-456f-a7f6-611b3263f71b': 0.0, '3f692774-7b25-4f56-9de3-e1398817ea6a': 0.0, '87fdca29-6010-4eb9-9d1e-022b07b60128': 0.0, 'f4c410a3-a406-4181-bb64-59ebe9e143ec': 0.0}
+cooling      {'b593cc39-db2a-4c33-a676-0c492b1a97a2': 0.0, '4647357a-ab47-48f8-8614-9b18fa9aa7fb': 0.0, 'ea6636e2-c0a2-48fc-afcb-b6897f0a5bf2': 0.0, 'a24dbc3c-e079-41e9-ac45-dde7f9bb45fa': 0.0, 'fd09e5cb-4fef-48d3-bfaa-ced7edc27a8f': 0.0, '8f102d88-4e4e-46b8-843a-a64fb45e703b': 0.0, 'e4657fd6-1573-456f-a7f6-611b3263f71b': 0.0, '3f692774-7b25-4f56-9de3-e1398817ea6a': 0.0, '87fdca29-6010-4eb9-9d1e-022b07b60128': 0.0, 'f4c410a3-a406-4181-bb64-59ebe9e143ec': 0.0}
+electricity  2221.82
+-----------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('4647357a-ab47-48f8-8614-9b18fa9aa7fb', 'ea6636e2-c0a2-48fc-afcb-b6897f0a5bf2')  0.68
+('4647357a-ab47-48f8-8614-9b18fa9aa7fb', '3f692774-7b25-4f56-9de3-e1398817ea6a')  0.34
+('ea6636e2-c0a2-48fc-afcb-b6897f0a5bf2', '87fdca29-6010-4eb9-9d1e-022b07b60128')  0.45
+('e4657fd6-1573-456f-a7f6-611b3263f71b', '4647357a-ab47-48f8-8614-9b18fa9aa7fb')  1
+('b593cc39-db2a-4c33-a676-0c492b1a97a2', 'e4657fd6-1573-456f-a7f6-611b3263f71b')  1
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  --------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.0 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.0 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.0 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.0 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.0 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.0 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.0 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.0 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.0 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.0 USD 2013/kg
+------------------------------------------------------------  --------------------
+
+ 
