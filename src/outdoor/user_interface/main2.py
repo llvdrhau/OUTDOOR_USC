@@ -25,7 +25,7 @@ from outdoor.user_interface.tabs.SuperstructureMappingTab import SuperstructureM
 from outdoor.user_interface.tabs.ReactionTab import ReactionsTab
 from outdoor.user_interface.tabs.ProjectDescriptionTab import ProjectDescriptionTab
 from outdoor.user_interface.tabs.UncertaintyTab import UncertaintyTab
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 from outdoor.user_interface.data.ProcessDTO import ProcessType
 
 import logging
