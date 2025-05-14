@@ -86,10 +86,10 @@ class GeneralSystemDataTab(QWidget):
         self.productSelection = QComboBox()
         self.layout.addRow(QLabel("Main product/Substrate:"), self.productSelection)
         # Initially populate the combo box
-        self._updateProductSelectioComboBox()
+        self._updateProductSelectionComboBox()
         # Connect the centralDataManager's signal to the update methods
-        self.signalManager.outputListUpdated.connect(self._updateProductSelectioComboBox)
-        self.signalManager.inputListUpdated.connect(self._updateProductSelectioComboBox)
+        self.signalManager.outputListUpdated.connect(self._updateProductSelectionComboBox)
+        self.signalManager.inputListUpdated.connect(self._updateProductSelectionComboBox)
         # if changed save data
         self.productSelection.currentIndexChanged.connect(self.saveData)
 
@@ -252,7 +252,7 @@ class GeneralSystemDataTab(QWidget):
             self.productSelection.setStyleSheet("background-color: #ffffff;")
             self.productLoadLineEdit.setStyleSheet("background-color: #ffffff;")
             # update the selection list
-            self._updateProductSelectioComboBox()
+            self._updateProductSelectionComboBox()
 
     def heatPumpSwitch(self):
         if self.heatPumpDropdown.currentText() == "No":
@@ -340,7 +340,7 @@ class GeneralSystemDataTab(QWidget):
         generalData = self.centralDataManager.generalData
         if generalData:
             # update the list selection list
-            self._updateProductSelectioComboBox()
+            self._updateProductSelectionComboBox()
 
             # set the values from the centralDataManager
             self.signalManager.importLists()
@@ -365,10 +365,17 @@ class GeneralSystemDataTab(QWidget):
         else:
             self.logger.info("Booting up with no General System Data")
 
-    def _updateProductSelectioComboBox(self):
+    def _updateProductSelectionComboBox(self):
         """
         This function updates the QComboBox with the current values from centralDataManager.outputList.
         """
+
+        # extract the existing items from the productSelection
+        if self.centralDataManager.generalData:
+            productOrSubstrate = self.centralDataManager.generalData['mainProduct']
+        else: # when opening the app for the first time there is no data, so don't set the current text
+            productOrSubstrate = None
+
         # Clear the existing items
         self.productSelection.clear()
         # Add updated items from centralDataManager
@@ -381,5 +388,7 @@ class GeneralSystemDataTab(QWidget):
         else:
             dropList = []
 
-        if self.centralDataManager.generalData and self.centralDataManager.generalData["mainProduct"] in dropList:
-            self.productSelection.setCurrentText(self.centralDataManager.generalData["mainProduct"])
+        # if it is not the current product of substrate that is deleted, set the current text to the original product
+        # or substrate name
+        if self.centralDataManager.generalData and productOrSubstrate in dropList:
+            self.productSelection.setCurrentText(productOrSubstrate)

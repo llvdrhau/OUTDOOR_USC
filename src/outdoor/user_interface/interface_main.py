@@ -223,9 +223,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 unitDTO.exitPorts = []
                 unitDTO.entryPorts = []
 
-
             with open(self.ProjectPath, 'wb') as file:
                 pickle.dump(self.centralDataManager, file)
+
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
             self.logger.debug("Saved File: {}".format(self.ProjectPath))
@@ -259,15 +259,11 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                                             signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
-        # add tabs to the tab manager
-        # self.tabManager.addTab(welcomeTab, "WelcomeTab")
-        # self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
-        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
-        # self.tabManager.addTab(componentsTab, "ComponentsTab")
+        # add Reaction tab to the tab manager
         self.tabManager.addTab(reactionsTab, "ReactionsTab")
-        # self.tabManager.addTab(utilityTab, "UtilityTab")
-        # self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
-        # self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
+        # add other if necessary e.g.:
+        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
+
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(welcomeTab, "Welcome")
@@ -329,7 +325,7 @@ def checkFocus():
     return currentFocusWidget
 
 
-def main(**kwargs):
+def run_outdoor_interface(**kwargs):
     app = QApplication(sys.argv)
     main_window = MainWindow(**kwargs)
     main_window.show()
@@ -342,4 +338,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = vars(args)
-    main(**kwargs)
+    run_outdoor_interface(**kwargs)

@@ -16,11 +16,14 @@ import pandas as pd
 
 class ConstructSuperstructure:
     def __init__(self, centralDataManager):
-
+        # set the logger
         self.logger = logging.getLogger(__name__)
 
         # pass on the centralDataManager
         self.centralDataManager = centralDataManager
+
+        # set the components list
+        self.componentsList = []
 
         self.warningMessage = ''
         # stop the code if the centralDataManager is empty
@@ -141,6 +144,7 @@ class ConstructSuperstructure:
         obj.add_utilities(utilityNames)
 
         componentList = [dto.name for dto in self.centralDataManager.componentData]
+        self.componentsList = componentList
         obj.add_components(componentList)
 
         # reactionNumberList = [i + 1 for i in range(len(self.centralDataManager.reactionData))]
@@ -514,6 +518,8 @@ class ConstructSuperstructure:
             yieldDict = {product: yieldFactor}
             processObject.set_xiFactors(yieldDict)
             inertList = dto.dialogData['Inert Components']
+            # make a unique list of inert components, if there are accidental duplicates
+            inertList = list(set(inertList))
             processObject.set_inertComponents(inertList)
 
         elif dto.type in [ProcessType.STOICHIOMETRIC, ProcessType.GEN_CHP, ProcessType.GEN_ELEC, ProcessType.GEN_HEAT]:
@@ -526,6 +532,22 @@ class ConstructSuperstructure:
                 rxnName = rxn[0]
                 rxnDTO = self.reactionDict[rxnName]
                 rxnNumber = rxnDTO.uid #self.reactionNumberDict[rxnName] use the uid instead of the number
+
+                # check if the reactants and products are in the chemical components list!
+                # if not, raise an error
+                for reactant in rxnDTO.reactants.keys():
+                    if reactant not in self.componentsList:
+                        self.logger.error("Reactant {} is not in the chemical components list, "
+                                          "modify or delete reaction {}".format(reactant, rxnName))
+                        raise ValueError("Delete or modify reaction: '{}'".format(rxnName))
+
+                for product in rxnDTO.products.keys():
+                    if product not in self.componentsList:
+                        self.logger.error("Product {} is not in the chemical components list, "
+                                          "modify or delete reaction {}".format(product, rxnName))
+                        raise ValueError("Delete or modify reaction: '{}'".format(rxnName))
+
+                # if all reactions are OK carry on making the stoichiometry dictionary
                 for reactants, stoi in rxnDTO.reactants.items():
                     reactionStoichiometryDict.update({(reactants, rxnNumber): float(stoi)})
                 for products, stoi in rxnDTO.products.items():
