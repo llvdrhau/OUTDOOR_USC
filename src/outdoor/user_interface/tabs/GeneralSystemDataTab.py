@@ -135,12 +135,12 @@ class GeneralSystemDataTab(QWidget):
 
         # todo: add different standard Direct and indirect costs factors for different processing plant types
         #  i.e., Solid, solid-liquid and liquid processing plants
+        # reference: page 251 Table 6.9 of the book "Plant Design and Economics for Chemical Engineers, fith edition"
         costFactors = {
-            "Solid": {"Direct": 2.6, "Indirect": 1.44},
-            "Solid-liquid": {"Direct": 2.6, "Indirect": 1.44},
-            "Liquid": {"Direct": 2.6, "Indirect": 1.44}
+            "Solid": {"Direct": 1.69, "Indirect": 1.28},
+            "Solid-liquid": {"Direct": 2.02, "Indirect": 1.26},
+            "Liquid": {"Direct": 2.60, "Indirect": 1.44}
         }
-        # reference: p251 Table 6-9 of the book "Plant Design and Economics for Chemical Engineers, fith edition"
 
         # self.omFactorLineEdit = QLineEdit("0.04")
         # self.layout.addRow(QLabel("O&M Factor:"), self.omFactorLineEdit)
