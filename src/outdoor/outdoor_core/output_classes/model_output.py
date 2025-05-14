@@ -1054,7 +1054,7 @@ class ModelOutput:
 
         electricity_shares["Electricity demand shares"]["Heatpump electricity share"] \
             = round(
-            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / total_el * 100,
+            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / (total_el + 1e-6) * 100,
             2,
             )
 
@@ -1062,7 +1062,7 @@ class ModelOutput:
             if i[1] == "Electricity" and j >= 1e-05:
                 index_name = model_data["Names"][i[0]]
                 electricity_shares["Electricity demand shares"][index_name] = round(
-                    j * model_data.get("flh", 0).get(i[0], 0) / total_el * 100, 2
+                    j * model_data.get("flh", 0).get(i[0], 0) / (total_el + 1e-6) * 100, 2
                 )
 
         return electricity_shares
