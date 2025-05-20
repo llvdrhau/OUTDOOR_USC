@@ -688,6 +688,7 @@ class ModelOutput:
         data=None,
         saveName=None,
         stack_mode_units=True,
+        fontSizeLabs=14,
     ):
         """
         Plot stacked contributions for each impact category in its own subplot (2 columns).
@@ -777,8 +778,10 @@ class ModelOutput:
             )
 
             # ax.set_title(category)
-            ax.set_ylabel(self.LCA_units[category])
-            ax.set_xlabel(category)
+            ylab = self.LCA_units[category] + '/kg'
+            ax.set_ylabel(ylab, fontsize=fontSizeLabs)
+            xlab = category.capitalize().split('(')[0]
+            ax.set_xlabel(xlab, fontsize=fontSizeLabs)
 
             # Remove the x-axis tick label (since it's just one bar labeled "category" or "0")
             ax.set_xticks([])

@@ -42,13 +42,13 @@ ModelOutput = MultiModelOutput.load_from_pickle(path=pickleFilePath)
 ModelOutput.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories, # data=dataSelected,
                                                         exclude_units=[], path=saveLocation,
                                                         saveName='contribution_analysis_stacked_units_selected',
-                                                        bar_width=0.3, )  # sources=['Electricity', 'Heat', 'Waste'])
+                                                        bar_width=0.3, fontSizeLabs=16)  # sources=['Electricity', 'Heat', 'Waste'])
 
-# ModelOutput.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories,
-#                                                              exclude_units=[], path=saveLocation,
-#                                                              saveName='contribution_analysis_stacked_streams',
-#                                                              bar_width=0.3, stack_mode_units=False)  # sources=['Electricity', 'Heat', 'Waste'])
-#
+ModelOutput.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories,
+                                                             exclude_units=[], path=saveLocation,
+                                                             saveName='contribution_analysis_utilities_stacked_streams',
+                                                             bar_width=0.3, stack_mode_units=False, fontSizeLabs=16)  # sources=['Electricity', 'Heat', 'Waste'])
+
 
 #########  shortest distance to Pareto front:
 

@@ -56,12 +56,14 @@ interestedCategories = ['global warming potential (GWP100)',
 
 model_output.sub_plots_stacked_impacts_per_category(impact_categories=interestedCategories,
                                                exclude_units=['Collector', 'Passing Unit'], path=savePath,
-                                               saveName='contribution_analysis_AD_stacked_units', bar_width=0.3, ) #sources=['Electricity', 'Heat', 'Waste'])
+                                               saveName='contribution_analysis_AD_stacked_units', bar_width=0.3,
+                                                    fontSizeLabs=16) #sources=['Electricity', 'Heat', 'Waste'])
 
 
 model_output.plot_stacked_impacts_per_category(impact_categories=interestedCategories,
                                                 exclude_units=['Collector', 'Passing Unit'], path=savePath,
-                                                saveName='contribution_analysis_AD_stacked_streams', bar_width=0.3, stack_mode_units=False) #sources=['Electricity', 'Heat', 'Waste'])
+                                                saveName='contribution_analysis_AD_stacked_streams', bar_width=0.3,
+                                               stack_mode_units=False) #sources=['Electricity', 'Heat', 'Waste'])
 
 
 # print('')
