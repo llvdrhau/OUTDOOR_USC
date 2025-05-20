@@ -68,6 +68,11 @@ class Canvas(QGraphicsView):
         self.zoomOutFactor = 1 / self.zoomInFactor  # Zoom out factor (inverse of zoom in)
         self.scaleFactor = 1.0  # Initial scale factor
 
+        # Variables for panning (dragging over the canvas)
+        self.setDragMode(QGraphicsView.NoDrag)
+        self.isPanning = False
+        self.lastPanPoint = None
+
         # import the icons to the canvas if data is loaded from a file
         self.importData()
 
@@ -166,9 +171,28 @@ class Canvas(QGraphicsView):
             self.currentLine.updateAppearance()  # Redraw the line with the new end point
 
             # If you have any other behavior when moving the mouse, handle it here
+        elif self.isPanning and self.lastPanPoint:
+            # Calculate how much to move the view
+            delta = event.pos() - self.lastPanPoint
+            self.lastPanPoint = event.pos()
+
+            # Move the scene by scrolling
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+            event.accept()
+
         else:
             # Not drawing a line, so pass the event to the base class
             super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if self.isPanning and (event.button() == Qt.MiddleButton or event.button() == Qt.LeftButton):
+            self.isPanning = False
+            self.lastPanPoint = None
+            self.setCursor(Qt.ArrowCursor)
+            event.accept()
+        else:
+            super().mouseReleaseEvent(event)
 
     def startLine(self, port, pos):
         """
@@ -664,7 +688,13 @@ class Canvas(QGraphicsView):
         """
         item = self.itemAt(event.pos())
 
-        if isinstance(item, MovableIcon):
+        if isinstance(item, ControlPoint):
+            pass
+
+        elif isinstance(item, IconPort): # or isinstance(item, TriangleIconPorts) or
+            pass
+
+        elif isinstance(item, MovableIcon):
             if self.selectedElement is not None and self.selectedElement != item:
                 # If there is a previously selected icon and it's not the current item, reset its pen
                 self.selectedElement.pen = QPen(Qt.black, 1)
@@ -694,10 +724,8 @@ class Canvas(QGraphicsView):
             # Update the currently selected icon
             self.selectedElement = item
 
-        elif isinstance(item, ControlPoint):
-            pass
-
-        else:  # if the selected element is an icon or a line, reset the pen
+        elif event.button() == Qt.MiddleButton or (event.button() == Qt.LeftButton and not self.itemAt(event.pos())):
+            # if the user clicks on the canvas, deselect all icons and lines
             if self.selectedElement is not None:
                 # If there is a previously selected line, reset its pen
                 self.selectedElement.pen = QPen(Qt.black, 1)
@@ -710,6 +738,27 @@ class Canvas(QGraphicsView):
                     self.selectedElement.update()
 
                 self.selectedElement = None  # Reset the currently selected icon
+
+            # now activate the panning mode
+            self.isPanning = True
+            self.lastPanPoint = event.pos()
+            self.setCursor(Qt.ClosedHandCursor)
+            event.accept()
+
+        # if it is just the empty space, deselect all icons and lines
+        # else:  # if the selected element is an icon or a line, reset the pen
+            # if self.selectedElement is not None:
+            #     # If there is a previously selected line, reset its pen
+            #     self.selectedElement.pen = QPen(Qt.black, 1)
+            #
+            #     if isinstance(self.selectedElement, InteractiveLine):
+            #         self.selectedElement.setSelectedLine(
+            #             False)  # switch off visibility of the control point for the line
+            #         self.selectedElement.updateAppearance()
+            #     elif isinstance(self.selectedElement, MovableIcon):
+            #         self.selectedElement.update()
+            #
+            #     self.selectedElement = None  # Reset the currently selected icon
 
         super().mousePressEvent(event)
 
@@ -813,7 +862,6 @@ class Canvas(QGraphicsView):
                                     endPort = self._getEndPort(targetWidget)
                                     self.startLine(startPort, startPort.scenePos())
                                     self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
-
 
     def _getEndPort(self, iconWidget):
         """

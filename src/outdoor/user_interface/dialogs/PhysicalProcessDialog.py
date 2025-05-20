@@ -1934,16 +1934,17 @@ class PhysicalProcessesDialog(QDialog):
             return True
 
         # check if the temperatures are not empty
-        if dialogData["TemperatureIn1"] == 0 or dialogData["TemperatureOut1"] == 0:
-            errorMessage = "The temperatures of the unit process are not set"
+        if not dialogData["TemperatureIn1"]  or not dialogData["TemperatureOut1"]:
+            errorMessage = "Make sure the Inlet and Outlet temperatures of the unit process are set!"
             self._showErrorDialog(errorMessage)
             return True
 
         # check if the seperation is defined, otherwise raise an error
         if dialogData["Separation Fractions"] == []:
-            errorMessage = ("The separation efficiency is not defined, This will not necesarlly raise an error but it is "
-                            "recommended to define the separation efficiency")
-            self._showErrorDialog(errorMessage)
+            errorMessage = ("The separation coefficients of the components are not defined! \n."
+                            "This will not necessarily raise an error but it is "
+                            "recommended to define the separation coefficient of each component.")
+            self._showErrorDialog(errorMessage, 'Warning')
             return False
 
         # check if the sum of the fractions is not larger than 1
@@ -1960,13 +1961,19 @@ class PhysicalProcessesDialog(QDialog):
 
         return False  # if no errors are found return False
 
-    def _showErrorDialog(self, message):
+    def _showErrorDialog(self, message, type='Critical'):
         """
         Show an error dialog with the message provided.
         :param message: Message to show in the dialog
         """
         errorDialog = QMessageBox()
-        errorDialog.setIcon(QMessageBox.Critical)
+        if type == 'Critical':
+            errorDialog.setIcon(QMessageBox.Critical)
+        elif type == 'Warning':
+            errorDialog.setIcon(QMessageBox.Warning)
+        else:
+            errorDialog.setIcon(QMessageBox.Information)
+
         errorDialog.setText(message)
         errorDialog.setWindowTitle("Error")
         errorDialog.exec_()
