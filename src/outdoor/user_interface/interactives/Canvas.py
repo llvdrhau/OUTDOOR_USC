@@ -690,7 +690,6 @@ class Canvas(QGraphicsView):
 
         if isinstance(item, ControlPoint):
             pass
-
         elif isinstance(item, IconPort): # or isinstance(item, TriangleIconPorts) or
             pass
 
@@ -939,6 +938,8 @@ class IconPort(QGraphicsEllipseItem):
             canvas = self.scene().views()[0]  # Get the first (and likely only) view
             if isinstance(canvas, Canvas):  # Check if it's actually your Canvas class
                 canvas.startLine(self, event.scenePos())
+        # return to parent class?
+        # super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
         """
@@ -1414,12 +1415,15 @@ class InteractiveLine(QGraphicsPathItem):
         self.updateAppearance()
 
     def mousePressEvent(self, event):
+
+
         if event.button() == Qt.LeftButton:
             # The user clicked on the line
             self.setSelectedLine(not self.selected)  # Select the line
 
             if self.selected:
                 self.pen = QPen(Qt.red, 1.5)  # Increase line thickness
+                print('lines have been clicked and selected')
             else:
                 self.pen = QPen(Qt.black, 1)
 
