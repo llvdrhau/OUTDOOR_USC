@@ -6,7 +6,7 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 # get current working directory
 current_path = os.getcwd()
 # add the file name Aurelie_peptide_production_superstructure.pkl to the current working directory
-path = os.path.join(current_path, "1205_superstructure.pkl") # TP_case_study_superstructure  or tp_test_superstructure
+path = os.path.join(current_path, "2105_superstructure.pkl") # TP_case_study_superstructure  or tp_test_superstructure
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
 
@@ -30,10 +30,10 @@ model_output = abstract_model.solve_optimization_problem(input_data=superstructu
 
 # save the results as a txt file, you have to specify the path
 model_output.get_results(path=savePath,
-                         saveName='txt_results_AD')
+                         saveName='txt_results')
 # save and analyze the new results
 analyzer = outdoor.BasicModelAnalyzer(model_output)
 # create the flow sheets of the superstructure and the optimized flow sheet
 analyzer.create_flowsheet(path=savePath,
-                          saveName='Figure_flowsheet_AD')
+                          saveName='Figure_flowsheet')
 
