@@ -4,7 +4,7 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, QTextEdit)
 
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class ProjectDescriptionTab(QWidget):

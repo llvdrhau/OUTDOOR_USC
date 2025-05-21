@@ -7,7 +7,7 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 # Load the data from the file
 # get current working directory
 current_path = os.getcwd()
-# add the file name Aurelie_peptide_production_superstructure.pkl to the current working directory
+# add the relevant file name to the current working directory
 path = os.path.join(current_path, "TP_case_study_superstructure.pkl")
 with open(path, 'rb') as file:
     superstructureObj = pickle.load(file)
@@ -41,7 +41,7 @@ objectivePairs = {
     # 'FETP_HTPc':('freshwater ecotoxicity potential (FETP)', 'human toxicity potential (HTPc)')
 }
 modelOutputList = []
-xLabels = ['Global warming potential (kg_CO2_Eq/kg_TP)',
+xLabels = ['global warming potential (kg_CO2_Eq/kg_TP)',
            'terrestrial ecotoxicity potential (kg 1,4-DCB-Eq/kg_TP)',
            'freshwater ecotoxicity potential (kg 1,4-DCB-Eq/kg_TP)',
            'human toxicity potential (kg 1,4-DCB-Eq/kg_TP)']
@@ -80,6 +80,9 @@ for fileKey, objectivePair in objectivePairs.items():
 
     modelOutputList.append(copy.deepcopy(model_output))
 
+# pickel the modelOutputList
+with open(os.path.join(current_path, 'modelOutputList.pkl'), 'wb') as file:
+    pickle.dump(modelOutputList, file)
 
 # make a subplot of all the pareto fronts in one figure
 # get the correct path to save the results

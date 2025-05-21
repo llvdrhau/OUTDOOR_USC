@@ -10,7 +10,7 @@ import numpy as np
 import seaborn as sns
 from scipy.stats import gaussian_kde
 
-from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
+from outdoor.outdoor_core.output_classes.model_output import ModelOutput
 
 
 class StochasticModelOutput(ModelOutput):

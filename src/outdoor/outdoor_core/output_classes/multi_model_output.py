@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
-from src.outdoor.outdoor_core.output_classes.model_output import ModelOutput
+from outdoor.outdoor_core.output_classes.model_output import ModelOutput
 
 
 class MultiModelOutput(ModelOutput):

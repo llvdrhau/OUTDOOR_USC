@@ -10,12 +10,6 @@ added in the process! (Determined by the concentration Factor parameter)
 MassBalance_1, MassBalance_2, MassBalance_4, MassBalance_6, MassBalance_9, MassBalance_11, MassBalance_14, MassBalance_16
 So need a method to check if the mass balance is correct and that an overflow of water is not possible.
 
-problem 2 ):
-when changing the name of a reaction in the reaction list, the name of the reaction in the reaction list is changed but
-in the dialog the reaction get's set to the first reaction in the list! This is not correct and should be fixed.
-
-
-
 
 FOR LCA OF UTLITIES:
 Impact factors need to be in unit_ImpCat/MW! if unit is kW divied my 1000 to get MW!
@@ -25,5 +19,10 @@ Impact_UT = consumption (MW) * Impact_factor (kg_co2/kWh) * 1000 (to get MW) * 8
 
 # deleting previous Calculate LCA's? (yes/no) how?
 
-
 # test multiple outputs can only one be selected to go to one unit. Check if model breaks yes or no!
+
+# I need to make sure that temperatures are always filled in!! otherwise you'll get anying errors!!
+
+# when deleting a chemical component it needs to be deleted throughout ALL units!
+
+# set guard rails in the makeSuperstructure file if you see fishy data!!

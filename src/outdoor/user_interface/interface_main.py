@@ -3,19 +3,15 @@ import os
 import pickle
 import sys
 import pandas as pd
-
 import coloredlogs
 from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
 from pyparsing import empty
-
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
 from outdoor.user_interface.data.SignalManager import SignalManager
 from outdoor.user_interface.data.superstructure_frame import SuperstructureFrame
 from outdoor.user_interface.data.ConstructSuperstructure import ConstructSuperstructure
 from outdoor.user_interface.data.TabManager import TabManager
-
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
-
 from outdoor.user_interface.WelcomeTab import WelcomeTab
 from outdoor.user_interface.utils.LCACalculationMachine import LCACalculationMachine
 from outdoor.user_interface.tabs.ComponentsTab import ComponentsTab
@@ -94,13 +90,19 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         self.editAction.setEnabled(True)
 
     def openFile(self):
-        # There has to be a way to handle "i cancelled the load" that's not this trash
         try:
             filepath = QFileDialog(self, caption='Open Saved Project', filter='*.outdr', directory='data/frames')
             filepath.exec()
 
             self.ProjectPath = filepath.selectedFiles()[0]
             self.ProjectName = self.ProjectPath.split('/')[-1].split('.')[0]
+
+            # sometimes submodules are not imported, use this to force the import of the data module
+            # replicate if you get similar errors such as: "no module 'data' found"
+            if 'data' not in sys.modules:
+                import outdoor.user_interface.data
+                sys.modules['data'] = sys.modules['outdoor.user_interface.data']
+
             with open(self.ProjectPath, 'rb') as file:
                 self.centralDataManager = pickle.load(file)
             self.centralDataManager.metadata["PROJECT_NAME"] = self.ProjectName
@@ -112,9 +114,11 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
             self.initTabs()
             self.enableSave()
             self.logger.debug("Opened File: {}".format(self.ProjectPath))
+
         except Exception as e:
-            #Guess the load got cancelled. This has never failed in the past so if it fails now undo whatever you did.
-            pass
+            self.logger.error('Loading in file "{}" failed'.format(self.ProjectPath))
+            self.logger.error(e)
+
 
     def checkMissingAttributes(self):
         """
@@ -219,9 +223,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                 unitDTO.exitPorts = []
                 unitDTO.entryPorts = []
 
-
             with open(self.ProjectPath, 'wb') as file:
                 pickle.dump(self.centralDataManager, file)
+
             self.setWindowTitle(self.ProjectName)
             self.enableSave()
             self.logger.debug("Saved File: {}".format(self.ProjectPath))
@@ -255,15 +259,11 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                                                             signalManager=self.signalManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
-        # add tabs to the tab manager
-        # self.tabManager.addTab(welcomeTab, "WelcomeTab")
-        # self.tabManager.addTab(projectDescriptionTab, "ProjectDescriptionTab")
-        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
-        # self.tabManager.addTab(componentsTab, "ComponentsTab")
+        # add Reaction tab to the tab manager
         self.tabManager.addTab(reactionsTab, "ReactionsTab")
-        # self.tabManager.addTab(utilityTab, "UtilityTab")
-        # self.tabManager.addTab(superstructureMappingTab, "SuperstructureMappingTab")
-        # self.tabManager.addTab(uncertaintyTab, "UncertaintyTab")
+        # add other if necessary e.g.:
+        # self.tabManager.addTab(generalSystemDataTab, "GeneralSystemDataTab")
+
 
         # Add tabs to the QTabWidget
         tabWidget.addTab(welcomeTab, "Welcome")
@@ -325,7 +325,7 @@ def checkFocus():
     return currentFocusWidget
 
 
-def main(**kwargs):
+def run_outdoor_interface(**kwargs):
     app = QApplication(sys.argv)
     main_window = MainWindow(**kwargs)
     main_window.show()
@@ -338,4 +338,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = vars(args)
-    main(**kwargs)
+    run_outdoor_interface(**kwargs)

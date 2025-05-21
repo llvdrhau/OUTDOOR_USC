@@ -688,6 +688,7 @@ class ModelOutput:
         data=None,
         saveName=None,
         stack_mode_units=True,
+        fontSizeLabs=14,
     ):
         """
         Plot stacked contributions for each impact category in its own subplot (2 columns).
@@ -777,8 +778,10 @@ class ModelOutput:
             )
 
             # ax.set_title(category)
-            ax.set_ylabel(self.LCA_units[category])
-            ax.set_xlabel(category)
+            ylab = self.LCA_units[category] + '/kg'
+            ax.set_ylabel(ylab, fontsize=fontSizeLabs)
+            xlab = category.capitalize().split('(')[0]
+            ax.set_xlabel(xlab, fontsize=fontSizeLabs)
 
             # Remove the x-axis tick label (since it's just one bar labeled "category" or "0")
             ax.set_xticks([])
@@ -1054,7 +1057,7 @@ class ModelOutput:
 
         electricity_shares["Electricity demand shares"]["Heatpump electricity share"] \
             = round(
-            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / total_el * 100,
+            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / (total_el + 1e-6) * 100,
             2,
             )
 
@@ -1062,7 +1065,7 @@ class ModelOutput:
             if i[1] == "Electricity" and j >= 1e-05:
                 index_name = model_data["Names"][i[0]]
                 electricity_shares["Electricity demand shares"][index_name] = round(
-                    j * model_data.get("flh", 0).get(i[0], 0) / total_el * 100, 2
+                    j * model_data.get("flh", 0).get(i[0], 0) / (total_el + 1e-6) * 100, 2
                 )
 
         return electricity_shares

@@ -171,7 +171,14 @@ class CentralDataManager:
             self._loadDefaults()
 
     def _loadDefaults(self):
-        for file in glob.glob(f'data/configs/defaults/*.csv'):
+        # Get the absolute path to the directory where the script resides
+        moduleDir = os.path.dirname(os.path.abspath(__file__))
+        # Go to the path where the csv files are and
+        # Correct relative path: going deeper into subfolders
+        csvDir = os.path.join(moduleDir, 'configs', 'defaults', '*.csv')
+        csvDir = os.path.normpath(csvDir)
+
+        for file in glob.glob(csvDir):  # glob.glob(f'src/outdoor/user_interface/data/configs/defaults/*.csv')
             with open(file) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
                 if file.split('\\')[-1].split('.')[0] == 'calcConfigs':

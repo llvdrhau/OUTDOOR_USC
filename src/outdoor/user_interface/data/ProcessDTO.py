@@ -3,9 +3,9 @@ from enum import Enum
 from typing import Union
 
 from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
-from src.outdoor.user_interface.data.ComponentDTO import ComponentDTO
-from src.outdoor.user_interface.data.ReactionDTO import ReactionDTO
-from src.outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
+from outdoor.user_interface.data.ComponentDTO import ComponentDTO
+from outdoor.user_interface.data.ReactionDTO import ReactionDTO
+from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class ProcessType(Enum):

@@ -1325,9 +1325,10 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         """
 
         # Create a new figure with enough width for the legend on the right
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 12))
 
         data = self.model_output._results_data
+        # get the objective names and make the first letter a capital letter
         objectiveFunctionName1 = self.model_output.multi_data['objective1']
         objectiveFunctionName2 = self.model_output.multi_data['objective2']
 
@@ -1475,11 +1476,13 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         if xLabel:
             plt.xlabel(xLabel, fontsize=14)
         else:
-            plt.xlabel(objectiveFunctionName1, fontsize=14)
+            xlab = objectiveFunctionName1.capitalize()
+            plt.xlabel(xlab, fontsize=14)
         if yLabel:
             plt.ylabel(yLabel, fontsize=14)
         else:
-            plt.ylabel(objectiveFunctionName2, fontsize=14)
+            ylab = objectiveFunctionName2.capitalize()
+            plt.ylabel(ylab, fontsize=14)
 
         # Build a patch for each flowsheet → color
         patches = []
@@ -1536,7 +1539,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         ncols = 2
         nrows = math.ceil(n / ncols)
 
-        fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12, 8))
+        fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12, 10))
 
         # If there's more than one subplot, axs is a 2D array; flatten for easy indexing.
         # If there's only one subplot, make it a list of length 1.
@@ -1654,13 +1657,17 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
             ax.tick_params(axis='y', labelsize=10)
 
             if xLabel:
-                ax.set_xlabel(xLabel[idx], fontsize=12)
+                xlab = xLabel[idx].capitalize()
+                ax.set_xlabel(xlab, fontsize=14)
             else:
-                ax.set_xlabel(objectiveFunctionName1, fontsize=12)
+                xlab = objectiveFunctionName1.capitalize()
+                ax.set_xlabel(xlab, fontsize=14)
             if yLabel:
-                ax.set_ylabel(yLabel[idx], fontsize=12)
+                ylab = yLabel[idx].capitalize()
+                ax.set_ylabel(ylab, fontsize=14)
             else:
-                ax.set_ylabel(objectiveFunctionName2, fontsize=12)
+                ylab = objectiveFunctionName2.capitalize()
+                ax.set_ylabel(ylab, fontsize=14)
 
             # ---------------------------------------------------------------------
             # 3) Build legend for this subplot

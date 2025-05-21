@@ -2,7 +2,7 @@ import argparse
 # from PyQt5.QtWidgets import QApplication
 import sys
 import outdoor
-from outdoor.user_interface.main2 import main
+from outdoor.user_interface.interface_main import run_outdoor_interface
 
 
 if __name__ == "__main__":
@@ -11,4 +11,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = vars(args)
-    main(**kwargs)
+    run_outdoor_interface(**kwargs)

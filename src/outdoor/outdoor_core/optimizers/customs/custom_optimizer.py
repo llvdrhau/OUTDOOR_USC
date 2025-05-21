@@ -10,12 +10,8 @@ Created on Tue Jun 15 12:19:19 2021
 import copy
 import logging
 from concurrent.futures import ProcessPoolExecutor
-
-import mpisppy.utils.sputils as sputils
 import numpy as np
 import pyomo.environ as pyo
-from mpisppy.opt.ef import ExtensiveForm
-from mpisppy.opt.ph import PH
 from pyomo.environ import *
 from shapely.geometry import MultiPoint, Point
 import random
@@ -1574,6 +1570,9 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
         :param inputObject:
         :return: model_instance
         """
+        # takes long to load these modules, so only load them if needed
+        import mpisppy.utils.sputils as sputils
+        from mpisppy.opt.ef import ExtensiveForm
 
         # retrive the data file for all scenarios
         inputObject = self.inputObject
@@ -1633,6 +1632,9 @@ class StochasticRecourseOptimizer_mpi_sppy(SingleOptimizer):
         :param scenario_creator: a function which creates the model instance for a scenario
         :return: objective value, solution
         """
+        # takes long to load these modules, so only load them if needed
+        from mpisppy.opt.ph import PH
+
         allScenarioNames = list(inputObject.scenarioDataFiles.keys())
         self.inputObject = inputObject
 
