@@ -133,10 +133,10 @@ class ReactionsTab(QWidget):
         # the first column should not be editable
         if data.name != "":
             insert = QTableWidgetItem(data.name)
-            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the full_tomato_case_study black
         else:
             insert = QTableWidgetItem('None')
-            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the full_tomato_case_study black
             insert.setBackground(QColor(218, 222, 227))  # make the background color of the cell grey
         insert.setFlags(Qt.NoItemFlags)
         self.reactionTable.setItem(rowPosition, 0, insert)
@@ -145,7 +145,7 @@ class ReactionsTab(QWidget):
         # the second column should not be editable
         if data.reactionEquation != "":
             insert = QTableWidgetItem(data.reactionEquation)
-            insert.setForeground(QColor(0, 0, 0))  # make the font color of the test black
+            insert.setForeground(QColor(0, 0, 0))  # make the font color of the full_tomato_case_study black
         else:
             insert = QTableWidgetItem("No reaction defined")
             insert.setBackground(QColor(218, 222, 227))

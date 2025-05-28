@@ -146,7 +146,7 @@ class BasicModelAnalyzer:
             2,
         )
 
-        economic_results["Economic results"]["Heat integration share"] = round(
+        economic_results["Economic results"]["Heat supply/integration share"] = round(
             model_data.get("C_TOT", 0) / 1000 / total_costs * 100, 2
         )
 

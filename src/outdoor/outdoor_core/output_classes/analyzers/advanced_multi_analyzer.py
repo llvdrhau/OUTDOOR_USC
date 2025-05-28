@@ -1075,10 +1075,6 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         reset_color = "\033[0m"
         print(f"{orange_color}-------WARNING-------{reset_color}")
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.lines as mlines
-    from matplotlib.patches import Patch  # no longer needed for color squares, but left in case you use it elsewhere
 
     def plot_pareto_front_2(self, path, saveName, flowTreshold=1e-6, nProductLimit=None,
                           xLabel=None, yLabel=None, productExclusionList=None, productLabels=None):
@@ -1451,10 +1447,17 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         cmap = plt.cm.get_cmap('viridis')
         shapes = ['o', '^', 's', 'd']  # Example marker shapes
         unique_colors = set(norm_colors)  # Unique colors in norm_colors
+
+        # make x and y numpy arrays
+        x = np.array(x)
+        y = np.array(y)
+
+        # Loop through unique colors and plot each subset of points
         for i, color_index in enumerate(unique_colors):
             mask = (norm_colors == color_index)
             rgba_color = cmap(color_index)  # convert scalar to an RGBA tuple
-
+            print(x)
+            print(mask)
             plt.scatter(
                 x[mask],
                 y[mask],
@@ -1515,7 +1518,6 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
             savePath = f"{path}/pareto_front.png"
 
         # Save with bbox_inches='tight' to ensure legend is fully in the image
-        #plt.savefig(savePath)
         plt.savefig(savePath, bbox_inches='tight')
         # plt.show()  # Uncomment if you also want to display
 
