@@ -129,9 +129,15 @@ class LCADialog(QDialog):
         saveButton = QPushButton("Save Inventory", self)
         saveButton.clicked.connect(self.persistLCA)
         layout.addWidget(saveButton)
+
         calculateButton = QPushButton("Calculate LCA", self)
         calculateButton.clicked.connect(self.calculateLCA)
         layout.addWidget(calculateButton)
+        # for the time being, disable the calculate button.To account for LCA use the "Calculate all LCAs" in the
+        # superstructure menu
+        calculateButton.setEnabled(False)
+        # make the button gray
+        calculateButton.setStyleSheet("background-color: #cccccc; color: #666666;")
 
         self.loadInitialData()
 
@@ -239,6 +245,7 @@ class LCADialog(QDialog):
         except KeyError as e:
             self.logger.debug("No initial data.")
         self.logger.debug("LCA checksum is: " + self.lca_checksum)
+
     def persistLCA(self):
         try:
             exist = len([m for m in self.outd if m["code"] == self.dto.uid]) > 0
@@ -283,6 +290,9 @@ class LCADialog(QDialog):
                 ).save()
             act.save()
             self.logger.info("Inventory saved.")
+
+            # close the dialog
+            self.accept()
 
         except Exception as e:
             if type(e) is IndexError:

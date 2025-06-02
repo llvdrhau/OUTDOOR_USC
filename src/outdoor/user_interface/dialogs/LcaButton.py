@@ -13,7 +13,7 @@ class LcaButton(QPushButton):
         dialog = LCADialog(self.data)
         result = dialog.exec_()
 
-        if result == QDialog.Rejected:
+        if result == QDialog.Rejected or result == QDialog.Accepted:
             self.changeColorBnt()
 
     def changeColorBnt(self):

@@ -57,6 +57,7 @@ class PhysicalProcessesDialog(QDialog):
                                                        selection-background-color: #b0daff;
                                                    }
                                                """)
+        self.setWindowFlags(Qt.Window)
         self.centralDataManager = centralDataManager
         self.iconID = iconID
         self.UnitType = ProcessType.PHYSICAL

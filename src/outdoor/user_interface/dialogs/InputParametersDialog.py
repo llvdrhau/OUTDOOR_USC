@@ -55,6 +55,7 @@ class InputParametersDialog(QDialog):
                                     }
                                 """)
         self.setWindowTitle("Input Parameters")
+        self.setWindowFlags(Qt.Window)
         self.setGeometry(150, 150, 450, 350)  # Adjust size as needed
         self.centralDataManager = centralDataManager
         self.signalManager = signalManager
@@ -96,6 +97,9 @@ class InputParametersDialog(QDialog):
 
         # Components table
         self.componentsTable = QTableWidget(0, 2, self)  # Initial rows, 2 columns
+        # Set the column widths
+        self.componentsTable.setColumnWidth(0, 200)  # Component Name column
+        self.componentsTable.setColumnWidth(1, 200)  # Composition Fraction column
         self.componentsTable.setHorizontalHeaderLabels(["Component Name", "Composition Fraction"])
         self.componentsTable.setToolTip("Enter the composition of components in percentage.")  # Adding a tooltip
         self._addRowWithTooltip(layout=layout, labelText="Components:", widget=self.componentsTable,

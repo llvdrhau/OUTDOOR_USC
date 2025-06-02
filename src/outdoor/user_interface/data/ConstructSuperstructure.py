@@ -1,4 +1,5 @@
 import logging
+from PyQt5.QtWidgets import QMessageBox
 from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 from outdoor.outdoor_core.input_classes.unit_operations.library.pool import ProductPool
 from outdoor.outdoor_core.input_classes.unit_operations.library.source import Source
@@ -26,9 +27,11 @@ class ConstructSuperstructure:
         self.componentsList = []
 
         self.warningMessage = ''
+        self.errorMessage = ''
         # stop the code if the centralDataManager is empty
         if not self.centralDataManager.unitProcessData:
-            self.warningMessage = "The centralDataManager is empty, please fill in the data before running the simulation"
+            self.errorMessage = "No data found, please fill in the data before generating a superstructure object"
+            self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: No data found')
             return
 
         # set some default values
@@ -125,8 +128,11 @@ class ConstructSuperstructure:
                     errorTemp = 'Inlet Temperature'
                 else:
                     errorTemp = 'Outlet Temperature'
-                self.logger.error("{} for the Heat Pump is not set correctly \n"
-                                  "Defaulted to T_in = 0 and T_out = 0.".format(errorTemp))
+                self.errorMessage = ("No {} for the Heat Pump is given, "
+                                     "please fill in the desired temperature".format(errorTemp))
+                self._showErrorDialog(message=self.warningMessage, type='Critical',
+                                      title='Warning: Heat Pump Temperature Error')
+
             else:
                 T_IN = float(T_IN)
                 T_OUT = float(T_OUT)
@@ -537,15 +543,20 @@ class ConstructSuperstructure:
                 # if not, raise an error
                 for reactant in rxnDTO.reactants.keys():
                     if reactant not in self.componentsList:
-                        self.logger.error("Reactant {} is not in the chemical components list, "
-                                          "modify or delete reaction {}".format(reactant, rxnName))
-                        raise ValueError("Delete or modify reaction: '{}'".format(rxnName))
+                        errorMessage = ("Chemical -- '{}' -- is not in the chemical components list \n "
+                                        "Add the chemical to the list or modify/delete reaction -- '{}' --".format(reactant, rxnName))
+                        self.errorMessage = errorMessage
+                        self._showErrorDialog(message=errorMessage, type='Critical', title='Reaction Error')
 
                 for product in rxnDTO.products.keys():
                     if product not in self.componentsList:
-                        self.logger.error("Product {} is not in the chemical components list, "
-                                          "modify or delete reaction {}".format(product, rxnName))
-                        raise ValueError("Delete or modify reaction: '{}'".format(rxnName))
+                        # self.logger.error("Product {} is not in the chemical components list, "
+                        #                   "modify or delete reaction {}".format(product, rxnName))
+                        # raise ValueError("Delete or modify reaction: '{}'".format(rxnName))
+                        errorMessage = ("Chemical -- '{}' -- is not in the chemical components list \n"
+                                        "Add the chemical to the list or modify/delete reaction -- '{}' --".format(product, rxnName))
+                        self.errorMessage = errorMessage
+                        self._showErrorDialog(message=errorMessage, type='Critical', title='Reaction Error')
 
                 # if all reactions are OK carry on making the stoichiometry dictionary
                 for reactants, stoi in rxnDTO.reactants.items():
@@ -740,3 +751,22 @@ class ConstructSuperstructure:
 
     def get_superstructure(self):
         return self.superstructureObject
+
+    def _showErrorDialog(self, message, type='Critical', title='Error'):
+        """
+        Show an error dialog with the message provided.
+        :param message: Message to show in the dialog
+        """
+        baseErrorMessage = "Error creating the superstructure object: \n"
+
+        errorDialog = QMessageBox()
+        if type == 'Critical':
+            errorDialog.setIcon(QMessageBox.Critical)
+        elif type == 'Warning':
+            errorDialog.setIcon(QMessageBox.Warning)
+        else:
+            errorDialog.setIcon(QMessageBox.Information)
+
+        errorDialog.setWindowTitle(title)
+        errorDialog.setText(baseErrorMessage + message)
+        errorDialog.exec_()

@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QHBoxLayout, QMessageBox, QComboBox
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
+from PyQt5.QtCore import Qt
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 
 class OutputParametersDialog(QDialog):
@@ -18,7 +19,6 @@ class OutputParametersDialog(QDialog):
         # set the centralDataManager
         self.centralDataManager = centralDataManager
         self.signalManager = signalManager
-
         # set style
         self.setStyleSheet("""
                                             QDialog {
@@ -56,7 +56,7 @@ class OutputParametersDialog(QDialog):
                                                 selection-background-color: #b0daff;
                                             }
                                         """)
-
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Output Parameters")
         self.setGeometry(100, 100, 400, 300)  # Adjust size as needed
 

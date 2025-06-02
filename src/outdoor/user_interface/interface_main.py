@@ -289,8 +289,11 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
 
         constructorSuperstructure = ConstructSuperstructure(self.centralDataManager)
         if constructorSuperstructure.warningMessage:
-            self.logger.error(constructorSuperstructure.warningMessage)
-            return # if there is a warning, do not proceed with the superstructure generation
+            self.logger.error("please be mindful of the following warning Message: {}".format(constructorSuperstructure.warningMessage))
+        elif constructorSuperstructure.errorMessage:
+            self.logger.error("You must fix the issues from the pop-ups before you can save the superstructure object")
+            return
+
 
         superstructure = constructorSuperstructure.get_superstructure()
 
@@ -308,7 +311,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return:
         """
         calculator = LCACalculationMachine(self.centralDataManager)
-        calculator.calculateAllLCAs(True)
+        calculator.calculateAllLCAs(False)
 
         self.update()
 

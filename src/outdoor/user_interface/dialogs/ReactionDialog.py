@@ -366,8 +366,9 @@ class ReactionDialog(QDialog):
 
         match errorType:
             case "Stoich_critical":
-                label = QLabel("<b>The sum of the stoichiometry of products Exceeds the stoichimotery of the inputs!, "
-                               "please check that the mass is balanced correctly</b>")
+                label = QLabel("<b>The sum of the mass stoichiometry of products exceeds the stoichiometry of the reactants!\n "
+                               "This reaction is not balanced. The mass balance will not close” </b>")
+
             case "Stoich_non_critical":
                 label = QLabel("<b>The sum of the stoichiometry of products and reactants is not equal, "
                                "This will not lead to errors but do be carefull could lead to unexpected results, "
