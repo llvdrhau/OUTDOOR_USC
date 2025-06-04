@@ -798,7 +798,7 @@ class PhysicalProcessesDialog(QDialog):
                                 tooltipText=tooltipText)
 
         # create subtitel
-        self._createSectionTitle(text="Reference Flow 1", layout=layout)
+        self._createSectionTitle(text="Mixing Table: Reference Flow 1", layout=layout)
         # Create drop down menu for the reference flow1
         self.referenceFlow1Concentration = createReferenceFlowTypeComboBox("referenceFlow1Concentration")
         tooltipText = """The reference flow type is the type of flow that is used to calculate the concentration of
@@ -844,12 +844,12 @@ class PhysicalProcessesDialog(QDialog):
         textToolTip = ("Add component: adds a drop down menu with all possible chemicals. \n"
                        "Add From Inputs: adds a dropdown menu with components exclusively from the inputs blocks.\n"
                        "Add From Units: dds a dropdown menu with components exclusively from the unit process blocks, .")
-        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText='Creates are drop down menu with all the chemicals from the inputs and units blocks, so you can add them to the table.')
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText=textToolTip)
 
 
         # ---------------  Reference flow 2 -------------------
         # create subtitel flow2
-        self._createSectionTitle(text="Reference Flow 2", layout=layout)
+        self._createSectionTitle(text="Mixing Table: Reference Flow 2", layout=layout)
         # Create drop down menu for the reference flow2
         self.referenceFlow2Concentration = createReferenceFlowTypeComboBox("referenceFlow2Concentration")
         tooltipText = """The reference flow type is the type of flow that is used to calculate the concentration of
@@ -1331,9 +1331,9 @@ class PhysicalProcessesDialog(QDialog):
         inputComponentsUnique = set(chemicals)  # Convert to set to remove duplicates
         inputComponents = list(inputComponentsUnique)  # Convert back to list
 
-        # small error wanring if your connected to an input block but no chemicals are defined in that input block
+        # small error warning if your connected to an input block but no chemicals are defined in that input block
         if not chemicals and showErrorDialog:
-            self._showErrorDialog("No chemicals found from the input block(s) \n. "
+            self._showErrorDialog("No chemicals found from the input block(s). \n "
                                   "Please make sure that the Input composition is characterised.")
             return []
 
@@ -1359,7 +1359,7 @@ class PhysicalProcessesDialog(QDialog):
                 # the chemicals are not found in the incoming stream because their is no fraction of the chemicals
                 # going trough the stream
                 if not inFlowingChemicals:
-                    self._showErrorDialog("No chemicals found in stream {} of unit {} \n. "
+                    self._showErrorDialog("No chemicals found in stream {} of unit {}. \n"
                                           "Please make sure that the flow of the stream is defined in the tab "
                                           "'separation'".format(streamNumber, InflowingUnitDTO.name))
                     return []
@@ -1367,7 +1367,7 @@ class PhysicalProcessesDialog(QDialog):
         # if there are no chemicals add at this point raise a warning box to the user stating that the unit is not
         # connected yet and no chemicals can be found
         if not chemicals and showErrorDialog:
-            self._showErrorDialog("No chemicals found in the incoming streams \n. "
+            self._showErrorDialog("No chemicals found entering from other units. \n "
                                   "Please make sure that the unit is connected to other units.")
             return []
 
@@ -1989,7 +1989,8 @@ class PhysicalProcessesDialog(QDialog):
             textWidget = widget.currentText() # get the text from the widget
 
         else:
-            raise ValueError("The widget type is not supported")
+            self.logger.error("The widget type {} is not supported".format(widget.__class__.__name__))
+            return None
 
         match type:
             case "float":
@@ -2006,6 +2007,9 @@ class PhysicalProcessesDialog(QDialog):
 
             case "str":
                 return str(textWidget)
+
+            case _:
+                self.logger.error("could not retrieve the data from the widget in methode _getWidgetData")
 
     def saveData(self, type:ProcessType):
         """
@@ -2047,9 +2051,11 @@ class PhysicalProcessesDialog(QDialog):
         1) the name is not empty
         2) the temperatures (the first pair) are not empty
         3) the sum of fractions is not larger than 1 for the separation efficiency
+        4) the mixing ratios make sense
 
         :return:
         """
+
         # check if the name is not empty
         if dialogData["Name"] == "":
             errorMessage = "The name of the unit process is not set"
@@ -2060,6 +2066,12 @@ class PhysicalProcessesDialog(QDialog):
         if not dialogData["TemperatureIn1"]  or not dialogData["TemperatureOut1"]:
             errorMessage = "Make sure the Inlet and Outlet temperatures of the unit process are set!"
             self._showErrorDialog(errorMessage)
+            return True
+
+        # check the mixing ratios
+        errorMessageMixing, status = self._checkMixingRatios()
+        if errorMessageMixing:
+            self._showErrorDialog(message=errorMessageMixing, type=status)
             return True
 
         # check if the seperation is defined, otherwise raise an error
@@ -2101,6 +2113,7 @@ class PhysicalProcessesDialog(QDialog):
         errorDialog.setWindowTitle("Error")
         errorDialog.exec_()
 
+
     def _checkSumOfSeparationFractions(self):
         """
         Check if the sum of the separation fractions is larger than 1. check the flag parameter
@@ -2120,3 +2133,116 @@ class PhysicalProcessesDialog(QDialog):
         else:
             return False, errorMessage
 
+
+    def _checkMixingRatios(self):
+        """
+        Checks if the mixing ratios are set correctly.
+        1) Mixing components that are not even in the entering streams
+        :return:
+        """
+        errorMessage = ""
+
+        # get components in the entering streams
+        incomingChemicals = (self._findComponentsFromInputs(showErrorDialog=False) +
+                             self._findComponentsFromUnits(showErrorDialog=False))
+
+        # get what is currently in the mixing tables
+        componentsTable1 = self._collectTableData(self.componentsTableConcentration1)
+        componentsTable2 = self._collectTableData(self.componentsTableConcentration2)
+        if (componentsTable1 and not componentsTable2) or (not componentsTable1 and componentsTable2):
+            errorMessage = "Both mixing tables must be filled or both must be empty."
+            return errorMessage, "Critical"  # first value error message second the type of error (Critical or Warning)
+
+        if (componentsTable1 == componentsTable2) and len(componentsTable1) > 0: # tables are identical and not empty
+            errorMessage = "The mixing tables are identical. No mixing is occurring! Please check the compounds."
+            return errorMessage, "Critical" # first value error message second the type of error (Critical or Warning)
+
+        # get the concentration factor
+        mixingCoef = self._getWidgetData(self.concentrationFactor, "float", returnAlternative=0)
+
+        if componentsTable1 and componentsTable2 and mixingCoef == 0:
+            errorMessage = ('No Mixing Coefficient is set. \n'
+                            'Please set a Mixing Coefficient')
+            return errorMessage, "Critical" # first value error message second the type of error (Critical or Warning)
+
+        if not componentsTable1 and not componentsTable2 and mixingCoef != 0:
+            errorMessage = ('Mixing Coefficient given but No Mixing Components are set. \n'
+                            'Please set Mixing Components in the Mixing Tables')
+            return errorMessage, "Critical" # first value error message second the type of error (Critical or Warning)
+
+        # combine the two tables into one list
+        allMixingComponents = componentsTable1 + componentsTable2
+
+        # check if each chemical in mixingComponents is in incomingChemicals
+        for component in allMixingComponents:
+            if component not in incomingChemicals:
+                errorMessage = f"The component '{component}' is not in the entering streams of the unit process."
+                return errorMessage, "Critical" # first value error message second the type of error (Critical or Warning)
+
+        # FIXME: need to find a better way to implemnet this error check
+        # # need to check if the components do not only come from the same stream, loop over each unit sending chemicals
+        # # to the current unit and check if the components are not exclusively from the same stream
+        # currentUnit = self.centralDataManager.unitProcessData[self.iconID]
+        #
+        # # get chemicals coming from the sending unit, if it is connected
+        # idsInflowingInputs = unitDTO.inputFlows
+        # idsInflowingUnits = unitDTO.incomingUnitFlows
+        # allInflowIDs = idsInflowingInputs + idsInflowingUnits
+        #
+        # tableCount = len(allMixingComponents)
+        # componentCounterDict = {}
+        # problematicIncomingChemicals = {}
+        #
+        # for id in allInflowIDs:
+        #     DTO = self.centralDataManager.unitProcessData[id]
+        #     if DTO.type == ProcessType.INPUT:
+        #         outgoingChemicals = DTO.outgoingChemicals  # get the chemicals from the input flow
+        #     else:
+        #         outgoingChemicals = self._getOutgoingChemicalsFromStream(currentDTO=currentUnit, targetID=id)
+        #     # check if the components in the mixing tables are not only from this input flow
+        #     counter = 0
+        #     for outChem in outgoingChemicals:
+        #         # add to counter dictionary to count the components
+        #         if outChem not in componentCounterDict:
+        #             componentCounterDict[outChem] = 1
+        #         else:
+        #             componentCounterDict[outChem] += 1
+        #
+        #         if outChem in allMixingComponents:
+        #             counter += 1
+        #
+        #     if counter == tableCount:
+        #         problematicIncomingChemicals[id] = outgoingChemicals
+        #
+        # multipleOccurrenceList = []
+        # for id, chem in problematicIncomingChemicals.items():
+        #     if componentCounterDict[chem] > 1:
+        #         multipleOccurrenceList.append(chem)
+        #
+        # if not multipleOccurrenceList:
+        #     errorMessage = f"The components in the mixing table are only from one Unit: '{id}' " \
+        #
+        #         # errorMessage = f"The components in the mixing table are only from the input flow '{inputDTO.name}' " \
+        #         #                f"and not from other input flows. Please check the mixing ratios."
+        #         # return errorMessage, "Critical"
+
+        return errorMessage, "" # if no error is found return an empty string
+
+
+    def _getOutgoingChemicalsFromStream(self, currentDTO, targetID):
+        """
+
+        :param self:
+        :param unitDTO:
+        :return:
+        """
+
+        # get chemicals coming from the sending unit, if it is connected
+        idsInflowingUnits = currentDTO.incomingUnitFlows
+        streamNr = idsInflowingUnits[targetID]
+        InflowingUnitDTO = self.centralDataManager.unitProcessData[targetID]
+        inFlowingChemicals = InflowingUnitDTO.getOutgoingChemicals(streamNr)
+
+
+
+        return inFlowingChemicals
