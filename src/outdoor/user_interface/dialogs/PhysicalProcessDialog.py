@@ -1,4 +1,5 @@
 import os
+import logging
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QFont, QCursor, QIntValidator, QPixmap, QColor
@@ -19,6 +20,8 @@ class PhysicalProcessesDialog(QDialog):
 
     def __init__(self, initialData, centralDataManager:CentralDataManager, iconID):
         super().__init__()
+        self.logger = logging.getLogger(__name__)
+
         # Set style (existing style setup is fine and will be applied)
         # set style
         self.setStyleSheet("""
@@ -84,7 +87,7 @@ class PhysicalProcessesDialog(QDialog):
         if calc_types['Heating'] == 'True':
             tabWidget.addTab(self._createHeatingConsumptionTab(), "Heating Requirements")
         if calc_types['Concentration'] == 'True':
-            tabWidget.addTab(self._createConcentrationTab(), "Concentration Factors")
+            tabWidget.addTab(self._createConcentrationTab(), "Mixing Coefficients")
 
         # todo, ask Mias to add this to the config file! I don't know how to do it
         # @ Mias, please add this to the config files
@@ -761,22 +764,37 @@ class PhysicalProcessesDialog(QDialog):
         layout = QFormLayout()
 
         # Create a title for the tab
-        self._createSectionTitle(text="Concentration Factors", layout=layout)
+        self._createSectionTitle(text="Mixing Coefficient", layout=layout)
 
         # create me a text box where I can explain what this tab does
         self.concentrationFactorDescription = QLabel(self)
-        self.concentrationFactorDescription.setText("The concentration factor is the ratio of the mass of FLOW1 to "
+        self.concentrationFactorDescription.setText("The mixing coefficient is the ratio of the mass of FLOW1 to "
                                                     "the mass of FLOW2: "
-                                                    "\n FLOW1 (t/h) = Concentration Factor (-) * FLOW2 (t/h) ")
+                                                    "\n FLOW1 (t/h) = mixing coefficient (-) * FLOW2 (t/h) ")
         layout.addRow(self.concentrationFactorDescription)
 
+        # Add a figure underneath called mixing_figure.png
+        self.mixingFigureLabel = QLabel(self)
+        # Use os.path to handle path differences across systems
+        imagePath = os.path.join(os.path.dirname(__file__), "figures", "mixing_figure.png")
+        pixmap = QPixmap(imagePath)
+        if pixmap.isNull():
+            self.mixingFigureLabel.setText("Image not found: mixing_figure.png")
+        else:
+            # Scale the image to fit the dialog width while maintaining aspect ratio
+            pixmap = pixmap.scaledToWidth(400, Qt.SmoothTransformation)
+            self.mixingFigureLabel.setPixmap(pixmap)
+            self.mixingFigureLabel.setAlignment(Qt.AlignCenter)
+        layout.addRow(self.mixingFigureLabel)
+
+        # the concentration factor OR better called the Mixing ratio/coefficient
         self.concentrationFactor = QLineEdit(self)
         self.concentrationFactor.setText("0.00")
         self.concentrationFactor.setValidator(QDoubleValidator(0.00, 999999.99, 6))
         self.concentrationFactor.setObjectName("concentrationFactor")
-        tooltipText = """ The concentration factor is the ratio of the mass of FLOW1 to the mass of FLOW2,
+        tooltipText = """ The Mixing Coefficient is the ratio of the mass of FLOW1 to the mass of FLOW2,
                         specified underneath."""
-        self._addRowWithTooltip(layout, labelText="Concentration Factor:", widget=self.concentrationFactor,
+        self._addRowWithTooltip(layout, labelText="Mixing Coefficient: ", widget=self.concentrationFactor,
                                 tooltipText=tooltipText)
 
         # create subtitel
@@ -793,24 +811,43 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableConcentration1.setColumnWidth(0, 200)  # make column 1 wider
         #  add the tabel to the widget
         tooltipText = """The chemicals species selected for flow1, sum(species) = FLOW1."""
-        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableConcentration1,
-                                # add same table to the layout
+        self._addRowWithTooltip(layout, labelText="Components:", widget=self.componentsTableConcentration1, # add same table to the layout
                                 tooltipText=tooltipText)
         self.componentsTableConcentration1.setSelectionBehavior(QTableWidget.SelectRows)  # Row selection
         self.componentsTableConcentration1.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTableConcentration1.setObjectName("componentsTableConcentration1")
 
-        # Add a row to tabel button
+        # start a hLayout
+        hlayout = QHBoxLayout()
+
+        # Add component button
         self.addRowButtonConcentration1 = QPushButton("Add Component", self)
         self.addRowButtonConcentration1.clicked.connect(self._addRowToTable)
-
         # set object name
         self.addRowButtonConcentration1.setObjectName("addRowButtonConcentration1")
-        layout.addWidget(self.addRowButtonConcentration1)
 
-        # Initialize the table with an example row (optional)
-        # self._addRowToTable(tabName="concentration1")
+        # Add components from input blocks button
+        self.addFindChemicalsInputRef1 = QPushButton("Add From Inputs", self)
+        self.addFindChemicalsInputRef1.clicked.connect(self._addRowToTable)
+        self.addFindChemicalsInputRef1.setObjectName("buttonComponentsInputs1")
 
+        # Add components from unit blocks
+        self.addFindChemicalsUnitsRef1 = QPushButton("Add From Units", self)
+        self.addFindChemicalsUnitsRef1.clicked.connect(self._addRowToTable)
+        self.addFindChemicalsUnitsRef1.setObjectName("buttonComponentsUnits1")
+
+        hlayout.addWidget(self.addRowButtonConcentration1)
+        hlayout.addWidget(self.addFindChemicalsInputRef1)
+        hlayout.addWidget(self.addFindChemicalsUnitsRef1)
+
+        # add the hlayout to the layout
+        textToolTip = ("Add component: adds a drop down menu with all possible chemicals. \n"
+                       "Add From Inputs: adds a dropdown menu with components exclusively from the inputs blocks.\n"
+                       "Add From Units: dds a dropdown menu with components exclusively from the unit process blocks, .")
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout, tooltipText='Creates are drop down menu with all the chemicals from the inputs and units blocks, so you can add them to the table.')
+
+
+        # ---------------  Reference flow 2 -------------------
         # create subtitel flow2
         self._createSectionTitle(text="Reference Flow 2", layout=layout)
         # Create drop down menu for the reference flow2
@@ -832,14 +869,35 @@ class PhysicalProcessesDialog(QDialog):
         self.componentsTableConcentration2.setSelectionMode(QTableWidget.SingleSelection)  # Single row at a time
         self.componentsTableConcentration2.setObjectName("componentsTableConcentration2")
 
+        # start a hLayout
+        hlayout = QHBoxLayout()
+
         # add row button
         self.addRowButtonConcentration2 = QPushButton("Add Component", self)
         self.addRowButtonConcentration2.clicked.connect(self._addRowToTable)
         # set object name
         self.addRowButtonConcentration2.setObjectName("addRowButtonConcentration2")
-        layout.addWidget(self.addRowButtonConcentration2)
-        # Initialize the table with an example row (optional)
-        # self._addRowToTable(tabName="concentration2")
+
+        # Add components from input blocks button
+        self.addFindChemicalsInputRef2 = QPushButton("Add From Inputs", self)
+        self.addFindChemicalsInputRef2.clicked.connect(self._addRowToTable)
+        self.addFindChemicalsInputRef2.setObjectName("buttonComponentsInputs2")
+        # Add components from unit blocks
+        self.addFindChemicalsUnitsRef2 = QPushButton("Add From Units", self)
+        self.addFindChemicalsUnitsRef2.clicked.connect(self._addRowToTable)
+        self.addFindChemicalsUnitsRef2.setObjectName("buttonComponentsUnits2")
+
+        # add the buttons to the horizontal layout
+        hlayout.addWidget(self.addRowButtonConcentration2)
+        hlayout.addWidget(self.addFindChemicalsInputRef2)
+        hlayout.addWidget(self.addFindChemicalsUnitsRef2)
+
+        # add the hlayout to the layout
+        textToolTip = ("Add component: adds a drop down menu with all possible chemicals. \n"
+                       "Add From Inputs: adds a dropdown menu with components exclusively from the inputs blocks.\n"
+                       "Add From Units: dds a dropdown menu with components exclusively from the unit process blocks, .")
+        self._addRowWithTooltip(layout, labelText="", widget=hlayout,
+                                tooltipText='Creates are drop down menu with all the chemicals from the inputs and units blocks, so you can add them to the table.')
 
         # return the widget
         widget.setLayout(layout)
@@ -1154,7 +1212,26 @@ class PhysicalProcessesDialog(QDialog):
 
         table, senderName = self._findTable(tabName)
 
-        # Get the current row count and insert a new row at the end
+        # get the right list of components based on the senderName
+        if senderName in ["buttonComponentsInputs1", "buttonComponentsInputs2"]:
+            chemicalNames = self._findComponentsFromInputs()
+            if not chemicalNames:
+                return  # if no chemicals are found, return
+
+        elif senderName in ["buttonComponentsUnits1", "buttonComponentsUnits2"]:
+            chemicalNames = self._findComponentsFromUnits()
+            if not chemicalNames:
+                return
+
+        else:
+            chemicalNames = self.centralDataManager.getChemicalComponentNames()
+            if not chemicalNames:
+                self._showErrorDialog("No chemicals found in the database.\n"
+                                      "Please make sure that the chemicals are defined in the tab components.")
+                return
+
+        # Get the current row count and insert a new row at the end, if no wanrings appear when collecting the chemical
+        # list
         rowPosition = table.rowCount()
         table.insertRow(rowPosition)
 
@@ -1183,7 +1260,6 @@ class PhysicalProcessesDialog(QDialog):
             self._updateTableColumns()
 
         self.comboBoxComponents = NonFocusableComboBox()
-        chemicalNames = self.centralDataManager.getChemicalComponentNames()
         self.comboBoxComponents.addItems(chemicalNames)
         self.comboBoxComponents.setObjectName(f"comboBoxComponents_{rowPosition}")
 
@@ -1201,53 +1277,29 @@ class PhysicalProcessesDialog(QDialog):
 
     def _addFoundComponents(self):
         """
-        Add incoming components to the components table
-        :return:
+        Add incoming components from input blocks and other incoming unit processes to the components table
+        :return: a list of chemicals to add to a table O
         """
-        # get the DTO of the current unit
-        unitDTO = self.centralDataManager.unitProcessData[self.iconID]
-        chemicals = []
 
-        # first check if there is any inputs flows entering the current unit
-        inputFlows = unitDTO.inputFlows
-        for id in inputFlows:
-            inputDTO = self.centralDataManager.unitProcessData[id]
-            chemicals += inputDTO.outgoingChemicals  # get the chemicals from the input flow
+        componentsFromInputs = self._findComponentsFromInputs(showErrorDialog=False)
+        componentsFromUnits = self._findComponentsFromUnits(showErrorDialog=False)
 
-            # small error wanring if your connected to an input block but no chemicals are defined in that input block
-            if not chemicals:
-                self._showErrorDialog("No chemicals found from the input block(s) \n. "
-                                      "Please make sure that the Input composition is characterised.")
-                return
-
-        # get chemicals coming from the sending unit, if it is connected
-        idsInflowingUnits = unitDTO.incomingUnitFlows
-        if idsInflowingUnits:
-            for id, streamNumber in idsInflowingUnits.items(): # THIS IS A DICT idsInflowingUnits
-                #  figure out where we can find the streams number
-                InflowingUnitDTO = self.centralDataManager.unitProcessData[id]
-                inFlowingChemicals = InflowingUnitDTO.getOutgoingChemicals(streamNumber)
-                chemicals += inFlowingChemicals
-                # the chemicals are not found in the incoming stream because their is no fraction of the chemicals
-                # going trough the stream
-                if not inFlowingChemicals:
-                    self._showErrorDialog("No chemicals found in stream {} of unit {} \n. "
-                                          "Please make sure that the flow of the stream is defined in the tab "
-                                          "'separation'".format(streamNumber, InflowingUnitDTO.name))
-                    return
-
-        # if there are no chemicals add at this point raise a warning box to the user stating that the unit is not
-        # connected yet and no chemicals can be found
-        if not chemicals:
-            self._showErrorDialog( "No chemicals found in the incoming streams \n. "
-                                                       "Please make sure that the unit is connected to other units.")
+        if not componentsFromInputs and not componentsFromUnits:
+            self._showErrorDialog("No chemicals found in the input blocks or incoming unit processes.\n"
+                                  "Please make sure that the Input composition is characterised and that the unit "
+                                  "is connected to other units.")
             return
 
+        # make a list of unique chemicals from the unit processes
+        allComponentsUnique = set(componentsFromInputs + componentsFromUnits) # Convert to set to remove duplicates
+        allComponents = list(allComponentsUnique)  # Convert back to list
+
+        # add to the desired table
         table, _ = self._findTable()
         chemicalsFromTable = self._collectTableData(table)
 
         # Remove the chemicals that are already in the filledInChemicals using set difference
-        chemicalsSet = set(chemicals)  # Convert to set for efficient lookup, also removes duplicates
+        chemicalsSet = set(allComponents)  # Convert to set for efficient lookup, also removes duplicates
         chemicalsFromTableSet = set(chemicalsFromTable)  # Convert table data to set
 
         # Perform set difference to find chemicals that are not in chemicalsFromTable
@@ -1258,8 +1310,80 @@ class PhysicalProcessesDialog(QDialog):
             for component in chemicals:
                 self._addRowToTable(componentName=component)
 
-    def _findTable(self, tabName:str = ""):
 
+    def _findComponentsFromInputs(self, showErrorDialog=True):
+        """
+        Finds components flowing into the current unit from the inputs blocks.
+        This method is used when the user clicks on the "Add From Inputs" button.
+        """
+
+        unitDTO = self.centralDataManager.unitProcessData[self.iconID]
+        chemicals = []  # Initialize an empty list to store chemicals
+
+        # check if there is any inputs flows entering the current unit
+        inputFlows = unitDTO.inputFlows
+
+        for id in inputFlows:
+            inputDTO = self.centralDataManager.unitProcessData[id]
+            chemicals += inputDTO.outgoingChemicals  # get the chemicals from the input flow
+
+        # make a list of unique chemicals from the input flows
+        inputComponentsUnique = set(chemicals)  # Convert to set to remove duplicates
+        inputComponents = list(inputComponentsUnique)  # Convert back to list
+
+        # small error wanring if your connected to an input block but no chemicals are defined in that input block
+        if not chemicals and showErrorDialog:
+            self._showErrorDialog("No chemicals found from the input block(s) \n. "
+                                  "Please make sure that the Input composition is characterised.")
+            return []
+
+        return inputComponents
+
+    def _findComponentsFromUnits(self, showErrorDialog=True):
+        """
+        Find components from the unit processes entering the current unit process.
+        This method is used when the user clicks on the "Add From Units" button.
+        """
+
+        unitDTO = self.centralDataManager.unitProcessData[self.iconID]
+        chemicals = []  # Initialize an empty list to store chemicals
+
+        # get chemicals coming from the sending unit, if it is connected
+        idsInflowingUnits = unitDTO.incomingUnitFlows
+        if idsInflowingUnits:
+            for id, streamNumber in idsInflowingUnits.items():  # THIS IS A DICT idsInflowingUnits
+                #  figure out where we can find the streams number
+                InflowingUnitDTO = self.centralDataManager.unitProcessData[id]
+                inFlowingChemicals = InflowingUnitDTO.getOutgoingChemicals(streamNumber)
+                chemicals += inFlowingChemicals
+                # the chemicals are not found in the incoming stream because their is no fraction of the chemicals
+                # going trough the stream
+                if not inFlowingChemicals:
+                    self._showErrorDialog("No chemicals found in stream {} of unit {} \n. "
+                                          "Please make sure that the flow of the stream is defined in the tab "
+                                          "'separation'".format(streamNumber, InflowingUnitDTO.name))
+                    return []
+
+        # if there are no chemicals add at this point raise a warning box to the user stating that the unit is not
+        # connected yet and no chemicals can be found
+        if not chemicals and showErrorDialog:
+            self._showErrorDialog("No chemicals found in the incoming streams \n. "
+                                  "Please make sure that the unit is connected to other units.")
+            return []
+
+        # make a list of unique chemicals from the unit processes
+        unitComponentsUnique = set(chemicals)
+        unitComponents = list(unitComponentsUnique)  # Convert back to list
+
+        return unitComponents
+
+    def _findTable(self, tabName:str = ""):
+        """
+        Selects the correct table based on the tab name or the sender's object name.
+
+        :param tabName:
+        :return:
+        """
         try:
             senderName = self.sender().objectName()
         except AttributeError:
@@ -1281,10 +1405,10 @@ class PhysicalProcessesDialog(QDialog):
         elif tabName == "chilling" or senderName == "addRowButtonChilling":
             # print('the add row button chilling is clicked')
             table = self.componentsTableChilling
-        elif tabName == "concentration1" or senderName == "addRowButtonConcentration1":
+        elif tabName == "concentration1" or senderName in ["addRowButtonConcentration1", "buttonComponentsInputs1","buttonComponentsUnits1"]:
             # print('the add row button concentration1 is clicked')
             table = self.componentsTableConcentration1
-        elif tabName == "concentration2" or senderName == "addRowButtonConcentration2":
+        elif tabName == "concentration2" or senderName in ["addRowButtonConcentration2", "buttonComponentsInputs2","buttonComponentsUnits2"]:
             # print('the add row button concentration2 is clicked')
             table = self.componentsTableConcentration2
         elif tabName == "reactantsTable" or senderName == "addRowButtonReactantsTable":
@@ -1310,7 +1434,6 @@ class PhysicalProcessesDialog(QDialog):
         except AttributeError:
             senderName = None  # or any default value indicating the objectName is not accessible
 
-
         if senderName == "addRowButton":
             # get the value of the dropdown menu
             referenceFlow = self.referenceFlowType.currentText()
@@ -1335,6 +1458,7 @@ class PhysicalProcessesDialog(QDialog):
             referenceFlow = "Exiting"
 
         return referenceFlow
+
     def _componentSelectionSwitch(self, type):
         """ Only fill in the component and product load if the reference flow type is mass flow"""
         if type == "Cost":
@@ -1361,8 +1485,6 @@ class PhysicalProcessesDialog(QDialog):
                                                    background-color: #78d;
                                                }
                                            """)
-
-
 
             else:
                 # If a mass flow is not selected, make the button to add components unclickable

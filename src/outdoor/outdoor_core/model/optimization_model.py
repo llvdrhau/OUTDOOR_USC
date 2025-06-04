@@ -1149,17 +1149,17 @@ class SuperstructureModel(AbstractModel):
 
         self.Xap = Constraint(rule=Cap)
 
-        # reoccuring costs of equipment
+        # reoccurring costs of equipment
         # --------------------------------
         def CapexEquation_11_rule(self, u):
             return self.TO_CAPEX[u] == self.to_acc[u] * self.EC[u]
 
         def CapexEquation_12_rule(self):
             return self.TO_CAPEX_TOT == sum(self.TO_CAPEX[u] for u in self.U_C)
-        # --------------------------------
 
-        # the three equations below are for the HEN CAPITAL COSTS (CAPEX)
-        # not realted to the operating costs of HEN, COSTHEX IN k€ !!!! /1000 to get into M€
+        # --------------------------------
+        # The three equations below are for the Heat Exchange (HEN) CAPITAL COSTS (CAPEX)
+        # not related to the operating costs of HEN, COST-HEN IN k€ !!!! /1000 to get into M€
         # --------------------------------------------------------------------
         def HEN_CostBalance_4_rule(self, hi):
             return self.HENCOST[hi] <= 13.459 * self.ENERGY_EXCHANGE[

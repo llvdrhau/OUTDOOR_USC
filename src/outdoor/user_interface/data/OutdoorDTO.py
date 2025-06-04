@@ -5,7 +5,7 @@ class OutdoorDTO(object):
     name: str
     uid: str
     LCA: dict
-    calculated: bool
+    calculated: bool # to change the color of the button in the GUI
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
