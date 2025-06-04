@@ -88,8 +88,8 @@ class UtilityTab(QWidget):
         # self.utilitiesTable.setMaximumHeight(150)  #This is where the problem is when you wanna add new things
 
         self.temperatureTable = QTableWidget()
-        self.temperatureColumns = ["Type", "Temperature °(C)", "Cost (€/MWh)", "LCA"]
-        self.tshortNames = ["name", "temp", "cost", "LCA"]
+        self.temperatureColumns = ["Type", "Temperature °(C)", "Cost (€/MWh)"] # leave "LCA" out for now
+        self.tshortNames = ["name", "temp", "cost",] # add "LCA a a later moment is appropriate"
 
         self.temperatureTable.setColumnCount(len(self.tshortNames))
         self.temperatureTable.setHorizontalHeaderLabels(self.temperatureColumns)
@@ -194,19 +194,21 @@ class UtilityTab(QWidget):
             if key in self.tshortNames:
                 index = self.tshortNames.index(key)
                 if key == "LCA":
-                    if len(value['exchanges']) > 0:
-                        btn = LcaButton(self.temperatureTable, data)
-                        btn.setText("Defined")
-                        btn.clicked.connect(btn.lcaAction)
-                        btn.changeColorBnt()
-                        self.temperatureTable.setCellWidget(rowPosition, index, btn)
-                        logging.debug(f"{rowPosition} - {index} - {key}")
-                    else:
-                        btn = LcaButton(self.temperatureTable, data)
-                        btn.setText("Not Defined")
-                        btn.clicked.connect(btn.lcaAction)
-                        btn.changeColorBnt()
-                        self.temperatureTable.setCellWidget(rowPosition, index, btn)
+                    pass
+                    # disable for the time being! not relavent yet!
+                    # if len(value['exchanges']) > 0:
+                    #     btn = LcaButton(self.temperatureTable, data)
+                    #     btn.setText("Defined")
+                    #     btn.clicked.connect(btn.lcaAction)
+                    #     btn.changeColorBnt()
+                    #     self.temperatureTable.setCellWidget(rowPosition, index, btn)
+                    #     logging.debug(f"{rowPosition} - {index} - {key}")
+                    # else:
+                    #     btn = LcaButton(self.temperatureTable, data)
+                    #     btn.setText("Not Defined")
+                    #     btn.clicked.connect(btn.lcaAction)
+                    #     btn.changeColorBnt()
+                    #     self.temperatureTable.setCellWidget(rowPosition, index, btn)
 
                 else:
                     insert = QTableWidgetItem(str(value))
