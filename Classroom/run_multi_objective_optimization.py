@@ -8,7 +8,7 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 current_path = os.getcwd()
 
 # add the relevant file name to the current working directory
-path = os.path.join(current_path, "Tomato_pomace_solution_superstructure.pkl")
+path = os.path.join(current_path, "Tomato_pomace_solution_LCA_superstructure.pkl")
 
 # open the file and load the superstructure object
 with open(path, 'rb') as file:
