@@ -69,10 +69,11 @@ class LCADialog(QDialog):
         self.lca_checksum = ""
         # TODO: Better initialization and handling of BW integration.
         # TODO: I saw this todo literally months later and it's become a spaghetti problem please future mias fix it
-        bw.projects.set_current("superstructure")
+        bw.projects.set_current("outdoor")
         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
         self.outd = bw.Database('outdoor')
+
         try:
             self.outd.register()
         except Exception as e:
