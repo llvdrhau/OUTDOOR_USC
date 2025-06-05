@@ -100,7 +100,7 @@ class UtilityTab(QWidget):
         self.wasteColumns = ["Type", "Cost (€/t)", "LCA"]
         self.wshortNames = ["name", "cost", "LCA"]
         # add more waste managment types here! Propogates trought the whole program
-        self.wasteManagementList = ["Incineration", "Landfill", "WWTP"]
+        self.wasteManagementList = ["Incineration", "Landfill", "WWTP", "Other"]
         # add the list to the centralDataManager
         self.centralDataManager.setWasteManagementTypes(self.wasteManagementList)
 
