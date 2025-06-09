@@ -691,7 +691,7 @@ class PhysicalProcessesDialog(QDialog):
         # Heat consumption 2
         self.heatConsumption2 = QLineEdit(self)
         self.heatConsumption2.setText("0.00")
-        self.heatConsumption2.setValidator(QDoubleValidator(0.00, 999999.99, 6))
+        self.heatConsumption2.setValidator(QDoubleValidator(-999999.999, 999999.999, 3))
         self.heatConsumption2.setObjectName("heatConsumption2")
         tooltipText = """The second cooling (Negative) or heating (Positive) required for the unit process."""
         self.heatConsumption2Unit = QLabel(self)
