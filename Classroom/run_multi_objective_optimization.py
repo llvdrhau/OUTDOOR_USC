@@ -38,6 +38,9 @@ multi_objective_options = { "objective1": 'global warming potential (GWP100)',  
                             "objective2": 'NPC', # second objective
                             "paretoPoints": 5} # number of points in the Pareto front
 
+# FIXME instead of writing NPC use "-EBIT" which switches the objective to NPC
+
+
 # solve the multi-objective optimization problem
 model_output = solverObject.solve_optimization_problem(input_data=superstructureObj,
                                                        optimization_mode='multi-objective',

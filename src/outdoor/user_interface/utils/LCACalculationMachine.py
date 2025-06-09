@@ -35,10 +35,55 @@ class LCACalculationMachine:
             "waste":False,
             "utilities":False,
         }
-        # TODO: second todo here because clearly one in LCADialog wasn't enough
-        bw.projects.set_current("superstructure")
-        self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
-        self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
+
+        bwProjectNames = []
+        for project in bw.projects:
+            projectName = project.name
+            bwProjectNames.append(projectName)
+
+        if not bwProjectNames:
+            self.logger.error("No Brightway projects found. Please Install the databases.")
+
+        if "outdoor" in bwProjectNames:
+            bw.projects.set_current("outdoor")
+            self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
+            self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
+            # check the size of the databases
+            if len(self.eidb) < 1 and len(self.bios) < 1:
+                self.logger.warning("Ecoinvent database is empty. Please check your installation.")
+                self.logger.info("Attempting to register the with an other database.")
+
+                bwProjectNames.remove('outdoor')
+                for projectName in bwProjectNames:
+                    try:
+                        bw.projects.set_current(projectName)
+                        self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
+                        self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
+                        if len(self.eidb) > 0 and len(self.bios) > 0:
+                            self.logger.info(f"Found valid Ecoinvent database in project {projectName}.")
+                            break
+
+                    except Exception as e:
+                        self.logger.error(f"Could not setup a brightway project {projectName}: {e}")
+                        self.logger.info("Make sure the Installation has been done correctly!!.")
+
+        else:
+            self.logger.warning("No Brightway project called 'outdoor' found. "
+                                "Attempting to load databases from other projects in BrightWay.")
+
+            for projectName in bwProjectNames:
+                try:
+                    bw.projects.set_current(projectName)
+                    self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
+                    self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
+                    if len(self.eidb) > 0 and len(self.bios) > 0:
+                        self.logger.info(f"Found valid Ecoinvent database in project {projectName}.")
+                        break
+
+                except Exception as e:
+                    self.logger.error(f"Could not setup a brightway project {projectName}: {e}")
+                    self.logger.info("Make sure the Installation has been done correctly!.")
+
         self.outd = bw.Database('outdoor')
 
     def calculateAllLCAs(self, write=False):
