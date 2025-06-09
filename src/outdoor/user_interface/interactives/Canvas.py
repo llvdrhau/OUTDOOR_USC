@@ -5,6 +5,7 @@ from PyQt5.QtCore import QRectF, Qt, QPointF
 from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QPainterPathStroker
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
     QApplication, QGraphicsPathItem
+from qtconsole.mainwindow import background
 
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
@@ -1133,7 +1134,13 @@ class MovableIcon(QGraphicsObject):
 
         else:
             # Set background color based on the icon type
-            backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
+            if self.text == "" or self.text == "Uncompleted Unit":
+                # If no text is set, use a default color red, error needs to be filled in!!
+                backgroundColor = QColor("#FF6347")  # tomato red
+
+            else:
+                backgroundColor = QColor(self.getBackgroundColor(self.icon_type))
+
             painter.setBrush(backgroundColor)
             painter.setPen(self.pen)
             painter.drawRoundedRect(self.boundingRect(), 10, 10)

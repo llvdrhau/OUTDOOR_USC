@@ -1,4 +1,6 @@
 import logging
+from calendar import error
+
 from PyQt5.QtWidgets import QMessageBox
 from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 from outdoor.outdoor_core.input_classes.unit_operations.library.pool import ProductPool
@@ -49,9 +51,27 @@ class ConstructSuperstructure:
                                      "Electricity production (generators)": 'PEL_PROD',
                                      "Heat production (generators)": 'PHEAT', }
 
+
+        # fist check if there are no incomplete units, if so, raise an error
+        unitDTODictionary = self.centralDataManager.unitProcessData
+        for uuid, dto in unitDTODictionary.items():
+            if dto.name == '':
+                self.logger.error("There is an incomplete unit defined! \n "
+                                  "Please look at the superstructure map and fill in the minimum required data ")
+                self.errorMessage = "There is an incomplete unit(s) defined! \n " \
+                                    "Please look at the superstructure map and fill in the minimum required data"
+                self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: Incomplete Unit')
+                return
+
         # make the initial object:
-        self.superstructureObject = self._setGeneralData()
-        superstructureListUnits = self._setUnitProcessData()
+        self.superstructureObject, errorFlag = self._setGeneralData()
+        if errorFlag: # if there is an error, stop the code here
+            return
+
+        superstructureListUnits, errorFlag = self._setUnitProcessData()
+        if errorFlag:  # if there is an error, stop the code here
+            return
+
         # add the units to the superstructure object
         self.superstructureObject.add_UnitOperations(superstructureListUnits)
 
@@ -61,10 +81,17 @@ class ConstructSuperstructure:
 
         :return: Superstructure Object
         """
+        errorFlag = False
         # model name
         modelName = self.centralDataManager.metadata['PROJECT_NAME']
         # fixme: if no changes are made to the initial general data, the default values are never saved!
         # maybe generate a waring to signal that the general tab needs to be edited before running the simulation
+        if not self.centralDataManager.generalData:
+            self.errorMessage = "No general data found, please fill in the general data before generating a superstructure object"
+            self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: No general data found')
+            errorFlag = True
+            obj = None
+            return obj, errorFlag
 
         # retrieve the objective
         objectiveFull = self.centralDataManager.generalData['objective']
@@ -130,7 +157,7 @@ class ConstructSuperstructure:
                     errorTemp = 'Outlet Temperature'
                 self.errorMessage = ("No {} for the Heat Pump is given, "
                                      "please fill in the desired temperature".format(errorTemp))
-                self._showErrorDialog(message=self.warningMessage, type='Critical',
+                self._showErrorDialog(message=self.errorMessage, type='Critical',
                                       title='Warning: Heat Pump Temperature Error')
 
             else:
@@ -212,7 +239,8 @@ class ConstructSuperstructure:
         # you could also get the impact categories from the LCA data from the waste or Temperature dto's
         # the impact categories should be the same for all the dto's
         # todo this is mega convoluted,add attributes to the dto's to get the impact categories, wait until Mias has
-        #  implemented methodes to select impact categories
+        #  implemented methods to select impact categories
+
         impactCategoriesDict = self.centralDataManager.utilityData[0].getLCAImpacts()
         impactCategories = list(list(impactCategoriesDict.values())[0].keys())
         obj._set_impact_categories(impactCategories)
@@ -242,17 +270,28 @@ class ConstructSuperstructure:
         # set the impact of utility factors
         obj._set_utility_impact_factors(self.centralDataManager.utilityData)
 
-        return obj
+        return obj, errorFlag
 
     def _setUnitProcessData(self):
         """
         Continue filling in the superstructure with data from unit operations
         :return: Superstructure Object
         """
+        errorFlag = False # to stop the code if there is an error
         processUnit_ObjectList = []  # in outdoor this is PU_ObjectList in main.py in the excel wrapper
         unitDTODictionary = self.centralDataManager.unitProcessData
         counter = 0 # to give unique names to the distributors
         for uuid, dto in unitDTODictionary.items():
+
+            if dto.name == '':
+                self.logger.error("There is an incomplete unit defined! \n "
+                                  "Please look at the superstructure map and fill in the minimum required data ")
+                self.errorMessage = "There is an incomplete unit defined! \n " \
+                                    "Please look at the superstructure map and fill in the minimum required data"
+                self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: Incomplete Unit')
+                errorFlag = True
+                return None, errorFlag
+
             if dto.type == ProcessType.INPUT:
                 InputObject = self._setInputData(dto)
                 processUnit_ObjectList.append(InputObject)
@@ -266,7 +305,8 @@ class ConstructSuperstructure:
             elif dto.type.value in list(range(1, 7)):  # not an input, output or distributor
                 ProcessObject = self._setProcessData(dto)
                 processUnit_ObjectList.append(ProcessObject)
-        return processUnit_ObjectList
+
+        return processUnit_ObjectList, errorFlag
 
     def _setInputData(self, dto):
         """
