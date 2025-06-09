@@ -566,6 +566,16 @@ class ConstructSuperstructure:
 
                 conversionRateDict.update({(rxnNumber, rxn[-1]): float(rxn[1])/100}) # dived by 100 to get the fraction
 
+            # normalize the stoichiometry values so that the maximum value is 1
+            stoichValues = list(reactionStoichiometryDict.values())
+            # make all values positive
+            stoichValuesAbs = [abs(value) for value in stoichValues]
+            # find the maximum value
+            maxStoich = max(stoichValuesAbs)
+            for key, value in reactionStoichiometryDict.items():
+                # divide all values by the maximum value to normalize the stoichiometry
+                reactionStoichiometryDict[key] = value / maxStoich
+
             processObject.set_gammaFactors(reactionStoichiometryDict)
             processObject.set_thetaFactors(conversionRateDict)
 
