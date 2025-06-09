@@ -75,6 +75,8 @@ class LCADialog(QDialog):
 
         if not bwProjectNames:
             self.logger.error("No Brightway projects found. Please Install the databases.")
+            # close the dialog
+            self.close()
 
         if "outdoor" in bwProjectNames:
             bw.projects.set_current("outdoor")
@@ -82,7 +84,7 @@ class LCADialog(QDialog):
             self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
             # check the size of the databases
             if len(self.eidb) < 1 and len(self.bios) < 1:
-                self.logger.warning("Ecoinvent database is empty. Please check your installation.")
+                self.logger.warning("Project 'outdoor' has empty databases.")
                 self.logger.info("Attempting to register the with an other database.")
 
                 bwProjectNames.remove('outdoor')
@@ -92,7 +94,7 @@ class LCADialog(QDialog):
                         self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
                         self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
                         if len(self.eidb) > 0 and len(self.bios) > 0:
-                            self.logger.info(f"Found valid Ecoinvent database in project {projectName}.")
+                            self.logger.info(f"Found valid Ecoinvent databases in project '{projectName}'.")
                             break
 
                     except Exception as e:
@@ -108,6 +110,7 @@ class LCADialog(QDialog):
                     bw.projects.set_current(projectName)
                     self.eidb = bw.Database('ecoinvent-3.9.1-consequential')
                     self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
+
                     if len(self.eidb) > 0 and len(self.bios) > 0:
                         self.logger.info(f"Found valid Ecoinvent database in project {projectName}.")
                         break

@@ -42,7 +42,9 @@ class LCACalculationMachine:
             bwProjectNames.append(projectName)
 
         if not bwProjectNames:
-            self.logger.error("No Brightway projects found. Please Install the databases.")
+            self.logger.error("No Brightway projects found. Please Install the databases proparly.")
+            # close the calculation machine
+            return
 
         if "outdoor" in bwProjectNames:
             bw.projects.set_current("outdoor")
@@ -50,7 +52,7 @@ class LCACalculationMachine:
             self.bios = bw.Database('ecoinvent-3.9.1-biosphere')
             # check the size of the databases
             if len(self.eidb) < 1 and len(self.bios) < 1:
-                self.logger.warning("Ecoinvent database is empty. Please check your installation.")
+                self.logger.warning("No databases found in project 'outdoor'.")
                 self.logger.info("Attempting to register the with an other database.")
 
                 bwProjectNames.remove('outdoor')
