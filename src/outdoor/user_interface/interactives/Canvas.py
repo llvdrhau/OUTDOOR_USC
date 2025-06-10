@@ -1569,7 +1569,6 @@ class InteractiveLine(QGraphicsPathItem):
                 self.logger.debug("The classification of streams are: {}".format(ownerDTO.classificationStreams))
 
                 # update the incoming flow of the receiving unit
-                # todo check if this does not break things
                 unitDTOReceiving.incomingUnitFlows.pop(ownerID, None)
                 self.logger.debug("Incoming flow ids for the receiving unitDTO {} are:"
                                   " {}".format(ownerID, unitDTOReceiving.incomingUnitFlows))

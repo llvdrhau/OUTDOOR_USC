@@ -84,8 +84,8 @@ class ConstructSuperstructure:
         errorFlag = False
         # model name
         modelName = self.centralDataManager.metadata['PROJECT_NAME']
-        # fixme: if no changes are made to the initial general data, the default values are never saved!
-        # maybe generate a waring to signal that the general tab needs to be edited before running the simulation
+
+        # error if general data is not saved
         if not self.centralDataManager.generalData:
             self.errorMessage = "No general data found, please fill in the general data before generating a superstructure object"
             self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: No general data found')
@@ -184,13 +184,13 @@ class ConstructSuperstructure:
         reactionNumberIds = [dto.uid for dto in self.centralDataManager.reactionData]
         obj.add_reactions(reactionNumberIds)
 
-        # todo this seems redundant I don't know why this is done, must optimize this in the future
         reactantsList = []
         for dto in self.centralDataManager.reactionData:
             key = list(dto.reactants.keys())[0]
             reactantsList.append(key)
         obj.add_reactants(reactantsList)
 
+        # lower heating value, molecular weight and heat capacity
         lhvDict = {dto.name: float(dto.lowerHeat) for dto in self.centralDataManager.componentData}
         obj.set_lhv(lhvDict)
 
@@ -202,7 +202,6 @@ class ConstructSuperstructure:
 
         # ADD OTHER PARAMETERS
         # ---------------------
-        # TODO later on, make this a toggle for either self-entered data or the LCA data
         emissionsUtilityDict = {}
         emissionsWaterUtilityDict = {}
         utilityPrices = {}
@@ -230,17 +229,7 @@ class ConstructSuperstructure:
         obj.set_heatUtilitiesFromList(setterList)
         obj.set_deltaUt(utilityPrices)
 
-        # set new additions
-        #         # Parameters INDEXED
-        #         self.UtilityImpactFactors = {'util_impact_factors': {}}
-
-        # set the impact categories
-        # impactCategories = ['GWP', 'RM'] # dto.dialogData['Impact Categories']
-        # you could also get the impact categories from the LCA data from the waste or Temperature dto's
-        # the impact categories should be the same for all the dto's
-        # todo this is mega convoluted,add attributes to the dto's to get the impact categories, wait until Mias has
-        #  implemented methods to select impact categories
-
+        # get impact factors from the LCA data
         impactCategoriesDict = self.centralDataManager.utilityData[0].getLCAImpacts()
         impactCategories = list(list(impactCategoriesDict.values())[0].keys())
         obj._set_impact_categories(impactCategories)

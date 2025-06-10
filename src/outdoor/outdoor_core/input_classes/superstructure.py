@@ -199,7 +199,6 @@ class Superstructure:
         self.Scenarios = {'SC': []}  #  Stochastic, maybe redundant
         self.Odds = {'odds': []}  # Probably for stochastic modeling too
 
-        # todo add to the indexed or non indexed attributes
         # ---------------------------------------------------------------
         # new attributes for the new UI variables
         # sets NON INDEXED

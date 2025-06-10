@@ -43,7 +43,7 @@ class CentralDataManager:
         self.reactionData: list[ReactionDTO] = []
         self.struct = SuperstructureFrame()
         self._outputList: list[str] = []
-        self.metadata = {}  # Stores project metadata like the name. TODO move configs into this
+        self.metadata = {}  # Stores project metadata like the name.
         self.uncertaintyData: list[UncertaintyDTO] = []
         self.BWPROJECTNAME = "superstructure"  # this needs to be changed in the configs or something because it's actual satan.
 
@@ -84,14 +84,7 @@ class CentralDataManager:
 
     def setWasteManagementTypes(self, wasteManagementTypes):
         self.wasteManagementTypes = wasteManagementTypes
-    def addReactionData(self, data):
-        """
-        Adds Reactions to the ReactionsData
-        :param data:
-        :return:
-        """
-        ## TODO what on earth is going on here.
-        self.componentData.append(data)
+
 
     def updateData(self, dataType: str, row: int):
         """
@@ -228,8 +221,7 @@ class CentralDataManager:
         Returns the names of all the processes in the superstructure
         :return: listNames
         """
-        # todo you could specify which types of processes you want to return based on the type of process defined in
-        #  the DTO
+
         listNames = []
         for process in self.unitProcessData.values():
             listNames.append(process.name)

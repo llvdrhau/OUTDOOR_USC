@@ -89,10 +89,6 @@ class PhysicalProcessesDialog(QDialog):
         if calc_types['Concentration'] == 'True':
             tabWidget.addTab(self._createConcentrationTab(), "Mixing Coefficients")
 
-        # todo, ask Mias to add this to the config file! I don't know how to do it
-        # @ Mias, please add this to the config files
-        # if calc_types['Separation'] == 'True':
-        #     tabWidget.addTab(self._createSeparationEfficiencyTab(), "Separation Efficiency")
 
         # for now, I will add it manually to the dialog
         tabWidget.addTab(self._createSeparationEfficiencyTab(), "Separation Efficiency")
@@ -2026,7 +2022,7 @@ class PhysicalProcessesDialog(QDialog):
         dtoProcess = self.centralDataManager.unitProcessData[self.iconID]
         dtoProcess.updateProcessDTO(field= UpdateField.NAME, value=dialogData['Name'])
 
-        # fixme: this is a patch, post processing of the Generator units so the type is correctly set if changed:
+        # post processing of the Generator units so the type is correctly set if changed:
         try:
             if dialogData["Type"].value in [4, 5, 6]: # the 3 different generator units
                 dtoProcess.type = dialogData["Type"]

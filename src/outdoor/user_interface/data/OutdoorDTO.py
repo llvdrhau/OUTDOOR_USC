@@ -12,16 +12,7 @@ class OutdoorDTO(object):
         self.LCA = {'Results': {},
                     'exchanges':{}}
 
-        # self.logger.warning("No LCA impacts calculated")
-        # todo This empty dict needs to be initialized with the correct keys based on the LCA method used!
-        # now always the same keys are used midpoints and endpoint methods, But future versions of the software may
-        # use different keys.
 
-        # possible solution??
-        # mlca = bc.MultiLCA("setup")
-        # for category in mlca.methods:
-        #     nameCategory = category[3].split("(")[0]
-        #     self.emptyResults[nameCategory] = 0
 
         self.emptyCategories = {
             'terrestrial acidification potential (TAP)': 0,
