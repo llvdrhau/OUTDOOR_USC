@@ -55,7 +55,7 @@ class ConstructSuperstructure:
         # fist check if there are no incomplete units, if so, raise an error
         unitDTODictionary = self.centralDataManager.unitProcessData
         for uuid, dto in unitDTODictionary.items():
-            if dto.name == '':
+            if dto.name == '' and not dto.dialogData and not (dto.type == ProcessType.BOOLDISTRIBUTOR or dto.type == ProcessType.DISTRIBUTOR):
                 self.logger.error("There is an incomplete unit defined! \n "
                                   "Please look at the superstructure map and fill in the minimum required data ")
                 self.errorMessage = "There is an incomplete unit(s) defined! \n " \
@@ -271,15 +271,6 @@ class ConstructSuperstructure:
         unitDTODictionary = self.centralDataManager.unitProcessData
         counter = 0 # to give unique names to the distributors
         for uuid, dto in unitDTODictionary.items():
-
-            if dto.name == '':
-                self.logger.error("There is an incomplete unit defined! \n "
-                                  "Please look at the superstructure map and fill in the minimum required data ")
-                self.errorMessage = "There is an incomplete unit defined! \n " \
-                                    "Please look at the superstructure map and fill in the minimum required data"
-                self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: Incomplete Unit')
-                errorFlag = True
-                return None, errorFlag
 
             if dto.type == ProcessType.INPUT:
                 InputObject = self._setInputData(dto)
