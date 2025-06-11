@@ -23,7 +23,6 @@ from outdoor.user_interface.tabs.ProjectDescriptionTab import ProjectDescription
 from outdoor.user_interface.tabs.UncertaintyTab import UncertaintyTab
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 from outdoor.user_interface.data.ProcessDTO import ProcessType
-
 import logging
 
 class MainWindow(QMainWindow):  # Inherit from QMainWindow

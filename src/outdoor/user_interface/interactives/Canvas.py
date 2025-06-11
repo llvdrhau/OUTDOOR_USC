@@ -1430,7 +1430,7 @@ class InteractiveLine(QGraphicsPathItem):
 
             if self.selected:
                 self.pen = QPen(Qt.red, 1.5)  # Increase line thickness
-                print('lines have been clicked and selected')
+                #print('lines have been clicked and selected')
             else:
                 self.pen = QPen(Qt.black, 1)
 
