@@ -588,10 +588,19 @@ class ConstructSuperstructure:
 
             # normalize the stoichiometry values so that the maximum value is 1
             stoichValues = list(reactionStoichiometryDict.values())
+
+            if not stoichValues:
+                self.logger.debug("No stoichiometric coefficients give for unit '{}' \n"
+                                  "Model will be infeasible".format(dto.name))
+                self.logger.info("No reaction was set for unit: '{}'".format(dto.name))
+                return
+
             # make all values positive
             stoichValuesAbs = [abs(value) for value in stoichValues]
+
             # find the maximum value
             maxStoich = max(stoichValuesAbs)
+
             for key, value in reactionStoichiometryDict.items():
                 # divide all values by the maximum value to normalize the stoichiometry
                 reactionStoichiometryDict[key] = value / maxStoich

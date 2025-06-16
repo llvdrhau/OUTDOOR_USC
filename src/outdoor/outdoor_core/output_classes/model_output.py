@@ -344,7 +344,7 @@ class ModelOutput:
         total_costs = model_data["CAPEX"]
 
         capitalcost_shares["Capital costs shares"]["Heat pump"] = round(
-            model_data.get("ACC_HP", 0) / total_costs * 100, 2
+            model_data.get("ACC_HP", 0) / (total_costs + 1e-9)  * 100, 2
         )
 
         for i, j in model_data["ACC"].items():
@@ -969,7 +969,7 @@ class ModelOutput:
 
         economic_results = {"Economic results": {}}
 
-        total_costs = model_data["TAC"] / 1000
+        total_costs = model_data["TAC"] / 1000 + 1e-9
 
         profits = 0
         wwt = 0
