@@ -1771,7 +1771,6 @@ class PhysicalProcessesDialog(QDialog):
         for i in range(rowCount):
             self._updateWasteFraction(i)
 
-
     def _populateTable(self, table, dialogData, tabName, tableType="standard"):
         """
         Populate a given table with the dialogData provided.
