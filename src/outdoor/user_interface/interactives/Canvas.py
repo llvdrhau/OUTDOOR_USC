@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem,
     QApplication, QGraphicsPathItem
 from qtconsole.mainwindow import background
 
+from outdoor.outdoor_core.input_classes.unit_operations.library.distributor import Distributor
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
 from outdoor.user_interface.dialogs.InputParametersDialog import InputParametersDialog
@@ -253,7 +254,7 @@ class Canvas(QGraphicsView):
         if (port.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and
             port.portType == 'entry' and len(port.connectionLines) > 0):
             port.occupied = True
-            # you can not multiple units to the input of a distribution block
+            # you can not connect multiple units to the input of a distribution block
             # stop the line drawing process with return statement
             return
 
@@ -268,6 +269,33 @@ class Canvas(QGraphicsView):
             # connected to various unit processes
             return
 
+        # need to keep track of how many lines are leaving the distributor untis
+        if self.startPort.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR] and not loadingLinesFlag:
+            # get the dto of the sending unit
+            unitDTOSending = self.centralDataManager.unitProcessData[self.startPort.iconID]
+            curvatureLinesDistributor = unitDTOSending.curvatureLinesDistributor
+
+            if not curvatureLinesDistributor.keys():
+                unitDTOSending.curvatureLinesDistributor[1] = None
+                unitDTOSending.distributorLineUnitMap[port.iconID] = 1
+            else:
+                distributorStreamNumber = max(curvatureLinesDistributor.keys()) + 1
+                unitDTOSending.curvatureLinesDistributor[distributorStreamNumber] = None
+                unitDTOSending.distributorLineUnitMap[port.iconID] = distributorStreamNumber
+
+        # need to keep track of how many lines are leaving the Input untis
+        if self.startPort.icon_type == ProcessType.INPUT and not loadingLinesFlag:
+            unitDTOSending = self.centralDataManager.unitProcessData[self.startPort.iconID]
+            curvatureLinesInput = unitDTOSending.curvatureLinesInput
+
+            if not curvatureLinesInput.keys():
+                unitDTOSending.curvatureLinesInput[1] = None
+                unitDTOSending.inputLineUnitMap[port.iconID] = 1
+            else:
+                inputStreamNumber = max(curvatureLinesInput.keys()) + 1
+                unitDTOSending.curvatureLinesInput[inputStreamNumber] = None
+                unitDTOSending.inputLineUnitMap[port.iconID] = inputStreamNumber
+
         self.logger.debug("End drawing a new line from the port")
 
         self.endPort = port
@@ -279,8 +307,32 @@ class Canvas(QGraphicsView):
             self.currentLine.endPort = port  # Update the end port
             if curveInfo:
                 # get the current stream number we're working on
-                streamNumber = self.startPort.exitStream
-                curveData = curveInfo[streamNumber]
+                if self.startPort.icon_type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]:
+                    # if the start port is a distributor, we need to get the stream number from the curvatureLinesDistributor
+                    distributorDTO = self.centralDataManager.unitProcessData[self.startPort.iconID]
+                    if self.endPort.iconID in distributorDTO.distributorLineUnitMap: # make sure the end port is in the map
+                        streamNumber = distributorDTO.distributorLineUnitMap[self.endPort.iconID]
+                        curveData = distributorDTO.curvatureLinesDistributor[streamNumber]
+                    else:
+                        curveData = []
+                        self.logger.debug("Could not find curve data for the end "
+                                          "port/distributor {}".format(self.endPort.iconID ))
+
+                elif self.startPort.icon_type == ProcessType.INPUT:
+                    # if the start port is an input, we need to get the stream number from the curvatureLinesInput
+                    inputDTO = self.centralDataManager.unitProcessData[self.startPort.iconID]
+                    if self.endPort.iconID in inputDTO.inputLineUnitMap:
+                        streamNumber = inputDTO.inputLineUnitMap[self.endPort.iconID]
+                        curveData = inputDTO.curvatureLinesInput[streamNumber]
+                    else:
+                        curveData = []
+                        self.logger.debug("Could not find curve data for the end "
+                                          "port/input {}".format(self.endPort.iconID))
+
+                else:
+                    streamNumber = self.startPort.exitStream
+                    curveData = curveInfo[streamNumber]
+
                 # set the control point ect using the _setCurveData Method
                 self._setCurveData(curveData=curveData)
             self.currentLine.updateAppearance()  # Update the line appearance based on its current state
@@ -807,8 +859,6 @@ class Canvas(QGraphicsView):
             # ---------------------------------------------------
             for iconId, IconWidget in allMoveableIcons.items():
                 unitDTO = self.centralDataManager.unitProcessData[iconId]
-                # get the curveature data if any
-                curveInfo = unitDTO.curvatureLines
                 # self.logger.debug('the curve info is:  {}'.format(curveInfo))
                 # get the material flow of the unitDTO
                 materialFlow = unitDTO.materialFlow
@@ -822,6 +872,10 @@ class Canvas(QGraphicsView):
                             streamNumber = unitDTO.distributionOwner[1]
                             startPort = self._getStartPort(ownerWidget, streamNumber)
                             endPort = port
+
+                            # get reciveing dto
+                            receivingDTO = self.centralDataManager.unitProcessData[ownerID]
+                            curveInfo = receivingDTO.curvatureLines  # get the curvature data if any
                             self.startLine(startPort, startPort.scenePos())
                             self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
 
@@ -832,22 +886,46 @@ class Canvas(QGraphicsView):
                                 startPort = port
                                 endPort = self._getEndPort(receivingWidget)
                                 self.startLine(startPort, startPort.scenePos())
-                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
+
+                                if unitDTO.curvatureLinesDistributor:
+                                    curveInfoDistributor = unitDTO.curvatureLinesDistributor
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfoDistributor)
+                                else:
+                                    self.logger.error("No curvature data for the distributor found, using default straight line")
+                                    curveInfo = {}
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
+
                         else:
                             continue # if the distributor is not connected, don't bother connecting it
 
                 else:  # for the other icons that are not distributors
                     # loop through all the ports in the icon
+                    curveInfo = unitDTO.curvatureLines
                     for port in IconWidget.ports:
                         # connect inputs
                         if port.portType == 'entry':
                             inputFlows = unitDTO.inputFlows
                             for sendingID in inputFlows:
                                 sendingWidget = allMoveableIcons[sendingID]  # this should always be an input icon
-                                startPort = sendingWidget.ports[0]  # the first port is the only (exit) port in the input icon
-                                endPort = port # the current port is the end port of the connection
+                                # the first port is the only (exit) port in the input icon
+                                startPort = sendingWidget.ports[0]
+                                endPort = port  # the current port is the end port of the connection
+
+                                # now retrieve the correct curvature info
                                 self.startLine(startPort, startPort.scenePos())
-                                self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True, curveInfo=curveInfo)
+                                inputDTO = self.centralDataManager.unitProcessData[sendingID]
+
+                                if inputDTO.curvatureLinesInput:
+                                    curveInfoInput = inputDTO.curvatureLinesInput
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True,
+                                                 curveInfo=curveInfoInput)
+                                else:
+                                    self.logger.error("No curvature data for the distributor found, "
+                                                      "using default straight line")
+                                    curveInfo = {}
+                                    self.endLine(endPort, endPort.scenePos(), loadingLinesFlag=True,
+                                                 curveInfo=curveInfo)
+
 
                         # connect processes and outputs
                         else: # exit ports
@@ -914,6 +992,10 @@ class IconPort(QGraphicsEllipseItem):
         else:
             # exit ports have an exit stream that can be 1, 2, or 3 (depending on where the stram leaves)
             self.exitStream = exitStream
+            # get the icon type
+            iconType = parent.icon_type
+            if iconType in [ProcessType.BOOLDISTRIBUTOR, ProcessType.DISTRIBUTOR]:
+                self.distributorStreams = {}
 
         self.iconID = iconID
         self.setBrush(Qt.black)
@@ -1451,7 +1533,16 @@ class InteractiveLine(QGraphicsPathItem):
             streamNumber = self.startPort.exitStream
             idDTO = self.startPort.iconID
             sendingDTO = self.centralDataManager.unitProcessData[idDTO]
-            sendingDTO.curvatureLines[streamNumber] = None
+            if sendingDTO.type in [ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]:
+                nr = sendingDTO.distributorLineUnitMap[self.endPort.iconID]
+                sendingDTO.curvatureLinesDistributor[nr] = None
+
+            elif sendingDTO.type == ProcessType.INPUT:
+                nr = sendingDTO.inputLineUnitMap[self.endPort.iconID]
+                sendingDTO.curvatureLinesInput[nr] = None
+
+            else:
+                sendingDTO.curvatureLines[streamNumber] = None
 
         self.updateAppearance()
         super().mouseDoubleClickEvent(event)
@@ -1527,6 +1618,14 @@ class InteractiveLine(QGraphicsPathItem):
             self.logger.debug("Input flows for unit {} are: {}".format(unitDTOReceiving.uid,
                                                                        unitDTOReceiving.inputFlows))
 
+            # modify the input line map of the sending unit to get the curvature correctly
+            id2Delete = unitDTOReceiving.uid
+            inputLineNumber = unitDTOSending.inputLineUnitMap.get(id2Delete, None)
+            # delete the curvature line from the distributor dictionary
+            unitDTOSending.curvatureLinesInput.pop(inputLineNumber, None)
+            unitDTOSending.inputLineUnitMap.pop(id2Delete, None)
+
+
         elif (unitDTOSending.type.value in [1, 2, 3, 4, 5, 6] and
               (unitDTOReceiving.type == ProcessType.DISTRIBUTOR or unitDTOReceiving.type == ProcessType.BOOLDISTRIBUTOR)):
 
@@ -1559,6 +1658,11 @@ class InteractiveLine(QGraphicsPathItem):
 
             id2Delete = unitDTOReceiving.uid
             unitDTOSending.distributionContainer.remove(id2Delete)
+
+            distributorLineNumber = unitDTOSending.distributorLineUnitMap.get(id2Delete, None)
+            # delete the curvature line from the distributor dictionary
+            unitDTOSending.curvatureLinesDistributor.pop(distributorLineNumber, None)
+            unitDTOSending.distributorLineUnitMap.pop(id2Delete,None)
 
             if unitDTOSending.distributionOwner:
                 ownerID = unitDTOSending.distributionOwner[0]
@@ -1606,7 +1710,23 @@ class InteractiveLine(QGraphicsPathItem):
             streamNumber = self.startPort.exitStream
             idDTO = self.startPort.iconID
             sendingDTO = self.centralDataManager.unitProcessData[idDTO]
-            sendingDTO.curvatureLines[streamNumber] = (controlPos.x(), controlPos.y())
+            receivingID = self.endPort.iconID
+
+            if sendingDTO.type in [ProcessType.BOOLDISTRIBUTOR, ProcessType.DISTRIBUTOR]:
+                # retrieve the correct number of curvature lines
+                if receivingID in sendingDTO.distributorLineUnitMap:
+                    # when deleting the line the curve data is removed and does not exist anymore, so check if it exists
+                    distributorStreamNumber = sendingDTO.distributorLineUnitMap[receivingID]
+                    sendingDTO.curvatureLinesDistributor[distributorStreamNumber] = (controlPos.x(), controlPos.y())
+
+            elif sendingDTO.type == ProcessType.INPUT:
+                # retrieve the correct number of curvature lines
+                if receivingID in sendingDTO.inputLineUnitMap:
+                    # when deleting the line the curve data is removed and does not exist anymore, so check if it exists
+                    inputStreamNumber = sendingDTO.inputLineUnitMap[receivingID]
+                    sendingDTO.curvatureLinesInput[inputStreamNumber] = (controlPos.x(), controlPos.y())
+            else:
+                sendingDTO.curvatureLines[streamNumber] = (controlPos.x(), controlPos.y())
             # self.logger.debug("control pos updated")
 
         else: # make a straight line

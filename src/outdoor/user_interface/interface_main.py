@@ -126,6 +126,25 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         and adds them with default values if they are missing
         :return:
         """
+
+        # check if  # curvature lines from a distributor
+        #         self.curvatureLinesDistributor = {}  # position control point {Number: (x, y)}
+        #         # mapping dict to understand which line leaving the distributor unit, is connected to which unit
+        #         self.distributorLineUnitMap = {}  # key is the line number, value is the unit id {receivingID: number}
+
+        for unitDTO in self.centralDataManager.unitProcessData.values():
+            if unitDTO.type in [ProcessType.BOOLDISTRIBUTOR, ProcessType.DISTRIBUTOR]:
+                if not hasattr(unitDTO, 'curvatureLinesDistributor'):
+                    unitDTO.curvatureLinesDistributor = {}
+                if not hasattr(unitDTO, 'distributorLineUnitMap'):
+                    unitDTO.distributorLineUnitMap = {}
+
+            elif unitDTO.type == ProcessType.INPUT:
+                if not hasattr(unitDTO, 'curvatureLinesInput'):
+                    unitDTO.curvatureLinesInput = {}
+                if not hasattr(unitDTO, 'inputLineUnitMap'):
+                    unitDTO.inputLineUnitMap = {}
+
         if not hasattr(self.centralDataManager, 'uncertaintyData'):
             self.centralDataManager.uncertaintyData = []
         # had a problem with the material flow in the DTO, this is a temporary fix
@@ -170,28 +189,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
                         'natural resources': 0
                     }
 
-        # data_lists = [
-        #     self.centralDataManager.utilityData,
-        #     self.centralDataManager.wasteData,
-        # ]
-        #
-        # for data_list in data_lists:
-        #     for dto in data_list:
-        #         dto.LCA = {'Results': {}, 'exchanges': {}}
-        #         dto.calculated = False
 
-
-        # # the reason was that outgoing flows were not updated when output units are removed, fixed now
-        # if 'c44290e5-10f9-4697-a7f1-79865df8be27' in self.centralDataManager.unitProcessData:
-        #     dto2Change = self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27']
-        #     materialFlow = dto2Change.materialFlow
-        #     # remove the follwing key from the dictionary: 'e872ef91-2244-4a91-8f35-92b41b3f2735'
-        #     for dictStream in materialFlow.values():
-        #         if 'e872ef91-2244-4a91-8f35-92b41b3f2735' in dictStream:
-        #             dictStream.pop('e872ef91-2244-4a91-8f35-92b41b3f2735')
-        #         elif '1d2e7a23-ebd4-43fd-891c-d8f66ffd0249' in dictStream:
-        #             dictStream.pop('1d2e7a23-ebd4-43fd-891c-d8f66ffd0249')
-        #     self.centralDataManager.unitProcessData['c44290e5-10f9-4697-a7f1-79865df8be27'] = dto2Change
 
     def saveFile(self):
         """

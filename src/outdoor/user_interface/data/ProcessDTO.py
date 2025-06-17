@@ -56,8 +56,8 @@ class ProcessDTO(OutdoorDTO):
 
         # curvature of leaving lines
         self.curvatureLines = {1: None,   # position control point
-                              2: None,   # None if there is no curvature
-                              3: None}
+                               2: None,   # None if there is no curvature
+                               3: None}
 
         # input flow variables
         self.inputFlows = []  # list of the ID of the input process type that flow into the current process
@@ -88,6 +88,16 @@ class ProcessDTO(OutdoorDTO):
             # stream number it is connected to
             self.distributionOwner = None
             self.distributionContainer = []  # list of processes connected to the exit port of the distributor
+
+            # attributes related to the curves of the distributor lines
+            # curvature lines from a distributor
+            self.curvatureLinesDistributor = {}  # position control point {Number: (x, y)}
+            # mapping dict to understand which line leaving the distributor unit, is connected to which unit
+            self.distributorLineUnitMap = {}  # key is the line number, value is the unit id {receivingID: number}
+
+        if self.type == ProcessType.INPUT:
+            self.curvatureLinesInput = {}  # position control point {Number: (x, y)}
+            self.inputLineUnitMap = {}  # key is the line number, value is the unit id {receivingID: number}
 
         # stream classification
         # can either be 'Normal', 'Boolean', or 'Distributed' for each stream depending if it is conected
