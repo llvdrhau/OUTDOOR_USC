@@ -3,15 +3,16 @@ import uuid
 
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QTableWidget, QPushButton, QLabel, QTableWidgetItem, QMenu,
-                             QDoubleSpinBox)
+                             QDoubleSpinBox, QLineEdit)
+from PyQt5.QtGui import QDoubleValidator
 
-from outdoor.user_interface.data.UncertaintyDTO import UncertaintyDTO
-from outdoor.user_interface.dialogs.LcaButton import LcaButton
+
+from outdoor.user_interface.data.SensitivityDTO import SensitivityDTO
 from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox as ComboBox
 
 
-class UncertaintyTab(QWidget):
+class SensitivityTab(QWidget):
     """
     This class creates a tab for the chemical components and related data (e.g., molar weight, LHV, heat capacity, etc.)
     This is the tab that defines each chemical component and its properties used throught the flow sheet.
@@ -23,7 +24,8 @@ class UncertaintyTab(QWidget):
 
         # add the central data manager
         self.centralDataManager = centralDataManager
-        self.uncertaintyList: list[UncertaintyDTO] = centralDataManager.uncertaintyData
+        self.sensitivityList: list[SensitivityDTO] = centralDataManager.sensitivityData
+        # self.crossSensitivityList: list[CrossSensitivityDTO] = centralDataManager.crossSensitivityData
 
         # set the flag of adding a row to false
         self.addingRowFlag = False
@@ -67,42 +69,44 @@ class UncertaintyTab(QWidget):
         self.layout = QVBoxLayout(self)
 
         # Title for the component tab
-        self.title = QLabel("Characterization of Uncertainty")
+        self.title = QLabel("Parameter Sensitivity")
         self.title.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.title)
 
         # Table for the component data
-        self.uncertaintyTable = QTableWidget()
+        self.sensitivityTable = QTableWidget()
 
         self.columnsList = ["Parameter Type", "Unit Process",
                             "Component", "Target Unit Process",
-                            "Reaction", "Uncertainty Factor", "Distribution Function"]
+                            "Reaction", "Lower Bound", "Upper Bound", "Number of Steps"]
 
         self.columnsShortnames = ["parameterType", "unitUid",
                                   "componentName", "targetUnitProcess",
-                                  "reactionUid", "uncertaintyFactor", "distributionType"]
+                                  "reactionUid", "lowerBound", "upperBound", "steps"]
 
-        self.uncertaintyTable.setColumnCount(len(self.columnsList))
-        self.uncertaintyTable.setHorizontalHeaderLabels(self.columnsList)
+        self.sensitivityTable.setColumnCount(len(self.columnsList))
+        self.sensitivityTable.setHorizontalHeaderLabels(self.columnsList)
 
         # adjust the width of the columns
-        self.uncertaintyTable.setColumnWidth(0, 230)
-        self.uncertaintyTable.setColumnWidth(1, 230)
-        self.uncertaintyTable.setColumnWidth(2, 180)
-        self.uncertaintyTable.setColumnWidth(3, 210)
-        self.uncertaintyTable.setColumnWidth(4, 150)
-        self.uncertaintyTable.setColumnWidth(5, 180)
-        self.uncertaintyTable.setColumnWidth(6, 180)
+        self.sensitivityTable.setColumnWidth(0, 230)
+        self.sensitivityTable.setColumnWidth(1, 230)
+        self.sensitivityTable.setColumnWidth(2, 180)
+        self.sensitivityTable.setColumnWidth(3, 210)
+        self.sensitivityTable.setColumnWidth(4, 150)
+        self.sensitivityTable.setColumnWidth(5, 180)
+        self.sensitivityTable.setColumnWidth(6, 180)
+        self.sensitivityTable.setColumnWidth(7, 180)
+
 
         # save if something is changed in the table, this is done by the wigets in the table itself
         # disconnect the signal to avoid multiple calls
-        # self.uncertaintyTable.itemChanged.disconnect(self.saveData)
+        # self.sensitivityTable.itemChanged.disconnect(self.saveData)
 
         # Add the table to the layout
-        self.layout.addWidget(self.uncertaintyTable)
+        self.layout.addWidget(self.sensitivityTable)
         # Add Row Button
-        self.addRowButton = QPushButton("Add Uncertain Parameter")
-        self.addRowButton.clicked.connect(self.addUncertaintyRow)
+        self.addRowButton = QPushButton("Add Parameter")
+        self.addRowButton.clicked.connect(self.addSensitivityRow)
         self.layout.addWidget(self.addRowButton)
 
         # Ensure the widget can receive focus to detect key presses
@@ -110,28 +114,27 @@ class UncertaintyTab(QWidget):
         self.setLayout(self.layout)
 
         # if the central data manager has data, import it
-        # todo: check if the import works, you have to initiate a uncertaitntly list in interface_main.py to test this when loading an example .oudtr file
         self.importData()
 
 
-    def addUncertaintyRow(self, data: UncertaintyDTO | None = None):
+    def addSensitivityRow(self, data: SensitivityDTO | None = None):
         """
         This method adds a row to the table for the chemical components
-        :param data: of type UncertaintyDTO, the data to be added to the table, can be None
+        :param data: of type SensitivityDTO, the data to be added to the table, can be None
         :return:
         """
         # set the flag of adding a row to true
         self.addingRowFlag = True
 
         rowPosition: int
-        if data is None or not isinstance(data, UncertaintyDTO):
-            rowPosition = self.uncertaintyTable.rowCount()
+        if data is None or not isinstance(data, SensitivityDTO):
+            rowPosition = self.sensitivityTable.rowCount()
             uid = uuid.uuid4().__str__()
-            data = UncertaintyDTO(rowPosition=rowPosition, uid=uid)
-            self.uncertaintyList.append(data)
+            data = SensitivityDTO(rowPosition=rowPosition, uid=uid)
+            self.sensitivityList.append(data)
         else:
             rowPosition = data.rowPosition
-        self.uncertaintyTable.insertRow(rowPosition)
+        self.sensitivityTable.insertRow(rowPosition)
 
         for key, value in data.as_dict().items():
             if key in self.columnsShortnames:
@@ -156,8 +159,8 @@ class UncertaintyTab(QWidget):
                     # adding this item is a bit of a hack otherwise the row can't be selected and deleted
                     insert = QTableWidgetItem()
                     insert.setFlags(insert.flags() | Qt.ItemIsEditable)
-                    self.uncertaintyTable.setItem(rowPosition, index, insert)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxParameterType)
+                    self.sensitivityTable.setItem(rowPosition, index, insert)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.comboBoxParameterType)
                     # set the value of the combobox
                     if value:
                         self.comboBoxParameterType.setCurrentText(value)
@@ -168,7 +171,7 @@ class UncertaintyTab(QWidget):
                     unitProcesNames = self.centralDataManager.getProcessNames()
                     self.comboBoxUnitProcess.addItems(unitProcesNames)
                     self.comboBoxUnitProcess.currentIndexChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxUnitProcess)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.comboBoxUnitProcess)
 
                     if value and value != "n.a.":
                         unitDict = self.centralDataManager.unitProcessData
@@ -185,7 +188,7 @@ class UncertaintyTab(QWidget):
                     ComponentNames = self.centralDataManager.getChemicalComponentNames()
                     self.comboBoxComponents.addItems(ComponentNames)
                     self.comboBoxComponents.currentIndexChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxComponents)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.comboBoxComponents)
                     if value:
                         self.comboBoxComponents.setCurrentText(value)
 
@@ -194,7 +197,7 @@ class UncertaintyTab(QWidget):
                     unitProcesNames = self.centralDataManager.getProcessNames()
                     self.comboBoxTargetUnitProcess.addItems(unitProcesNames)
                     self.comboBoxTargetUnitProcess.currentIndexChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxTargetUnitProcess)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.comboBoxTargetUnitProcess)
 
                     # add the value to the combobox
                     if value and value != "n.a.":
@@ -213,7 +216,7 @@ class UncertaintyTab(QWidget):
                     reactionNames = self.centralDataManager.getReactionNames()
                     self.comboBoxReaction.addItems(reactionNames)
                     self.comboBoxReaction.currentIndexChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxReaction)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.comboBoxReaction)
 
                     #set the value
                     if value and value != "n.a.":
@@ -221,26 +224,36 @@ class UncertaintyTab(QWidget):
                         reactionName = [u.name for u in reactionList if u.uid == value][0]
                         self.comboBoxReaction.setCurrentText(reactionName)
 
-                elif key == "uncertaintyFactor":
-                    self.doubleSpinBox = QDoubleSpinBox()
-                    self.doubleSpinBox.setRange(0.0, 1.0)
-                    self.doubleSpinBox.setSingleStep(0.01)
-                    self.doubleSpinBox.valueChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.doubleSpinBox)
-                    if value:
-                        self.doubleSpinBox.setValue(float(value))
 
-                elif key == "distributionType":
-                    distributionNames = ["Uniform", "Normal"]
-                    self.comboBoxDistribution = ComboBox()
-                    self.comboBoxDistribution.addItems(distributionNames)
-                    self.comboBoxDistribution.currentIndexChanged.connect(self.saveData)
-                    self.uncertaintyTable.setCellWidget(rowPosition, index, self.comboBoxDistribution)
-                    if value:
-                        self.comboBoxDistribution.setCurrentText(value)
+                elif key == "lowerBound":
+                    self.lineEditLB = QLineEdit()
+                    validator = QDoubleValidator(-999999999, 999999999, 2)
+                    self.lineEditLB.setValidator(validator)
+                    self.lineEditLB.editingFinished.connect(self.saveData)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.lineEditLB)
+                    if value is not None:
+                        self.lineEditLB.setText(str(value))
 
-                # else:
-                #     self.logger.error(f"Missing logic for {key}")
+                elif key == "upperBound":
+                    self.lineEditUB = QLineEdit()
+                    validator = QDoubleValidator(-999999999, 999999999, 2)
+                    self.lineEditUB.setValidator(validator)
+                    self.lineEditUB.editingFinished.connect(self.saveData)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.lineEditUB)
+                    if value is not None:
+                        self.lineEditUB.setText(str(value))
+
+                elif key == "steps":
+                    self.lineEditSteps = QLineEdit()
+                    validator = QDoubleValidator(-999999999, 999999999, 2)
+                    self.lineEditSteps.setValidator(validator)
+                    self.lineEditSteps.editingFinished.connect(self.saveData)
+                    self.sensitivityTable.setCellWidget(rowPosition, index, self.lineEditSteps)
+                    if value is not None:
+                        self.lineEditSteps.setText(str(value))
+
+                else:
+                     self.logger.error(f"Missing logic for {key}")
 
         # set the flag of adding a row to false
         self.addingRowFlag = False
@@ -257,7 +270,7 @@ class UncertaintyTab(QWidget):
             # get the row position
             row = rowPostion
             # get the parameter type
-            paramType = self.uncertaintyTable.cellWidget(row, 0).currentText()
+            paramType = self.sensitivityTable.cellWidget(row, 0).currentText()
 
             if paramType == "Split factors (myu)": # or paramType == "electricity_price" or paramType == "heat_price":
                 # the reactionUID column is not editable and in gray
@@ -281,7 +294,7 @@ class UncertaintyTab(QWidget):
                 self._updateColumnEditability(row, [3])
 
             else:
-                print('Missed logic for {}'.format(paramType))
+                self.logger.error('Missed logic for {}'.format(paramType))
 
     def _updateColumnEditability(self, rowPosition, deactivate_columns):
         """
@@ -291,7 +304,7 @@ class UncertaintyTab(QWidget):
         :return:
         """
         for col in range(1, 5):
-            widget = self.uncertaintyTable.cellWidget(rowPosition, col)
+            widget = self.sensitivityTable.cellWidget(rowPosition, col)
             if col in deactivate_columns:
                 if isinstance(widget, ComboBox):
                     if "n.a." not in [widget.itemText(i) for i in range(widget.count())]:
@@ -348,13 +361,13 @@ class UncertaintyTab(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Backspace | Qt.Key_Delete:
-            selectedItems = self.uncertaintyTable.selectedItems()
+            selectedItems = self.sensitivityTable.selectedItems()
             if selectedItems:
                 selectedRow = selectedItems[0].row()  # Get the row of the first selected item
-                self.uncertaintyTable.removeRow(selectedRow)
-                target = [u for u in self.uncertaintyList if u.rowPosition == selectedRow][0]
-                self.uncertaintyList.remove(target)
-                for c in [u for u in self.uncertaintyList if u.rowPosition >= selectedRow]:
+                self.sensitivityTable.removeRow(selectedRow)
+                target = [u for u in self.sensitivityList if u.rowPosition == selectedRow][0]
+                self.sensitivityList.remove(target)
+                for c in [u for u in self.sensitivityList if u.rowPosition >= selectedRow]:
                     c.updateRow()
         else:
             super().keyPressEvent(event)
@@ -367,17 +380,17 @@ class UncertaintyTab(QWidget):
         if not self.addingRowFlag:
             self.collectData()
             # Save the data to the central data manager
-            self.centralDataManager.addData("uncertaintyData", self.uncertaintyList)
-            self.logger.debug("Uncertainty data saved to central data manager")
+            self.centralDataManager.addData("sensitivityData", self.sensitivityList)
+            self.logger.debug("Sensitivity data saved to central data manager")
 
     def collectData(self):
         # Collect data from the table
-        for row in range(self.uncertaintyTable.rowCount()):
-            edit = [u for u in self.uncertaintyList if u.rowPosition == row][0]
+        for row in range(self.sensitivityTable.rowCount()):
+            edit = [u for u in self.sensitivityList if u.rowPosition == row][0]
             rowData = []
             for column in self.columnsList:
                 sindex = self.columnsList.index(column)
-                widget = self.uncertaintyTable.cellWidget(row, sindex)
+                widget = self.sensitivityTable.cellWidget(row, sindex)
 
                 # extract the value from the widget
                 if isinstance(widget, ComboBox):
@@ -404,14 +417,14 @@ class UncertaintyTab(QWidget):
                         id = [u for u in reactionList if u.name == value][0].uid
                         edit.upadateField(self.columnsShortnames[sindex], id)
 
-    def sortComponentDTO(self,dto: UncertaintyDTO):
+    def sortComponentDTO(self,dto: SensitivityDTO):
         return dto.rowPosition
 
     def importData(self):
         try:
             tabledata = self.centralDataManager.uncertaintyData
             for row in tabledata:
-                self.addUncertaintyRow(row)
+                self.addSensitivityRow(row)
         except Exception as e:
             raise e
             pass
@@ -428,13 +441,13 @@ class UncertaintyTab(QWidget):
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
 
         # Determine which table was clicked
-        component_pos = self.uncertaintyTable.viewport().mapFrom(self, event.pos())
+        component_pos = self.sensitivityTable.viewport().mapFrom(self, event.pos())
 
-        if self.uncertaintyTable.geometry().contains(event.pos()) and action == deleteAction:
+        if self.sensitivityTable.geometry().contains(event.pos()) and action == deleteAction:
             # Determine the row that was clicked in the reactants table
-            row = self.uncertaintyTable.rowAt(component_pos.y())
+            row = self.sensitivityTable.rowAt(component_pos.y())
             if row != -1:
-                self.uncertaintyTable.removeRow(row)
+                self.sensitivityTable.removeRow(row)
 
             # update the dto list containing the chemical components
             self.centralDataManager.updateData('uncertaintyData', row)

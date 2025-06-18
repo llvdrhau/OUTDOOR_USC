@@ -11,6 +11,7 @@ import pickle
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
+from outdoor.user_interface.data.SensitivityDTO import SensitivityDTO
 from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
 from outdoor.user_interface.data.UtilityDTO import UtilityDTO
 from outdoor.user_interface.data.WasteTreatmentDTO import WasteTreatmentDTO
@@ -45,15 +46,17 @@ class CentralDataManager:
         self._outputList: list[str] = []
         self.metadata = {}  # Stores project metadata like the name.
         self.uncertaintyData: list[UncertaintyDTO] = []
+        self.sensitivityData: list[SensitivityDTO] = []
         self.BWPROJECTNAME = "superstructure"  # this needs to be changed in the configs or something because it's actual satan.
 
-    def addData(self, field, data):
+    def addData(self, field:str, data):
         """
         Adds data to the central data manager
         :param field: str, the field that the data belongs to
-        :param data: the data to be added gererally a DTO
+        :param data: the data to be added generally a DTO
         :return:
         """
+
         match field:
             case "chemicalComponentsData":
                 for species in data:
@@ -72,6 +75,9 @@ class CentralDataManager:
 
             case "uncertaintyData":
                 self.uncertaintyData = data
+
+            case "sensitivityData":
+                self.sensitivityData = data
 
             case _:
                 self.logger.error(f"Error: Field \"{field}\" not recognized")

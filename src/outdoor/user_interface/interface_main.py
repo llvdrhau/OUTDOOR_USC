@@ -13,6 +13,7 @@ from outdoor.user_interface.data.ConstructSuperstructure import ConstructSuperst
 from outdoor.user_interface.data.TabManager import TabManager
 from outdoor.user_interface.dialogs.ConfigEditor import ConfigEditor
 from outdoor.user_interface.WelcomeTab import WelcomeTab
+from outdoor.user_interface.tabs.SensitivityTab import SensitivityTab
 from outdoor.user_interface.utils.LCACalculationMachine import LCACalculationMachine
 from outdoor.user_interface.tabs.ComponentsTab import ComponentsTab
 from outdoor.user_interface.tabs.GeneralSystemDataTab import GeneralSystemDataTab
@@ -255,6 +256,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         utilityTab = UtilityTab(centralDataManager=self.centralDataManager)
         superstructureMappingTab = SuperstructureMappingTab(centralDataManager=self.centralDataManager,
                                                             signalManager=self.signalManager)
+        sensitivityTab = SensitivityTab(centralDataManager=self.centralDataManager)
         uncertaintyTab = UncertaintyTab(centralDataManager=self.centralDataManager)
 
         # add Reaction tab to the tab manager
@@ -271,6 +273,7 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         tabWidget.addTab(reactionsTab, "Reactions")
         tabWidget.addTab(utilityTab, "Utilities")
         tabWidget.addTab(superstructureMappingTab, "Superstructure Mapping")
+        tabWidget.addTab(sensitivityTab, "Sensitivity")
         tabWidget.addTab(uncertaintyTab, "Uncertainty")
         if self.ProjectName != '':
             self.setWindowTitle(f'OUTDOOR 2.0 - {self.ProjectName}')
