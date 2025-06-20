@@ -1,9 +1,31 @@
-MIT License
+OUTDOOR_v2 – Copyright (c) 2025 Lucas Van der Hauwaert / University of Santiago de Compostela
 
-Copyright (c) 2020, Philipp Kenkel
+This program is dual-licensed under the following terms:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+1. **GNU Affero General Public License v3.0 (AGPL-3.0)**
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+You may use, modify, and redistribute this software under the terms of the AGPL v3.
+
+This license is particularly suitable for academic, non-commercial, or open-source usage.
+
+Full license text: https://www.gnu.org/licenses/agpl-3.0.html
+
+---
+
+2. **Commercial License**
+
+If you wish to use this software in a proprietary product or for commercial purposes  
+**without disclosing your own source code**, you must obtain a commercial license.
+
+For commercial licensing inquiries, please contact:
+
+**Lucas Van der Hauwaert**  
+Email: lucasvdhauwaert@gmail.com  
+
+---
+
+Unless required by applicable law or agreed to in writing, this software is distributed under the AGPL license  
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+See the AGPL License for the specific language governing permissions and limitations.
