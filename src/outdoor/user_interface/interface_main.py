@@ -128,10 +128,9 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return:
         """
 
-        # check if  # curvature lines from a distributor
-        #         self.curvatureLinesDistributor = {}  # position control point {Number: (x, y)}
-        #         # mapping dict to understand which line leaving the distributor unit, is connected to which unit
-        #         self.distributorLineUnitMap = {}  # key is the line number, value is the unit id {receivingID: number}
+        # check if sensitivity data exists
+        if not hasattr(self.centralDataManager, 'sensitivityData'):
+            self.centralDataManager.sensitivityData = []
 
         for unitDTO in self.centralDataManager.unitProcessData.values():
             if unitDTO.type in [ProcessType.BOOLDISTRIBUTOR, ProcessType.DISTRIBUTOR]:
