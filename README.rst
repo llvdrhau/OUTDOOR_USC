@@ -1,121 +1,67 @@
 ========
-Overview
+OUTDOOR
 ========
 
-OUTDOOR ( Open Superstructure Modeling and Optimization Framework) is a tool to construct superstructure optimization models and solve them using MILP solvers. 
- 
-The Program consists of three main aspects:
+OUTDOOR (Open Superstructure Modeling and Optimization Framework) is a comprehensive tool for constructing and solving superstructure optimization models using Mixed Integer Linear Programming (MILP) solvers.
 
-1) The outdoor_core module provides classes for unit operations such as Reactors and stream splitters, as well as a class for system data like electricity prices and heating utilities. These Classes can be used to construct superstructures by creating unit operations objects and adding them to a superstructure class object. 
+Key Features
+===========
 
-2) The outdoor_core module also implements a generic MILP superstructure model, which is written as an PYOMO abstract model, and can be applied to different cases such as biorefineries, chemical industry or Power-to-X. The generic model is created and afterwards converted into a concrete model by initializing the data from the populated superstructure.
+* **Modular Component Library**: The `outdoor_core` module provides classes for unit operations (reactors, stream splitters, etc.) and system data components that can be assembled into custom superstructures.
 
-3) Objects and data can either be created and populated by python scripting utilizing class-specific setter function. However, outdoor also includes a excel_wrapper tool which turn predesigned excel templates automatically into populated superstructures which can be solved using the outdoor framework. 
+* **Integrated MILP Solver**: Built-in PYOMO abstract model implementation that can be applied to various applications including biorefineries, chemical processing, and Power-to-X technologies.
 
-An example is proved in the example folder.
+* **User-Friendly Interface**: Create models through Python scripting with intuitive APIs or use the Excel-based interface for rapid model development.
 
-
-
-.. start-badges
-
-.. list-table::
-    :stub-columns: 1
-
-    * - docs
-      - |docs|
-    * - tests
-      - | |travis| |appveyor| |requires|
-        | |coveralls|
-    * - package
-      - | |version| |wheel| |supported-versions| |supported-implementations|
-        | |commits-since|
-.. |docs| image:: https://readthedocs.org/projects/OUTDOOR/badge/?style=flat
-    :target: https://readthedocs.org/projects/OUTDOOR
-    :alt: Documentation Status
-
-.. |travis| image:: https://api.travis-ci.org/PKenkel/OUTDOOR.svg?branch=master
-    :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/PKenkel/OUTDOOR
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/PKenkel/OUTDOOR?branch=master&svg=true
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/PKenkel/OUTDOOR
-
-.. |requires| image:: https://requires.io/github/PKenkel/OUTDOOR/requirements.svg?branch=master
-    :alt: Requirements Status
-    :target: https://requires.io/github/PKenkel/OUTDOOR/requirements/?branch=master
-
-.. |coveralls| image:: https://coveralls.io/repos/PKenkel/OUTDOOR/badge.svg?branch=master&service=github
-    :alt: Coverage Status
-    :target: https://coveralls.io/r/PKenkel/OUTDOOR
-
-.. |version| image:: https://img.shields.io/pypi/v/outdoor.svg
-    :alt: PyPI Package latest release
-    :target: https://pypi.org/project/outdoor
-
-.. |wheel| image:: https://img.shields.io/pypi/wheel/outdoor.svg
-    :alt: PyPI Wheel
-    :target: https://pypi.org/project/outdoor
-
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/outdoor.svg
-    :alt: Supported versions
-    :target: https://pypi.org/project/outdoor
-
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/outdoor.svg
-    :alt: Supported implementations
-    :target: https://pypi.org/project/outdoor
-
-.. |commits-since| image:: https://img.shields.io/github/commits-since/PKenkel/OUTDOOR/v0.0.0.svg
-    :alt: Commits since latest release
-    :target: https://github.com/PKenkel/OUTDOOR/compare/v0.0.0...master
-
-
-
-.. end-badges
-
-SHORT DESCRIPTION
-
-* Free software: MIT license
+* **Visualization and Analysis**: Integrated tools for reviewing model structure, analyzing results, and optimizing processes.
 
 Installation
-============
+===========
 
 ::
 
     pip install outdoor
 
-You can also install the in-development version with::
+For the latest development version:
 
-    pip install https://github.com/PKenkel/OUTDOOR/archive/master.zip
+::
 
+    pip install git+https://github.com/llvdrhau/OUTDOOR_USC.git
+
+Usage
+=====
+
+OUTDOOR provides multiple ways to define your superstructure models:
+
+1. **Python API**: Create models programmatically
+2. **Excel Templates**: Use predefined templates to configure your models
+3. **GUI Interface**: Visual modeling environment (if available in your installation)
+
+Examples can be found in the `examples` directory.
+
+License
+=======
+
+OUTDOOR is available under a Dual commercial license. Free usage is permitted under the GNU General Public License (GPL)
+v3.0 for academic and non-commercial purposes. For commercial use, please reach out to lucasvdhauwaert@gmail.com.
+See the [Commercial License Agreement](COMMERCIAL_LICENSE.md) for details.
 
 Documentation
-=============
+============
 
-
-https://outdoor.readthedocs.io/
-
+For full documentation, visit: [Documentation Link]
 
 Development
-===========
+==========
 
-To run all the tests run::
+To contribute to OUTDOOR:
 
-    tox
+1. Clone the repository
+2. Install development dependencies: `pip install -e ".[dev]"`
+3. Run tests: `pytest`
 
-Note, to combine the coverage data from all the tox environments run:
+Contact
+=======
 
-.. list-table::
-    :widths: 10 90
-    :stub-columns: 1
+For support or inquiries, please contact lucasvdhauwaert@gmail.com
 
-    - - Windows
-      - ::
-
-            set PYTEST_ADDOPTS=--cov-append
-            tox
-
-    - - Other
-      - ::
-
-            PYTEST_ADDOPTS=--cov-append tox
