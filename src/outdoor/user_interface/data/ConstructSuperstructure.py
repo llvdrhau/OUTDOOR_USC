@@ -1,5 +1,4 @@
 import logging
-from calendar import error
 
 from PyQt5.QtWidgets import QMessageBox
 from outdoor.outdoor_core.input_classes.superstructure import Superstructure

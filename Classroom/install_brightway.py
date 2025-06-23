@@ -13,22 +13,30 @@ def import_ecoinvent(projectName):
     bd.projects.set_current(projectName)
 
     if not bd.databases:
-        print("Installing outdoor database from Ecoinvent")
+        print("Installing the database from Ecoinvent under projectName '{}': ".format(projectName))
         # This will install the outdoor database from Ecoinvent
         try:
+            # get input from the user, print the message in bold purple
+            print("")
+            print("\033[1;35m" + "Please enter your credentials to access the Ecoinvent database" + "\033[0m")
+            username = input('Username: ')
+            password = input('Password: ')
+
             # Add use_mp=False to avoid multiprocessing issues
             bi.import_ecoinvent_release(
                 version="3.9.1",
                 system_model="consequential",
-                username="ACV_IIT",
-                password="Ecoinvent123",
+                username=username,
+                password=password,
             )
 
             # This prints the directory where the current project is stored
             print(bd.projects.dir)
             print(bd.__version__)
+
         except Exception as e:
             print("The following error occurred:", e)
+            return
     else:
         # print in green
         print("\033[92m" + "Brightway already installed" + "\033[0m")
@@ -77,7 +85,7 @@ def check_project_database(projectName):
 if __name__ == "__main__":
     # Add freeze_support for Windows
     multiprocessing.freeze_support()
-    import_ecoinvent(projectName='outdoor')
+    import_ecoinvent(projectName='test_project')
     # Check the project database
     check_project_database(projectName='outdoor')
 
