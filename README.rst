@@ -33,11 +33,9 @@ Usage
 
 OUTDOOR provides multiple ways to define your superstructure models:
 
-1. **Python API**: Create models programmatically
 2. **Excel Templates**: Use predefined templates to configure your models
 3. **GUI Interface**: Visual modeling environment (if available in your installation)
 
-Examples can be found in the `examples` directory.
 
 License
 =======
@@ -49,7 +47,7 @@ See the [Commercial License Agreement](COMMERCIAL_LICENSE.md) for details.
 Documentation
 ============
 
-For full documentation, visit: [Documentation Link]
+For full documentation, visit: [Documentation Link, under construction]
 
 Development
 ==========
@@ -58,7 +56,19 @@ To contribute to OUTDOOR:
 
 1. Clone the repository
 2. Install development dependencies: `pip install -e ".[dev]"`
-3. Run tests: `pytest`
+3. Run tests: `pytest` (proper test need to still be made)
+
+Credit
+======
+
+If you wish to use this software, please cite::
+
+    @article{van_der_hauwaert_et_al,
+      title = {Designing Sustainable Biorefineries for Agricultural Waste: An Environmental-Economic Optimization of Tomato Pomace},
+      author = {Van der Hauwaert, Lucas and Sommer Schjønberg, Mias and Regueira Lopez, Alberte and Mauricio-Iglesias, Miguel},
+      journal = {Preprint available at https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5277124}
+    }
+
 
 Contact
 =======
