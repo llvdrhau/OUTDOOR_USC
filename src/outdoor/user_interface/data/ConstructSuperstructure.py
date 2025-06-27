@@ -1,5 +1,4 @@
 import logging
-from calendar import error
 
 from PyQt5.QtWidgets import QMessageBox
 from outdoor.outdoor_core.input_classes.superstructure import Superstructure
@@ -679,6 +678,14 @@ class ConstructSuperstructure:
         ReferenceFlow = dto.dialogData["Reference Flow Equipment Cost"]
         CostExponent = dto.dialogData["Exponent"]
         ReferenceYear = dto.dialogData["Reference Year"]
+        maxCECPI = max(self.superstructureObject.CECPI_SET.keys())
+        minCECPI = min(self.superstructureObject.CECPI_SET.keys())
+
+        if ReferenceYear > maxCECPI or ReferenceYear < minCECPI:
+            self.errorMessage = ("Reference Year {}, in unit '{}' is not in the range of the Valid chemical plant index years: "
+                                 "[{}, {}] ".format(ReferenceYear, dto.name, minCECPI, maxCECPI))
+            self._showErrorDialog(message=self.errorMessage, type='Critical', title='Error: Reference Year')
+            return
 
         DirectCostFactor = dto.dialogData["Direct Cost Factor"]
 

@@ -342,6 +342,8 @@ class ModelOutput:
         capitalcost_shares = {"Capital costs shares": {}}
 
         total_costs = model_data["CAPEX"]
+        capitalcost_shares["Capital costs shares"]["Total capital costs"] = str(round(total_costs, 3)) + ' Mil. Euro'
+        capitalcost_shares["Capital costs shares"][""] = ""
 
         capitalcost_shares["Capital costs shares"]["Heat pump"] = round(
             model_data.get("ACC_HP", 0) / (total_costs + 1e-9)  * 100, 2
@@ -970,6 +972,74 @@ class ModelOutput:
         economic_results = {"Economic results": {}}
 
         total_costs = model_data["TAC"] / 1000 + 1e-9
+        rn = 4 # rounding number
+        profits = 0
+        wwt = 0
+
+        for i, j in model_data["PROFITS"].items():
+            if j < 0:
+                wwt += j * model_data["H"] / 1000
+            else:
+                profits += j * model_data["H"] / 1000
+
+        # so sinks/pools which are negative are waste streams, but we've also got treatment that we now specify and
+        # calculate for all the waste streams that are not passed on to other units
+
+        if model_data['WASTE_COST_TOT'] > 0:
+            wwt += model_data['WASTE_COST_TOT'] /1000 # in M€
+
+        economic_results["Economic results"]["CAPEX share"] = str(
+            round(model_data.get("CAPEX", 1e-6), rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Raw material consumption share"] = str(round(
+            model_data.get("RM_COST_TOT", 0) / 1000, rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Operating and Maintanence share"] = str(round(
+            model_data.get("M_COST_TOT", 0), rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Electricity share"] = str(
+            round((model_data.get("ENERGY_COST", 0).get("Electricity", 0)
+                   + model_data.get("ELCOST", 0)) / 1000, rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Chilling share"] = str(
+            round(model_data.get("ENERGY_COST", 0).get("Chilling", 0) / 1000, rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Heat integration share"] = str(
+            round(model_data.get("C_TOT", 0) / 1000, rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Waste treatment share"] = str(round(wwt, rn)) + " Mil. Euro"
+
+        economic_results["Economic results"]["Profits share"] = str(round(profits, rn)) + " Mil. Euro"
+
+        return economic_results
+
+    def _collect_relative_economic_results(self):
+        """
+        Description
+        -----------
+        Collects data from the ProcessResults._data dictionary.
+        Data that is collected are base economic values, and depict the shares
+        of the total costs of:
+            CAPEX (all unit-operations)
+            Raw material purchase
+            Electricity costs
+            Chilling costs
+            Heat integration costs (Heating, Cooling utilities as well as HEN)
+            Operating and Maintenance
+            Waste water treatment
+            Profits from Byproducts
+
+        Returns
+        -------
+        economic_results : Dictionary
+
+        """
+
+        model_data = self._data
+
+        economic_results = {"Economic results": {}}
+
+        total_costs = model_data["TAC"] / 1000 + 1e-9
 
         profits = 0
         wwt = 0
@@ -1055,18 +1125,18 @@ class ModelOutput:
             if i[1] == "Electricity" and j >= 1e-05:
                 total_el += j * model_data.get("flh", 0).get(i[0], 0)
 
+        electricity_shares["Electricity demand shares"]['Total electricity demand'] = str(round(total_el, 2)) + ' MWh'
+        electricity_shares["Electricity demand shares"]['']= ''
+
         electricity_shares["Electricity demand shares"]["Heatpump electricity share"] \
-            = round(
-            model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / (total_el + 1e-6) * 100,
-            2,
-            )
+            = str(round(model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"] / (total_el + 1e-6) * 100, 2)) + ' %'
 
         for i, j in model_data["ENERGY_DEMAND"].items():
             if i[1] == "Electricity" and j >= 1e-05:
                 index_name = model_data["Names"][i[0]]
-                electricity_shares["Electricity demand shares"][index_name] = round(
+                electricity_shares["Electricity demand shares"][index_name] = str(round(
                     j * model_data.get("flh", 0).get(i[0], 0) / (total_el + 1e-6) * 100, 2
-                )
+                )) + ' %'
 
         return electricity_shares
 
@@ -1259,22 +1329,28 @@ class ModelOutput:
 
     def _collect_energy_data(self):
 
+        rn = 2  # rounding number
         model_data = self._data
 
         energy_data = {"Energy data": {}}
 
-        heat_demand = model_data["ENERGY_DEMAND_HEAT_UNIT"]
-        cool_demand = model_data["ENERGY_DEMAND_COOL_UNIT"]
+        # the keys of the units are UUID which are not very readable, so we convert them to names
+        heat_demand = {model_data["Names"][k]: round(v * model_data.get("flh", 0).get(k, 8000), rn) for k, v in
+                       model_data["ENERGY_DEMAND_HEAT_UNIT"].items() if v >= 1e-05}
+
+        # the same for cooling demand
+        cool_demand = {model_data["Names"][k]: round(v* model_data.get("flh", 0).get(k, 8000), rn) for k, v in
+                       model_data["ENERGY_DEMAND_COOL_UNIT"].items() if v >= 1e-05}
 
         total_el = model_data.get("ENERGY_DEMAND_HP_EL", 0) * model_data["H"]
 
         for i, j in model_data["ENERGY_DEMAND"].items():
             if i[1] == "Electricity" and abs(j) >= 1e-05:
-                total_el += j * model_data.get("flh", 0).get(i[0], 0)
+                total_el += round(j * model_data.get("flh", 0).get(i[0], 0), rn)
 
-        energy_data["Energy data"]["heat"] = heat_demand
-        energy_data["Energy data"]["cooling"] = cool_demand
-        energy_data["Energy data"]["electricity"] = total_el
+        energy_data["Energy data"]["heat (MWh)"] = heat_demand
+        energy_data["Energy data"]["cooling (MWh)"] = cool_demand
+        energy_data["Energy data"]["electricity (MWh)"] = total_el
 
         return energy_data
 
@@ -1285,11 +1361,15 @@ class ModelOutput:
 
         for i, j in model_data["FLOW_FT"].items():
             if j > 1e-04:
-                mass_flow_data["Mass flows"][i] = round(j, 2)
+                namePair = [model_data["Names"].get(name, name) for name in i]
+                nameTuple = tuple(namePair)
+                mass_flow_data["Mass flows"][nameTuple] = str(round(j, 2)) + " t/h"
 
         for i, j in model_data["FLOW_ADD"].items():
             if j > 1e-04:
-                mass_flow_data["Mass flows"][i] = round(j, 2)
+                namePair = [model_data["Names"].get(name, name) for name in i]
+                nameTuple = tuple(namePair)
+                mass_flow_data["Mass flows"][nameTuple] = str(round(j, 2)) + " t/h"
 
         return mass_flow_data
 
@@ -1346,8 +1426,8 @@ class ModelOutput:
         self.results.update(self.collect_capital_cost_shares())
         self.results.update(self._collect_electricity_shares())
         self.results.update(self._collect_heatintegration_results())
-        self.results.update(self._collect_GHG_results())
-        self.results.update(self._collect_FWD_results())
+        # self.results.update(self._collect_GHG_results())
+        # self.results.update(self._collect_FWD_results())
         self.results.update(self._collect_energy_data())
         self.results.update(self._collect_mass_flows())
         self.results.update(self._collect_LCA_results())
