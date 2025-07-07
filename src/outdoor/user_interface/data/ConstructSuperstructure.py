@@ -189,14 +189,19 @@ class ConstructSuperstructure:
             reactantsList.append(key)
         obj.add_reactants(reactantsList)
 
-        # lower heating value, molecular weight and heat capacity
-        lhvDict = {dto.name: float(dto.lowerHeat) for dto in self.centralDataManager.componentData}
+        # add lower heat values
+        lhvDict = {dto.name: float(dto.lowerHeat) if dto.lowerHeat != "" else 0 for dto in
+                   self.centralDataManager.componentData}
         obj.set_lhv(lhvDict)
 
-        mwDict = {dto.name: float(dto.molecularWeight) for dto in self.centralDataManager.componentData}
+        # add molecular weights
+        mwDict = {dto.name: float(dto.molecularWeight) if dto.molecularWeight != "" else 0 for dto in
+                  self.centralDataManager.componentData}
         obj.set_mw(mwDict)
 
-        cpDict = {dto.name: float(dto.heatCapacity) for dto in self.centralDataManager.componentData}
+        # add heat capacities
+        cpDict = {dto.name: float(dto.heatCapacity) if dto.heatCapacity != "" else 0 for dto in
+                  self.centralDataManager.componentData}
         obj.set_cp(cpDict)
 
         # ADD OTHER PARAMETERS

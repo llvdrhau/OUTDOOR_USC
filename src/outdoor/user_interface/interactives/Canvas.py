@@ -1686,7 +1686,9 @@ class InteractiveLine(QGraphicsPathItem):
             self.logger.debug("The connections are: {}".format(unitDTOSending.materialFlow))
             self.logger.debug("The classification of streams are: {}".format(unitDTOSending.classificationStreams))
 
-            unitDTOReceiving.incomingUnitFlows.pop(self.startPort.iconID)
+            # remove the incoming flow from the receiving unit, returns None if the key is not found. Necessary to avoid
+            # KeyError when the line is deleted from a distributor to which a unit is connected to
+            unitDTOReceiving.incomingUnitFlows.pop(self.startPort.iconID, None)
             self.logger.debug("Incoming flow id {} removed from the receiving "
                               "unitDTO {}".format(self.startPort.iconID, unitDTOReceiving.uid))
 

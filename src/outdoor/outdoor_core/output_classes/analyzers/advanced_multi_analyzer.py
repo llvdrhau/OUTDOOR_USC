@@ -707,7 +707,8 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         plt.show()
 
     def create_cross_parameter_plot(self, processList, objective, savePath=None, saveName=None,
-                                    simpleContour=False, levels=10, xlabel=None, ylabel=None, ecludianDistancePoint=None ):
+                                    simpleContour=False, levels=10, xlabel=None, ylabel=None,
+                                    ecludianDistancePoint=None, colorMap = 'viridis'):
         """
         This method creates a contour plot with contour lines and background colors corresponding to labels using a custom colormap.
         :param processList: List of process numbers to be checked in the algorithm (e.g., [6000, 410])
@@ -730,7 +731,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
 
         if simpleContour:
             # Create a filled contour plot
-            contour_filled = plt.contourf(x, y, z, levels=levels, cmap='viridis')
+            contour_filled = plt.contourf(x, y, z, levels=levels, cmap=colorMap)
             # Add contour lines on top of the filled contours
             contour_lines = plt.contour(x, y, z, levels=levels, colors='black')
 
@@ -876,7 +877,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         # Number of discrete colors needed
         num_colors = len(label_dict.keys())
         # Sample the viridis colormap
-        viridis = cm.get_cmap('viridis', num_colors)
+        viridis = cm.get_cmap('cividis', num_colors)
         # Extract the colors as a list
         colors = [viridis(i) for i in range(num_colors)]
         # Create a custom colormap from these colors

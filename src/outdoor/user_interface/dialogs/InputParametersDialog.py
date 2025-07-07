@@ -123,13 +123,13 @@ class InputParametersDialog(QDialog):
         self.lowerLimit = QLineEdit(self)
         self._addRowWithTooltip(layout=layout, labelText="Lower Limit (t/h):", widget=self.lowerLimit,
                                 tooltipText="Enter the lower limit for the quantity in tons.")
-        self.lowerLimit.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.lowerLimit.setValidator(QDoubleValidator(0.00000, 999999.99999, 5))
 
         # Upper Limit
         self.upperLimit = QLineEdit(self)
         self._addRowWithTooltip(layout=layout, labelText="Upper Limit (t/h):", widget=self.upperLimit,
                                 tooltipText="Enter the upper limit for the quantity in tons/h.")
-        self.upperLimit.setValidator(QDoubleValidator(0.00, 999999.99, 2))
+        self.upperLimit.setValidator(QDoubleValidator(0.00000, 999999.99999, 5))
 
         # OK and Cancel buttons
         self.okButton = QPushButton("OK", self)
@@ -365,13 +365,13 @@ class InputParametersDialog(QDialog):
         :return: True if there is an error, False otherwise
         """
 
+        if dialogData['Name'] == "":
+            self._showErrorDialog("Source Name is required to save the Input block")
+            return True
+
         if self.fractionError:
             self._showErrorDialog("The sum of the fractions should be 1.0.")
             return True # there is an error if you return true
-
-        if dialogData['Name'] == "":
-            self._showErrorDialog("Source Name is required.")
-            return True
 
     def _showErrorDialog(self, message):
         """
