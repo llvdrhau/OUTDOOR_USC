@@ -1,5 +1,4 @@
 import logging
-from calendar import error
 
 from PyQt5.QtWidgets import QMessageBox
 from outdoor.outdoor_core.input_classes.superstructure import Superstructure
@@ -74,6 +73,10 @@ class ConstructSuperstructure:
 
         # add the units to the superstructure object
         self.superstructureObject.add_UnitOperations(superstructureListUnits)
+
+        # add sensitivity dataframe to the superstructure object
+        sensitivityDataframe = self._getSensitivitydata()
+
 
     def _setGeneralData(self):
         """
@@ -778,6 +781,27 @@ class ConstructSuperstructure:
                 connections[stream] = sendList
 
         processObject.set_connections(connections)
+
+    def _getSensitivitydata(self):
+        """
+        This method collects the data from the centralDataManager and creates a pandas dataframe
+
+        param pd: pandas module, if None it will be imported
+        """
+
+        # Call centralDataManager and find the variable "sensitivityList" (list of DTO)
+        sensitivityDTOList = self.centralDataManager.sensitivityData
+        rows = []
+
+        # Loop over the list to access the DTO's one by one and use the build in method dto.as.dict
+        for dto in sensitivityDTOList:
+            row_data = dto._as_dict()
+            rows.append(row_data)
+
+        # Add the data to the pandas dataframe (which must have column names):
+        df = pd.DataFrame(rows)
+
+        return  df
 
     def _addUncertaintyData(self):
         """

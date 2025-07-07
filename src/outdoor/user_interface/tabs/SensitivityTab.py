@@ -8,8 +8,9 @@ from PyQt5.QtGui import QDoubleValidator
 
 
 from outdoor.user_interface.data.SensitivityDTO import SensitivityDTO
-from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
+# from outdoor.user_interface.utils.DoubleDelegate import DoubleDelegate
 from outdoor.user_interface.utils.NonFocusableComboBox import NonFocusableComboBox as ComboBox
+from outdoor.user_interface.data.ProcessDTO import ProcessType
 
 
 class SensitivityTab(QWidget):
@@ -296,16 +297,21 @@ class SensitivityTab(QWidget):
             else:
                 self.logger.error('Missed logic for {}'.format(paramType))
 
-    def _updateColumnEditability(self, rowPosition, deactivate_columns):
+    def _updateColumnEditability(self, rowPosition, deactivateColumns:list):
         """
         Updates the editability of columns based on the given row position, columns to deactivate, and parameter type.
         :param rowPosition: the row position in the table that is being edited
-        :param deactivate_columns: list of column indices to be deactivated
+        :param deactivateColumns: list of column indices to be deactivated
         :return:
         """
-        for col in range(1, 5):
+
+        columnsLimitedData = [1,2,3,4,5]  # columns that have limited data based on the parameter type
+        for col in deactivateColumns:
+            columnsLimitedData.remove(col)
+
+        for col in range(1, 6):
             widget = self.sensitivityTable.cellWidget(rowPosition, col)
-            if col in deactivate_columns:
+            if col in deactivateColumns:
                 if isinstance(widget, ComboBox):
                     if "n.a." not in [widget.itemText(i) for i in range(widget.count())]:
                         widget.addItem("n.a.")
@@ -315,6 +321,17 @@ class SensitivityTab(QWidget):
                 hexCode = "#d3d3d3"
                 self._updateBackgroundColor(widget, hexCode)
 
+            if col in columnsLimitedData:
+                # find the value in the first widget (1st column)
+                paramTypeWidget = self.sensitivityTable.cellWidget(rowPosition, 0)
+                paramType = paramTypeWidget.currentText()
+                uniqueDataList = self._getparameterSpecificList(columnNr=col)
+                # give the combobox the new list
+                # delete old items in the combobox in the current widget
+                widget.clear()
+                for obj in uniqueDataList:
+                    widget.addItem(obj)
+
             else:
                 if isinstance(widget, ComboBox):
                     index = widget.findText("n.a.")
@@ -322,6 +339,26 @@ class SensitivityTab(QWidget):
                         widget.removeItem(index)
                 widget.setEnabled(True)
                 self._updateBackgroundColor(widget, "white")
+
+    def _getparameterSpecificList(self, columnNr:int = None):
+        """
+        Returns the processes filtered by the parameter type
+        """
+
+        if columnNr == 1 or columnNr == 3:
+            unitProcesNames = self.centralDataManager.getOnlyProcesses()
+            return unitProcesNames
+
+        if columnNr == 2:
+            ComponentNames = self.centralDataManager.getChemicalComponentNames()
+            return ComponentNames
+
+        if columnNr == 4:
+            reactionNames = self.centralDataManager.getReactionNames()
+            return reactionNames
+
+        else:
+            return []
 
     def _updateBackgroundColor(self, widget, color):
         """

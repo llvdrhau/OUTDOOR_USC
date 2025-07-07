@@ -467,7 +467,16 @@ class ModelOutput:
     def get_detailed_LCA_results_per_unit(self, impCat, exclude_units=None, data=None):
 
         if data is None:
-            model_data = self._data
+            if self._data:
+                model_data = self._data
+            else:
+                # we are dealing with a multi output
+                # take the first solution from the list
+                print("You have given a multioutput model and have not specified the outputdata in the inputs\n"
+                      " selecting the first result in the output files ")
+                key = list(self._results_data.keys())[0]
+                model_data = self._results_data[key]
+
         else:
             model_data = data
 
