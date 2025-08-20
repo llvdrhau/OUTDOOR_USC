@@ -43,12 +43,11 @@ class SuperstructureMappingTab(QWidget):
             if value == "True":
                 self.unitProcessLabels.append(key)
 
-        # self.unitProcessLabels = ['Physical Process',
-        #                      'Stoichiometric Reactor',
-        #                      'Yield Reactor',
-        #                      'Generator (Elec)',
-        #                      'Generator (Heat)',
-        #                           'LCA']
+        if not self.unitProcessLabels:
+            self.unitProcessLabels = ['Physical Process',
+                                  'Stoichiometric Reactor',
+                                  'Yield Reactor',
+                                  'Generator']
 
         for i in self.unitProcessLabels:  # Adding icons for Unit Processes
             button = DraggableIcon(i)

@@ -7,6 +7,7 @@ import glob
 import logging
 import os.path
 import pickle
+from pathlib import Path
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO
@@ -146,7 +147,7 @@ class CentralDataManager:
             del self.unitProcessData[iconId]
 
     def loadConfigs(self):
-        print("Loading configs...")
+        self.logger.info("Loading configs...")
         self.configs["calcConfigs"] = {}
         self.configs["componentConfigs"] = {}
         try:
@@ -166,7 +167,7 @@ class CentralDataManager:
                             compconfs[row[0]] = row[1]
                         self.configs['componentConfigs'] = compconfs
         except Exception as e:
-            print("Error reloading configs file, initializing with defaults.")
+            self.logger.error("Error reloading configs file, initializing with defaults.: ", e)
             self._loadDefaults()
 
     def _loadDefaults(self):
@@ -180,12 +181,12 @@ class CentralDataManager:
         for file in glob.glob(csvDir):  # glob.glob(f'src/outdoor/user_interface/data/configs/defaults/*.csv')
             with open(file) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
-                if file.split('\\')[-1].split('.')[0] == 'calcConfigs':
+                if Path(file).stem == 'calcConfigs':
                     calcconfs = {}
                     for row in reader:
                         calcconfs[row[0]] = row[1]
                     self.configs['calcConfigs'] = calcconfs
-                if file.split('\\')[-1].split('.')[0] == 'componentConfigs':
+                if Path(file).stem == 'componentConfigs':
                     compconfs = {}
                     for row in reader:
                         compconfs[row[0]] = row[1]
