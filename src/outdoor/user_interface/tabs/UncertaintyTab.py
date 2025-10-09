@@ -262,35 +262,40 @@ class UncertaintyTab(QWidget):
             if paramType == "Split factors (myu)": # or paramType == "electricity_price" or paramType == "heat_price":
                 # the reactionUID column is not editable and in gray
                 self._updateColumnEditability(row, [4])
-
-            elif paramType == "Costs (materialcosts)" or paramType == "Price (ProductPrice)" or paramType == "heat_price":
-                # set the reactionUID component and the target Unit UID un-editable, gray and have a value of n.a.
-                self._updateColumnEditability(row, [2, 3, 4])
-
-            elif paramType == "electricity_price":
-                # all un-editable and gray
-                self._updateColumnEditability(row, [1, 2, 3, 4])
-
-
-            elif paramType == "Feed Composition (phi)" or paramType == "Yield factor (xi)":
-                # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
-                self._updateColumnEditability(row, [3, 4])
-
+            #
             elif paramType == "Conversion factor (theta)" or paramType == "Stoichiometric factor (gamma)":
                 # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a.
                 self._updateColumnEditability(row, [3])
+            #
+            elif paramType == "Feed Composition (phi)" or paramType == "Yield factor (xi)":
+                # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
+                self._updateColumnEditability(row, [3, 4])
+            #
+            elif paramType == "Costs (materialcosts)" or paramType == "Price (ProductPrice)":
+                # set the reactionUID column and the target Unit UID un-editable,gray and have a value of n.a
+                self._updateColumnEditability(row, [2, 3, 4])
+            #
+            elif paramType == "electricity_price" or paramType == "heat_price":
+                # all un-editable and gray
+                self._updateColumnEditability(row, [1, 2, 3, 4])
 
             else:
                 print('Missed logic for {}'.format(paramType))
 
-    def _updateColumnEditability(self, rowPosition, deactivate_columns):
+    def _updateColumnEditability(self, rowPosition, deactivate_columns:list):
         """
         Updates the editability of columns based on the given row position, columns to deactivate, and parameter type.
         :param rowPosition: the row position in the table that is being edited
         :param deactivate_columns: list of column indices to be deactivated
         :return:
         """
-        for col in range(1, 5):
+
+        columnsLimitedData = [1,2,3,4] # columns that have limited data based on the parameter type
+        for col in deactivate_columns:
+            if col in columnsLimitedData:
+                columnsLimitedData.remove(col)
+
+        for col in range(1,5):
             widget = self.uncertaintyTable.cellWidget(rowPosition, col)
             if col in deactivate_columns:
                 if isinstance(widget, ComboBox):
@@ -309,6 +314,43 @@ class UncertaintyTab(QWidget):
                         widget.removeItem(index)
                 widget.setEnabled(True)
                 self._updateBackgroundColor(widget, "white")
+
+            if col in columnsLimitedData:
+                # find the value in the first widget (1st column)
+                paramTypeWidget = self.uncertaintyTable.cellWidget(rowPosition, 0)
+                paramName = paramTypeWidget.currentText()
+                uniqueDataList = self._getparameterSpecificList(columnNr=col,parameterName=paramName)
+                # give the combobox the new list
+                # delete old items in the combobox in the current widget
+                widget.clear()
+                for obj in uniqueDataList:
+                    widget.addItem(obj)
+
+    def _getparameterSpecificList(self,parameterName, columnNr: int = None):
+        """
+        Returns the processes filtered by the parameter type
+        """
+
+        if columnNr == 1 or columnNr == 3:
+            if parameterName == "Price (ProductPrice)":
+                unitProcesNames = self.centralDataManager.getOnlyOutputUnits()
+            elif parameterName == "Costs (materialcosts)" or parameterName == "Feed Composition (phi)":
+                unitProcesNames = self.centralDataManager.getOnlyInputUnits()
+            else:
+                unitProcesNames = self.centralDataManager.getOnlyProcesses()
+
+            return unitProcesNames
+
+        if columnNr == 2:
+            ComponentNames = self.centralDataManager.getChemicalComponentNames()
+            return ComponentNames
+
+        if columnNr == 4:
+            reactionNames = self.centralDataManager.getReactionNames()
+            return reactionNames
+
+        else:
+            return []
 
     def _updateBackgroundColor(self, widget, color):
         """
@@ -436,7 +478,7 @@ class UncertaintyTab(QWidget):
             if row != -1:
                 self.uncertaintyTable.removeRow(row)
 
-            # update the dto list containing the chemical components
-            self.centralDataManager.updateData('uncertaintyData', row)
-            # open a dialog if the component is used in a reaction or unit operation
-
+            # update the dto list containing the sensitivity data
+            self.centralDataManager.uncertaintyData.remove([u for u in self.centralDataManager.uncertaintyData if u.rowPosition == row][0])
+            for c in [u for u in self.uncertaintyList if u.rowPosition >= row]:
+                c.updateRow()

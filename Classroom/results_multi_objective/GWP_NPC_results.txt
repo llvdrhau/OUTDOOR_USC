@@ -1,0 +1,4030 @@
+
+Run mode: multi-objective 
+Total run time None 
+ 
+ 
+Identifier of Single run: pareto_bound_1 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_2 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.24 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_3 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.22 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_4 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.27 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_5 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.24 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_6 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_7 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_8 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.24 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_9 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_10 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_11 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.24 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_12 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_13 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_14 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.24 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_15 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_16 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_17 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.25 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_18 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_19 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_20 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.33 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_21 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_22 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.22 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_23 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.32 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_24 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.22 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 
+Identifier of Single run: pareto_bound_25 
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            EBIT
+Yearly product load           4800.0
+Solver run time               0.23 seconds
+Solver name                   gurobi
+Earnings Before Tax income    35.729 €/ton
+Net production costs          -35.73 euro/ton
+Net production GHG emissions  0.02 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.03 MW
+Electricity Purchased         0.03 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  ----------
+580ad5af-3077-4f27-9ad5-84da0bc27ed1  BSG
+efca6609-7b82-44de-a1d8-62c6042ad698  Grinding
+d0c624a4-ec06-4ea6-a994-5da70d73ca7f  Distr.0
+19fbcffa-faa9-4d3f-85ba-f53902072757  Composting
+2437ade0-0994-4909-a8b0-9d97f14f5141  Compost
+------------------------------------  ----------
+
+ 
+
+Economic results-------- 
+-------------------------------  ------
+CAPEX share                      -47.36
+Raw material consumption share   165.13
+Operating and Maintanence share  -20.65
+Electricity share                -17.13
+Chilling share                    -0
+Heat integration share            -0
+Waste treatment share             -0
+Profits share                     20.01
+-------------------------------  ------
+
+ 
+
+Capital costs shares-------- 
+---------------  -----
+Heat pump         0
+Composting       86.87
+Heat Exchangers  12.52
+---------------  -----
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  -----
+Heatpump electricity share   0
+Grinding                    31.37
+Composting                  68.63
+--------------------------  -----
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     81
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+cooling      {'580ad5af-3077-4f27-9ad5-84da0bc27ed1': 0.0, 'efca6609-7b82-44de-a1d8-62c6042ad698': 0.0, '6313d258-7486-4e3c-85bf-ae9def73fc94': 0.0, 'df6d2676-d30d-49a5-8752-ad76ae88e746': 0.0, 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f': 0.0, 'bec8a8b3-cf17-4d61-932d-12d58297c0bc': 0.0, '19fbcffa-faa9-4d3f-85ba-f53902072757': 0.0, '2437ade0-0994-4909-a8b0-9d97f14f5141': 0.0}
+electricity  244.8
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('d0c624a4-ec06-4ea6-a994-5da70d73ca7f', '19fbcffa-faa9-4d3f-85ba-f53902072757')  0.6
+('efca6609-7b82-44de-a1d8-62c6042ad698', 'd0c624a4-ec06-4ea6-a994-5da70d73ca7f')  0.6
+('19fbcffa-faa9-4d3f-85ba-f53902072757', '2437ade0-0994-4909-a8b0-9d97f14f5141')  0.43
+('580ad5af-3077-4f27-9ad5-84da0bc27ed1', 'efca6609-7b82-44de-a1d8-62c6042ad698')  0.6
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.012 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.001 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.001 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.044 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.004 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.014 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.005 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.003 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.001 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 

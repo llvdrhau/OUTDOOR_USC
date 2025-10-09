@@ -74,9 +74,13 @@ class ConstructSuperstructure:
         # add the units to the superstructure object
         self.superstructureObject.add_UnitOperations(superstructureListUnits)
 
-        # add sensitivity dataframe to the superstructure object
-        sensitivityDataframe = self._getSensitivitydata()
+        # add sensitivity list to the superstructure object
+        sensitivityList = self._addSensitivityData()
+        self.superstructureObject.sensitive_parameters = sensitivityList
 
+        # add uncertainty list to the superstructure objet
+        uncertainty_df = self._addUncertaintyData()
+        self.superstructureObject.uncertainty_parameters = uncertainty_df
 
     def _setGeneralData(self):
         """
@@ -162,7 +166,6 @@ class ConstructSuperstructure:
                                      "please fill in the desired temperature".format(errorTemp))
                 self._showErrorDialog(message=self.errorMessage, type='Critical',
                                       title='Warning: Heat Pump Temperature Error')
-
             else:
                 T_IN = float(T_IN)
                 T_OUT = float(T_OUT)
@@ -782,26 +785,26 @@ class ConstructSuperstructure:
 
         processObject.set_connections(connections)
 
-    def _getSensitivitydata(self):
+    def _addSensitivityData(self):
         """
         This method collects the data from the centralDataManager and creates a pandas dataframe
-
         param pd: pandas module, if None it will be imported
         """
 
         # Call centralDataManager and find the variable "sensitivityList" (list of DTO)
         sensitivityDTOList = self.centralDataManager.sensitivityData
-        rows = []
+        sensitivityList = []
 
         # Loop over the list to access the DTO's one by one and use the build in method dto.as.dict
         for dto in sensitivityDTOList:
-            row_data = dto._as_dict()
-            rows.append(row_data)
+            rowData = dto.as_dict()
+            # remove the 'rowPosition' key if it exists, as it is not needed in the dataseries
+            rowData.pop('rowPosition',None)  # remove if exists, otherwise do nothing
+            rowSeries = pd.Series(rowData)  # Convert the dictionary to a pandas Series
+            sensitivityList.append(rowSeries)
 
-        # Add the data to the pandas dataframe (which must have column names):
-        df = pd.DataFrame(rows)
+        return sensitivityList
 
-        return  df
 
     def _addUncertaintyData(self):
         """
@@ -809,8 +812,20 @@ class ConstructSuperstructure:
         the uncertainty data is a dataFrame,
         :return:
         """
-        # todo implement this method
-        pass
+        # Call centralDataManager and find the variable "uncertaintyList" (list of DTO)
+        uncertaintyDTOList = self.centralDataManager.uncertaintyData
+        uncertaintyDicts = []
+
+        # Loop over the list to access the DTO's one by one and use the build in method dto.as.dict
+        for dto in uncertaintyDTOList:
+            rowData = dto.as_dict()
+            # remove the 'rowPosition' key if it exists, as it is not needed in the dataframe
+            rowData.pop('rowPosition', None) # remove if exists, otherwise do nothing
+            uncertaintyDicts.append(rowData)
+
+        # create a DataFrame from the list of dictionaries
+        df = pd.DataFrame(uncertaintyDicts)
+        return df
 
     def get_superstructure(self):
         return self.superstructureObject

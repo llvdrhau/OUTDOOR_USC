@@ -8,7 +8,7 @@ from outdoor.outdoor_core.input_classes.superstructure import Superstructure
 current_path = os.getcwd()
 
 # add the relevant file name to the current working directory
-path = os.path.join(current_path, "Tomato_pomace_solution_LCA_superstructure.pkl")
+path = os.path.join(current_path, "test_superstructure.pkl")
 
 # open the file and load the superstructure object
 with open(path, 'rb') as file:
@@ -33,10 +33,10 @@ solverOptions = {"IntFeasTol": 1e-8,  # tolerance for integer feasibility
 objectivePair = ('global warming potential (GWP100)', 'NPC')
 
 # create the options for the multi-objective optimization
-multi_objective_options = { "objective1": 'global warming potential (GWP100)',  # first objective
+multi_objective_options = { "objective1": 'NPC',  # first objective
                             'bounds_objective1': [None, None],  # [lower_bound, upper_bound]
-                            "objective2": 'NPC', # second objective
-                            "paretoPoints": 5} # number of points in the Pareto front
+                            "objective2": 'global warming potential (GWP100)', # second objective
+                            "paretoPoints": 25} # number of points in the Pareto front
 
 # FIXME instead of writing NPC use "-EBIT" which switches the objective to NPC
 

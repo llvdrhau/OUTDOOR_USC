@@ -1,0 +1,950 @@
+\ Model ModelInstance_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Maximize
+ 
+Subject To
+ MassBalance_1(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O):
+   - FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   - FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   + FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) = 0
+ MassBalance_1(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   - FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   - FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   + FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) = 0
+ MassBalance_1(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels):
+   - FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels)
+   - FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels)
+   + FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) = 0
+ MassBalance_1(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds):
+   - FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds)
+   - FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds)
+   + FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) = 0
+ MassBalance_1(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   - FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   + FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol) = 0
+ MassBalance_1(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   - FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   + FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) = 0
+ MassBalance_1(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds)
+   - FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds)
+   + FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) = 0
+ MassBalance_1(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   - FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   + FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) = 0
+ MassBalance_1(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels):
+   - FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels)
+   + FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) = 0
+ MassBalance_1(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds):
+   - FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds)
+   + FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) = 0
+ MassBalance_1(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O):
+   - ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_H2O)
+   - FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O)
+   + FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) = 0
+ MassBalance_1(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl):
+   - ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_HCl)
+   - FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl)
+   + FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) = 0
+ MassBalance_1(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds):
+   - ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds)
+   - FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds)
+   + FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) = 0
+ MassBalance_1(cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol)
+   - FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol)
+   - FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol)
+   + FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol) = 0
+ MassBalance_1(cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   + FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) = 0
+ MassBalance_1(cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   - FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   - FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   + FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) = 0
+ MassBalance_1(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   - FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   - FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   + FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) = 0
+ MassBalance_1(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   - FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   - FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   + FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_CH4):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CH4)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CH4)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CH4) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_CO2):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CO2)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CO2) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Compost):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Compost)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Compost) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Cutin):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Ethanol)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_H2O):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2O)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2O)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2O) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_HCl):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_HCl)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_HCl)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_HCl) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_N2):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_N2)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_N2) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_NaCl):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_NaCl)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_NaCl) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_O2):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_O2)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_O2)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_O2) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Pectin):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Pectin)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Pectin)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Pectin) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Peels):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Peels)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Peels)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Peels) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_Seeds):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seeds)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seeds) = 0
+ MassBalance_1(dffcb811_9116_4394_b717_6839f84c6e99_all_solids):
+   - FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids)
+   - FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_all_solids)
+   + FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_all_solids) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) = 0
+ MassBalance_1(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds):
+   - FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   - FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   + FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) = 0
+ MassBalance_11(34b7b3c4_cf8f_433b_809d_9246e3b8103a):
+   - 58.8 FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   - 58.8 FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   + 1000 FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) = 0
+ MassBalance_11(cdc526d0_a793_4af4_9207_fbae110ec530):
+   - 495 FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol)
+   + 1000 FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   + 1000 FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   + 1000 FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) = 0
+ MassBalance_12(dffcb811_9116_4394_b717_6839f84c6e99):
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CH4)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CO2)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Compost)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2O)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_HCl)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_N2)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_NaCl)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_O2)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Pectin)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Peels)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seeds)
+   - FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_all_solids)
+   + FLOW_SUM(dffcb811_9116_4394_b717_6839f84c6e99) = 0
+ MassBalance_13(040d2d96_f2c3_434a_87c0_761c7d66426d):
+   FLOW_SOURCE(040d2d96_f2c3_434a_87c0_761c7d66426d) <= 0.5625
+ MassBalance_14a(dffcb811_9116_4394_b717_6839f84c6e99):
+   FLOW_SUM(dffcb811_9116_4394_b717_6839f84c6e99) >= 0.1
+ MassBalance_2(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O):
+   - 0.99 FLOW_ADD(062b8fed_ec62_4857_ad6e_3b326b62beb5_34b7b3c4_cf8f_433b_809d_9246e3b8103a)
+   + FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) = 0
+ MassBalance_2(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   - 0.01 FLOW_ADD(062b8fed_ec62_4857_ad6e_3b326b62beb5_34b7b3c4_cf8f_433b_809d_9246e3b8103a)
+   + FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) = 0
+ MassBalance_2(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels):
+   FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) = 0
+ MassBalance_2(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds):
+   FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) = 0
+ MassBalance_2(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O):
+   FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) = 0
+ MassBalance_2(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds):
+   FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) = 0
+ MassBalance_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds):
+   FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) = 0
+ MassBalance_2(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels):
+   - 0.55 FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+   + FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) = 0
+ MassBalance_2(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds):
+   - 0.45 FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+   + FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) = 0
+ MassBalance_2(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O):
+   FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) = 0
+ MassBalance_2(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl):
+   FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) = 0
+ MassBalance_2(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds):
+   FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) = 0
+ MassBalance_2(cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) = 0
+ MassBalance_2(cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) = 0
+ MassBalance_2(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) = 0
+ MassBalance_2(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds):
+   FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_CH4):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CH4) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_CO2):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CO2) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Compost):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Compost) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Cutin):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_H2O):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2O) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_HCl):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_HCl) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_N2):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_N2) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_NaCl):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_NaCl) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_O2):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_O2) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Pectin):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Pectin) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Peels):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Peels) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_Seeds):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seeds) = 0
+ MassBalance_2(dffcb811_9116_4394_b717_6839f84c6e99_all_solids):
+   FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_all_solids) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) = 0
+ MassBalance_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds):
+   FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) = 0
+ MassBalance_3(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec):
+   FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+   - 100000 Y(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec) <= 0
+ MassBalance_3(062b8fed_ec62_4857_ad6e_3b326b62beb5_34b7b3c4_cf8f_433b_809d_9246e3b8103a):
+   FLOW_ADD(062b8fed_ec62_4857_ad6e_3b326b62beb5_34b7b3c4_cf8f_433b_809d_9246e3b8103a)
+   - 100000 Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a) <= 0
+ MassBalance_4(040d2d96_f2c3_434a_87c0_761c7d66426d):
+   - FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+   - FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_f2803e96_2534_438f_98c5_f01837b10267)
+   + FLOW_SOURCE(040d2d96_f2c3_434a_87c0_761c7d66426d) = 0
+ MassBalance_5(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O):
+   - FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   + FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) = 0
+ MassBalance_5(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   - FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   + FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) = 0
+ MassBalance_5(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds):
+   - FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds)
+   + FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) = 0
+ MassBalance_5(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol):
+   - FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   + FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol) = 0
+ MassBalance_5(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O):
+   - FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   + FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) = 0
+ MassBalance_5(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds):
+   - FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds)
+   + FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) = 0
+ MassBalance_5(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds):
+   - FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   + FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) = 0
+ MassBalance_5(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels):
+   - FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels)
+   + FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) = 0
+ MassBalance_5(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds):
+   - FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds)
+   + FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) = 0
+ MassBalance_5(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O):
+   - FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O)
+   + FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) = 0
+ MassBalance_5(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl):
+   - FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl)
+   + FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) = 0
+ MassBalance_5(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds):
+   - FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds)
+   + FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) = 0
+ MassBalance_5(cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   - FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   + FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) = 0
+ MassBalance_5(cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   - FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   + FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) = 0
+ MassBalance_5(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   - FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   + FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) = 0
+ MassBalance_5(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds):
+   - FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   + FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) = 0
+ MassBalance_5(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds):
+   - FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   + FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) = 0
+ MassBalance_6(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - 0.26 FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Ethanol):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Ethanol)
+   - 0.05 FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2O):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2O)
+   - 0.05 FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_O2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_O2)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Peels):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Peels)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids)
+   + 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 100000
+ MassBalance_6(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   + 100000 Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a) <= 100000
+ MassBalance_6(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels):
+   FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels)
+   - 0.95 FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels)
+   + 100000 Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a) <= 100000
+ MassBalance_6(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   - FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_6(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   + 100000 Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 100000
+ MassBalance_6(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   - FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   + 100000 Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 100000
+ MassBalance_6(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds)
+   + 100000 Y(3861c57c_4221_4192_b540_33ed8c7d5c66) <= 100000
+ MassBalance_6(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   + 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 100000
+ MassBalance_6(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   - 0.11 FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   + 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 100000
+ MassBalance_6(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   + 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 100000
+ MassBalance_7(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   - 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ MassBalance_7(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   - 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids)
+   - 100000 Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ MassBalance_7(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O):
+   FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   - 100000 Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a) <= 0
+ MassBalance_7(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   - 100000 Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a) <= 0
+ MassBalance_7(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ MassBalance_7(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   - 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ MassBalance_7(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   - 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ MassBalance_7(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   - 100000 Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 0
+ MassBalance_7(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   - 100000 Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 0
+ MassBalance_7(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds)
+   - 100000 Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_7(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds)
+   - 100000 Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234) <= 0
+ MassBalance_8(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol):
+   - ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol)
+   + 0.98 FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   + 100000 Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 100000
+ MassBalance_8(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_f2803e96_2534_438f_98c5_f01837b10267_Seeds):
+   - FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_f2803e96_2534_438f_98c5_f01837b10267_Seeds)
+   + 0.95 FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds)
+   + 100000 Y(f2803e96_2534_438f_98c5_f01837b10267) <= 100000
+ MassBalance_8(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   + 0.95 FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   + 100000 Y(3861c57c_4221_4192_b540_33ed8c7d5c66) <= 100000
+ MassBalance_8(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_HCl):
+   - FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_HCl)
+   + 0.89 FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   + 100000 Y(3861c57c_4221_4192_b540_33ed8c7d5c66) <= 100000
+ MassBalance_9(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O):
+   ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_H2O)
+   - FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O)
+   + FLOW_WASTE(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) = 0
+ MassBalance_9(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl):
+   ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_HCl)
+   - FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl)
+   + FLOW_WASTE(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) = 0
+ MassBalance_9(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds):
+   ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds)
+   - FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds)
+   + FLOW_WASTE(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) = 0
+ MassBalance_9(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   - FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   + FLOW_WASTE(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) = 0
+ MassBalance_9(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds):
+   ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   - FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds)
+   + FLOW_WASTE(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CH4)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Ethanol)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2O)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_HCl)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_O2)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Pectin)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Peels)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) = 0
+ MassBalance_9(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue):
+   FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue)
+   - FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue)
+   + FLOW_WASTE(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) = 0
+ MassBalance_9(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds):
+   FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_18a25083_dbcc_4533_b3bc_e010c9da2ea7_Seeds)
+   + FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds)
+   + FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_f2803e96_2534_438f_98c5_f01837b10267_Seeds)
+   - FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds)
+   + FLOW_WASTE(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) = 0
+ MassBalance_9(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds):
+   FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds)
+   + FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_f2803e96_2534_438f_98c5_f01837b10267_Seeds)
+   - FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds)
+   + FLOW_WASTE(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) = 0
+ MassBalance_9(cdc526d0_a793_4af4_9207_fbae110ec530_H2O):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   - FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O)
+   + FLOW_WASTE(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) = 0
+ MassBalance_9(cdc526d0_a793_4af4_9207_fbae110ec530_HCl):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   - FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl)
+   + FLOW_WASTE(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) = 0
+ MassBalance_9(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue):
+   FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue)
+   - FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue)
+   + FLOW_WASTE(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) = 0
+ MassBalance_9(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol)
+   + FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol)
+   + FLOW_WASTE(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) = 0
+ MassBalance_9(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_H2O)
+   + FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O)
+   + FLOW_WASTE(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) = 0
+ MassBalance_9(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_HCl)
+   + FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl)
+   + FLOW_WASTE(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) = 0
+ MassBalance_9(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Pectin)
+   + FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin)
+   + FLOW_WASTE(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) = 0
+ MassBalance_9(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue):
+   FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Seed_Residue)
+   + FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue)
+   - FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue)
+   + FLOW_WASTE(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) = 0
+ ProcessGroup_logic_2(3861c57c_4221_4192_b540_33ed8c7d5c66_1):
+   Y(3861c57c_4221_4192_b540_33ed8c7d5c66)
+   - Y(cdc526d0_a793_4af4_9207_fbae110ec530) <= 0
+ ProcessGroup_logic_2(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_1):
+   Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234)
+   - Y(dffcb811_9116_4394_b717_6839f84c6e99) <= 0
+ ProcessGroup_logic_2(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_2):
+   Y(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+   - Y(f2803e96_2534_438f_98c5_f01837b10267) <= 0
+ ProcessGroup_logic_2(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3):
+   - Y(3861c57c_4221_4192_b540_33ed8c7d5c66)
+   + Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95) <= 0
+Bounds
+ ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) free
+ ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) free
+ ModelInstance_FLOW(34b7b3c4_cf8f_433b_809d_9246e3b8103a_c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) free
+ ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol) free
+ ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_H2O) free
+ ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_HCl) free
+ ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) free
+ ModelInstance_FLOW(3861c57c_4221_4192_b540_33ed8c7d5c66_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CH4) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_CO2) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Compost) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Ethanol) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2O) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_H2SO4) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_HCl) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_N2) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_NaCl) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_O2) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Pectin) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Peels) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_Seeds) free
+ FLOW(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_dffcb811_9116_4394_b717_6839f84c6e99_all_solids) free
+ FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) free
+ FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) free
+ FLOW(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) free
+ FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_H2O) free
+ FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_HCl) free
+ FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) free
+ FLOW(c45ee77c_7d02_4290_a1f6_50f03870684d_cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) free
+ FLOW(cdc526d0_a793_4af4_9207_fbae110ec530_ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) free
+ FLOW(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) free
+ FLOW_ADD(040d2d96_f2c3_434a_87c0_761c7d66426d_86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec) free
+ FLOW_ADD(062b8fed_ec62_4857_ad6e_3b326b62beb5_34b7b3c4_cf8f_433b_809d_9246e3b8103a) free
+ FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) free
+ FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) free
+ FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) free
+ FLOW_ADD_TOT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) free
+ FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) free
+ FLOW_ADD_TOT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) free
+ FLOW_ADD_TOT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) free
+ FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) free
+ FLOW_ADD_TOT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) free
+ FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) free
+ FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) free
+ FLOW_ADD_TOT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) free
+ FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) free
+ FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) free
+ FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) free
+ FLOW_ADD_TOT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CH4) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_CO2) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Compost) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2O) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_HCl) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_N2) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_NaCl) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_O2) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Pectin) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Peels) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_Seeds) free
+ FLOW_ADD_TOT(dffcb811_9116_4394_b717_6839f84c6e99_all_solids) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) free
+ FLOW_ADD_TOT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) free
+ FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) free
+ FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) free
+ FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Peels) free
+ FLOW_IN(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) free
+ FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol) free
+ FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) free
+ FLOW_IN(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) free
+ FLOW_IN(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) free
+ FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) free
+ FLOW_IN(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) free
+ FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) free
+ FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) free
+ FLOW_IN(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) free
+ FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Ethanol) free
+ FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) free
+ FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) free
+ FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) free
+ FLOW_IN(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_AD_biomass) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CH4) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_CO2) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Compost) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Cutin_residue) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Ethanol) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Exhausted_peels) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2O) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_H2SO4) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_HCl) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_N2) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_NaCl) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_O2) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Pectin) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Peels) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seed_Residue) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_Seeds) free
+ FLOW_IN(dffcb811_9116_4394_b717_6839f84c6e99_all_solids) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) free
+ FLOW_IN(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) free
+ FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_H2O) free
+ FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_HCl) free
+ FLOW_OUT(34b7b3c4_cf8f_433b_809d_9246e3b8103a_Seeds) free
+ FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Ethanol) free
+ FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_H2O) free
+ FLOW_OUT(3861c57c_4221_4192_b540_33ed8c7d5c66_Seeds) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_CH4) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Ethanol) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_H2O) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_HCl) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_O2) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Pectin) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Peels) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seed_Residue) free
+ FLOW_OUT(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234_Seeds) free
+ FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Peels) free
+ FLOW_OUT(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec_Seeds) free
+ FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_H2O) free
+ FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_HCl) free
+ FLOW_OUT(c45ee77c_7d02_4290_a1f6_50f03870684d_Seeds) free
+ FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_H2O) free
+ FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_HCl) free
+ FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seed_Residue) free
+ FLOW_OUT(cdc526d0_a793_4af4_9207_fbae110ec530_Seeds) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Ethanol) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_H2O) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_HCl) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Pectin) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seed_Residue) free
+ FLOW_OUT(ee3e02d8_dd36_43c1_9472_bfb0a9848a95_Seeds) free
+ FLOW_SOURCE(040d2d96_f2c3_434a_87c0_761c7d66426d) free
+ FLOW_SUM(dffcb811_9116_4394_b717_6839f84c6e99) free
+Binaries
+ Y(34b7b3c4_cf8f_433b_809d_9246e3b8103a)
+ Y(3861c57c_4221_4192_b540_33ed8c7d5c66)
+ Y(707ffd6e_b958_4c9a_b0c1_ccb99d8ce234)
+ Y(86bd8d6d_1930_4cd0_b07e_b7f84d6a8dec)
+ Y(cdc526d0_a793_4af4_9207_fbae110ec530)
+ Y(dffcb811_9116_4394_b717_6839f84c6e99)
+ Y(ee3e02d8_dd36_43c1_9472_bfb0a9848a95)
+ Y(f2803e96_2534_438f_98c5_f01837b10267)
+End

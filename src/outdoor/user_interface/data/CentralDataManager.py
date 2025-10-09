@@ -27,6 +27,7 @@ class CentralDataManager:
 
     def __init__(self):
         super().__init__()
+        self.UnitToComponentMap = None
         self.logger = logging.getLogger(__name__)
         self.projectDescription = ""
         self.unitProcessData: dict[str, ProcessDTO] = {}  # Dictionary to store data indexed by icon ID
@@ -101,7 +102,6 @@ class CentralDataManager:
         deleted
         :return: updated data component
         """
-
         match dataType:
             case "reactionData":
                 # delete the row with the data for that reaction
@@ -123,6 +123,15 @@ class CentralDataManager:
                         data = self.componentData[i]
                         data.updateRow()
 
+            case "sensitivityData":
+                # delete the row with the data for that sensitivity
+                self.sensitivityData.pop(row)
+                sizeSensitivityList = len(self.sensitivityData)
+
+                if row != sizeSensitivityList:  # if it's the last element in the list don't adjust the indices
+                    for i in range(row, sizeSensitivityList):
+                        data = self.sensitivityData[i]
+                        data.updateRow()
 
             case "uncertaintyData":
                 # delete the row with the data for that uncertainty
@@ -242,6 +251,24 @@ class CentralDataManager:
 
         return listNames
 
+    def getOnlyInputUnits(self):
+
+        listNames = []
+        for process in self.unitProcessData.values():
+            if process.type in [ProcessType.INPUT]:
+                listNames.append(process.name)
+
+        return listNames
+
+    def getOnlyOutputUnits(self):
+
+        listNames = []
+        for process in self.unitProcessData.values():
+            if process.type in [ProcessType.OUTPUT]:
+                listNames.append(process.name)
+
+        return listNames
+
 
     def getReactionNames(self):
         """
@@ -252,4 +279,3 @@ class CentralDataManager:
         for dto in self.reactionData:
             namesList.append(dto.name)
         return namesList
-

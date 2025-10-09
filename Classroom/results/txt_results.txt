@@ -1,0 +1,156 @@
+
+Basic results-------- 
+----------------------------  ---------------
+Objective Function            NPC
+Yearly product load           4500.0
+Solver run time               0.72 seconds
+Solver name                   gurobi
+Earnings Before Tax income    -18.911 €/ton
+Net production costs          18.91 euro/ton
+Net production GHG emissions  0.01 CO2-eq/ton
+Net present FWD               0.0 H2O-eq/ton
+-------
+Electricity Demand            0.01 MW
+Electricity Purchased         0.01 MW
+Electricity Produced          0.0 MW
+------
+Total Heat Demand             0.0 MW
+Total Cooling Demand          0.0 MW
+Heat Produced                 0.0 MW
+Heat Sold                     0.0 MW
+Heat Exchanged                0.0 MW
+Heat Deficit                  0.0 MW
+Heat Residual                 0.0 MW
+----------------------------  ---------------
+
+ 
+
+units-------- 
+------------------  --
+Objective Function  aa
+------------------  --
+
+ 
+
+Chosen technologies-------- 
+------------------------------------  -----------
+c4a53045-2250-4cef-8406-95f457fd9481  Composting
+6922ea89-ba19-4e54-8947-c3fc5723f7c2  Compost
+040d2d96-f2c3-434a-87c0-761c7d66426d  Tomato Pom.
+f2803e96-2534-438f-98c5-f01837b10267  Collector
+------------------------------------  -----------
+
+ 
+
+Economic results-------- 
+-------------------------------  -----
+CAPEX share                      40.74
+Raw material consumption share   26.44
+Operating and Maintanence share  20.31
+Electricity share                12.21
+Chilling share                    0
+Heat integration share            0
+Waste treatment share             0.3
+Profits share                    -0
+-------------------------------  -----
+
+ 
+
+Capital costs shares-------- 
+----------  ---
+Heat pump     0
+Composting  100
+----------  ---
+
+ 
+
+Electricity demand shares-------- 
+--------------------------  ---
+Heatpump electricity share    0
+Composting                  100
+--------------------------  ---
+
+ 
+
+Heating and cooling-------- 
+--------------------------------------  -
+Total heating demand                    0
+Total cooling demand                    0
+Total heat recovery                     0
+HP Steam produced                       0
+Internally used HP Steam                0
+High temperature heat pump heat supply  0
+Net heating demand                      0
+Net cooling demand                      0
+--------------------------------------  -
+
+ 
+
+Green house gas emission shares-------- 
+------------------------------  --
+Direct emissions                 0
+Electricity                     29
+Heat                             0
+Chilling                         0
+Plant building emissions         0
+Raw Materials / Carbon Capture  -0
+Avoided burden for byproducts    0
+------------------------------  --
+
+ 
+
+Fresh water demand shares-------- 
+------------------------------------  --
+Indirect demand from raw materials    -0
+Utilities (Electricity and chilling)   0
+Utilities (Heating)                    0
+Avoided burden from byproducds        -0
+------------------------------------  --
+
+ 
+
+Energy data-------- 
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+heat         {'86bd8d6d-1930-4cd0-b07e-b7f84d6a8dec': 0.0, '644c38fb-6fe1-4e6d-aa3a-1dd1ecb6d016': 0.0, '7bddc9e4-1b21-4b9e-8490-7fcf3e788f06': 0.0, '6844a31f-7b71-4e3c-a8d0-3a376600b146': 0.0, '656c1555-bca7-479d-a73c-b5be5de06ea2': 0.0, '4fd642b8-e50d-4123-a4e3-795182a6dd29': 0.0, '18a25083-dbcc-4533-b3bc-e010c9da2ea7': 7.787410988118235e-13, '4cc7531b-4ca1-4af8-8198-dc5da7963c52': 0.0, '7c805f04-8cf4-4c73-93e4-bfa5da4a400b': 0.0, 'd7886dfb-f131-46d2-8a56-43b99fab3ddb': 0.0, 'c4a53045-2250-4cef-8406-95f457fd9481': 0.0, '6922ea89-ba19-4e54-8947-c3fc5723f7c2': 0.0, '1d2ef078-adc1-4851-94de-dfba4167912b': 0.0, '040d2d96-f2c3-434a-87c0-761c7d66426d': 0.0, 'f2803e96-2534-438f-98c5-f01837b10267': 0.0, '70791c40-109e-40e9-be9d-02b45b03e9cb': 0.0, 'c42fec6b-1a9b-4bf7-928d-b6725992ff4e': 0.0, '0141c02d-8702-4f58-a6ed-e8bae580b307': 0.0, '93e3589f-a863-4560-91b6-1662db3faa78': 0.0, '34b7b3c4-cf8f-433b-809d-9246e3b8103a': 0.0, '062b8fed-ec62-4857-ad6e-3b326b62beb5': 0.0, 'c45ee77c-7d02-4290-a1f6-50f03870684d': 0.0, 'cdc526d0-a793-4af4-9207-fbae110ec530': 0.0, '5858cd27-3fe9-4db3-9385-4139538d7125': 0.0, 'ee3e02d8-dd36-43c1-9472-bfb0a9848a95': 0.0, '707ffd6e-b958-4c9a-b0c1-ccb99d8ce234': 0.0, 'dffcb811-9116-4394-b717-6839f84c6e99': 0.0, '3861c57c-4221-4192-b540-33ed8c7d5c66': 0.0}
+cooling      {'86bd8d6d-1930-4cd0-b07e-b7f84d6a8dec': 0.0, '644c38fb-6fe1-4e6d-aa3a-1dd1ecb6d016': 0.0, '7bddc9e4-1b21-4b9e-8490-7fcf3e788f06': 0.0, '6844a31f-7b71-4e3c-a8d0-3a376600b146': 0.0, '656c1555-bca7-479d-a73c-b5be5de06ea2': 0.0, '4fd642b8-e50d-4123-a4e3-795182a6dd29': 0.0, '18a25083-dbcc-4533-b3bc-e010c9da2ea7': 0.0, '4cc7531b-4ca1-4af8-8198-dc5da7963c52': 0.0, '7c805f04-8cf4-4c73-93e4-bfa5da4a400b': 0.0, 'd7886dfb-f131-46d2-8a56-43b99fab3ddb': 0.0, 'c4a53045-2250-4cef-8406-95f457fd9481': 0.0, '6922ea89-ba19-4e54-8947-c3fc5723f7c2': 0.0, '1d2ef078-adc1-4851-94de-dfba4167912b': 0.0, '040d2d96-f2c3-434a-87c0-761c7d66426d': 0.0, 'f2803e96-2534-438f-98c5-f01837b10267': 0.0, '70791c40-109e-40e9-be9d-02b45b03e9cb': 0.0, 'c42fec6b-1a9b-4bf7-928d-b6725992ff4e': 0.0, '0141c02d-8702-4f58-a6ed-e8bae580b307': 0.0, '93e3589f-a863-4560-91b6-1662db3faa78': 0.0, '34b7b3c4-cf8f-433b-809d-9246e3b8103a': 0.0, '062b8fed-ec62-4857-ad6e-3b326b62beb5': 0.0, 'c45ee77c-7d02-4290-a1f6-50f03870684d': 0.0, 'cdc526d0-a793-4af4-9207-fbae110ec530': 0.0, '5858cd27-3fe9-4db3-9385-4139538d7125': 0.0, 'ee3e02d8-dd36-43c1-9472-bfb0a9848a95': 0.0, '707ffd6e-b958-4c9a-b0c1-ccb99d8ce234': 0.0, 'dffcb811-9116-4394-b717-6839f84c6e99': 0.0, '3861c57c-4221-4192-b540-33ed8c7d5c66': 0.0}
+electricity  86.62500000037932
+-----------  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+Mass flows-------- 
+--------------------------------------------------------------------------------  ----
+('c4a53045-2250-4cef-8406-95f457fd9481', '6922ea89-ba19-4e54-8947-c3fc5723f7c2')  0.13
+('f2803e96-2534-438f-98c5-f01837b10267', 'c4a53045-2250-4cef-8406-95f457fd9481')  0.31
+('040d2d96-f2c3-434a-87c0-761c7d66426d', 'f2803e96-2534-438f-98c5-f01837b10267')  0.56
+--------------------------------------------------------------------------------  ----
+
+ 
+
+LCA Results-------- 
+------------------------------------------------------------  ----------------------
+GWP                                                           0.0 NO unit found
+terrestrial acidification potential (TAP)                     0.0 kg SO2-Eq/kg
+global warming potential (GWP100)                             0.024 kg CO2-Eq/kg
+freshwater ecotoxicity potential (FETP)                       0.002 kg 1,4-DCB-Eq/kg
+marine ecotoxicity potential (METP)                           0.003 kg 1,4-DCB-Eq/kg
+terrestrial ecotoxicity potential (TETP)                      0.085 kg 1,4-DCB-Eq/kg
+fossil fuel potential (FFP)                                   0.007 kg oil-Eq/kg
+freshwater eutrophication potential (FEP)                     0.0 kg P-Eq/kg
+marine eutrophication potential (MEP)                         0.0 kg N-Eq/kg
+human toxicity potential (HTPc)                               0.001 kg 1,4-DCB-Eq/kg
+human toxicity potential (HTPnc)                              0.028 kg 1,4-DCB-Eq/kg
+ionising radiation potential (IRP)                            0.009 kBq Co-60-Eq/kg
+agricultural land occupation (LOP)                            0.005 m2*a crop-Eq/kg
+surplus ore potential (SOP)                                   0.0 kg Cu-Eq/kg
+ozone depletion potential (ODPinfinite)                       0.0 kg CFC-11-Eq/kg
+particulate matter formation potential (PMFP)                 0.0 kg PM2.5-Eq/kg
+photochemical oxidant formation potential: humans (HOFP)      0.0 kg NOx-Eq/kg
+photochemical oxidant formation potential: ecosystems (EOFP)  0.0 kg NOx-Eq/kg
+water consumption potential (WCP)                             0.0 m3/kg
+ecosystem quality                                             0.0 species.yr/kg
+human health                                                  0.0 DALYs/kg
+natural resources                                             0.002 USD 2013/kg
+------------------------------------------------------------  ----------------------
+
+ 

@@ -128,6 +128,17 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         :return:
         """
 
+        # # we want to delete the sensitivityData if it exists in the file
+        # projectName = self.centralDataManager.metadata.get("PROJECT_NAME", "")
+        # if projectName == 'Case_study_BSG_1':
+        #     # delete the sensitivityData if it exists
+        #     if hasattr(self.centralDataManager, 'sensitivityData'):
+        #         anw = input("DO you want to delete the sensitivityData? type 'y' to continue...")
+        #         if anw == 'y':
+        #             del self.centralDataManager.sensitivityData
+        #             self.logger.info("Deleted sensitivityData from Case_study_BSG_1")
+        #             self.centralDataManager.sensitivityData = []
+
         # check if sensitivity data exists
         if not hasattr(self.centralDataManager, 'sensitivityData'):
             self.centralDataManager.sensitivityData = []
