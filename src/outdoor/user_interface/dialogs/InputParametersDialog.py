@@ -315,7 +315,7 @@ class InputParametersDialog(QDialog):
             super().keyPressEvent(event)
 
     # -----------------------------------------------------------------
-    # methodes for error checking and saveing data to the processDTO
+    # methods for error checking and saving data to the processDTO
     # -----------------------------------------------------------------
 
     def saveData(self):

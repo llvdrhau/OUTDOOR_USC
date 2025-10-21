@@ -1,13 +1,13 @@
 import logging
 import uuid
+import re
+from copy import deepcopy
 
-from PyQt5.QtCore import QRectF, Qt, QPointF
-from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QPainterPathStroker
+from PyQt5.QtCore import QRectF, Qt, QPointF, QPoint
+from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath, QFont, QPainterPathStroker, QKeySequence
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QGraphicsObject, QGraphicsItem, \
     QApplication, QGraphicsPathItem
-from qtconsole.mainwindow import background
 
-from outdoor.outdoor_core.input_classes.unit_operations.library.distributor import Distributor
 from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType, UpdateField
 from outdoor.user_interface.dialogs.GeneratorDialog import GeneratorDialog
 from outdoor.user_interface.dialogs.InputParametersDialog import InputParametersDialog
@@ -16,7 +16,6 @@ from outdoor.user_interface.dialogs.OutputParametersDialog import OutputParamete
 from outdoor.user_interface.dialogs.PhysicalProcessDialog import PhysicalProcessesDialog
 from outdoor.user_interface.dialogs.StoichiometricReactorDialog import StoichiometricReactorDialog
 from outdoor.user_interface.dialogs.YieldReactorDialog import YieldReactorDialog
-from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class Canvas(QGraphicsView):
@@ -47,6 +46,12 @@ class Canvas(QGraphicsView):
 
         self.setStyleSheet("background-color: white;")
         self.iconData = {}  # Add this line to store dialog data
+
+        # initiate copy and paste variables
+        self.positionCopy = None
+        self.itemName = None
+        self.dtoIconCopy = None
+
         # add index to icons according to the type of icon:
         # use UUIDs for the indexs!
         self.index_input = []
@@ -99,7 +104,7 @@ class Canvas(QGraphicsView):
         self.scaleFactor *= scaleFactor
 
     def dragEnterEvent(self, e):
-        print('Iniciate dragging icon')
+        #print('Iniciate dragging icon')
         e.accept()
 
     def dragMoveEvent(self, event):
@@ -122,11 +127,12 @@ class Canvas(QGraphicsView):
             self.scene.addItem(icon)  # Add the created icon to the scene
             event.accept()
 
-    def createMovableIcon(self, text, position):
+    def createMovableIcon(self, text, position, processType=None):
         """
         This method should create a new instance of MovableIcon or similar class based on the text
         :param text: (string) The text of the icon to identify the type
         :param position: QPoint position of the mouse click
+        :param processType: type of icon from the Class ProcessType
         :return:
         """
 
@@ -147,21 +153,30 @@ class Canvas(QGraphicsView):
         }
 
         # Check if the text is in the icon_map
-        if text in icon_map:
-            icon_type, index_list = icon_map[text]
-            # Create unique UUID
-            UUID = uuid.uuid4().__str__()
-            index_list.append(UUID)
-            # Create MovableIcon
-            iconWidget = MovableIcon(text=icon_type, centralDataManager=self.centralDataManager,
-                                     signalManager=self.signalManager, iconID=UUID,
-                                     icon_type=icon_type, position=position)
+        try:
+            if text in icon_map or isinstance(text, ProcessType):
+                if processType:
+                    icon_type = text
+                    index_list = self.index_process
+                else:
+                    icon_type, index_list = icon_map[text]
 
-            iconWidget.setPos(self.mapToScene(position))
-            return iconWidget
-        else:
+                # Create unique UUID
+                UUID = uuid.uuid4().__str__()
+                index_list.append(UUID)
+                # Create MovableIcon
+                iconWidget = MovableIcon(text=icon_type, centralDataManager=self.centralDataManager,
+                                         signalManager=self.signalManager, iconID=UUID,
+                                         icon_type=icon_type, position=position)
+
+                iconWidget.setPos(self.mapToScene(position))
+                return iconWidget
+
+        except Exception as e:
             # Raise error if the icon type is not recognized
-            raise Exception("Icon type not recognized")  # You can handle this error in a more user-friendly way
+            self.logger.error("Could not place the processing block to the "
+                              "canvas with Icon type {}".format(text))
+            self.logger.error(e)
 
     def mouseMoveEvent(self, event):
         if self.currentLine is not None:
@@ -517,6 +532,7 @@ class Canvas(QGraphicsView):
         :param event:
         :return:
         """
+        # deleting elements from the canvas
         if event.key() == Qt.Key_Backspace:
             for item in self.scene.selectedItems():
                 self.logger.debug("Removing Item: {}".format(item))
@@ -590,7 +606,87 @@ class Canvas(QGraphicsView):
 
                 self.currentLine = None
 
+        # Copy (Ctrl + C)
+        elif event.matches(QKeySequence.Copy):
+            self.copySelectedItems()
+        # Paste (Ctrl + V)
+        elif event.matches(QKeySequence.Paste):
+            self.pasteSelectedItems()
+
         super().keyPressEvent(event)
+
+    def copySelectedItems(self):
+        """
+        copies the selected items to the clipboard
+        """
+        item = self.selectedElement
+        if isinstance(item, MovableIcon):
+            self.logger.info("Copying selected Icon: {}".format(item.iconID))
+            # get the dto info from the original icon
+            self.dtoIconCopy = deepcopy(self.centralDataManager.unitProcessData[item.iconID])
+            self.positionCopy = item.pos().toPoint()
+            self.processTypeCopy = self.dtoIconCopy.type
+
+    def pasteSelectedItems(self):
+        """
+        pastes the selected icon
+        """
+        self.logger.info("Pasting the copied Icon: ...")
+
+        # get the current position of the old icon on the canvas
+        position = self.positionCopy
+        text = self.processTypeCopy
+
+        # slightly off set the position so they don't overlap
+        newPosX = position.x() + 4
+        newPosY = position.y() + 4
+        position = QPoint(newPosX, newPosY)
+        #newPos = position.toPoint() #QPointF(newPosX, newPosY)
+
+        icon = self.createMovableIcon(text=text, position=position, processType=text)
+        if icon is None:
+            self.logger.error("Could not paste the selected icon")
+            return
+
+        # Set the icon's position to the mouse cursor's position
+        icon.setPos(position)
+        self.scene.addItem(icon)  # Add the created icon to the scene
+
+        # the only thing we want to copy to the new DTO is the Dialog data
+        dtoCurrent = self.centralDataManager.unitProcessData[icon.iconID]
+        dtoCurrent.addDialogData(self.dtoIconCopy.dialogData)
+
+        # paint the new name of the copied process
+        try:
+
+            unitName = self.dtoIconCopy.name
+
+            # Check if the end of the name is a number
+            match = re.search(r"(\d+)$", unitName)
+            if match:
+                number = int(match.group(1))
+                # Remove the original number from the end
+                baseName = unitName[:match.start()]
+                # Strip a trailing underscore if present
+                baseName = baseName.rstrip("_")
+                unitNameCopied = f"{baseName}_{number + 1}"
+            else:
+                # If there's no trailing number, start numbering at 1
+                unitNameCopied = f"{unitName.rstrip('_')}_1"
+
+        except:
+            unitNameCopied = ''
+
+        if unitNameCopied:
+            dtoCurrent.name = unitNameCopied
+            dtoCurrent.dialogData['Name'] = unitNameCopied
+            icon.text = unitNameCopied  # Update the text attribute to reflect the new source name
+            icon.update()  #
+
+        # reset the copy variables to None
+        self.positionCopy = None
+        self.itemName = None
+        self.dtoIconCopy = None
 
     def _removalLogic(self, outputFlowsToUpdate, inputFlowsToUpdate, icon2Delete):
         """
@@ -1200,6 +1296,7 @@ class MovableIcon(QGraphicsObject):
             # Draw the triangle
             painter.fillPath(path, painter.brush())
             painter.setPen(self.pen)
+            painter.drawPath(path)
 
             # Set font and draw the letter B in the center of the triangle
             painter.setPen(Qt.black)  # Set pen color for the text
@@ -1353,7 +1450,7 @@ class MovableIcon(QGraphicsObject):
             dialog = LCADialog(initialData=existingData)
 
         else:
-            raise Exception("Icon type {} not recognized".format(self.icon_type))  # You can handle this error in a more user-friendly way
+            self.logger.error("Icon type {} not recognized".format(self.icon_type))  # You can handle this error in a more user-friendly way
 
 
         #  open the dialog and handle the data entered by the user after pressing OK
@@ -1512,7 +1609,7 @@ class InteractiveLine(QGraphicsPathItem):
 
             if self.selected:
                 self.pen = QPen(Qt.red, 1.5)  # Increase line thickness
-                print('lines have been clicked and selected')
+                # print('lines have been clicked and selected')
             else:
                 self.pen = QPen(Qt.black, 1)
 

@@ -9,9 +9,14 @@ class DraggableIcon(QPushButton):
     identify the icon type. This class is used to create the icons in the left panel of superstructureMapping Widget.
 
     """
+
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setCheckable(True)
+        self.setCheckable(False)
+
+    def mousePressEvent(self, e):
+        # Ignore clicks completely
+        e.ignore()
 
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:

@@ -5,7 +5,6 @@ from typing import Union
 from outdoor.user_interface.data.OutdoorDTO import OutdoorDTO
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
-from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 
 
 class ProcessType(Enum):
@@ -110,11 +109,6 @@ class ProcessDTO(OutdoorDTO):
 
     def addDialogData(self, dialogData):
         self.dialogData.update(dialogData)
-
-    def addEnteringConnection(self, enteringProcessID):
-        #portType, startIconID, endIconID, starPosition, endPosition):
-        # Add a connection between two icons
-        self.incomingStreams.append(enteringProcessID)
 
 
     def addMaterialFlow(self, streamType:int, reciveingID:str, splitFactorDict:dict):
@@ -268,7 +262,6 @@ class ProcessDTO(OutdoorDTO):
         self.logger.info(f"Boolean connection updated for process {self.name}")
         #print(self.materialFlow)
 
-
     def getOutgoingChemicals(self, streamNumber):
         """
         Get the outgoing chemicals from the process unit of a specific stream
@@ -286,3 +279,4 @@ class ProcessDTO(OutdoorDTO):
                     outgoingChemicals.append(chemical)
 
         return outgoingChemicals
+
