@@ -1366,6 +1366,7 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
                 color_map[outputKey] = color_index
                 color_index += 1
 
+            # print("the color map is:",color_map)
             # ------------------------------------------
             # Place the x value in the right container
             # ------------------------------------------
@@ -1433,7 +1434,13 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
                 colors.append(color_map[label])
 
         # Normalize colors to [0, 1] for colormap
-        norm_colors = np.array(colors) / max(colors)
+        if max(colors) == 0:
+            maxIndexColors = 0.1
+        else:
+            maxIndexColors = max(colors)
+
+        # normalised array of potential colors
+        norm_colors = np.array(colors) / maxIndexColors
 
         # Scatter plot
         # # Assuming x, y, norm_colors are defined
@@ -1457,8 +1464,8 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         for i, color_index in enumerate(unique_colors):
             mask = (norm_colors == color_index)
             rgba_color = cmap(color_index)  # convert scalar to an RGBA tuple
-            print(x)
-            print(mask)
+            # print(x) # for debugging
+            # print(mask) # for debugging
             plt.scatter(
                 x[mask],
                 y[mask],
@@ -1492,7 +1499,17 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         patches = []
         cmap = plt.cm.get_cmap('viridis')
         for flowsheet_name, index in color_map.items():
-            color_value = index / max(color_map.values())  # normalized
+
+            #print("Debugging here")
+            #print("values are:", color_map.values())
+
+            if len(color_map.values()) == 1:
+                colorMapNr = 1
+            else:
+                colorMapNr = max(color_map.values())
+
+            #print("The variable index is:",index)
+            color_value = index / colorMapNr  # normalized
             patch_color = cmap(color_value)
             patch = Patch(color=patch_color, label=str(flowsheet_name))
             patches.append(patch)

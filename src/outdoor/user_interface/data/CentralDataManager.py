@@ -10,7 +10,7 @@ import pickle
 from pathlib import Path
 
 from outdoor.user_interface.data.ComponentDTO import ComponentDTO
-from outdoor.user_interface.data.ProcessDTO import ProcessDTO
+from outdoor.user_interface.data.ProcessDTO import ProcessDTO, ProcessType
 from outdoor.user_interface.data.ReactionDTO import ReactionDTO
 from outdoor.user_interface.data.SensitivityDTO import SensitivityDTO
 from outdoor.user_interface.data.TemperatureDTO import TemperatureDTO
@@ -233,6 +233,16 @@ class CentralDataManager:
         for process in self.unitProcessData.values():
             listNames.append(process.name)
         return listNames
+
+    def getOnlyProcesses(self):
+
+        listNames = []
+        for process in self.unitProcessData.values():
+            if process.type not in [ProcessType.INPUT, ProcessType.OUTPUT, ProcessType.DISTRIBUTOR, ProcessType.BOOLDISTRIBUTOR]:
+                listNames.append(process.name)
+
+        return listNames
+
 
     def getReactionNames(self):
         """
