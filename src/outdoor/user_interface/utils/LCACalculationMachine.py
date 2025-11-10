@@ -26,6 +26,8 @@ class LCACalculationMachine:
     def __init__(self, centralDataManager):
         self.logger = logging.getLogger(__name__)
         self.centralDataManager = centralDataManager
+        self.methodSelectionLCA = self.centralDataManager.methodSelectionLCA
+
         if not centralDataManager:
             self.logger.error("CentralDataManager is not set. Please initialize it before using LCACalculationMachine.")
             return
@@ -286,7 +288,7 @@ class LCACalculationMachine:
                     incomplete[component.__class__.__name__] = [component.name]
 
         # Update status text
-        text_label.setText(f"Found {len(inventory)} DTOs ready for calculation. Processing...")
+        #text_label.setText(f"Found {len(inventory)} DTOs ready for calculation. Processing...")
         QApplication.processEvents()
 
         self.logger.info(f"Identified {len(inventory)} DTOs ready for calculation")
@@ -307,11 +309,19 @@ class LCACalculationMachine:
         self._worker.start()
 
     def getImpactMethods(self) -> list:
-        midpoint = [m for m in bw.methods if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and not "no LT" in str(m)]
-        endpoints = [m for m in bw.methods if
-                     "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and not "no LT" in str(m) and "total" in str(m)]
-        methodconfs = midpoint + endpoints
-        return methodconfs
+        """
+        Selects the correct methods (mid and or end-points) according to the LCA methodology selected by the user.
+        returns: list of methods
+        """
+        if self.methodSelectionLCA == "ReCiPe 2016 v1.03 (default)":
+            return self._recipe_base_methods()
+
+        elif self.methodSelectionLCA == "IPCC 2013":
+            return self._IPCC_methods()
+
+        else:
+            return self._ensure_biogenic_equals_fossil()
+        # add other methods here if you want
 
     def getImpactDict(self):
         methods = self.getImpactMethods()
@@ -347,4 +357,220 @@ class LCACalculationMachine:
             updated_count += 1
 
         return updated_count
+
+    def _recipe_base_methods(self):
+        """Original ReCiPe selections."""
+        midpoint = [m for m in bw.methods
+                    if "ReCiPe 2016 v1.03, midpoint (H)" in str(m) and "no LT" not in str(m)]
+        endpoints = [m for m in bw.methods
+                     if "ReCiPe 2016 v1.03, endpoint (H)" in str(m) and "no LT" not in str(m) and "total" in str(m)]
+        return midpoint + endpoints
+
+    def _IPCC_methods(self):
+        """Original IPCC selections."""
+        midpoints = [m for m in bw.methods if "IPCC 2013" in str(m) and "no LT" not in str(m)]
+        return midpoints
+
+    def _ensure_biogenic_equals_fossil(self) -> list:
+        """
+        Clone the currently selected ReCiPe methods and create '[BIO=1]' variants
+        where biogenic CO2 is characterized as 1.0 (kg CO2-eq per kg biogenic CO2),
+        instead of 0. Other flows (e.g., biogenic CH4) are untouched.
+
+        Returns:
+            List of new method keys you can use directly in MultiLCA.
+        """
+        base_methods = self._recipe_base_methods()  # reuse your current selection
+        new_method_keys = []
+
+        # Keys we will modify: ReCiPe GWP (midpoint) and (if present) any endpoint whose indicator mentions GWP
+        def _is_gwp_indicator(meth_tuple):
+            ind = str(meth_tuple[3]).lower()
+            # typical strings include 'global warming potential (gwp100)'
+            return ("global warming" in ind) or ("gwp" in ind)
+
+        for meth in base_methods:
+            orig = bw.Method(meth)
+            try:
+                cfs = list(orig.load())
+            except Exception as e:
+                self.logger.error(f"Couldn't load method {meth}: {e}")
+                continue
+
+            # Create a clean new key by tagging the indicator only (safer than altering top-level parts)
+            new_key = (meth[0], f"{meth[1]} [BIO=+1]", meth[2], meth[3])
+
+            # If it already exists, keep it (or wipe & rebuild, your choice)
+            if new_key in bw.methods:
+                #bw.Method(new_key).deregister()
+                self.logger.info(f"Custom method already exists: {new_key}")
+                new_method_keys.append(new_key)
+                continue
+
+            # Only alter CFs when the indicator is GWP; otherwise write as an exact copy
+            if _is_gwp_indicator(meth):
+                new_cfs = []
+                for row in cfs:
+                    # CF rows are tuples like: (flow_key, amount) or (flow_key, amount, ...extras)
+                    if not isinstance(row, tuple) or len(row) < 2:
+                        new_cfs.append(row)
+                        continue
+
+                    flow_key, amount, *rest = row
+                    try:
+                        flow = bw.get_activity(flow_key)
+                        if self._is_biogenic_co2_flow(flow):
+                            amount = 1.0  # treat biogenic CO2 like fossil CO2
+                    except Exception as e:
+                        self.logger.debug(f"Flow lookup failed for {row}: {e}")
+
+                    new_cfs.append((flow_key, amount, *rest))
+            else:
+                # Non-GWP indicators are copied as-is
+                new_cfs = cfs
+
+            # Register the new method
+            try:
+                new_m = bw.Method(new_key)
+                meta = dict(orig.metadata) if getattr(orig, "metadata", None) else {}
+                meta["comment"] = (meta.get("comment", "") + " | Biogenic CO2 set to 1.0 in GWP.").strip()
+                new_m.register(**meta)
+                new_m.write(new_cfs)
+                new_method_keys.append(new_key)
+                self.logger.info(f"Registered custom method: {new_key}")
+            except Exception as e:
+                self.logger.error(f"Failed to create custom method {new_key}: {e}")
+
+        return new_method_keys
+
+    def _is_biogenic_co2_flow(self, flow) -> bool:
+        """
+        Identify biogenic CO2 flows in the biosphere database.
+        Targets common ecoinvent names:
+          - 'Carbon dioxide, biogenic'
+          - 'Carbon dioxide, from soil or biomass stock'
+        """
+        name = str(flow.get("name", "")).lower()
+        if "carbon dioxide" in name and ("biogenic" in name or "from soil or biomass" in name):
+            return True
+        return False
+
+######################################################################################################################
+
+    def _biogenic_custom_key_old(self, mkey):
+        """Rename method tuple so Brightway treats it as a new method namespace."""
+        # Method keys are tuples like ('ReCiPe 2016 v1.03', 'midpoint (H)', 'climate change', 'GWP100')
+        # We prepend a tag to the first element.
+        return (f"{mkey[1]} [bio=1]",) + mkey[1:]
+
+    def _biogenic_custom_key(self, mkey: tuple) -> tuple:
+        """
+        Return a new method key where the 'ReCiPe ...' segment is tagged with [bio=1].
+        Works for 3- or 4-tuple method keys.
+        """
+        parts = list(mkey)
+        # Find the segment that names the ReCiPe family
+        idx = None
+        for i, seg in enumerate(parts):
+            if isinstance(seg, str) and "ReCiPe 2016" in seg:
+                idx = i
+                break
+        if idx is None:
+            # Fallback: tag the last segment to keep uniqueness
+            idx = len(parts) - 1
+
+        if "[bio=1]" not in parts[idx]:
+            parts[idx] = f"{parts[idx]} [bio=1]"
+        return tuple(parts)
+
+    def _ensure_biogenic_equals_fossil_old(self) -> list:
+        """
+        Ensure custom ReCiPe methods exist where biogenic CO2 CF == fossil CO2 CF.
+        Creates them on first run by cloning (register+write) originals; reuses later.
+        """
+        base_methods = self._recipe_base_methods()
+        custom_methods = []
+
+        # Locate CO2 flows once
+        try:
+            fossil_keys = {act.key for act in self.bios if act.get('name') == 'Carbon dioxide, fossil'}
+            biogenic_keys = {act.key for act in self.bios if act.get('name') == 'Carbon dioxide' and 'fossil' not in act.get('name')}
+            # a = {act for act in self.bios if 'Carbon dioxide' in act.get('name')}
+
+            if not fossil_keys:
+                self.logger.warning("fossil CO2 flows not found. Custom methods will be unpatched clones.")
+            elif not biogenic_keys:
+                self.logger.warning("biogenic CO2 flows not found. Custom methods will be unpatched clones.")
+
+        except Exception as e:
+            self.logger.error(f"Scanning biosphere failed: {e}")
+            fossil_keys, biogenic_keys = set(), set()
+
+        for m in base_methods:
+            new_key = self._biogenic_custom_key(m)
+
+            # Reuse if already exists
+            if new_key in bw.methods:
+                self.logger.debug(f"Reusing custom method: {new_key}")
+                custom_methods.append(new_key)
+                continue
+
+            # --- Create: register + write CFs from original ---
+            try:
+                orig = bw.Method(m)
+                cfs = list(orig.load())
+            except Exception as e:
+                self.logger.error(f"Failed to load original method {m}: {e}")
+                continue
+
+            try:
+                new = bw.Method(new_key)
+                # Copy minimal metadata if available
+                meta = getattr(orig, "metadata", {}) or {}
+                unit = meta.get("unit")
+                desc = meta.get("description") or "Custom ReCiPe with biogenic CO2 treated as fossil"
+                # Register (unit/description are optional kwargs in Brightway)
+                if unit:
+                    new.register(unit=unit, description=desc)
+                else:
+                    new.register(description=desc)
+                # Write original CFs first (as an exact clone)
+                new.write(cfs)
+                self.logger.info(f"Created custom method: {new_key}")
+            except Exception as e:
+                self.logger.error(f"Failed to register/write custom method {new_key}: {e}")
+                continue
+
+            # --- Patch: set biogenic CF == fossil CF (if both present) ---
+            try:
+                # Find fossil CF in this method’s CFs
+                fossil_cf = None
+                for row in cfs:
+                    fk, val, *rest = row
+                    if fk in fossil_keys:
+                        fossil_cf = val
+                        break
+
+                if fossil_cf is not None and biogenic_keys:
+                    patched = []
+                    changed = 0
+                    for row in cfs:
+                        fk, val, *rest = row
+                        if fk in biogenic_keys and val != fossil_cf:
+                            patched.append((fk, fossil_cf, *rest))
+                            changed += 1
+                        else:
+                            patched.append(row)
+                    new.write(patched)  # overwrite with patched CF set
+                    self.logger.info(f"Patched {changed} biogenic CFs in {new_key} to fossil CF={fossil_cf}.")
+                else:
+                    self.logger.warning(f"{new_key}: fossil CF not found or no biogenic flow; left unpatched.")
+            except Exception as e:
+                self.logger.error(f"Patching failed for {new_key}: {e}")
+
+            custom_methods.append(new_key)
+
+        return custom_methods
+
+
 

@@ -4,7 +4,7 @@ import pickle
 import sys
 import pandas as pd
 import coloredlogs
-from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog
+from PyQt5.QtWidgets import QTabWidget, QApplication, QMainWindow, QAction, QFileDialog, QDialog
 from pyparsing import empty
 from outdoor.user_interface.data.CentralDataManager import CentralDataManager
 from outdoor.user_interface.data.SignalManager import SignalManager
@@ -24,6 +24,7 @@ from outdoor.user_interface.tabs.ProjectDescriptionTab import ProjectDescription
 from outdoor.user_interface.tabs.UncertaintyTab import UncertaintyTab
 from outdoor.user_interface.utils.OutdoorLogger import outdoorLogger
 from outdoor.user_interface.data.ProcessDTO import ProcessType
+from outdoor.user_interface.dialogs.MethodLCADialog import MethodologyDialog
 
 import logging
 
@@ -310,6 +311,19 @@ class MainWindow(QMainWindow):  # Inherit from QMainWindow
         Instead of manually calculating LCAs as you model them, this does it all at once.
         :return:
         """
+        # create a dialog widget so that we can extract the methodology we want to use to calculate the CF
+        dialog = MethodologyDialog(self.centralDataManager)
+        if dialog.exec_() != QDialog.Accepted:
+            return  # user cancelled
+
+        LCAmethod = self.centralDataManager.methodSelectionLCA
+        if LCAmethod:
+            self.logger.info("The selected methodology is: {}".format(LCAmethod))
+        else:
+            self.logger.error("Error with error selection. terminating caculations")
+            return # cancelled
+
+        # perform the calculations
         calculator = LCACalculationMachine(self.centralDataManager)
         calculator.calculateAllLCAs(False)
 

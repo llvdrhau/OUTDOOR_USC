@@ -85,7 +85,8 @@ def check_project_database(projectName):
 if __name__ == "__main__":
     # Add freeze_support for Windows
     multiprocessing.freeze_support()
-    import_ecoinvent(projectName='test_project')
+    import_ecoinvent(projectName='outdoor')
+
     # Check the project database
     check_project_database(projectName='outdoor')
 

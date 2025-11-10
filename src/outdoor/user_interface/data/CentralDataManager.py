@@ -49,6 +49,7 @@ class CentralDataManager:
         self.uncertaintyData: list[UncertaintyDTO] = []
         self.sensitivityData: list[SensitivityDTO] = []
         self.BWPROJECTNAME = "superstructure"  # this needs to be changed in the configs or something because it's actual satan.
+        self.methodSelectionLCA: str = ""
 
     def addData(self, field:str, data):
         """

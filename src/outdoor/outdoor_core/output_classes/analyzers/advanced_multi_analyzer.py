@@ -1270,6 +1270,15 @@ class AdvancedMultiModelAnalyzer(BasicModelAnalyzer):
         # Plot Pareto line
         if len(x_pareto) and len(y_pareto):
             plt.plot(x_pareto, y_pareto, color='black', linewidth=1.2)
+            print('\033[91m' +
+                  'Pareto bounds were found'
+                  + '\033[0m')
+            print(x_pareto)
+
+        else:
+            print('\033[91m' +
+                  'No Pareto bounds were found'
+                  + '\033[0m')
 
         # Set tick label sizes
         plt.xticks(fontsize=14)
